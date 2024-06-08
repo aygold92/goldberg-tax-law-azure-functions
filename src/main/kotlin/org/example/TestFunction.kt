@@ -7,7 +7,7 @@ import com.microsoft.azure.functions.annotation.*
 /**
  * Azure Functions with HTTP Trigger.
  */
-class Function {
+class TestFunction {
 
     /**
      * This function listens at endpoint "/api/HttpTrigger-Java". Two ways to invoke it using "curl" command in bash:

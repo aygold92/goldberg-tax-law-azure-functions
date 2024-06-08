@@ -13,7 +13,7 @@ import kotlin.collections.HashMap
 /**
  * Unit test for Function class.
  */
-class FunctionTest {
+class TestFunctionTest {
 
     inline fun <reified T : Any> mock() = Mockito.mock(T::class.java)
 
@@ -38,7 +38,7 @@ class FunctionTest {
         doReturn(Logger.getGlobal()).`when`(context).logger
 
         // Invoke
-        val ret = Function().run(req, context)
+        val ret = TestFunction().run(req, context)
 
         // Verify
         assertEquals(ret.status, HttpStatus.OK)
