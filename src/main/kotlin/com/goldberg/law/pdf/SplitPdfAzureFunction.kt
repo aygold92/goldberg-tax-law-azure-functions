@@ -1,15 +1,11 @@
 package com.goldberg.law.pdf
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.goldberg.law.pdf.model.SplitPdfRequest
 import com.microsoft.azure.functions.*
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
-import org.apache.pdfbox.Loader
-import org.apache.pdfbox.pdmodel.PDDocument
-import java.io.File
-import java.nio.file.Files
-import java.nio.file.Path
 import java.util.*
 
 class SplitPdfAzureFunction {
@@ -21,9 +17,7 @@ class SplitPdfAzureFunction {
     ): HttpResponseMessage {
         val req = OBJECT_MAPPER.readValue(request.body.orElseThrow(), SplitPdfRequest::class.java)
 
-        val document = PDF_SPLITTER.splitPdf(req)
-
-        // TODO: put it into Storage or something
+        //val document = PDF_SPLITTER.splitPdf(req)
 
         return request.createResponseBuilder(HttpStatus.OK)
             .body("Document processed and data stored successfully.")
@@ -31,6 +25,6 @@ class SplitPdfAzureFunction {
     }
     companion object {
         private val OBJECT_MAPPER = ObjectMapper()
-        private val PDF_SPLITTER = PDFSplitter()
+        private val PDF_SPLITTER = PdfSplitter()
     }
 }
