@@ -1,0 +1,304 @@
+{
+  "docType": "BankCreditCardExtractor_V4",
+  "fields":
+  {
+    "BatesStamp":
+    {
+      "value": null,
+      "type": "string",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.142
+    },
+    "TransactionTableCredits":
+    {
+      "value":
+      [
+        {
+          "value":
+          {
+            "Additions":
+            {
+              "value": 1000.0,
+              "type": "number",
+              "content": "1,000.00"
+            },
+            "Description":
+            {
+              "value": "Deposit",
+              "type": "string",
+              "content": "Deposit"
+            },
+            "Date":
+            {
+              "value": "05-23",
+              "type": "string",
+              "content": "05-23"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.383
+        },
+        {
+          "value":
+          {
+            "Additions":
+            {
+              "value": 2200.0,
+              "type": "number",
+              "content": "2,200.00"
+            },
+            "Description":
+            {
+              "value": "Deposit",
+              "type": "string",
+              "content": "Deposit"
+            },
+            "Date":
+            {
+              "value": "06-06",
+              "type": "string",
+              "content": "06-06"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.438
+        }
+      ],
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.83
+    },
+    "ChecksTable":
+    {
+      "value": null,
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.961
+    },
+    "EndingBalance":
+    {
+      "value": null,
+      "type": "number",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.923
+    },
+    "Page":
+    {
+      "value": "2",
+      "type": "string",
+      "content": "2"
+    },
+    "TotalPages":
+    {
+      "value": "2",
+      "type": "string",
+      "content": "2"
+    },
+    "TransactionTableAmount":
+    {
+      "value": null,
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.583
+    },
+    "StatementDate":
+    {
+      "value": "June 15, 2019",
+      "type": "string",
+      "content": "June 15, 2019"
+    },
+    "FeesCharged":
+    {
+      "value": null,
+      "type": "number",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.894
+    },
+    "AccountNumber":
+    {
+      "value": "0100002492",
+      "type": "string",
+      "content": "0100002492"
+    },
+    "Page/Total":
+    {
+      "value": null,
+      "type": "string",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.956
+    },
+    "InterestCharged":
+    {
+      "value": null,
+      "type": "number",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.891
+    },
+    "TransactionTableDepositWithdrawal":
+    {
+      "value": null,
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.201
+    },
+    "TransactionTableCreditsCharges":
+    {
+      "value": null,
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.917
+    },
+    "SummaryOfAccounts":
+    {
+      "value": null,
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.987
+    },
+    "BankIdentifier":
+    {
+      "value": null,
+      "type": "string",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.586
+    },
+    "TransactionTableDebits":
+    {
+      "value":
+      [
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "' ATM Withdrawal CASH WITHDRAWAL TERMINAL T9752019 12505 PARK POTOMAC AVE POTOMAC MD 06-05-19 1:56 PM XXXXXXXXXXXX6557",
+              "type": "string",
+              "content": "' ATM Withdrawal CASH WITHDRAWAL TERMINAL T9752019 12505 PARK POTOMAC AVE POTOMAC MD 06-05-19 1:56 PM XXXXXXXXXXXX6557"
+            },
+            "Subtractions":
+            {
+              "value": 300.0,
+              "type": "number",
+              "content": "300.00"
+            },
+            "Date":
+            {
+              "value": null,
+              "type": "string",
+              "content": null,
+              "boundingRegions": null,
+              "spans": null,
+              "confidence": 0.753
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.201
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "'ATM Withdrawal CASH WITHDRAWAL TERMINAL P375574 2511 FIRE ROAD STE A12 EHT NJ 06-07-19 2:29 PM XXXXXXXXXXXX6557",
+              "type": "string",
+              "content": "'ATM Withdrawal CASH WITHDRAWAL TERMINAL P375574 2511 FIRE ROAD STE A12 EHT NJ 06-07-19 2:29 PM XXXXXXXXXXXX6557"
+            },
+            "Subtractions":
+            {
+              "value": 200.0,
+              "type": "number",
+              "content": "200.00"
+            },
+            "Date":
+            {
+              "value": "06-07",
+              "type": "string",
+              "content": "06-07"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.194
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "' ATM Surcharge SURCHARGE AMOUNT TERMINAL P375574 2511 FIRE ROAD STE A12 EHT NJ 06-07-19 2:29 PM XXXXXXXXXXXX6557",
+              "type": "string",
+              "content": "' ATM Surcharge SURCHARGE AMOUNT TERMINAL P375574 2511 FIRE ROAD STE A12 EHT NJ 06-07-19 2:29 PM XXXXXXXXXXXX6557"
+            },
+            "Subtractions":
+            {
+              "value": 3.950000047683716,
+              "type": "number",
+              "content": "3.95"
+            },
+            "Date":
+            {
+              "value": "06-07",
+              "type": "string",
+              "content": "06-07"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.236
+        }
+      ],
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.055
+    },
+    "BeginningBalance":
+    {
+      "value": null,
+      "type": "number",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.923
+    }
+  },
+  "confidence": 0.573
+}

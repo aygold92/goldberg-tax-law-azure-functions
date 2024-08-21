@@ -1,0 +1,148 @@
+{
+  "docType": "BankVerified_V2",
+  "fields":
+  {
+    "TotalPages":
+    {
+      "value": "6",
+      "type": "string",
+      "content": "6",
+      "confidence": 0.761
+    },
+    "BatesStamp":
+    {
+      "value": "MH-000417",
+      "type": "string",
+      "content": "MH-000417",
+      "confidence": 0.96
+    },
+    "AccountNumber":
+    {
+      "value": "9859884372",
+      "type": "string",
+      "content": "9859884372",
+      "confidence": 0.952
+    },
+    "TransactionTableDepositWithdrawal":
+    {
+      "value":
+      [
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "0.39",
+              "type": "string",
+              "content": "0.39",
+              "confidence": 0.84
+            },
+            "Deposits/ Additions":
+            {
+              "value": null,
+              "type": "number",
+              "content": null,
+              "boundingRegions": null,
+              "spans": null,
+              "confidence": 0.984
+            },
+            "Check Number":
+            {
+              "value": null,
+              "type": "integer",
+              "content": "Interest Payment",
+              "confidence": 0.606
+            },
+            "Date":
+            {
+              "value": "4/7",
+              "type": "string",
+              "content": "4/7",
+              "confidence": 0.977
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "value": 201684.515625,
+              "type": "number",
+              "content": "201,684.52",
+              "confidence": 0.94
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.896
+        }
+      ],
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.891
+    },
+    "Address":
+    {
+      "value": null,
+      "type": "string",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.947
+    },
+    "Page":
+    {
+      "value": "5",
+      "type": "string",
+      "content": "5",
+      "confidence": 0.765
+    },
+    "EndingBalance_Table":
+    {
+      "value": 201684.515625,
+      "type": "number",
+      "content": "201,684.52",
+      "confidence": 0.957
+    },
+    "Name":
+    {
+      "value": null,
+      "type": "string",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.923
+    },
+    "StatementDate":
+    {
+      "value": "April 7, 2022",
+      "type": "string",
+      "content": "April 7, 2022",
+      "confidence": 0.964
+    },
+    "BeginningBalance":
+    {
+      "value": 201684.125,
+      "type": "number",
+      "content": "$201,684.13",
+      "confidence": 0.954
+    },
+    "SummaryOfAccounts":
+    {
+      "value": null,
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.985
+    },
+    "EndingBalance":
+    {
+      "value": 201684.515625,
+      "type": "number",
+      "content": "$201,684.52",
+      "confidence": 0.954
+    }
+  },
+  "confidence": 0.964
+}

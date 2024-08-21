@@ -1,0 +1,1150 @@
+{
+  "docType": "BankCreditCardExtractor_V3",
+  "fields":
+  {
+    "BatesStamp":
+    {
+      "value": "MH-001195",
+      "type": "string",
+      "content": "MH-001195"
+    },
+    "FeesCharged":
+    {
+      "value": 0.0,
+      "type": "number",
+      "content": "$0.00"
+    },
+    "InterestCharged":
+    {
+      "value": null,
+      "type": "number",
+      "content": null
+    },
+    "TotalPages":
+    {
+      "value": "4",
+      "type": "string",
+      "content": "4"
+    },
+    "TransactionTableAmount":
+    {
+      "value":
+      [
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "ONLINE PAYMENT, THANK YOU",
+              "type": "string",
+              "content": "ONLINE PAYMENT, THANK YOU"
+            },
+            "Amount":
+            {
+              "value": -1881.40,
+              "type": "string",
+              "content": "-$1,881.40"
+            },
+            "Date":
+            {
+              "value": "10/12",
+              "type": "string",
+              "content": "10/12"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "ONLINE PAYMENT, THANK YOU",
+              "type": "string",
+              "content": "ONLINE PAYMENT, THANK YOU"
+            },
+            "Amount":
+            {
+              "value": -3928.60,
+              "type": "string",
+              "content": "-$3,928.60"
+            },
+            "Date":
+            {
+              "value": "10/14",
+              "type": "string",
+              "content": "10/14"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "ONLINE PAYMENT, THANK YOU",
+              "type": "string",
+              "content": "ONLINE PAYMENT, THANK YOU"
+            },
+            "Amount":
+            {
+              "value": 2993.32,
+              "type": "string",
+              "content": "$2,993.32"
+            },
+            "Date":
+            {
+              "value": "10/28",
+              "type": "string",
+              "content": "10/28"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": ".THE HOME DEPOT #2509 BETHESDA MD",
+              "type": "string",
+              "content": ".THE HOME DEPOT #2509 BETHESDA MD"
+            },
+            "Amount":
+            {
+              "value": 44.49,
+              "type": "string",
+              "content": "$44.49"
+            },
+            "Date":
+            {
+              "value": "10/05",
+              "type": "string",
+              "content": "10/05"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "THE HOME DEPOT #2509 BETHESDA MD",
+              "type": "string",
+              "content": "THE HOME DEPOT #2509 BETHESDA MD"
+            },
+            "Amount":
+            {
+              "value": -55.63,
+              "type": "string",
+              "content": "-$55.63"
+            },
+            "Date":
+            {
+              "value": "10/05",
+              "type": "string",
+              "content": "10/05"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "THE HOME DEPOT 2509 BETHESDA MD",
+              "type": "string",
+              "content": "THE HOME DEPOT 2509 BETHESDA MD"
+            },
+            "Amount":
+            {
+              "value": -210.94,
+              "type": "string",
+              "content": "-$210.94"
+            },
+            "Date":
+            {
+              "value": "10/06",
+              "type": "string",
+              "content": "10/06"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "THE HOME DEPOT #2509 BETHESDA MD.",
+              "type": "string",
+              "content": "THE HOME DEPOT #2509 BETHESDA MD."
+            },
+            "Amount":
+            {
+              "value": 161.64,
+              "type": "string",
+              "content": "$161.64"
+            },
+            "Date":
+            {
+              "value": "10/11",
+              "type": "string",
+              "content": "10/11"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "FLOOR AND DECOR 166 GAITHERSBURG MD",
+              "type": "string",
+              "content": "FLOOR AND DECOR 166 GAITHERSBURG MD"
+            },
+            "Amount":
+            {
+              "value": -47.61,
+              "type": "string",
+              "content": "-$47.61"
+            },
+            "Date":
+            {
+              "value": "10/12.",
+              "type": "string",
+              "content": "10/12."
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "WALMART.COM AA 800-966-6546 AR",
+              "type": "string",
+              "content": "WALMART.COM AA 800-966-6546 AR"
+            },
+            "Amount":
+            {
+              "value": -155.66,
+              "type": "string",
+              "content": "-$155.66"
+            },
+            "Date":
+            {
+              "value": ".10/13",
+              "type": "string",
+              "content": ".10/13"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "THE HOME DEPOT #2550 GAITHERSBURG MD",
+              "type": "string",
+              "content": "THE HOME DEPOT #2550 GAITHERSBURG MD"
+            },
+            "Amount":
+            {
+              "value": 14.29,
+              "type": "string",
+              "content": "$14.29"
+            },
+            "Date":
+            {
+              "value": ".10/13",
+              "type": "string",
+              "content": ".10/13"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "THE HOME DEPOT #2509 BETHESDA MD",
+              "type": "string",
+              "content": "THE HOME DEPOT #2509 BETHESDA MD"
+            },
+            "Amount":
+            {
+              "value": -15.90,
+              "type": "string",
+              "content": "-$15.90"
+            },
+            "Date":
+            {
+              "value": "10/14",
+              "type": "string",
+              "content": "10/14"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "TW PERRY- SILVER SPRIN GAITHERSBURG MD",
+              "type": "string",
+              "content": "TW PERRY- SILVER SPRIN GAITHERSBURG MD"
+            },
+            "Amount":
+            {
+              "value": -116.79,
+              "type": "string",
+              "content": "-$116.79"
+            },
+            "Date":
+            {
+              "value": "10/19",
+              "type": "string",
+              "content": "10/19"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "THE HOME DEPOT 2550 GAITHERSBURG MD",
+              "type": "string",
+              "content": "THE HOME DEPOT 2550 GAITHERSBURG MD"
+            },
+            "Amount":
+            {
+              "value": -89.90,
+              "type": "string",
+              "content": "-$89.90"
+            },
+            "Date":
+            {
+              "value": "10/21",
+              "type": "string",
+              "content": "10/21"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "THE HOME DEPOT #2509 BETHESDA MD",
+              "type": "string",
+              "content": "THE HOME DEPOT #2509 BETHESDA MD"
+            },
+            "Amount":
+            {
+              "value": -156.29,
+              "type": "string",
+              "content": "-$156.29"
+            },
+            "Date":
+            {
+              "value": "10/27",
+              "type": "string",
+              "content": "10/27"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "FLOOR AND DECOR 166 GAITHERSBURG MD",
+              "type": "string",
+              "content": "FLOOR AND DECOR 166 GAITHERSBURG MD"
+            },
+            "Amount":
+            {
+              "value": 42.32,
+              "type": "string",
+              "content": "$42.32"
+            },
+            "Date":
+            {
+              "value": "10/05",
+              "type": "string",
+              "content": "10/05"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "DC *GOV'T PAYMENT 202-442-4423 DC",
+              "type": "string",
+              "content": "DC *GOV'T PAYMENT 202-442-4423 DC"
+            },
+            "Amount":
+            {
+              "value": 451.55,
+              "type": "string",
+              "content": "$451.55"
+            },
+            "Date":
+            {
+              "value": "10/05",
+              "type": "string",
+              "content": "10/05"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "WALMART.COM AA 800-966-6546 AR",
+              "type": "string",
+              "content": "WALMART.COM AA 800-966-6546 AR"
+            },
+            "Amount":
+            {
+              "value": 155.66,
+              "type": "string",
+              "content": "$155.66"
+            },
+            "Date":
+            {
+              "value": "10/05",
+              "type": "string",
+              "content": "10/05"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "THE HOME DEPOT #2550 GAITHERSBURG MD.",
+              "type": "string",
+              "content": "THE HOME DEPOT #2550 GAITHERSBURG MD."
+            },
+            "Amount":
+            {
+              "value": 55.63,
+              "type": "string",
+              "content": "$55.63"
+            },
+            "Date":
+            {
+              "value": "10/05",
+              "type": "string",
+              "content": "10/05"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "THE HOME DEPOT #2509 BETHESDA MD",
+              "type": "string",
+              "content": "THE HOME DEPOT #2509 BETHESDA MD"
+            },
+            "Amount":
+            {
+              "value": 63.48,
+              "type": "string",
+              "content": "$63.48"
+            },
+            "Date":
+            {
+              "value": "10/05",
+              "type": "string",
+              "content": "10/05"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "Subway 22679 Washington DC",
+              "type": "string",
+              "content": "Subway 22679 Washington DC"
+            },
+            "Amount":
+            {
+              "value": 9.67,
+              "type": "string",
+              "content": "$9.67"
+            },
+            "Date":
+            {
+              "value": "10/06",
+              "type": "string",
+              "content": "10/06"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "FLOOR AND DECOR 166 GAITHERSBURG MD",
+              "type": "string",
+              "content": "FLOOR AND DECOR 166 GAITHERSBURG MD"
+            },
+            "Amount":
+            {
+              "value": 26.45,
+              "type": "string",
+              "content": "$26.45"
+            },
+            "Date":
+            {
+              "value": "10/06",
+              "type": "string",
+              "content": "10/06"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "FLOOR AND DECOR 166 GAITHERSBURG MD",
+              "type": "string",
+              "content": "FLOOR AND DECOR 166 GAITHERSBURG MD"
+            },
+            "Amount":
+            {
+              "value": 31.63,
+              "type": "string",
+              "content": "$31.63"
+            },
+            "Date":
+            {
+              "value": "10/07",
+              "type": "string",
+              "content": "10/07"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "STROSNIDERS HARDWARE KENSINGTON MD",
+              "type": "string",
+              "content": "STROSNIDERS HARDWARE KENSINGTON MD"
+            },
+            "Amount":
+            {
+              "value": 4.27,
+              "type": "string",
+              "content": "$4.27"
+            },
+            "Date":
+            {
+              "value": "10/08",
+              "type": "string",
+              "content": "10/08"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "SHELL OIL 10009244004 KENSINGTON MD",
+              "type": "string",
+              "content": "SHELL OIL 10009244004 KENSINGTON MD"
+            },
+            "Amount":
+            {
+              "value": 87.41,
+              "type": "string",
+              "content": "$87.41"
+            },
+            "Date":
+            {
+              "value": "10/09",
+              "type": "string",
+              "content": "10/09"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "Subway 22679 Washington DC:",
+              "type": "string",
+              "content": "Subway 22679 Washington DC:"
+            },
+            "Amount":
+            {
+              "value": 9.67,
+              "type": "string",
+              "content": "$9.67"
+            },
+            "Date":
+            {
+              "value": "10/11",
+              "type": "string",
+              "content": "10/11"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "SP * IRONSUPPORTS.COM SHEBOYGAN WI",
+              "type": "string",
+              "content": "SP * IRONSUPPORTS.COM SHEBOYGAN WI"
+            },
+            "Amount":
+            {
+              "value": 109.44,
+              "type": "string",
+              "content": "$109.44"
+            },
+            "Date":
+            {
+              "value": "10/11",
+              "type": "string",
+              "content": "10/11"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "THE HOME DEPOT #2509 BETHESDA MD",
+              "type": "string",
+              "content": "THE HOME DEPOT #2509 BETHESDA MD"
+            },
+            "Amount":
+            {
+              "value": 3928.60,
+              "type": "string",
+              "content": "$3,928.60"
+            },
+            "Date":
+            {
+              "value": "10/11",
+              "type": "string",
+              "content": "10/11"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "TW. PERRY - SILVER SPRIN GAITHERSBURG MD",
+              "type": "string",
+              "content": "TW. PERRY - SILVER SPRIN GAITHERSBURG MD"
+            },
+            "Amount":
+            {
+              "value": 116.79,
+              "type": "string",
+              "content": "$116.79"
+            },
+            "Date":
+            {
+              "value": "10/12",
+              "type": "string",
+              "content": "10/12"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "THE HOME DEPOT #2558 ASPEN HILL MD",
+              "type": "string",
+              "content": "THE HOME DEPOT #2558 ASPEN HILL MD"
+            },
+            "Amount":
+            {
+              "value": 180.76,
+              "type": "string",
+              "content": "$180.76"
+            },
+            "Date":
+            {
+              "value": "10/13",
+              "type": "string",
+              "content": "10/13"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "THE HOME DEPOT #2509 BETHESDA MD",
+              "type": "string",
+              "content": "THE HOME DEPOT #2509 BETHESDA MD"
+            },
+            "Amount":
+            {
+              "value": 196.84,
+              "type": "string",
+              "content": "$196.84"
+            },
+            "Date":
+            {
+              "value": "10/14",
+              "type": "string",
+              "content": "10/14"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "IN *AAH CONSULTANTS LL 301-4291750 ·MD",
+              "type": "string",
+              "content": "IN *AAH CONSULTANTS LL 301-4291750 ·MD"
+            },
+            "Amount":
+            {
+              "value": 900.00,
+              "type": "string",
+              "content": "$900.00"
+            },
+            "Date":
+            {
+              "value": "10/15",
+              "type": "string",
+              "content": "10/15"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "THE HOME DEPOT 2509 BETHESDA MD",
+              "type": "string",
+              "content": "THE HOME DEPOT 2509 BETHESDA MD"
+            },
+            "Amount":
+            {
+              "value": 212.41,
+              "type": "string",
+              "content": "$212.41"
+            },
+            "Date":
+            {
+              "value": "10/19",
+              "type": "string",
+              "content": "10/19"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "THE HOME DEPOT #2550 GAITHERSBURG MD",
+              "type": "string",
+              "content": "THE HOME DEPOT #2550 GAITHERSBURG MD"
+            },
+            "Amount":
+            {
+              "value": 136.67,
+              "type": "string",
+              "content": "$136.67"
+            },
+            "Date":
+            {
+              "value": "10/20",
+              "type": "string",
+              "content": "10/20"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "THE HOME DEPOT 2550 GAITHERSBURG MD",
+              "type": "string",
+              "content": "THE HOME DEPOT 2550 GAITHERSBURG MD"
+            },
+            "Amount":
+            {
+              "value": 91.36,
+              "type": "string",
+              "content": "$91.36"
+            },
+            "Date":
+            {
+              "value": "10/21",
+              "type": "string",
+              "content": "10/21"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "THE HOME DEPOT 2558 ASPEN HILL MD",
+              "type": "string",
+              "content": "THE HOME DEPOT 2558 ASPEN HILL MD"
+            },
+            "Amount":
+            {
+              "value": 223.43,
+              "type": "string",
+              "content": "$223.43"
+            },
+            "Date":
+            {
+              "value": "10/21",
+              "type": "string",
+              "content": "10/21"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "FERGUSON ENT #587 3015896662 MD",
+              "type": "string",
+              "content": "FERGUSON ENT #587 3015896662 MD"
+            },
+            "Amount":
+            {
+              "value": 35.26,
+              "type": "string",
+              "content": "$35.26"
+            },
+            "Date":
+            {
+              "value": "10/22",
+              "type": "string",
+              "content": "10/22"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "THE HOME DEPOT 2509 BETHESDA MD",
+              "type": "string",
+              "content": "THE HOME DEPOT 2509 BETHESDA MD"
+            },
+            "Amount":
+            {
+              "value": 598.35,
+              "type": "string",
+              "content": "$598.35"
+            },
+            "Date":
+            {
+              "value": "10/22",
+              "type": "string",
+              "content": "10/22"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "THE HOME DEPOT #2550 GAITHERSBURG MD",
+              "type": "string",
+              "content": "THE HOME DEPOT #2550 GAITHERSBURG MD"
+            },
+            "Amount":
+            {
+              "value": 52.56,
+              "type": "string",
+              "content": "$52.56"
+            },
+            "Date":
+            {
+              "value": "10/25",
+              "type": "string",
+              "content": "10/25"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "THE HOME DEPOT 2509 BETHESDA MD",
+              "type": "string",
+              "content": "THE HOME DEPOT 2509 BETHESDA MD"
+            },
+            "Amount":
+            {
+              "value": 95.44,
+              "type": "string",
+              "content": "$95.44"
+            },
+            "Date":
+            {
+              "value": "10/25",
+              "type": "string",
+              "content": "10/25"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "FLOOR AND DECOR 177 ALEXANDRIA VA",
+              "type": "string",
+              "content": "FLOOR AND DECOR 177 ALEXANDRIA VA"
+            },
+            "Amount":
+            {
+              "value": 19.12,
+              "type": "string",
+              "content": "$19.12"
+            },
+            "Date":
+            {
+              "value": "10/26",
+              "type": "string",
+              "content": "10/26"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "TW PERRY- SILVER SPRIN GAITHERSBURG MD",
+              "type": "string",
+              "content": "TW PERRY- SILVER SPRIN GAITHERSBURG MD"
+            },
+            "Amount":
+            {
+              "value": 266.36,
+              "type": "string",
+              "content": "$266.36"
+            },
+            "Date":
+            {
+              "value": "10/27",
+              "type": "string",
+              "content": "10/27"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "THE HOME DEPOT #2550 GAITHERSBURG MD",
+              "type": "string",
+              "content": "THE HOME DEPOT #2550 GAITHERSBURG MD"
+            },
+            "Amount":
+            {
+              "value": 58.27,
+              "type": "string",
+              "content": "$58.27"
+            },
+            "Date":
+            {
+              "value": "10/27",
+              "type": "string",
+              "content": "10/27"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "MCG DEP TRANSFER STATI DERWOOD MD",
+              "type": "string",
+              "content": "MCG DEP TRANSFER STATI DERWOOD MD"
+            },
+            "Amount":
+            {
+              "value": 21.28,
+              "type": "string",
+              "content": "$21.28"
+            },
+            "Date":
+            {
+              "value": "10/28",
+              "type": "string",
+              "content": "10/28"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "THE HOME DEPOT #2550 GAITHERSBURG MD",
+              "type": "string",
+              "content": "THE HOME DEPOT #2550 GAITHERSBURG MD"
+            },
+            "Amount":
+            {
+              "value": 1459.79,
+              "type": "string",
+              "content": "$1,459.79"
+            },
+            "Date":
+            {
+              "value": "10/29",
+              "type": "string",
+              "content": "10/29"
+            }
+          },
+          "type": "object",
+          "content": null
+        }
+      ],
+      "type": "array",
+      "content": null
+    },
+    "TransactionTableDepositWithdrawal":
+    {
+      "value": null,
+      "type": "array",
+      "content": null
+    },
+    "StatementDate":
+    {
+      "value": null,
+      "type": "string",
+      "content": null
+    }
+  }
+}

@@ -20,7 +20,13 @@ repositories {
 dependencies {
     // kotlin
     implementation(kotlin("stdlib"))
+    // guice
     implementation("com.google.inject:guice:7.0.0")
+    // logging
+    implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.23.1") // Log4j SLF4J binding
+    implementation("org.apache.logging.log4j:log4j-core:2.23.1")
+    implementation("org.apache.logging.log4j:log4j-api:2.23.1")
+    implementation("io.github.oshai:kotlin-logging-jvm:7.0.0") // Kotlin-friendly logging wrapper
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
@@ -70,17 +76,19 @@ application {
     )
 }
 
-//tasks.register<JavaExec>("analyzeDocument") {
-//    group = "application"
-//    description = "Runs the A program"
-//    classpath = sourceSets["main"].runtimeClasspath
-//    mainClass = "com.goldberg.law.document.DocumentMain"
-//    if (project.hasProperty("debug")) {
-//        jvmArgs = listOf(
-//            "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5050"
-//        )
-//    }
-//}
+tasks.register<JavaExec>("splitPdf") {
+    group = "application"
+    description = "splits a PDF"
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass = "com.goldberg.law.PdfSplitterMain"
+    args = project.findProperty("args")?.toString()?.split(" ") ?: listOf()
+    val suspend = if (project.findProperty("debug")?.toString()?.toBoolean() == true) "y" else "n"
+    println("Value of suspend is: $suspend.  Properties: ${project.properties}")
+    jvmArgs = listOf(
+        "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5050"
+    )
+    workingDir = projectDir
+}
 
 tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.

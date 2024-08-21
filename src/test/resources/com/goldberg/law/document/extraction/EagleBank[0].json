@@ -1,0 +1,294 @@
+{
+  "docType": "BankCreditCardExtractor_V4",
+  "fields":
+  {
+    "BatesStamp":
+    {
+      "value": "MH-000125",
+      "type": "string",
+      "content": "MH-000125"
+    },
+    "TransactionTableCredits":
+    {
+      "value": null,
+      "type": "array",
+      "content": null
+    },
+    "EndingBalance":
+    {
+      "value": 4006.409912109375,
+      "type": "number",
+      "content": "$4,006.41"
+    },
+    "ChecksTable":
+    {
+      "value":
+      [
+        {
+          "value":
+          {
+            "Number":
+            {
+              "value": "3167",
+              "type": "string",
+              "content": "3167"
+            },
+            "Amount":
+            {
+              "value": "200.00",
+              "type": "string",
+              "content": "200.00"
+            },
+            "Date":
+            {
+              "value": "04-22",
+              "type": "string",
+              "content": "04-22"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Number":
+            {
+              "value": "3174",
+              "type": "string",
+              "content": "3174"
+            },
+            "Amount":
+            {
+              "value": "1,554.39",
+              "type": "string",
+              "content": "1,554.39"
+            },
+            "Date":
+            {
+              "value": "05-06",
+              "type": "string",
+              "content": "05-06"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Number":
+            {
+              "value": "3172 *",
+              "type": "string",
+              "content": "3172 *"
+            },
+            "Amount":
+            {
+              "value": "875.00",
+              "type": "string",
+              "content": "875.00"
+            },
+            "Date":
+            {
+              "value": "04-23",
+              "type": "string",
+              "content": "04-23"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Number":
+            {
+              "value": "3173",
+              "type": "string",
+              "content": "3173"
+            },
+            "Amount":
+            {
+              "value": "427.50",
+              "type": "string",
+              "content": "427.50"
+            },
+            "Date":
+            {
+              "value": "04-29",
+              "type": "string",
+              "content": "04-29"
+            }
+          },
+          "type": "object",
+          "content": null
+        }
+      ],
+      "type": "array",
+      "content": null
+    },
+    "Page":
+    {
+      "value": "1",
+      "type": "string",
+      "content": "1"
+    },
+    "TotalPages":
+    {
+      "value": "2",
+      "type": "string",
+      "content": "2"
+    },
+    "TransactionTableAmount":
+    {
+      "value": null,
+      "type": "array",
+      "content": null
+    },
+    "StatementDate":
+    {
+      "value": "May 15, 2019",
+      "type": "string",
+      "content": "May 15, 2019"
+    },
+    "FeesCharged":
+    {
+      "value": null,
+      "type": "number",
+      "content": null
+    },
+    "AccountNumber":
+    {
+      "value": "0100002492",
+      "type": "string",
+      "content": "0100002492"
+    },
+    "Page/Total":
+    {
+      "value": null,
+      "type": "string",
+      "content": null
+    },
+    "InterestCharged":
+    {
+      "value": null,
+      "type": "number",
+      "content": null
+    },
+    "TransactionTableDepositWithdrawal":
+    {
+      "value": null,
+      "type": "array",
+      "content": null
+    },
+    "TransactionTableCreditsCharges":
+    {
+      "value": null,
+      "type": "array",
+      "content": null
+    },
+    "SummaryOfAccounts":
+    {
+      "value": null,
+      "type": "array",
+      "content": null
+    },
+    "BankIdentifier":
+    {
+      "value": "EAGLEBANK",
+      "type": "string",
+      "content": "EAGLEBANK"
+    },
+    "TransactionTableDebits":
+    {
+      "value":
+      [
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "' Electronified Check CITICARD PAYMENT CHECK PYMT 190424 3171",
+              "type": "string",
+              "content": "' Electronified Check CITICARD PAYMENT CHECK PYMT 190424 3171"
+            },
+            "Subtractions":
+            {
+              "value": 1845.77001953125,
+              "type": "number",
+              "content": "1,845.77"
+            },
+            "Date":
+            {
+              "value": "04-24",
+              "type": "string",
+              "content": "04-24"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "ATM Withdrawal CASH WITHDRAWAL TERMINAL SA1326 M&T 11325 SEVEN LO POTOMAC MD 05-01-19 9:17 AM XXXXXXXXXXXX6557",
+              "type": "string",
+              "content": "ATM Withdrawal CASH WITHDRAWAL TERMINAL SA1326 M&T 11325 SEVEN LO POTOMAC MD 05-01-19 9:17 AM XXXXXXXXXXXX6557"
+            },
+            "Subtractions":
+            {
+              "value": 200.0,
+              "type": "number",
+              "content": "200.00"
+            },
+            "Date":
+            {
+              "value": "05-01",
+              "type": "string",
+              "content": "05-01"
+            }
+          },
+          "type": "object",
+          "content": null
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "' ATM Surcharge SURCHARGE AMOUNT TERMINAL SA1326 M&T 11325 SEVEN LO POTOMAC MD 05-01-19 9:17 AM XXXXXXXXXXXX6557",
+              "type": "string",
+              "content": "' ATM Surcharge SURCHARGE AMOUNT TERMINAL SA1326 M&T 11325 SEVEN LO POTOMAC MD 05-01-19 9:17 AM XXXXXXXXXXXX6557"
+            },
+            "Subtractions":
+            {
+              "value": 3.5,
+              "type": "number",
+              "content": "3.50"
+            },
+            "Date":
+            {
+              "value": "05-01",
+              "type": "string",
+              "content": "05-01"
+            }
+          },
+          "type": "object",
+          "content": null
+        }
+      ],
+      "type": "array",
+      "content": null
+    },
+    "BeginningBalance":
+    {
+      "value": 3675.469970703125,
+      "type": "number",
+      "content": "$3,675.47"
+    }
+  },
+  "confidence": 0.987
+}

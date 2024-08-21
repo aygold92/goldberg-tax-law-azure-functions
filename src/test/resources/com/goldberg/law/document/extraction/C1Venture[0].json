@@ -1,0 +1,115 @@
+{
+  "docType": "BankCreditCardExtractor_V3",
+  "fields":
+  {
+    "BatesStamp":
+    {
+      "value": "0059000059060007$201",
+      "type": "string",
+      "content": "0059000059060007$201"
+    },
+    "FeesCharged":
+    {
+      "value": 59.0,
+      "type": "number",
+      "content": "$59.00"
+    },
+    "InterestCharged":
+    {
+      "value": 0.0,
+      "type": "number",
+      "content": "$0.00"
+    },
+    "StatementDate_Start":
+    {
+      "value": "May 11, 2021",
+      "type": "string",
+      "content": "May 11, 2021"
+    },
+    "Page":
+    {
+      "value": "1",
+      "type": "string",
+      "content": "1"
+    },
+    "TotalPages":
+    {
+      "value": "2",
+      "type": "string",
+      "content": "2"
+    },
+    "TransactionTableAmount":
+    {
+      "value": null,
+      "type": "array",
+      "content": null
+    },
+    "StatementDate":
+    {
+      "value": "Jun 09, 2021",
+      "type": "string",
+      "content": "Jun 09, 2021"
+    },
+    "EndingBalance_Table":
+    {
+      "value": null,
+      "type": "number",
+      "content": null
+    },
+    "AccountNumber":
+    {
+      "value": "5695",
+      "type": "string",
+      "content": "5695"
+    },
+    "Page/Total":
+    {
+      "value": null,
+      "type": "string",
+      "content": null
+    },
+    "BeginningBalance":
+    {
+      "value": 0.0,
+      "type": "number",
+      "content": "$0.00"
+    },
+    "TransactionTableDepositWithdrawal":
+    {
+      "value": null,
+      "type": "array",
+      "content": null
+    },
+    "TransactionTableCreditsCharges":
+    {
+      "value": null,
+      "type": "array",
+      "content": null
+    },
+    "SummaryOfAccounts":
+    {
+      "value": null,
+      "type": "array",
+      "content": null
+    },
+    "BankIdentifier":
+    {
+      "value": "CapitalOne VENTURE",
+      "type": "string",
+      "content": "CapitalOne\nVENTURE"
+    },
+    "StatementDate_Start_End":
+    {
+      "value": null,
+      "type": "string",
+      "content": null
+    },
+    "EndingBalance":
+    {
+      "value": 59.0,
+      "type": "number",
+      "content": "$59.00"
+    }
+  },
+  "confidence": 0.915
+}

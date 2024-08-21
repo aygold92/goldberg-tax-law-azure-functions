@@ -1,0 +1,81 @@
+{
+  "fields":
+  {
+    "TotalPages":
+    {
+      "value": "4",
+      "type": "string",
+      "content": "4"
+    },
+    "BatesStamp":
+    {
+      "value": "MH-000403",
+      "type": "string",
+      "content": "MH-000403"
+    },
+    "AccountNumber":
+    {
+      "value": "1010086913443",
+      "type": "string",
+      "content": "1010086913443"
+    },
+    "TransactionTableDepositWithdrawal":
+    {
+      "value": null,
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null
+    },
+    "Address":
+    {
+      "value": "10135 CEDAR LN KENSINGTON MD 20895-3844",
+      "type": "string",
+      "content": "10135 CEDAR LN\nKENSINGTON MD 20895-3844"
+    },
+    "Page":
+    {
+      "value": "1",
+      "type": "string",
+      "content": "1"
+    },
+    "EndingBalance_Table":
+    {
+      "value": null,
+      "type": "number",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null
+    },
+    "Name":
+    {
+      "value": "ROBERT BERNARD HERMAN",
+      "type": "string",
+      "content": "ROBERT BERNARD HERMAN"
+    },
+    "StatementDate":
+    {
+      "value": "February 7, 2022",
+      "type": "string",
+      "content": "February 7, 2022"
+    },
+    "BeginningBalance":
+    {
+      "value": 10124.23046875,
+      "type": "number",
+      "content": "$10,124.23"
+    },
+    "SummaryOfAccounts":
+    {
+      "value": null,
+      "type": "array",
+      "content": null
+    },
+    "EndingBalance":
+    {
+      "value": 6390.77978515625,
+      "type": "number",
+      "content": "$6,390.78"
+    }
+  }
+}

@@ -1,0 +1,671 @@
+{
+  "docType": "BankVerified_V2",
+  "fields":
+  {
+    "TotalPages":
+    {
+      "value": "6",
+      "type": "string",
+      "content": "6",
+      "confidence": 0.788
+    },
+    "BatesStamp":
+    {
+      "value": "MH-000414",
+      "type": "string",
+      "content": "MH-000414",
+      "confidence": 0.96
+    },
+    "AccountNumber":
+    {
+      "value": "1010086913443",
+      "type": "string",
+      "content": "1010086913443",
+      "confidence": 0.952
+    },
+    "TransactionTableDepositWithdrawal":
+    {
+      "value":
+      [
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "Check",
+              "type": "string",
+              "content": "Check",
+              "confidence": 0.558
+            },
+            "Deposits/ Additions":
+            {
+              "value": null,
+              "type": "number",
+              "content": null,
+              "boundingRegions": null,
+              "spans": null,
+              "confidence": 0.987
+            },
+            "Check Number":
+            {
+              "value": 12087,
+              "type": "integer",
+              "content": "12087",
+              "confidence": 0.977
+            },
+            "Date":
+            {
+              "value": "3/9",
+              "type": "string",
+              "content": "3/9",
+              "confidence": 0.916
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "value": 930.0,
+              "type": "number",
+              "content": "930.00",
+              "confidence": 0.958
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.598
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "Check",
+              "type": "string",
+              "content": "Check",
+              "confidence": 0.537
+            },
+            "Deposits/ Additions":
+            {
+              "value": null,
+              "type": "number",
+              "content": null,
+              "boundingRegions": null,
+              "spans": null,
+              "confidence": 0.987
+            },
+            "Check Number":
+            {
+              "value": 12086,
+              "type": "integer",
+              "content": "12086",
+              "confidence": 0.974
+            },
+            "Date":
+            {
+              "value": "3/9",
+              "type": "string",
+              "content": "3/9",
+              "confidence": 0.96
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "value": 1457.0,
+              "type": "number",
+              "content": "1,457.00",
+              "confidence": 0.968
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.526
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "Check",
+              "type": "string",
+              "content": "Check",
+              "confidence": 0.439
+            },
+            "Deposits/ Additions":
+            {
+              "value": null,
+              "type": "number",
+              "content": null,
+              "boundingRegions": null,
+              "spans": null,
+              "confidence": 0.987
+            },
+            "Check Number":
+            {
+              "value": 12078,
+              "type": "integer",
+              "content": "12078",
+              "confidence": 0.969
+            },
+            "Date":
+            {
+              "value": "3/10",
+              "type": "string",
+              "content": "3/10",
+              "confidence": 0.976
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "value": 400.0,
+              "type": "number",
+              "content": "400.00",
+              "confidence": 0.975
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.651
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "S C Herman & Ass Ppe220306 Herm01 Robert Herman",
+              "type": "string",
+              "content": "S C Herman & Ass Ppe220306 Herm01 Robert Herman",
+              "confidence": 0.737
+            },
+            "Deposits/ Additions":
+            {
+              "value": 183.3800048828125,
+              "type": "number",
+              "content": "183.38",
+              "confidence": 0.974
+            },
+            "Check Number":
+            {
+              "value": null,
+              "type": "integer",
+              "content": null,
+              "boundingRegions": null,
+              "spans": null,
+              "confidence": 0.977
+            },
+            "Date":
+            {
+              "value": "3/11",
+              "type": "string",
+              "content": "3/11",
+              "confidence": 0.925
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "value": null,
+              "type": "number",
+              "content": null,
+              "boundingRegions": null,
+              "spans": null,
+              "confidence": 0.919
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.528
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "WT Fed#05582 Morgan Stanley and /Org=Robert B. Herman Sylvan C Herman CO Srf# S06207715Ea601 Trn#220318022868 Rfb#",
+              "type": "string",
+              "content": "WT Fed#05582 Morgan Stanley and /Org=Robert B. Herman Sylvan C Herman CO Srf# S06207715Ea601 Trn#220318022868 Rfb#",
+              "confidence": 0.749
+            },
+            "Deposits/ Additions":
+            {
+              "value": 20000.0,
+              "type": "number",
+              "content": "20,000.00",
+              "confidence": 0.978
+            },
+            "Check Number":
+            {
+              "value": null,
+              "type": "integer",
+              "content": null,
+              "boundingRegions": null,
+              "spans": null,
+              "confidence": 0.977
+            },
+            "Date":
+            {
+              "value": "3/18",
+              "type": "string",
+              "content": "3/18",
+              "confidence": 0.975
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "value": null,
+              "type": "number",
+              "content": null,
+              "boundingRegions": null,
+              "spans": null,
+              "confidence": 0.919
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.598
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "Wire Trans Svc Charge - Sequence: 220318022868 Srf# S06207715Ea601 Trn#220318022868 Rfb#",
+              "type": "string",
+              "content": "Wire Trans Svc Charge - Sequence: 220318022868 Srf# S06207715Ea601 Trn#220318022868 Rfb#",
+              "confidence": 0.852
+            },
+            "Deposits/ Additions":
+            {
+              "value": null,
+              "type": "number",
+              "content": null,
+              "boundingRegions": null,
+              "spans": null,
+              "confidence": 0.987
+            },
+            "Check Number":
+            {
+              "value": null,
+              "type": "integer",
+              "content": null,
+              "boundingRegions": null,
+              "spans": null,
+              "confidence": 0.977
+            },
+            "Date":
+            {
+              "value": "3/18",
+              "type": "string",
+              "content": "3/18",
+              "confidence": 0.95
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "value": 15.0,
+              "type": "number",
+              "content": "15.00",
+              "confidence": 0.896
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.527
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "Check",
+              "type": "string",
+              "content": "Check",
+              "confidence": 0.755
+            },
+            "Deposits/ Additions":
+            {
+              "value": null,
+              "type": "number",
+              "content": null,
+              "boundingRegions": null,
+              "spans": null,
+              "confidence": 0.987
+            },
+            "Check Number":
+            {
+              "value": 12088,
+              "type": "integer",
+              "content": "12088",
+              "confidence": 0.967
+            },
+            "Date":
+            {
+              "value": "3/21",
+              "type": "string",
+              "content": "3/21",
+              "confidence": 0.976
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "value": 930.0,
+              "type": "number",
+              "content": "930.00",
+              "confidence": 0.961
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.424
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "Check",
+              "type": "string",
+              "content": "Check",
+              "confidence": 0.595
+            },
+            "Deposits/ Additions":
+            {
+              "value": null,
+              "type": "number",
+              "content": null,
+              "boundingRegions": null,
+              "spans": null,
+              "confidence": 0.987
+            },
+            "Check Number":
+            {
+              "value": 12092,
+              "type": "integer",
+              "content": "12092",
+              "confidence": 0.978
+            },
+            "Date":
+            {
+              "value": "3/22",
+              "type": "string",
+              "content": "3/22",
+              "confidence": 0.977
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "value": 16275.4296875,
+              "type": "number",
+              "content": "16,275.43",
+              "confidence": 0.962
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.502
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "Check",
+              "type": "string",
+              "content": "Check",
+              "confidence": 0.536
+            },
+            "Deposits/ Additions":
+            {
+              "value": null,
+              "type": "number",
+              "content": null,
+              "boundingRegions": null,
+              "spans": null,
+              "confidence": 0.987
+            },
+            "Check Number":
+            {
+              "value": 12091,
+              "type": "integer",
+              "content": "12091",
+              "confidence": 0.978
+            },
+            "Date":
+            {
+              "value": "3/22",
+              "type": "string",
+              "content": "3/22",
+              "confidence": 0.949
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "value": 5414.72021484375,
+              "type": "number",
+              "content": "5,414.72",
+              "confidence": 0.974
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.506
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "Check",
+              "type": "string",
+              "content": "Check",
+              "confidence": 0.418
+            },
+            "Deposits/ Additions":
+            {
+              "value": null,
+              "type": "number",
+              "content": null,
+              "boundingRegions": null,
+              "spans": null,
+              "confidence": 0.987
+            },
+            "Check Number":
+            {
+              "value": 12089,
+              "type": "integer",
+              "content": "12089",
+              "confidence": 0.977
+            },
+            "Date":
+            {
+              "value": "3/24",
+              "type": "string",
+              "content": "3/24",
+              "confidence": 0.9
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "value": 336.6199951171875,
+              "type": "number",
+              "content": "336.62",
+              "confidence": 0.958
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.431
+        }
+      ],
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.426
+    },
+    "Address":
+    {
+      "value": null,
+      "type": "string",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.949
+    },
+    "Page":
+    {
+      "value": "2",
+      "type": "string",
+      "content": "2",
+      "confidence": 0.788
+    },
+    "EndingBalance_Table":
+    {
+      "value": null,
+      "type": "number",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.824
+    },
+    "Name":
+    {
+      "value": null,
+      "type": "string",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.924
+    },
+    "StatementDate":
+    {
+      "value": "April 7, 2022",
+      "type": "string",
+      "content": "April 7, 2022",
+      "confidence": 0.971
+    },
+    "BeginningBalance":
+    {
+      "value": 20698.0,
+      "type": "number",
+      "content": "$20,698.00",
+      "confidence": 0.955
+    },
+    "SummaryOfAccounts":
+    {
+      "value":
+      [
+        {
+          "value":
+          {
+            "Ending Balance":
+            {
+              "value": 11789.099609375,
+              "type": "number",
+              "content": "11,789.10",
+              "confidence": 0.974
+            },
+            "Account":
+            {
+              "value": "Crown Banking®",
+              "type": "string",
+              "content": "Crown Banking®",
+              "confidence": 0.948
+            },
+            "Account Number":
+            {
+              "value": "1010086913443",
+              "type": "string",
+              "content": "1010086913443",
+              "confidence": 0.972
+            },
+            "Start Page":
+            {
+              "value": 2,
+              "type": "integer",
+              "content": "2",
+              "confidence": 0.976
+            },
+            "Beginning Balance":
+            {
+              "value": 20698.0,
+              "type": "number",
+              "content": "20,698.00",
+              "confidence": 0.969
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.818
+        },
+        {
+          "value":
+          {
+            "Ending Balance":
+            {
+              "value": 201684.515625,
+              "type": "number",
+              "content": "201,684.52",
+              "confidence": 0.969
+            },
+            "Account":
+            {
+              "value": "Wells Fargo Platinum Savings",
+              "type": "string",
+              "content": "Wells Fargo Platinum Savings",
+              "confidence": 0.943
+            },
+            "Account Number":
+            {
+              "value": "9859884372",
+              "type": "string",
+              "content": "9859884372",
+              "confidence": 0.97
+            },
+            "Start Page":
+            {
+              "value": 5,
+              "type": "integer",
+              "content": "5",
+              "confidence": 0.974
+            },
+            "Beginning Balance":
+            {
+              "value": 201684.125,
+              "type": "number",
+              "content": "201,684.13",
+              "confidence": 0.968
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.802
+        }
+      ],
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.672
+    },
+    "EndingBalance":
+    {
+      "value": 11789.099609375,
+      "type": "number",
+      "content": "$11,789.10",
+      "confidence": 0.952
+    }
+  },
+  "confidence": 0.987
+}

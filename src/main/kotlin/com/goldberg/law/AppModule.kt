@@ -5,6 +5,7 @@ import com.azure.ai.formrecognizer.documentanalysis.DocumentAnalysisClientBuilde
 import com.azure.core.credential.AzureKeyCredential
 import com.goldberg.law.document.DocumentClassifier
 import com.goldberg.law.document.DocumentDataExtractor
+import com.goldberg.law.document.StatementSummaryCreator
 import com.goldberg.law.document.writer.AzureStorageCsvWriter
 import com.goldberg.law.document.writer.CsvWriter
 import com.goldberg.law.document.writer.FileCsvWriter
@@ -30,10 +31,10 @@ class AppModule constructor(private val appEnvironmentSettings: AppEnvironmentSe
 //    @Named("ClassifierModelId")
 //    fun provideClassifierModelId(): String = appEnvironmentSettings.intelligenceService.classifierModel
 
-    @Provides
-    @Singleton
-    @Named("CustomDataModelId")
-    fun provideCustomDataModelId(): String = appEnvironmentSettings.intelligenceService.dataExtractorModel
+//    @Provides
+//    @Singleton
+//    @Named("CustomDataModelId")
+//    fun provideCustomDataModelId(): String = appEnvironmentSettings.intelligenceService.dataExtractorModel
 
     @Provides
     @Singleton
@@ -69,6 +70,7 @@ class AppModule constructor(private val appEnvironmentSettings: AppEnvironmentSe
                          splitter: PdfSplitter,
                          classifier: DocumentClassifier,
                          dataExtractor: DocumentDataExtractor,
-                         csvWriter: CsvWriter
-    ) = PdfExtractorMain(pdfLoader, splitter, classifier, dataExtractor, csvWriter)
+                         csvWriter: CsvWriter,
+                         statementSummaryCreator: StatementSummaryCreator
+    ) = PdfExtractorMain(pdfLoader, splitter, classifier, dataExtractor, csvWriter, statementSummaryCreator)
 }

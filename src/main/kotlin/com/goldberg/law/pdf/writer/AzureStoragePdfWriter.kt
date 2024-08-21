@@ -1,9 +1,9 @@
 package com.goldberg.law.pdf.writer
 
-import org.apache.pdfbox.pdmodel.PDDocument
+import com.goldberg.law.pdf.model.PdfDocument
 
 class AzureStoragePdfWriter: PdfWriter() {
-    override fun writePdf(document: PDDocument, fileName: String) {
+    override fun writePdf(document: PdfDocument, outputDirectory: String) {
         TODO("Not yet implemented")
     }
 }

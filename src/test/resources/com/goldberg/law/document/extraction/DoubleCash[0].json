@@ -1,0 +1,108 @@
+{
+  "docType": "BankCreditCardExtractor_V3",
+  "fields":
+  {
+    "BatesStamp":
+    {
+      "value": "054241814368813582991193",
+      "type": "string",
+      "content": "054241814368813582991193"
+    },
+    "FeesCharged":
+    {
+      "value": 0.0,
+      "type": "number",
+      "content": "+$0.00"
+    },
+    "InterestCharged":
+    {
+      "value": 0.0,
+      "type": "number",
+      "content": "+$0.00"
+    },
+    "StatementDate_Start":
+    {
+      "value": null,
+      "type": "string",
+      "content": null
+    },
+    "TransactionTableAmount":
+    {
+      "value": null,
+      "type": "array",
+      "content": null
+    },
+    "Page":
+    {
+      "value": null,
+      "type": "string",
+      "content": null
+    },
+    "TotalPages":
+    {
+      "value": null,
+      "type": "string",
+      "content": null
+    },
+    "EndingBalance_Table":
+    {
+      "value": null,
+      "type": "number",
+      "content": null
+    },
+    "AccountNumber":
+    {
+      "value": "1358",
+      "type": "string",
+      "content": "1358"
+    },
+    "Page/Total":
+    {
+      "value": null,
+      "type": "string",
+      "content": null
+    },
+    "BeginningBalance":
+    {
+      "value": 1881.4000244140625,
+      "type": "number",
+      "content": "$1,881.40"
+    },
+    "TransactionTableDepositWithdrawal":
+    {
+      "value": null,
+      "type": "array",
+      "content": null
+    },
+    "TransactionTableCreditsCharges":
+    {
+      "value": null,
+      "type": "array",
+      "content": null
+    },
+    "SummaryOfAccounts":
+    {
+      "value": null,
+      "type": "array",
+      "content": null
+    },
+    "StatementDate":
+    {
+      "value": "10/05/21-11/02/21",
+      "type": "string",
+      "content": "10/05/21-11/02/21"
+    },
+    "BankIdentifier":
+    {
+      "value": "Citi® Double Cash Card",
+      "type": "string",
+      "content": "Citi® Double Cash Card"
+    },
+    "EndingBalance":
+    {
+      "value": 1649.4100341796875,
+      "type": "number",
+      "content": "$1,649.41"
+    }
+  }
+}

@@ -39,3 +39,11 @@ obj/
 
 # Ignore Gradle build output directory
 build
+
+# Test Files
+testInput
+testOutput
+Training Data
+realInput
+analyzeOutput
+

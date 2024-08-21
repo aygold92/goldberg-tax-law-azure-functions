@@ -1,0 +1,373 @@
+{
+  "docType": "BankCreditCardExtractor_V4",
+  "fields":
+  {
+    "BatesStamp":
+    {
+      "value": "MH-000128",
+      "type": "string",
+      "content": "MH-000128"
+    },
+    "TransactionTableCredits":
+    {
+      "value": null,
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.949
+    },
+    "EndingBalance":
+    {
+      "value": 3139.31005859375,
+      "type": "number",
+      "content": "$3,139.31"
+    },
+    "ChecksTable":
+    {
+      "value":
+      [
+        {
+          "value":
+          {
+            "Number":
+            {
+              "value": "3175",
+              "type": "string",
+              "content": "3175"
+            },
+            "Amount":
+            {
+              "value": "427.50",
+              "type": "string",
+              "content": "427.50"
+            },
+            "Date":
+            {
+              "value": "05-21",
+              "type": "string",
+              "content": "05-21"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.409
+        },
+        {
+          "value":
+          {
+            "Number":
+            {
+              "value": "3203",
+              "type": "string",
+              "content": "3203"
+            },
+            "Amount":
+            {
+              "value": "1,209.15",
+              "type": "string",
+              "content": "1,209.15"
+            },
+            "Date":
+            {
+              "value": "06-03",
+              "type": "string",
+              "content": "06-03"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.343
+        },
+        {
+          "value":
+          {
+            "Number":
+            {
+              "value": "3176",
+              "type": "string",
+              "content": "3176"
+            },
+            "Amount":
+            {
+              "value": "1,000.00",
+              "type": "string",
+              "content": "1,000.00"
+            },
+            "Date":
+            {
+              "value": "05-30",
+              "type": "string",
+              "content": "05-30"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.281
+        },
+        {
+          "value":
+          {
+            "Number":
+            {
+              "value": "3204",
+              "type": "string",
+              "content": "3204"
+            },
+            "Amount":
+            {
+              "value": "220.00",
+              "type": "string",
+              "content": "220.00"
+            },
+            "Date":
+            {
+              "value": "06-10",
+              "type": "string",
+              "content": "06-10"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.284
+        },
+        {
+          "value":
+          {
+            "Number":
+            {
+              "value": "3202",
+              "type": "string",
+              "content": "3202"
+            },
+            "Amount":
+            {
+              "value": "204.00",
+              "type": "string",
+              "content": "204.00"
+            },
+            "Date":
+            {
+              "value": "05-29",
+              "type": "string",
+              "content": "05-29"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.409
+        }
+      ],
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.658
+    },
+    "Page":
+    {
+      "value": "1",
+      "type": "string",
+      "content": "1"
+    },
+    "TotalPages":
+    {
+      "value": "2",
+      "type": "string",
+      "content": "2"
+    },
+    "TransactionTableAmount":
+    {
+      "value": null,
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.589
+    },
+    "StatementDate":
+    {
+      "value": "June 15, 2019",
+      "type": "string",
+      "content": "June 15, 2019"
+    },
+    "FeesCharged":
+    {
+      "value": null,
+      "type": "number",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.909
+    },
+    "AccountNumber":
+    {
+      "value": "0100002492",
+      "type": "string",
+      "content": "0100002492"
+    },
+    "Page/Total":
+    {
+      "value": null,
+      "type": "string",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.973
+    },
+    "InterestCharged":
+    {
+      "value": null,
+      "type": "number",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.908
+    },
+    "TransactionTableDepositWithdrawal":
+    {
+      "value": null,
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.949
+    },
+    "TransactionTableCreditsCharges":
+    {
+      "value": null,
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.92
+    },
+    "SummaryOfAccounts":
+    {
+      "value": null,
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.987
+    },
+    "BankIdentifier":
+    {
+      "value": "EAGLEBANK",
+      "type": "string",
+      "content": "EAGLEBANK"
+    },
+    "TransactionTableDebits":
+    {
+      "value":
+      [
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "' ATM Withdrawal CASH WITHDRAWAL TERMINAL T9752019 12505 PARK POTOMAC AVE POTOMAC MD 05-24-19 11:50 AM XXXXXXXXXXXX6557",
+              "type": "string",
+              "content": "' ATM Withdrawal\nCASH WITHDRAWAL TERMINAL T9752019 12505 PARK POTOMAC AVE POTOMAC MD 05-24-19 11:50 AM XXXXXXXXXXXX6557"
+            },
+            "Subtractions":
+            {
+              "value": 200.0,
+              "type": "number",
+              "content": "200.00"
+            },
+            "Date":
+            {
+              "value": "05-24",
+              "type": "string",
+              "content": "05-24"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.568
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "ATM Withdrawal CASH WITHDRAWAL TERMINAL P406674 12200 ROCKVILLE PI",
+              "type": "string",
+              "content": "ATM Withdrawal\nCASH WITHDRAWAL TERMINAL P406674 12200 ROCKVILLE PI"
+            },
+            "Subtractions":
+            {
+              "value": 300.0,
+              "type": "number",
+              "content": "300.00"
+            },
+            "Date":
+            {
+              "value": "05-28",
+              "type": "string",
+              "content": "05-28"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.528
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "KUS ROCKVILLE MD 05-25-19 4:18 PM XXXXXXXXXXXX6557 ATM Surcharge SURCHARGE AMOUNT TERMINAL P406674 12200 ROCKVILLE PI KUS ROCKVILLE MD 05-25-19 4.18 PM XXXXXXXXXXXX6557",
+              "type": "string",
+              "content": "KUS ROCKVILLE MD 05-25-19 4:18 PM XXXXXXXXXXXX6557\nATM Surcharge SURCHARGE AMOUNT TERMINAL P406674 12200 ROCKVILLE PI KUS ROCKVILLE MD 05-25-19 4.18 PM XXXXXXXXXXXX6557"
+            },
+            "Subtractions":
+            {
+              "value": 2.5,
+              "type": "number",
+              "content": "2.50"
+            },
+            "Date":
+            {
+              "value": "05-28",
+              "type": "string",
+              "content": "05-28"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.369
+        }
+      ],
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.541
+    },
+    "BeginningBalance":
+    {
+      "value": 4006.409912109375,
+      "type": "number",
+      "content": "$4,006.41"
+    }
+  },
+  "confidence": 0.964
+}

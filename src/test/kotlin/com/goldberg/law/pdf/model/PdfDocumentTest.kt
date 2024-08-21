@@ -37,7 +37,7 @@ class PdfDocumentTest {
         assertThat(classifiedType.name).isEqualTo("Test")
         assertThat(classifiedType.document).isEqualTo(originalDocument.document)
         assertThat(classifiedType.pages).isEqualTo(listOf(2,3,5))
-        assertThat(classifiedType.type).isEqualTo("test")
+        assertThat(classifiedType.classification).isEqualTo("test")
     }
 
     companion object {

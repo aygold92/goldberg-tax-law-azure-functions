@@ -1,9 +1,14 @@
 package com.goldberg.law.pdf.writer
 
-import org.apache.pdfbox.pdmodel.PDDocument
+import com.goldberg.law.pdf.model.PdfDocument
+import io.github.oshai.kotlinlogging.KotlinLogging
 
 class FilePdfWriter: PdfWriter() {
-    override fun writePdf(document: PDDocument, fileName: String) {
-        document.save(fileName)
+    private val logger = KotlinLogging.logger {}
+
+    override fun writePdf(document: PdfDocument, outputDirectory: String) {
+        val filename = document.nameWithPage
+        val file = "$outputDirectory/$filename.pdf"
+        document.document.save(file).also { logger.info { "Saving file $file" } }
     }
 }

@@ -1,31 +1,38 @@
 package com.goldberg.law.pdf.loader
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import com.goldberg.law.document.exception.InvalidArgumentException
 import com.goldberg.law.pdf.model.PdfDocument
+import com.goldberg.law.util.withoutPdfExtension
 import org.apache.pdfbox.Loader
 import java.io.File
-import java.nio.file.Files
-import java.nio.file.Path
 
 class FilePdfLoader: PdfLoader() {
+    private val logger = KotlinLogging.logger {}
+
+    override fun loadPdf(fileName: String): PdfDocument {
+        val file = File(fileName).let { if (it.exists()) it else throw InvalidArgumentException("File $fileName not found") }
+        return loadPdf(file)
+    }
+
+    // TODO: check if it's a PDF? Note: I believe it will fail with IO exception
+    private fun loadPdf(file: File): PdfDocument = PdfDocument(file.name.withoutPdfExtension(), Loader.loadPDF(file)).also {
+        logger.debug { "Successfully loaded file ${file.name}" }
+    }
+
     override fun loadPdfs(fileName: String): Collection<PdfDocument> {
         val input = File(fileName).let { if (it.exists()) it else throw InvalidArgumentException("File $fileName not found") }
 
         return if (input.isFile) {
-            // TODO: check if it's a PDF? Note: I believe it will fail with IO exception
-            setOf(PdfDocument(fileName.withoutPdfExtension(), Loader.loadPDF(input))).also {
-                println("Successfully loaded file $fileName")
-            }
+            setOf(loadPdf(input))
         } else if (input.isDirectory) {
+            // note: not recursive
             input.listFiles()?.mapNotNull { file ->
                 if (file.isDirectory) {
-                    println("skipping ${file.name} as it is a directory")
+                    logger.debug { "skipping ${file.name} as it is a directory" }
                     null
                 } else if (file.isFile) {
-                    // TODO: check if it's a PDF?
-                    PdfDocument(file.name.withoutPdfExtension(), Loader.loadPDF(input)).also {
-                        println("Successfully loaded file $fileName")
-                    }
+                    loadPdf(file)
                 } else {
                     // don't know how it would get here. TODO: check if it's possible
                     null

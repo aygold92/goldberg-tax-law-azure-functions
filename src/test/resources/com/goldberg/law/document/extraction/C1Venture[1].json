@@ -1,0 +1,141 @@
+{
+  "docType": "BankCreditCardExtractor_V3",
+  "fields":
+  {
+    "BatesStamp":
+    {
+      "value": "MH-000714",
+      "type": "string",
+      "content": "MH-000714"
+    },
+    "FeesCharged":
+    {
+      "value": 59.0,
+      "type": "number",
+      "content": "$59.00"
+    },
+    "InterestCharged":
+    {
+      "value": 0.0,
+      "type": "number",
+      "content": "$0.00"
+    },
+    "StatementDate_Start":
+    {
+      "value": "May 11, 2021",
+      "type": "string",
+      "content": "May 11, 2021"
+    },
+    "Page":
+    {
+      "value": "2",
+      "type": "string",
+      "content": "2"
+    },
+    "TotalPages":
+    {
+      "value": "2",
+      "type": "string",
+      "content": "2"
+    },
+    "TransactionTableAmount":
+    {
+      "value":
+      [
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "CAPITAL ONE MEMBER FEE",
+              "type": "string",
+              "content": "CAPITAL ONE MEMBER FEE"
+            },
+            "Amount":
+            {
+              "value": 59.00,
+              "type": "number",
+              "content": "$59.00"
+            },
+            "Date":
+            {
+              "value": "Jun 9",
+              "type": "string",
+              "content": "Jun 9"
+            }
+          },
+          "type": "object",
+          "content": null
+        }
+      ],
+      "type": "array",
+      "content": null
+    },
+    "StatementDate":
+    {
+      "value": "Jun 09, 2021",
+      "type": "string",
+      "content": "Jun 09, 2021"
+    },
+    "EndingBalance_Table":
+    {
+      "value": null,
+      "type": "number",
+      "content": null
+    },
+    "AccountNumber":
+    {
+      "value": "5695",
+      "type": "string",
+      "content": "5695"
+    },
+    "Page/Total":
+    {
+      "value": null,
+      "type": "string",
+      "content": null
+    },
+    "BeginningBalance":
+    {
+      "value": null,
+      "type": "number",
+      "content": null
+    },
+    "TransactionTableDepositWithdrawal":
+    {
+      "value": null,
+      "type": "array",
+      "content": null
+    },
+    "TransactionTableCreditsCharges":
+    {
+      "value": null,
+      "type": "array",
+      "content": null
+    },
+    "SummaryOfAccounts":
+    {
+      "value": null,
+      "type": "array",
+      "content": null
+    },
+    "BankIdentifier":
+    {
+      "value": "CapitalOne VENTURE",
+      "type": "string",
+      "content": "CapitalOne\nVENTURE"
+    },
+    "StatementDate_Start_End":
+    {
+      "value": null,
+      "type": "string",
+      "content": null
+    },
+    "EndingBalance":
+    {
+      "value": null,
+      "type": "number",
+      "content": null
+    }
+  }
+}

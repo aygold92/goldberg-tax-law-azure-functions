@@ -1,10 +1,9 @@
 package com.goldberg.law.pdf.model
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.goldberg.law.document.IntSetOptionHandler
+import com.goldberg.law.document.PairOptionHandler
 import org.kohsuke.args4j.*
-import org.kohsuke.args4j.spi.OptionHandler
-import org.kohsuke.args4j.spi.Parameters
-import org.kohsuke.args4j.spi.Setter
 import kotlin.system.exitProcess
 
 class SplitPdfRequest {
@@ -37,34 +36,3 @@ class SplitPdfRequest {
     }
 }
 
-class PairOptionHandler(parser: CmdLineParser?, option: OptionDef?, setter: Setter<in Pair<Int, Int>>?) : OptionHandler<Pair<Int, Int>>(parser, option, setter) {
-
-    override fun parseArguments(params: Parameters): Int {
-        val args = params.getParameter(0).split(",").map { it.toInt() }
-        if (args.size != 2) {
-            throw IllegalArgumentException("Expected format: key,value")
-        }
-        setter.addValue(Pair(args[0], args[1]))
-
-        return 1
-    }
-
-    override fun getDefaultMetaVariable(): String {
-        return "KEY,VALUE"
-    }
-}
-
-class IntSetOptionHandler(parser: CmdLineParser?, option: OptionDef?, setter: Setter<in Set<Int>>?) : OptionHandler<Set<Int>>(parser, option, setter) {
-
-    override fun parseArguments(params: Parameters): Int {
-        val token = params.getParameter(0).split(",").map {
-            it.toInt()
-        }.toSet()
-        setter.addValue(token)
-        return 1
-    }
-
-    override fun getDefaultMetaVariable(): String {
-        return "KEY,VALUE"
-    }
-}

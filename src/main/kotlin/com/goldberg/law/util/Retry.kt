@@ -1,10 +1,11 @@
 package com.goldberg.law.util
 
 import com.azure.core.exception.HttpResponseException
-import com.azure.core.models.ResponseError
-import com.fasterxml.jackson.databind.ObjectMapper
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlin.math.pow
 import kotlin.math.roundToLong
+
+private val logger = KotlinLogging.logger {}
 
 class RetryCalculator(
     private val initialIntervals: List<Long> = listOf(1000, 5000, 8000, 13000, 21000),
@@ -37,7 +38,7 @@ fun <T> retryWithBackoff(
         }
         context.attempt++
         val sleepTime = retryCalculator.getSleepTime(context.attempt)
-        println("Sleeping $sleepTime ms on ${context.attempt}. Caught error: $t")
+        logger.trace { "Sleeping $sleepTime ms on ${context.attempt}. Caught error: $t" }
         Thread.sleep(sleepTime)
         return retryWithBackoff(function, retryCondition, retryCalculator, context)
     }
