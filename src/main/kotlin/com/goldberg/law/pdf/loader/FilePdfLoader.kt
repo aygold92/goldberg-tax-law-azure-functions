@@ -6,6 +6,7 @@ import com.goldberg.law.pdf.model.PdfDocument
 import com.goldberg.law.util.withoutPdfExtension
 import org.apache.pdfbox.Loader
 import java.io.File
+import java.io.FileInputStream
 
 class FilePdfLoader: PdfLoader() {
     private val logger = KotlinLogging.logger {}
@@ -23,24 +24,31 @@ class FilePdfLoader: PdfLoader() {
     override fun loadPdfs(fileName: String): Collection<PdfDocument> {
         val input = File(fileName).let { if (it.exists()) it else throw InvalidArgumentException("File $fileName not found") }
 
-        return if (input.isFile) {
+        return if (input.isPdfFile()) {
             setOf(loadPdf(input))
         } else if (input.isDirectory) {
+            logger.debug { "reading directory ${input.absolutePath}" }
             // note: not recursive
             input.listFiles()?.mapNotNull { file ->
                 if (file.isDirectory) {
                     logger.debug { "skipping ${file.name} as it is a directory" }
                     null
-                } else if (file.isFile) {
+                } else if (file.isPdfFile()) {
                     loadPdf(file)
                 } else {
-                    // don't know how it would get here. TODO: check if it's possible
+                    logger.debug { "skipping ${file.name} as it is not a PDF" }
                     null
                 }
-            } ?: throw InvalidArgumentException("No files in directory $fileName")
+            } ?: throw InvalidArgumentException("No PDF files in directory $fileName")
         } else {
-            // don't know how it would get here
-            throw InvalidArgumentException("File $input is neither a file nor directory")
+            throw InvalidArgumentException("File $input is neither a PDF file nor directory")
+        }
+    }
+
+    fun File.isPdfFile(): Boolean {
+        return this.isFile && FileInputStream(this).use { inputStream ->
+            val headerBytes = ByteArray(5)
+            inputStream.read(headerBytes) == 5 && String(headerBytes) == "%PDF-"
         }
     }
 }

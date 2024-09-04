@@ -1,8 +1,8 @@
 package com.goldberg.law.document.model.input.tables
 
 import com.azure.ai.formrecognizer.documentanalysis.models.DocumentField
+import com.goldberg.law.document.model.output.TransactionHistoryPageMetadata
 import com.goldberg.law.document.model.output.TransactionHistoryRecord
-import com.goldberg.law.util.fromWrittenDate
 import com.goldberg.law.util.roundToTwoDecimalPlaces
 
 class TransactionTableDepositWithdrawalRecord(
@@ -12,12 +12,13 @@ class TransactionTableDepositWithdrawalRecord(
     val depositAmount: Double?,
     val withdrawalAmount: Double?
 ): TransactionRecord() {
-    override fun toTransactionHistoryRecord(statementYear: String?): TransactionHistoryRecord = TransactionHistoryRecord(
-        date = fromWrittenDate(this.date, statementYear),
+    override fun toTransactionHistoryRecord(statementYear: String?, metadata: TransactionHistoryPageMetadata): TransactionHistoryRecord = TransactionHistoryRecord(
+        date = fromWrittenDateStatementYearOverride(this.date, statementYear),
         checkNumber = this.checkNumber,
         description = this.description,
         // TODO: can we do better for the case it has both?
-        amount = this.depositAmount ?: this.withdrawalAmount?.let { 0 - it }
+        amount = this.depositAmount ?: this.withdrawalAmount?.let { 0 - it },
+        pageMetadata = metadata
     )
 
     object Keys {

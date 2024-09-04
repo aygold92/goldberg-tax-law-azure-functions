@@ -1,0 +1,1310 @@
+{
+  "docType": "BankCreditCardExtractor_V4",
+  "fields":
+  {
+    "BatesStamp":
+    {
+      "value": "3AAG000120 MH-002251",
+      "type": "string",
+      "content": "3AAG000120\nMH-002251"
+    },
+    "TransactionTableCredits":
+    {
+      "value": null,
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.937
+    },
+    "ChecksTable":
+    {
+      "value": null,
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.954
+    },
+    "EndingBalance":
+    {
+      "value": null,
+      "type": "number",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.923
+    },
+    "Page":
+    {
+      "value": "3",
+      "type": "string",
+      "content": "3"
+    },
+    "TotalPages":
+    {
+      "value": "4",
+      "type": "string",
+      "content": "4"
+    },
+    "TransactionTableAmount":
+    {
+      "value":
+      [
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "EB 2020 BULL RUN FEST 8014137200 CA",
+              "type": "string",
+              "content": "EB 2020 BULL RUN FEST 8014137200 CA"
+            },
+            "Amount":
+            {
+              "value": -27.40999984741211,
+              "type": "number",
+              "content": "-$27.41"
+            },
+            "Date":
+            {
+              "value": "12/14",
+              "type": "string",
+              "content": "12/14"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.29
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "DOORDASH*MORTONS THE S SAN FRANCISCO CA",
+              "type": "string",
+              "content": "DOORDASH*MORTONS THE S SAN FRANCISCO CA"
+            },
+            "Amount":
+            {
+              "value": -208.52999877929688,
+              "type": "number",
+              "content": "-$208.53"
+            },
+            "Date":
+            {
+              "value": "12/29",
+              "type": "string",
+              "content": "12/29"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.293
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "AMZN Mktp US Amzn.com/bill WA",
+              "type": "string",
+              "content": "AMZN Mktp US Amzn.com/bill WA"
+            },
+            "Amount":
+            {
+              "value": -21.850000381469727,
+              "type": "number",
+              "content": "-$21.85"
+            },
+            "Date":
+            {
+              "value": "01/06",
+              "type": "string",
+              "content": "01/06"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.294
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "VTG*Growing Minds LLC ROCKVILLE . MD",
+              "type": "string",
+              "content": "VTG*Growing Minds LLC ROCKVILLE . MD"
+            },
+            "Amount":
+            {
+              "value": 196.0,
+              "type": "number",
+              "content": "$196.00"
+            },
+            "Date":
+            {
+              "value": "12/08",
+              "type": "string",
+              "content": "12/08"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.29
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "EXXONMOBIL 97436182 KENSINGTON MD",
+              "type": "string",
+              "content": "EXXONMOBIL 97436182 KENSINGTON MD"
+            },
+            "Amount":
+            {
+              "value": 48.79999923706055,
+              "type": "number",
+              "content": "$48.80"
+            },
+            "Date":
+            {
+              "value": "12/08",
+              "type": "string",
+              "content": "12/08"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.295
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "THE PEDIATRIC CARE CEN 301-564-5880 MD",
+              "type": "string",
+              "content": "THE PEDIATRIC CARE CEN 301-564-5880 MD"
+            },
+            "Amount":
+            {
+              "value": 393.0,
+              "type": "number",
+              "content": "$393.00"
+            },
+            "Date":
+            {
+              "value": "12/10",
+              "type": "string",
+              "content": "12/10"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.287
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "APPLE.COM/BILL 866-712-7753 CA",
+              "type": "string",
+              "content": "APPLE.COM/BILL 866-712-7753 CA"
+            },
+            "Amount":
+            {
+              "value": 9.989999771118164,
+              "type": "number",
+              "content": "$9.99"
+            },
+            "Date":
+            {
+              "value": "12/11",
+              "type": "string",
+              "content": "12/11"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.292
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "TARGET.COM *",
+              "type": "string",
+              "content": "TARGET.COM *"
+            },
+            "Amount":
+            {
+              "value": null,
+              "type": "number",
+              "content": null,
+              "boundingRegions": null,
+              "spans": null,
+              "confidence": 0.588
+            },
+            "Date":
+            {
+              "value": "12/11",
+              "type": "string",
+              "content": "12/11"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.065
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "800-591-3869 MN",
+              "type": "string",
+              "content": "800-591-3869 MN"
+            },
+            "Amount":
+            {
+              "value": 84.2699966430664,
+              "type": "number",
+              "content": "$84.27"
+            },
+            "Date":
+            {
+              "value": null,
+              "type": "string",
+              "content": null,
+              "boundingRegions": null,
+              "spans": null,
+              "confidence": 0.594
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.21
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "APPLE.COM/BILL 866-712-7753 CA",
+              "type": "string",
+              "content": "APPLE.COM/BILL 866-712-7753 CA"
+            },
+            "Amount":
+            {
+              "value": 9.989999771118164,
+              "type": "number",
+              "content": "$9.99"
+            },
+            "Date":
+            {
+              "value": "2/12",
+              "type": "string",
+              "content": "2/12"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.295
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "AMZN Mktp US*2B8SG1SL2 Amzn.com/bill WA",
+              "type": "string",
+              "content": "AMZN Mktp US*2B8SG1SL2 Amzn.com/bill WA"
+            },
+            "Amount":
+            {
+              "value": 8.859999656677246,
+              "type": "number",
+              "content": "$8.86"
+            },
+            "Date":
+            {
+              "value": "12/14",
+              "type": "string",
+              "content": "12/14"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.291
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "AMZN MKTP US*OK39N8RE3 AMZN.COM/BILL WA",
+              "type": "string",
+              "content": "AMZN MKTP US*OK39N8RE3 AMZN.COM/BILL WA"
+            },
+            "Amount":
+            {
+              "value": 17.969999313354492,
+              "type": "number",
+              "content": "$17.97"
+            },
+            "Date":
+            {
+              "value": "12/14",
+              "type": "string",
+              "content": "12/14"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.291
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "EB 2020 BULL RUN FEST 8014137200 CA",
+              "type": "string",
+              "content": "EB 2020 BULL RUN FEST 8014137200 CA"
+            },
+            "Amount":
+            {
+              "value": 32.79999923706055,
+              "type": "number",
+              "content": "$32.80"
+            },
+            "Date":
+            {
+              "value": ".12/14",
+              "type": "string",
+              "content": ".12/14"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.284
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "VTG*Growing Minds LLC ROCKVILLE MD",
+              "type": "string",
+              "content": "VTG*Growing Minds LLC ROCKVILLE MD"
+            },
+            "Amount":
+            {
+              "value": 196.0,
+              "type": "number",
+              "content": "$196.00"
+            },
+            "Date":
+            {
+              "value": "12/14:",
+              "type": "string",
+              "content": "12/14:"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.291
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "AMZN Mktp US*IE2BZOWM3 Amzn.com/bill WA",
+              "type": "string",
+              "content": "AMZN Mktp US*IE2BZOWM3 Amzn.com/bill WA"
+            },
+            "Amount":
+            {
+              "value": 11.449999809265137,
+              "type": "number",
+              "content": "$11.45"
+            },
+            "Date":
+            {
+              "value": "12/15",
+              "type": "string",
+              "content": "12/15"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.288
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "LIBERTY FALLS VETERINA 3017622070. MD",
+              "type": "string",
+              "content": "LIBERTY FALLS VETERINA 3017622070. MD"
+            },
+            "Amount":
+            {
+              "value": 179.7100067138672,
+              "type": "number",
+              "content": "$179.71"
+            },
+            "Date":
+            {
+              "value": "12/15",
+              "type": "string",
+              "content": "12/15"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.292
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "AMZN MKTP US*QS8TO3AZ3 AMZN.COM/BILL WA",
+              "type": "string",
+              "content": "AMZN MKTP US*QS8TO3AZ3 AMZN.COM/BILL WA"
+            },
+            "Amount":
+            {
+              "value": 19.06999969482422,
+              "type": "number",
+              "content": "$19.07"
+            },
+            "Date":
+            {
+              "value": "12/16",
+              "type": "string",
+              "content": "12/16"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.291
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "AMZN Mktp US*A62Y31F53 Amzn.com/bill WA",
+              "type": "string",
+              "content": "AMZN Mktp US*A62Y31F53 Amzn.com/bill WA"
+            },
+            "Amount":
+            {
+              "value": 41.68000030517578,
+              "type": "number",
+              "content": "$41.68"
+            },
+            "Date":
+            {
+              "value": "12/16",
+              "type": "string",
+              "content": "12/16"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.292
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "AMZN Mktp.US*SI3ZOOHX3 Amzn.com/bill. WA",
+              "type": "string",
+              "content": "AMZN Mktp.US*SI3ZOOHX3 Amzn.com/bill. WA"
+            },
+            "Amount":
+            {
+              "value": 21.850000381469727,
+              "type": "number",
+              "content": "$21.85"
+            },
+            "Date":
+            {
+              "value": "12/17:",
+              "type": "string",
+              "content": "12/17:"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.38
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "AMAZON.COM*QX6GP6703 A AMZN.COM/BILL WA",
+              "type": "string",
+              "content": "AMAZON.COM*QX6GP6703 A AMZN.COM/BILL WA"
+            },
+            "Amount":
+            {
+              "value": 49.54999923706055,
+              "type": "number",
+              "content": "$49.55"
+            },
+            "Date":
+            {
+              "value": ".12/17:",
+              "type": "string",
+              "content": ".12/17:"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.362
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "AMAZON.COM*B475P5S73 A AMZN.COM/BILL WA",
+              "type": "string",
+              "content": "AMAZON.COM*B475P5S73 A AMZN.COM/BILL WA"
+            },
+            "Amount":
+            {
+              "value": 296.5,
+              "type": "number",
+              "content": "$296.50"
+            },
+            "Date":
+            {
+              "value": "12/17",
+              "type": "string",
+              "content": "12/17"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.335
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "CARD MY YARD: 5129311269 TX",
+              "type": "string",
+              "content": "CARD MY YARD: 5129311269 TX"
+            },
+            "Amount":
+            {
+              "value": 270.29998779296875,
+              "type": "number",
+              "content": "$270.30"
+            },
+            "Date":
+            {
+              "value": "12/18",
+              "type": "string",
+              "content": "12/18"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.297
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "HONEYBAKED HAM #0099 678-966-3100 GA",
+              "type": "string",
+              "content": "HONEYBAKED HAM #0099 678-966-3100 GA"
+            },
+            "Amount":
+            {
+              "value": 160.85000610351562,
+              "type": "number",
+              "content": "$160.85"
+            },
+            "Date":
+            {
+              "value": ":12/18",
+              "type": "string",
+              "content": ":12/18"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.293
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "AMZN MKTPUS*UV8DQ3V53 AMZN.COM/BILL WA",
+              "type": "string",
+              "content": "AMZN MKTPUS*UV8DQ3V53 AMZN.COM/BILL WA"
+            },
+            "Amount":
+            {
+              "value": 10.579999923706055,
+              "type": "number",
+              "content": "$10.58"
+            },
+            "Date":
+            {
+              "value": ":12/19",
+              "type": "string",
+              "content": ":12/19"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.298
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "Gregorio's Trattoria P Potomac MD",
+              "type": "string",
+              "content": "Gregorio's Trattoria P Potomac MD"
+            },
+            "Amount":
+            {
+              "value": 96.72000122070312,
+              "type": "number",
+              "content": "$96.72"
+            },
+            "Date":
+            {
+              "value": "12/19",
+              "type": "string",
+              "content": "12/19"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.302
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "VTG*Growing Minds LLC ROCKVILLE MD",
+              "type": "string",
+              "content": "VTG*Growing Minds LLC ROCKVILLE MD"
+            },
+            "Amount":
+            {
+              "value": 196.0,
+              "type": "number",
+              "content": "$196.00."
+            },
+            "Date":
+            {
+              "value": "12/21",
+              "type": "string",
+              "content": "12/21"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.295
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "GFM*GoFindMe* Baby Magg Redwood City CA",
+              "type": "string",
+              "content": "GFM*GoFindMe* Baby Magg Redwood City CA"
+            },
+            "Amount":
+            {
+              "value": 110.0,
+              "type": "number",
+              "content": "$110.00"
+            },
+            "Date":
+            {
+              "value": "12/22",
+              "type": "string",
+              "content": "12/22"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.294
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "DUNKIN #339788 Q35 KENSINGTON MD",
+              "type": "string",
+              "content": "DUNKIN #339788 Q35 KENSINGTON MD"
+            },
+            "Amount":
+            {
+              "value": 7.409999847412109,
+              "type": "number",
+              "content": "$7.41"
+            },
+            "Date":
+            {
+              "value": "12/23",
+              "type": "string",
+              "content": "12/23"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.308
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "EB 2020 BULL RUN FEST: 8014137200 CA",
+              "type": "string",
+              "content": "EB 2020 BULL RUN FEST: 8014137200 CA"
+            },
+            "Amount":
+            {
+              "value": 32.79999923706055,
+              "type": "number",
+              "content": "$32.80"
+            },
+            "Date":
+            {
+              "value": "12/23",
+              "type": "string",
+              "content": "12/23"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.29
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "EXXONMOBIL 97436182 KENSINGTON MD",
+              "type": "string",
+              "content": "EXXONMOBIL 97436182 KENSINGTON MD"
+            },
+            "Amount":
+            {
+              "value": 13.729999542236328,
+              "type": "number",
+              "content": "$13.73"
+            },
+            "Date":
+            {
+              "value": "12/23",
+              "type": "string",
+              "content": "12/23"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.292
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "TST* O DONNELL S MARKE ROCKVILLE MD",
+              "type": "string",
+              "content": "TST* O DONNELL S MARKE ROCKVILLE MD"
+            },
+            "Amount":
+            {
+              "value": 246.36000061035156,
+              "type": "number",
+              "content": "$246.36"
+            },
+            "Date":
+            {
+              "value": "12/24",
+              "type": "string",
+              "content": "12/24"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.294
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "AT&T*BILL PAYMENT 8003310500 TX",
+              "type": "string",
+              "content": "AT&T*BILL PAYMENT 8003310500 TX"
+            },
+            "Amount":
+            {
+              "value": 253.6199951171875,
+              "type": "number",
+              "content": "$253.62"
+            },
+            "Date":
+            {
+              "value": "12/24",
+              "type": "string",
+              "content": "12/24"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.292
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "EB 2020 BULL RUN FEST 8014137200 CA",
+              "type": "string",
+              "content": "EB 2020 BULL RUN FEST 8014137200 CA"
+            },
+            "Amount":
+            {
+              "value": 32.79999923706055,
+              "type": "number",
+              "content": "$32.80"
+            },
+            "Date":
+            {
+              "value": "12/26.",
+              "type": "string",
+              "content": "12/26."
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.291
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "· DOORDASH*MORTONS THE S SAN FRANCISCO CA",
+              "type": "string",
+              "content": "· DOORDASH*MORTONS THE S SAN FRANCISCO CA"
+            },
+            "Amount":
+            {
+              "value": 208.52999877929688,
+              "type": "number",
+              "content": "$208.53"
+            },
+            "Date":
+            {
+              "value": "12/29",
+              "type": "string",
+              "content": "12/29"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.284
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "SUNFLOWER BAKERY 240-361-3698 MD",
+              "type": "string",
+              "content": "SUNFLOWER BAKERY 240-361-3698 MD"
+            },
+            "Amount":
+            {
+              "value": 27.0,
+              "type": "number",
+              "content": "$27.00"
+            },
+            "Date":
+            {
+              "value": "12/29",
+              "type": "string",
+              "content": "12/29"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.291
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "Center for Assessment CHEVY CHASE MD",
+              "type": "string",
+              "content": "Center for Assessment CHEVY CHASE MD"
+            },
+            "Amount":
+            {
+              "value": 162.5,
+              "type": "number",
+              "content": "$162.50"
+            },
+            "Date":
+            {
+              "value": "12/29",
+              "type": "string",
+              "content": "12/29"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.285
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "Center for Assessment CHEVY CHASE MD",
+              "type": "string",
+              "content": "Center for Assessment CHEVY CHASE MD"
+            },
+            "Amount":
+            {
+              "value": 975.0,
+              "type": "number",
+              "content": "$975.00"
+            },
+            "Date":
+            {
+              "value": "12/29",
+              "type": "string",
+              "content": "12/29"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.296
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "STARBUCKS STORE 19853 KENSINGTON MD",
+              "type": "string",
+              "content": "STARBUCKS STORE 19853 KENSINGTON MD"
+            },
+            "Amount":
+            {
+              "value": 84.48999786376953,
+              "type": "number",
+              "content": "$84.49"
+            },
+            "Date":
+            {
+              "value": "12/31",
+              "type": "string",
+              "content": "12/31"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.293
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "TST* O DONNELL S MARKE ROCKVILLE MD.",
+              "type": "string",
+              "content": "TST* O DONNELL S MARKE ROCKVILLE MD."
+            },
+            "Amount":
+            {
+              "value": 165.86000061035156,
+              "type": "number",
+              "content": "$165.86"
+            },
+            "Date":
+            {
+              "value": "12/31",
+              "type": "string",
+              "content": "12/31"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.288
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "JSSA ONLINE 3018813700 MD",
+              "type": "string",
+              "content": "JSSA ONLINE 3018813700 MD"
+            },
+            "Amount":
+            {
+              "value": 100.0,
+              "type": "number",
+              "content": "$100.00"
+            },
+            "Date":
+            {
+              "value": "01/06",
+              "type": "string",
+              "content": "01/06"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.293
+        },
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "LATE FEE - DEC PAYMENT PAST DUE",
+              "type": "string",
+              "content": "LATE FEE - DEC PAYMENT PAST DUE"
+            },
+            "Amount":
+            {
+              "value": 29.0,
+              "type": "number",
+              "content": "$29.00"
+            },
+            "Date":
+            {
+              "value": "01/07",
+              "type": "string",
+              "content": "01/07"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.198
+        }
+      ],
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.057
+    },
+    "StatementDate":
+    {
+      "value": null,
+      "type": "string",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.697
+    },
+    "FeesCharged":
+    {
+      "value": 29.0,
+      "type": "number",
+      "content": "$29.00"
+    },
+    "AccountNumber":
+    {
+      "value": null,
+      "type": "string",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.563
+    },
+    "Page/Total":
+    {
+      "value": null,
+      "type": "string",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.947
+    },
+    "InterestCharged":
+    {
+      "value": null,
+      "type": "number",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.896
+    },
+    "TransactionTableDepositWithdrawal":
+    {
+      "value": null,
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.911
+    },
+    "TransactionTableCreditsCharges":
+    {
+      "value": null,
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.896
+    },
+    "SummaryOfAccounts":
+    {
+      "value": null,
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.986
+    },
+    "BankIdentifier":
+    {
+      "value": "www.citicards.com",
+      "type": "string",
+      "content": "www.citicards.com"
+    },
+    "TransactionTableDebits":
+    {
+      "value": null,
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.905
+    },
+    "BeginningBalance":
+    {
+      "value": null,
+      "type": "number",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.92
+    }
+  },
+  "confidence": 0.021
+}

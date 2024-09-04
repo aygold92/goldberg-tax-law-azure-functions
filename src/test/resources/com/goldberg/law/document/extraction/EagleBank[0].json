@@ -29,14 +29,14 @@
           {
             "Number":
             {
-              "value": "3167",
-              "type": "string",
+              "value": 3167,
+              "type": "number",
               "content": "3167"
             },
             "Amount":
             {
-              "value": "200.00",
-              "type": "string",
+              "value": 200.00,
+              "type": "number",
               "content": "200.00"
             },
             "Date":
@@ -54,14 +54,14 @@
           {
             "Number":
             {
-              "value": "3174",
-              "type": "string",
+              "value": 3174,
+              "type": "number",
               "content": "3174"
             },
             "Amount":
             {
-              "value": "1,554.39",
-              "type": "string",
+              "value": 1554.39,
+              "type": "number",
               "content": "1,554.39"
             },
             "Date":
@@ -79,14 +79,14 @@
           {
             "Number":
             {
-              "value": "3172 *",
-              "type": "string",
+              "value": 3172,
+              "type": "number",
               "content": "3172 *"
             },
             "Amount":
             {
-              "value": "875.00",
-              "type": "string",
+              "value": 875.00,
+              "type": "number",
               "content": "875.00"
             },
             "Date":
@@ -104,14 +104,14 @@
           {
             "Number":
             {
-              "value": "3173",
-              "type": "string",
+              "value": 3173,
+              "type": "number",
               "content": "3173"
             },
             "Amount":
             {
-              "value": "427.50",
-              "type": "string",
+              "value": 427.50,
+              "type": "number",
               "content": "427.50"
             },
             "Date":

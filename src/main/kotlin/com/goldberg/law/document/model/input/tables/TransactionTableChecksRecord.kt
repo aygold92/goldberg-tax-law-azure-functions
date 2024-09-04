@@ -1,21 +1,22 @@
 package com.goldberg.law.document.model.input.tables
 
 import com.azure.ai.formrecognizer.documentanalysis.models.DocumentField
+import com.goldberg.law.document.model.output.TransactionHistoryPageMetadata
 import com.goldberg.law.document.model.output.TransactionHistoryRecord
-import com.goldberg.law.util.fromWrittenDate
-import com.goldberg.law.util.hackToNumber
-import com.goldberg.law.util.parseCurrency
+import com.goldberg.law.util.roundToTwoDecimalPlaces
+import com.goldberg.law.util.valueAsInt
 
 class TransactionTableChecksRecord(
     val date: String?,
     val number: Int?,
     val amount: Double?,
 ): TransactionRecord() {
-    override fun toTransactionHistoryRecord(statementYear: String?): TransactionHistoryRecord = TransactionHistoryRecord(
-        date = fromWrittenDate(this.date, statementYear),
+    override fun toTransactionHistoryRecord(statementYear: String?, metadata: TransactionHistoryPageMetadata): TransactionHistoryRecord = TransactionHistoryRecord(
+        date = fromWrittenDateStatementYearOverride(this.date, statementYear),
         description = TransactionHistoryRecord.CHECK_DESCRIPTION,
         checkNumber = this.number,
-        amount = if (amount != null) 0.0 - amount else null  // a check represents money leaving, so we subtract
+        amount = if (amount != null) 0.0 - amount else null,  // a check represents money leaving, so we subtract
+        pageMetadata = metadata
     )
 
     object Keys {
@@ -28,8 +29,8 @@ class TransactionTableChecksRecord(
         fun DocumentField.toTransactionTableChecksRecord() = this.getFieldMapHack().let { recordFields ->
             TransactionTableChecksRecord(
                 date = recordFields[Keys.DATE]?.valueAsString,
-                number = recordFields[Keys.NUMBER]?.valueAsString?.hackToNumber()?.toInt(), // TODO: fix this in model
-                amount = recordFields[Keys.AMOUNT]?.content?.parseCurrency() // TODO: fix this in model .valueAsDouble?.roundToTwoDecimalPlaces(),
+                number = recordFields[Keys.NUMBER]?.valueAsInt(),
+                amount = recordFields[Keys.AMOUNT]?.valueAsDouble?.roundToTwoDecimalPlaces(),
             )
         }
     }

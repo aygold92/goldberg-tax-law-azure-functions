@@ -1,19 +1,19 @@
 package com.goldberg.law.document
 
 import com.goldberg.law.document.model.output.BankStatement
-import com.goldberg.law.document.model.output.StatementSummaryEntry
+import com.goldberg.law.document.model.output.AccountSummaryEntry
 import com.goldberg.law.util.toMonthYear
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.util.*
 
-class StatementSummaryCreator {
+class AccountSummaryCreator {
     private val logger = KotlinLogging.logger {}
 
-    fun createSummary(statements: List<BankStatement>): List<StatementSummaryEntry> = try {
-        val unusableStatements = statements.filter { it.accountNumber == null || it.statementDate == null }
-        if (unusableStatements.isNotEmpty()) logger.warn { "Found statements without account number or date: $unusableStatements" }
+    fun createSummary(statements: List<BankStatement>): List<AccountSummaryEntry> = try {
+        val unusableStatements = statements.filter { !it.primaryKey.isComplete() }
+        if (unusableStatements.isNotEmpty()) logger.error { "Found statements without account number or date: $unusableStatements" }
 
-        val usableStatements = statements.filter { it.accountNumber != null && it.statementDate != null }
+        val usableStatements = statements.filter { it.primaryKey.isComplete() }
 
         val summary: Map<String, MutableList<BankStatement>> = usableStatements.map { it.accountNumber!! }.toSet().associateWith { mutableListOf() }
 
@@ -47,7 +47,7 @@ class StatementSummaryCreator {
 
             val suspiciousStatements = sortedStatements.filter { it.isSuspicious() }.map { it.statementDate!! }
 
-            StatementSummaryEntry(entry.key, sortedStatements.first().classification, first, last, nonExistingMonths, suspiciousStatements)
+            AccountSummaryEntry(entry.key, sortedStatements.first().classification, first, last, nonExistingMonths, suspiciousStatements)
         }
 
     } catch (ex: Exception) {

@@ -1,8 +1,8 @@
 package com.goldberg.law.document.model.input.tables
 
 import com.azure.ai.formrecognizer.documentanalysis.models.DocumentField
+import com.goldberg.law.document.model.output.TransactionHistoryPageMetadata
 import com.goldberg.law.document.model.output.TransactionHistoryRecord
-import com.goldberg.law.util.fromWrittenDate
 import com.goldberg.law.util.roundToTwoDecimalPlaces
 import kotlin.math.absoluteValue
 
@@ -12,11 +12,12 @@ class TransactionTableCreditsChargesRecord(
     val credits: Double?,
     val charges: Double?
 ): TransactionRecord() {
-    override fun toTransactionHistoryRecord(statementYear: String?): TransactionHistoryRecord = TransactionHistoryRecord(
-        date = fromWrittenDate(this.date, statementYear),
+    override fun toTransactionHistoryRecord(statementYear: String?, metadata: TransactionHistoryPageMetadata): TransactionHistoryRecord = TransactionHistoryRecord(
+        date = fromWrittenDateStatementYearOverride(this.date, statementYear),
         description = this.description,
         // a credit represents a net increase in money, a charge is a decrease
-        amount = this.credits ?: this.charges?.let { 0 - it }
+        amount = this.credits ?: this.charges?.let { 0 - it },
+        pageMetadata = metadata
     )
 
     object Keys {

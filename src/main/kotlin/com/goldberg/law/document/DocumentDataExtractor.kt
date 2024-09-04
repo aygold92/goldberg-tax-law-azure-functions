@@ -2,21 +2,19 @@ package com.goldberg.law.document
 
 import com.azure.ai.formrecognizer.documentanalysis.DocumentAnalysisClient
 import com.azure.ai.formrecognizer.documentanalysis.models.AnalyzedDocument
+import com.goldberg.law.document.model.input.CheckDataModel.Companion.toCheckDataModel
 import com.goldberg.law.document.model.input.StatementDataModel.Companion.toBankDocument
-import com.goldberg.law.document.model.output.BankStatement
-import com.goldberg.law.document.model.output.BankStatementKey
-import com.goldberg.law.document.model.output.TransactionHistoryPage
+import com.goldberg.law.document.model.output.*
 import com.goldberg.law.pdf.model.ClassifiedPdfDocument
 import com.goldberg.law.pdf.model.PdfDocument
-import com.goldberg.law.pdf.model.StatementType
 import com.goldberg.law.util.*
 import io.github.oshai.kotlinlogging.KotlinLogging
 import javax.inject.Inject
-import javax.inject.Named
 
 class DocumentDataExtractor @Inject constructor(
     @Inject private val client: DocumentAnalysisClient,
-    @Named("CustomDataModelId") private val modelId: String
+    private val statementExtractorModelId: String,
+    private val checkExtractorModelId: String,
 ) {
     private val logger = KotlinLogging.logger {}
 
@@ -27,8 +25,8 @@ class DocumentDataExtractor @Inject constructor(
         var lastUsedStatement: BankStatement? = null
         classifiedDocuments.forEach { classifiedDocument ->
             try {
-
-                val analyzedBankDocument = classifiedDocument.extractData().toBankDocument()
+                logger.info { "[Transaction History] Processing $classifiedDocument" }
+                val analyzedBankDocument = extractData(classifiedDocument, statementExtractorModelId).toBankDocument()
                 /**
                  * Choose the page to use as the following:
                  * 1. if we have the statementDate/accountNumber from the page, use that
@@ -40,6 +38,11 @@ class DocumentDataExtractor @Inject constructor(
                 lastUsedStatement?.accountNumber
 
                 val statementDate = analyzedBankDocument.statementDate ?: lastUsedStatement?.statementDate
+
+
+                val statementKey = BankStatementKey(statementDate, accountNumber)
+
+                logger.info { "[Transaction History] Found $statementKey, page ${analyzedBankDocument.pageNum} (${analyzedBankDocument.batesStamp})" }
 
                 // process the summary of accounts table (for WF Bank)
                 analyzedBankDocument.summaryOfAccounts?.records?.forEach { account ->
@@ -53,31 +56,25 @@ class DocumentDataExtractor @Inject constructor(
                     )
                 }
 
-                val statementKey = BankStatementKey(statementDate, accountNumber)
-
-                logger.info { "Processing statement $statementKey, page ${analyzedBankDocument.pageNum} " }
-
-                val thRecords = analyzedBankDocument.getTransactionRecords(statementDate?.getYearSafe())
-
-                val thPage = TransactionHistoryPage(
+                val metadata = TransactionHistoryPageMetadata(
                     filename = classifiedDocument.name,
                     filePageNumber = classifiedDocument.firstPage,
                     statementDate = statementDate,
                     statementPageNum = analyzedBankDocument.pageNum,
-                    batesStamp = analyzedBankDocument.batesStamp,
-                    transactionHistoryRecords = thRecords
+                    batesStamp = analyzedBankDocument.batesStamp
                 )
 
+                val thRecords = analyzedBankDocument.getTransactionRecords(statementDate?.getYearSafe(), metadata)
+
                 statements[statementKey] = statements.getOrDefault(statementKey, BankStatement(classifiedDocument.name, classifiedDocument.classification, statementKey)).update(
-                    statementType = classifiedDocument.statementType,
                     accountNumber = analyzedBankDocument.accountNumber,
                     totalPages = analyzedBankDocument.totalPages,
                     beginningBalance = analyzedBankDocument.beginningBalance,
                     endingBalance = analyzedBankDocument.endingBalance,
                     interestCharged = analyzedBankDocument.interestCharged,
                     feesCharged = analyzedBankDocument.feesCharged,
-                    thPage = thPage
-                ).update(statementType = analyzedBankDocument.getStatementType())
+                    transactions = thRecords
+                ).update(documentType = analyzedBankDocument.getStatementType())
 
                 lastUsedStatement = statements[statementKey]
             } catch (e: Throwable) {
@@ -87,9 +84,23 @@ class DocumentDataExtractor @Inject constructor(
         return statements.values
     }
 
-    private fun PdfDocument.extractData(): AnalyzedDocument {
+    fun extractCheckData(classifiedDocuments: List<ClassifiedPdfDocument>): Map<CheckDataKey, CheckData> {
+        return classifiedDocuments.mapNotNull { classifiedDocument ->
+            try {
+                logger.info { "[Check] Processing file page $classifiedDocument" }
+                val checkDataModel = extractData(classifiedDocument, checkExtractorModelId).toCheckDataModel()
+                logger.info { "[Check] Found $checkDataModel" }
+                checkDataModel.toCheckData(PageMetadata(checkDataModel.batesStamp, classifiedDocument.name, classifiedDocument.firstPage))
+            } catch (e: Throwable) {
+                logger.error(e) { "Exception processing $classifiedDocument: $e" }
+                null
+            }
+        }.associateBy { it.checkDataKey }
+    }
+
+    private fun extractData(pdfDocument: PdfDocument, modelId: String): AnalyzedDocument {
         val poller = retryWithBackoff(
-            { client.beginAnalyzeDocument(modelId, this.toBinaryData()) },
+            { client.beginAnalyzeDocument(modelId, pdfDocument.toBinaryData()) },
             ::isAzureThrottlingError
         )
 
@@ -98,7 +109,7 @@ class DocumentDataExtractor @Inject constructor(
 
         val documents = poller.finalResult.documents
         if (documents.size != 1) {
-            logger.error { "$nameWithPage returned ${documents.size} analyzed pages" }
+            logger.error { "${pdfDocument.nameWithPage} returned ${documents.size} analyzed pages" }
         }
 
         return documents[0].also { logger.trace { it.toStringDetailed() } }

@@ -1,99 +1,99 @@
 package com.goldberg.law.document
 
 import com.goldberg.law.document.model.ModelValues.ACCOUNT_NUMBER
-import com.goldberg.law.document.model.ModelValues.BASIC_TH_PAGE
 import com.goldberg.law.document.model.ModelValues.FIXED_STATEMENT_DATE
 import com.goldberg.law.document.model.ModelValues.newBankStatement
-import com.goldberg.law.document.model.output.StatementSummaryEntry
-import com.goldberg.law.pdf.model.StatementType.BankTypes
+import com.goldberg.law.document.model.ModelValues.newHistoryRecord
+import com.goldberg.law.document.model.output.AccountSummaryEntry
+import com.goldberg.law.pdf.model.DocumentType.BankTypes
 import com.goldberg.law.util.fromWrittenDate
 import com.goldberg.law.util.toMonthYear
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.util.*
 
-class StatementSummaryCreatorTest {
-    private val creator = StatementSummaryCreator()
+class AccountSummaryEntryCreatorTest {
+    private val creator = AccountSummaryCreator()
 
     @Test
     fun creatorTestBasic() {
         val statements = listOf(
-            newBankStatementNotSus(statementDate = fromWrittenDate("6 1, 2020")),
-            newBankStatementNotSus(statementDate = fromWrittenDate("7 1, 2020")),
-            newBankStatementNotSus(statementDate = fromWrittenDate("8 1, 2020")),
-            newBankStatementNotSus(statementDate = fromWrittenDate("9 1, 2020")),
+            newBankStatementNotSus(fromWrittenDate("6 1, 2020")),
+            newBankStatementNotSus(fromWrittenDate("7 1, 2020")),
+            newBankStatementNotSus(fromWrittenDate("8 1, 2020")),
+            newBankStatementNotSus(fromWrittenDate("9 1, 2020")),
         )
         val result = creator.createSummary(statements)
 
         assertThat(result).hasSize(1)
         assertThat(result[0]).isEqualTo(
-            StatementSummaryEntry(ACCOUNT_NUMBER, BankTypes.WF_BANK, fromWrittenDate("6 1, 2020")!!, fromWrittenDate("9 1, 2020")!!, emptyList(), emptyList())
+            AccountSummaryEntry(ACCOUNT_NUMBER, BankTypes.WF_BANK, fromWrittenDate("6 1, 2020")!!, fromWrittenDate("9 1, 2020")!!, emptyList(), emptyList())
         )
     }
 
     @Test
     fun creatorTestBasicMissing() {
         val statements = listOf(
-            newBankStatementNotSus(statementDate = fromWrittenDate("6 1, 2020")),
-            newBankStatementNotSus(statementDate = fromWrittenDate("7 1, 2020")),
-            newBankStatementNotSus(statementDate = fromWrittenDate("9 1, 2020")),
+            newBankStatementNotSus(fromWrittenDate("6 1, 2020")),
+            newBankStatementNotSus(fromWrittenDate("7 1, 2020")),
+            newBankStatementNotSus(fromWrittenDate("9 1, 2020")),
         )
         val result = creator.createSummary(statements)
 
         assertThat(result).hasSize(1)
         assertThat(result[0]).isEqualTo(
-            StatementSummaryEntry(ACCOUNT_NUMBER, BankTypes.WF_BANK, fromWrittenDate("6 1, 2020")!!, fromWrittenDate("9 1, 2020")!!, listOf("8/2020"), emptyList())
+            AccountSummaryEntry(ACCOUNT_NUMBER, BankTypes.WF_BANK, fromWrittenDate("6 1, 2020")!!, fromWrittenDate("9 1, 2020")!!, listOf("8/2020"), emptyList())
         )
     }
 
     @Test
     fun creatorTestBasicMissingAndSus() {
         val statements = listOf(
-            newBankStatementNotSus(statementDate = fromWrittenDate("6 1, 2020")),
-            newBankStatementNotSus(statementDate = fromWrittenDate("7 1, 2020")),
+            newBankStatementNotSus(fromWrittenDate("6 1, 2020")),
+            newBankStatementNotSus(fromWrittenDate("7 1, 2020")),
             newBankStatement(statementDate = fromWrittenDate("9 1, 2020")),
         )
         val result = creator.createSummary(statements)
 
         assertThat(result).hasSize(1)
         assertThat(result[0]).isEqualTo(
-            StatementSummaryEntry(ACCOUNT_NUMBER, BankTypes.WF_BANK, fromWrittenDate("6 1, 2020")!!, fromWrittenDate("9 1, 2020")!!, listOf("8/2020"), listOf(fromWrittenDate("9 1, 2020")!!))
+            AccountSummaryEntry(ACCOUNT_NUMBER, BankTypes.WF_BANK, fromWrittenDate("6 1, 2020")!!, fromWrittenDate("9 1, 2020")!!, listOf("8/2020"), listOf(fromWrittenDate("9 1, 2020")!!))
         )
     }
 
     @Test
     fun testCreateOneStatement() {
         val statements = listOf(
-            newBankStatementNotSus(statementDate = fromWrittenDate("6 1, 2020"))
+            newBankStatementNotSus(fromWrittenDate("6 1, 2020"))
         )
         val result = creator.createSummary(statements)
 
         assertThat(result).hasSize(1)
         assertThat(result[0]).isEqualTo(
-            StatementSummaryEntry(ACCOUNT_NUMBER, BankTypes.WF_BANK, fromWrittenDate("6 1, 2020")!!, fromWrittenDate("6 1, 2020")!!, emptyList(), emptyList())
+            AccountSummaryEntry(ACCOUNT_NUMBER, BankTypes.WF_BANK, fromWrittenDate("6 1, 2020")!!, fromWrittenDate("6 1, 2020")!!, emptyList(), emptyList())
         )
     }
 
     @Test
     fun testMissingWithStatementDateOnDifferentDays() {
         val statements = listOf(
-            newBankStatementNotSus(statementDate = fromWrittenDate("6 5, 2020")),
-            newBankStatementNotSus(statementDate = fromWrittenDate("7 19, 2020")),
+            newBankStatementNotSus(fromWrittenDate("6 5, 2020")),
+            newBankStatementNotSus(fromWrittenDate("7 19, 2020")),
             newBankStatement(statementDate = fromWrittenDate("9 2, 2020")),
         )
         val result = creator.createSummary(statements)
 
         assertThat(result).hasSize(1)
         assertThat(result[0]).isEqualTo(
-            StatementSummaryEntry(ACCOUNT_NUMBER, BankTypes.WF_BANK, fromWrittenDate("6 5, 2020")!!, fromWrittenDate("9 2, 2020")!!, listOf("8/2020"), listOf(fromWrittenDate("9 2, 2020")!!))
+            AccountSummaryEntry(ACCOUNT_NUMBER, BankTypes.WF_BANK, fromWrittenDate("6 5, 2020")!!, fromWrittenDate("9 2, 2020")!!, listOf("8/2020"), listOf(fromWrittenDate("9 2, 2020")!!))
         )
     }
 
     @Test
     fun testCreateManyMissing() {
         val statements = listOf(
-            newBankStatementNotSus(statementDate = fromWrittenDate("6 1, 2020")),
-            newBankStatementNotSus(statementDate = fromWrittenDate("8 1, 2022"))
+            newBankStatementNotSus(fromWrittenDate("6 1, 2020")),
+            newBankStatementNotSus(fromWrittenDate("8 1, 2022"))
         )
         val result = creator.createSummary(statements)
 
@@ -101,7 +101,7 @@ class StatementSummaryCreatorTest {
         val last = fromWrittenDate("8 1, 2022")!!
         assertThat(result).hasSize(1)
         assertThat(result[0]).isEqualTo(
-            StatementSummaryEntry(ACCOUNT_NUMBER, BankTypes.WF_BANK, first, last,
+            AccountSummaryEntry(ACCOUNT_NUMBER, BankTypes.WF_BANK, first, last,
                 generateMonthsBetween(first, last), emptyList())
         )
     }
@@ -129,10 +129,9 @@ class StatementSummaryCreatorTest {
 
     companion object {
         fun newBankStatementNotSus(
-            accountNumber: String? = ACCOUNT_NUMBER,
-            statementDate: Date? = FIXED_STATEMENT_DATE
-        ) = newBankStatement(accountNumber, statementDate)
-            .update(beginningBalance = 500.0, endingBalance = 0.0, thPage = BASIC_TH_PAGE)
+            statementDate: Date? = FIXED_STATEMENT_DATE,
+        ) = newBankStatement(ACCOUNT_NUMBER, statementDate)
+            .update(beginningBalance = 500.0, endingBalance = 0.0, transactions = listOf(newHistoryRecord(date = statementDate)))
 
     }
 }

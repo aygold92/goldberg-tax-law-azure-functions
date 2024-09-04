@@ -5,7 +5,8 @@ import com.azure.ai.formrecognizer.documentanalysis.DocumentAnalysisClientBuilde
 import com.azure.core.credential.AzureKeyCredential
 import com.goldberg.law.document.DocumentClassifier
 import com.goldberg.law.document.DocumentDataExtractor
-import com.goldberg.law.document.StatementSummaryCreator
+import com.goldberg.law.document.AccountSummaryCreator
+import com.goldberg.law.document.CheckToStatementMatcher
 import com.goldberg.law.document.writer.AzureStorageCsvWriter
 import com.goldberg.law.document.writer.CsvWriter
 import com.goldberg.law.document.writer.FileCsvWriter
@@ -18,7 +19,6 @@ import com.goldberg.law.pdf.writer.FilePdfWriter
 import com.goldberg.law.pdf.writer.PdfWriter
 import com.google.inject.AbstractModule
 import com.google.inject.Provides
-import javax.inject.Named
 import javax.inject.Singleton
 
 class AppModule constructor(private val appEnvironmentSettings: AppEnvironmentSettings) : AbstractModule() {
@@ -62,7 +62,7 @@ class AppModule constructor(private val appEnvironmentSettings: AppEnvironmentSe
 
     @Provides
     @Singleton
-    fun documentDataExtractor(documentAnalysisClient: DocumentAnalysisClient): DocumentDataExtractor = DocumentDataExtractor(documentAnalysisClient, appEnvironmentSettings.intelligenceService.dataExtractorModel)
+    fun documentDataExtractor(documentAnalysisClient: DocumentAnalysisClient): DocumentDataExtractor = DocumentDataExtractor(documentAnalysisClient, appEnvironmentSettings.intelligenceService.dataExtractorModel, appEnvironmentSettings.intelligenceService.checkExtractorModel)
 
     @Provides
     @Singleton
@@ -71,6 +71,7 @@ class AppModule constructor(private val appEnvironmentSettings: AppEnvironmentSe
                          classifier: DocumentClassifier,
                          dataExtractor: DocumentDataExtractor,
                          csvWriter: CsvWriter,
-                         statementSummaryCreator: StatementSummaryCreator
-    ) = PdfExtractorMain(pdfLoader, splitter, classifier, dataExtractor, csvWriter, statementSummaryCreator)
+                         accountSummaryCreator: AccountSummaryCreator,
+                         checkToStatementMatcher: CheckToStatementMatcher
+    ) = PdfExtractorMain(pdfLoader, splitter, classifier, dataExtractor, csvWriter, checkToStatementMatcher, accountSummaryCreator)
 }

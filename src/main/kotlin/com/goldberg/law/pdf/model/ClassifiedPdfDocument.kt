@@ -3,11 +3,13 @@ package com.goldberg.law.pdf.model
 import org.apache.pdfbox.pdmodel.PDDocument
 
 class ClassifiedPdfDocument(name: String, document: PDDocument, pages: List<Int>, val classification: String): PdfDocument(name, document, pages) {
-    val statementType = StatementType.getBankType(classification)
+    val documentType = DocumentType.getBankType(classification)
 
-    override fun toString() = "{name: $name, pages: $pages, classification: $classification, statementType: $statementType}"
+    override fun toString() = "{name: $name, pages: $pages, classification: $classification, statementType: $documentType}"
 
     fun isRelevant() = classification != IRRELEVANT_TYPE
+
+    fun isCheckDocument() = documentType == DocumentType.CHECK
 
     companion object {
         const val IRRELEVANT_TYPE = "Extra Pages"

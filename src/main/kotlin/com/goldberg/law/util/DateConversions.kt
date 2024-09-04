@@ -17,8 +17,8 @@ private val acceptedDateFormats = listOf(
     "M d yy"       // 4 7 20
 )
 
-fun Date.toTransactionDate(): String = SimpleDateFormat("M/d/YYYY").format(this)
-fun Date.toMonthYear(): String = SimpleDateFormat("M/YYYY").format(this)
+fun Date.toTransactionDate(): String = SimpleDateFormat("M/d/yyyy").format(this)
+fun Date.toMonthYear(): String = SimpleDateFormat("M/yyyy").format(this)
 fun Date.getYearSafe(): String = getYearInt().toString()
 fun Date.getYearInt(): Int = Calendar.getInstance().apply { time = this@getYearInt }.get(Calendar.YEAR)
 fun Date.getMonthInt(): Int = Calendar.getInstance().apply { time = this@getMonthInt }.get(Calendar.MONTH)

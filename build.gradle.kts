@@ -64,13 +64,12 @@ java {
     }
 }
 
-
+val suspend = if (project.findProperty("debug")?.toString()?.toBoolean() == true) "y" else "n"
 
 application {
     // Define the main class for the application.
     mainClass = "com.goldberg.law.PdfExtractorMain"
     // Get the debug property from the command line or gradle.properties
-    val suspend = if (project.findProperty("debug")?.toString()?.toBoolean() == true) "y" else "n"
     applicationDefaultJvmArgs = listOf(
         "-agentlib:jdwp=transport=dt_socket,server=y,suspend=$suspend,address=5050"
     )
@@ -82,10 +81,9 @@ tasks.register<JavaExec>("splitPdf") {
     classpath = sourceSets["main"].runtimeClasspath
     mainClass = "com.goldberg.law.PdfSplitterMain"
     args = project.findProperty("args")?.toString()?.split(" ") ?: listOf()
-    val suspend = if (project.findProperty("debug")?.toString()?.toBoolean() == true) "y" else "n"
-    println("Value of suspend is: $suspend.  Properties: ${project.properties}")
+
     jvmArgs = listOf(
-        "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5050"
+        "-agentlib:jdwp=transport=dt_socket,server=y,suspend=$suspend,address=5050"
     )
     workingDir = projectDir
 }

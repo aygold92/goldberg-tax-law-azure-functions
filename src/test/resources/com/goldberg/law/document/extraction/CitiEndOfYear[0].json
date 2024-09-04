@@ -1,0 +1,145 @@
+{
+  "docType": "BankCreditCardExtractor_V4",
+  "fields":
+  {
+    "BatesStamp":
+    {
+      "value": "MH-002249",
+      "type": "string",
+      "content": "MH-002249"
+    },
+    "TransactionTableCredits":
+    {
+      "value": null,
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.947
+    },
+    "EndingBalance":
+    {
+      "value": 9128.509765625,
+      "type": "number",
+      "content": "$9,128.51"
+    },
+    "ChecksTable":
+    {
+      "value": null,
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.961
+    },
+    "TransactionTableAmount":
+    {
+      "value": null,
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.583
+    },
+    "Page":
+    {
+      "value": null,
+      "type": "string",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.378
+    },
+    "TotalPages":
+    {
+      "value": null,
+      "type": "string",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.373
+    },
+    "StatementDate":
+    {
+      "value": "12/08/20-01/07/21",
+      "type": "string",
+      "content": "12/08/20-01/07/21"
+    },
+    "FeesCharged":
+    {
+      "value": 29.0,
+      "type": "number",
+      "content": "+$29.00"
+    },
+    "AccountNumber":
+    {
+      "value": "2374",
+      "type": "string",
+      "content": "2374"
+    },
+    "Page/Total":
+    {
+      "value": null,
+      "type": "string",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.965
+    },
+    "InterestCharged":
+    {
+      "value": 84.9000015258789,
+      "type": "number",
+      "content": "+$84.90"
+    },
+    "TransactionTableDepositWithdrawal":
+    {
+      "value": null,
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.946
+    },
+    "TransactionTableCreditsCharges":
+    {
+      "value": null,
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.916
+    },
+    "SummaryOfAccounts":
+    {
+      "value": null,
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.987
+    },
+    "BankIdentifier":
+    {
+      "value": "CITI® / AADVANTAGE® GOLD CARD",
+      "type": "string",
+      "content": "CITI® / AADVANTAGE® GOLD CARD"
+    },
+    "TransactionTableDebits":
+    {
+      "value": null,
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.922
+    },
+    "BeginningBalance":
+    {
+      "value": 4500.35986328125,
+      "type": "number",
+      "content": "$4,500.36"
+    }
+  },
+  "confidence": 0.516
+}

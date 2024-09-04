@@ -1,0 +1,181 @@
+{
+  "docType": "BankCreditCardExtractor_V4",
+  "fields":
+  {
+    "BatesStamp":
+    {
+      "value": "MH-002252",
+      "type": "string",
+      "content": "MH-002252"
+    },
+    "TransactionTableCredits":
+    {
+      "value": null,
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.947
+    },
+    "ChecksTable":
+    {
+      "value": null,
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.961
+    },
+    "EndingBalance":
+    {
+      "value": null,
+      "type": "number",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.927
+    },
+    "Page":
+    {
+      "value": "4",
+      "type": "string",
+      "content": "4"
+    },
+    "TotalPages":
+    {
+      "value": "4",
+      "type": "string",
+      "content": "4"
+    },
+    "TransactionTableAmount":
+    {
+      "value":
+      [
+        {
+          "value":
+          {
+            "Description":
+            {
+              "value": "INTEREST CHARGED TO STANDARD PURCH",
+              "type": "string",
+              "content": "INTEREST CHARGED TO STANDARD PURCH"
+            },
+            "Amount":
+            {
+              "value": 84.9000015258789,
+              "type": "number",
+              "content": "$84.90"
+            },
+            "Date":
+            {
+              "value": "01/07",
+              "type": "string",
+              "content": "01/07"
+            }
+          },
+          "type": "object",
+          "content": null,
+          "boundingRegions": null,
+          "spans": null,
+          "confidence": 0.6
+        }
+      ],
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.299
+    },
+    "StatementDate":
+    {
+      "value": null,
+      "type": "string",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.814
+    },
+    "FeesCharged":
+    {
+      "value": 29.0,
+      "type": "number",
+      "content": "$29.00"
+    },
+    "AccountNumber":
+    {
+      "value": null,
+      "type": "string",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.705
+    },
+    "Page/Total":
+    {
+      "value": null,
+      "type": "string",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.972
+    },
+    "InterestCharged":
+    {
+      "value": 84.9000015258789,
+      "type": "number",
+      "content": "$84.90"
+    },
+    "TransactionTableDepositWithdrawal":
+    {
+      "value": null,
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.929
+    },
+    "TransactionTableCreditsCharges":
+    {
+      "value": null,
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.909
+    },
+    "SummaryOfAccounts":
+    {
+      "value": null,
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.987
+    },
+    "BankIdentifier":
+    {
+      "value": "www.citicards.com",
+      "type": "string",
+      "content": "www.citicards.com"
+    },
+    "TransactionTableDebits":
+    {
+      "value": null,
+      "type": "array",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.918
+    },
+    "BeginningBalance":
+    {
+      "value": null,
+      "type": "number",
+      "content": null,
+      "boundingRegions": null,
+      "spans": null,
+      "confidence": 0.941
+    }
+  },
+  "confidence": 0.369
+}

@@ -1,0 +1,49 @@
+{
+  "docType": "CheckDataExtractor_V2",
+  "fields":
+  {
+    "BatesStamp":
+    {
+      "value": "MH-002017",
+      "type": "string",
+      "content": "MH-002017"
+    },
+    "Description":
+    {
+      "value": "Mondays - June 21",
+      "type": "string",
+      "content": "Mondays - June 21"
+    },
+    "Amount":
+    {
+      "value": 3600.0,
+      "type": "number",
+      "content": "3,600.00"
+    },
+    "To":
+    {
+      "value": "Czavine Remigio",
+      "type": "string",
+      "content": "Czavine Remigio"
+    },
+    "CheckNumber":
+    {
+      "value": 3079,
+      "type": "integer",
+      "content": "3079"
+    },
+    "Date":
+    {
+      "value": "December 24, 2020",
+      "type": "string",
+      "content": "December 24, 2020"
+    },
+    "AccountNumber":
+    {
+      "value": "100002492",
+      "type": "string",
+      "content": "100002492"
+    }
+  },
+  "confidence": 0.948
+}

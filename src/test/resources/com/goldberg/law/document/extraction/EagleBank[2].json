@@ -32,14 +32,14 @@
           {
             "Number":
             {
-              "value": "3175",
-              "type": "string",
+              "value": 3175,
+              "type": "number",
               "content": "3175"
             },
             "Amount":
             {
-              "value": "427.50",
-              "type": "string",
+              "value": 427.50,
+              "type": "number",
               "content": "427.50"
             },
             "Date":
@@ -60,14 +60,14 @@
           {
             "Number":
             {
-              "value": "3203",
-              "type": "string",
+              "value": 3203,
+              "type": "number",
               "content": "3203"
             },
             "Amount":
             {
-              "value": "1,209.15",
-              "type": "string",
+              "value": 1209.15,
+              "type": "number",
               "content": "1,209.15"
             },
             "Date":
@@ -88,14 +88,14 @@
           {
             "Number":
             {
-              "value": "3176",
-              "type": "string",
+              "value": 3176,
+              "type": "number",
               "content": "3176"
             },
             "Amount":
             {
-              "value": "1,000.00",
-              "type": "string",
+              "value": 1000.00,
+              "type": "number",
               "content": "1,000.00"
             },
             "Date":
@@ -116,14 +116,14 @@
           {
             "Number":
             {
-              "value": "3204",
-              "type": "string",
+              "value": 3204,
+              "type": "number",
               "content": "3204"
             },
             "Amount":
             {
-              "value": "220.00",
-              "type": "string",
+              "value": 220.00,
+              "type": "number",
               "content": "220.00"
             },
             "Date":
@@ -144,14 +144,14 @@
           {
             "Number":
             {
-              "value": "3202",
-              "type": "string",
+              "value": 3202,
+              "type": "number",
               "content": "3202"
             },
             "Amount":
             {
-              "value": "204.00",
-              "type": "string",
+              "value": 204.00,
+              "type": "number",
               "content": "204.00"
             },
             "Date":

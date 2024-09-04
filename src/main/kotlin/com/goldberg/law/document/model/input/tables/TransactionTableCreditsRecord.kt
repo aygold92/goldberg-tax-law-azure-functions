@@ -1,8 +1,8 @@
 package com.goldberg.law.document.model.input.tables
 
 import com.azure.ai.formrecognizer.documentanalysis.models.DocumentField
+import com.goldberg.law.document.model.output.TransactionHistoryPageMetadata
 import com.goldberg.law.document.model.output.TransactionHistoryRecord
-import com.goldberg.law.util.fromWrittenDate
 import com.goldberg.law.util.roundToTwoDecimalPlaces
 
 class TransactionTableCreditsRecord(
@@ -10,10 +10,11 @@ class TransactionTableCreditsRecord(
     val description: String?,
     val additions: Double?,
 ): TransactionRecord() {
-    override fun toTransactionHistoryRecord(statementYear: String?): TransactionHistoryRecord = TransactionHistoryRecord(
-        date = fromWrittenDate(this.date, statementYear),
+    override fun toTransactionHistoryRecord(statementYear: String?, metadata: TransactionHistoryPageMetadata): TransactionHistoryRecord = TransactionHistoryRecord(
+        date = fromWrittenDateStatementYearOverride(this.date, statementYear),
         description = this.description,
-        amount = additions
+        amount = additions,
+        pageMetadata = metadata
     )
 
     object Keys {

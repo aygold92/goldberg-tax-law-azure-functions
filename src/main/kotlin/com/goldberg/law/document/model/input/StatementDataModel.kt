@@ -9,7 +9,8 @@ import com.goldberg.law.document.model.input.tables.TransactionTableAmount.Compa
 import com.goldberg.law.document.model.input.tables.TransactionTableChecks.Companion.getTransactionTableChecks
 import com.goldberg.law.document.model.input.tables.TransactionTableCredits.Companion.getTransactionTableCredits
 import com.goldberg.law.document.model.input.tables.TransactionTableDebits.Companion.getTransactionTableDebits
-import com.goldberg.law.pdf.model.StatementType
+import com.goldberg.law.document.model.output.TransactionHistoryPageMetadata
+import com.goldberg.law.pdf.model.DocumentType
 import com.goldberg.law.util.fromWrittenDate
 import com.goldberg.law.util.roundToTwoDecimalPlaces
 import java.util.Date
@@ -33,7 +34,7 @@ class StatementDataModel(
     val interestCharged: Double?,
     val feesCharged: Double?
 ) {
-    fun getStatementType(): StatementType? {
+    fun getStatementType(): DocumentType? {
         val isBank = listOfNotNull(
             transactionTableDepositWithdrawal,
             transactionTableCredits,
@@ -43,16 +44,17 @@ class StatementDataModel(
         ).isNotEmpty()
         val isCreditCard = listOfNotNull(transactionTableCreditsCharges, transactionTableAmount).isNotEmpty()
         return when {
-            isBank && !isCreditCard -> StatementType.BANK
-            !isBank && isCreditCard -> StatementType.CREDIT_CARD
-            isBank && isCreditCard -> StatementType.MIXED // this should never happen
+            isBank && !isCreditCard -> DocumentType.BANK
+            !isBank && isCreditCard -> DocumentType.CREDIT_CARD
+            isBank && isCreditCard -> DocumentType.MIXED // this should never happen
             else -> null
         }
     }
-    fun getTransactionRecords(statementYear: String?) = listOf(
+
+    fun getTransactionRecords(statementYear: String?, metadata: TransactionHistoryPageMetadata) = listOf(
         transactionTableDepositWithdrawal, transactionTableAmount, transactionTableCreditsCharges,
         transactionTableDebits, transactionTableCredits, transactionTableChecks
-    ).flatMap { it?.getHistoryRecords(statementYear) ?: listOf() }
+    ).flatMap { it?.getHistoryRecords(statementYear, metadata) ?: listOf() }
 
     object Keys {
         const val BANK_IDENTIFIER = "BankIdentifier"
@@ -90,7 +92,7 @@ class StatementDataModel(
             })
 
             val (page,totalPages) = documentFields[Keys.PAGE_AND_TOTAL]?.valueAsString?.split("/")
-                ?.let { Pair(it[0].toInt(), it[1].toInt()) }
+                ?.let { if (it.size == 2 && it[0].toIntOrNull() != null && it[1].toIntOrNull() != null) Pair(it[0].toInt(), it[1].toInt()) else null }
                 ?: Pair(documentFields[Keys.PAGE_NUM]?.valueAsString?.toInt(), documentFields[Keys.TOTAL_PAGES]?.valueAsString?.toInt())
             StatementDataModel(
                 bankIdentifier = documentFields[Keys.BANK_IDENTIFIER]?.valueAsString,
