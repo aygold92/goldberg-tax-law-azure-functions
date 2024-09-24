@@ -4,11 +4,40 @@
  * This generated file contains a sample Java application project to get you started.
  * For more details on building Java & JVM projects, please refer to https://docs.gradle.org/8.8/userguide/building_java_projects.html in the Gradle documentation.
  */
+import com.fasterxml.jackson.core.JsonParser
+import com.fasterxml.jackson.databind.ObjectMapper
+import org.jetbrains.kotlin.utils.ifEmpty
+import org.jetbrains.kotlin.utils.keysToMap
+import java.nio.file.Files
+import java.nio.file.Paths
 
+group = "com.goldberg.law"
+version = "1.0.0"
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     kotlin("jvm") version "2.0.0"
     application
+    id("com.microsoft.azure.azurefunctions") version "1.16.1"
+}
+
+val suspend = if (project.findProperty("debug")?.toString()?.toBoolean() == true) "y" else "n"
+
+azurefunctions {
+    subscription = "39fd9868-2043-43d5-80a5-4e2e7145ba11"
+    resourceGroup = "DefaultResourceGroup"
+    appName = "goldberg-tax-law"
+    pricingTier = "Consumption"
+    region = "eastus"
+    setRuntime(closureOf<com.microsoft.azure.gradle.configuration.GradleRuntimeConfig> {
+        os("Windows")
+    })
+    setAuth(closureOf<com.microsoft.azure.gradle.auth.GradleAuthConfig> {
+        type = "azure_cli"
+    })
+    localDebug = "transport=dt_socket,server=y,suspend=$suspend,address=5005"
+    setDeployment(closureOf<com.microsoft.azure.plugin.functions.gradle.configuration.deploy.Deployment> {
+        type = "run_from_blob"
+    })
 }
 
 repositories {
@@ -20,6 +49,7 @@ repositories {
 dependencies {
     // kotlin
     implementation(kotlin("stdlib"))
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0-RC.2")
     // guice
     implementation("com.google.inject:guice:7.0.0")
     // logging
@@ -40,13 +70,22 @@ dependencies {
     // Storage, FormRecognizer, and SQL
     implementation("com.azure:azure-storage-blob:12.18.0")
     implementation("com.azure:azure-ai-formrecognizer:4.1.8")
-    implementation("mysql:mysql-connector-java:8.0.31")
+    implementation("com.azure:azure-identity:1.13.2")
+    implementation("com.microsoft.azure.functions:azure-functions-java-library:3.1.0")
+    implementation("com.microsoft.azure.functions:azure-functions-java-spi:1.0.0")
+    implementation("com.microsoft:durabletask-azure-functions:1.5.0")
+    //implementation("com.azure:azure-sdk-bom:1.2.27")
+//    implementation("com.azure:azure-storage-blob")
+//    implementation("com.azure:azure-ai-formrecognizer")
+    // implementation("mysql:mysql-connector-java")
 
     // PDF Splitter
     implementation("org.apache.pdfbox:pdfbox:3.0.2")
 
     // Kotlin
     implementation("org.jetbrains.kotlin:kotlin-stdlib:2.0.0")
+
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.17.2")
 
     // Test
     testImplementation("org.jetbrains.kotlin:kotlin-test:2.0.0")
@@ -55,6 +94,7 @@ dependencies {
     testImplementation("org.assertj:assertj-core:3.26.0")
     testImplementation("org.mockito:mockito-core:5.12.0")
     testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
+    testImplementation("org.apache.commons:commons-csv:1.9.0")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
@@ -64,7 +104,16 @@ java {
     }
 }
 
-val suspend = if (project.findProperty("debug")?.toString()?.toBoolean() == true) "y" else "n"
+// Function to read local.settings.json using Jackson and set environment variables
+fun setEnvironmentVariablesFromJson(): Map<String, String> {
+    val filePath = Paths.get("local.settings.json")
+    if (!Files.exists(filePath)) { throw IllegalStateException("local.settings.json not found!") }
+
+    val mapper = ObjectMapper().apply { enable(JsonParser.Feature.ALLOW_COMMENTS); }
+    return mapper.readTree(Files.newBufferedReader(filePath)).get("Values").let { valuesNode ->
+        valuesNode.fieldNames().asSequence().associateWith { valuesNode.get(it).asText() }
+    }.ifEmpty { throw IllegalStateException("No environment variables found in local.settings.json!") }
+}
 
 application {
     // Define the main class for the application.
@@ -73,6 +122,9 @@ application {
     applicationDefaultJvmArgs = listOf(
         "-agentlib:jdwp=transport=dt_socket,server=y,suspend=$suspend,address=5050"
     )
+    tasks.named<JavaExec>("run") {
+        environment(setEnvironmentVariablesFromJson())
+    }
 }
 
 tasks.register<JavaExec>("splitPdf") {
@@ -80,8 +132,10 @@ tasks.register<JavaExec>("splitPdf") {
     description = "splits a PDF"
     classpath = sourceSets["main"].runtimeClasspath
     mainClass = "com.goldberg.law.PdfSplitterMain"
-    args = project.findProperty("args")?.toString()?.split(" ") ?: listOf()
 
+    val properties =  mutableListOf("-if", project.findProperty("filename")?.toString())
+    properties.addAll(project.findProperty("args")?.toString()?.split(" ") ?: listOf())
+    args = properties
     jvmArgs = listOf(
         "-agentlib:jdwp=transport=dt_socket,server=y,suspend=$suspend,address=5050"
     )

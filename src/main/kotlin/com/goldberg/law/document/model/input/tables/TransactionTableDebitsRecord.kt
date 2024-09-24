@@ -1,17 +1,21 @@
 package com.goldberg.law.document.model.input.tables
 
 import com.azure.ai.formrecognizer.documentanalysis.models.DocumentField
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.goldberg.law.document.model.output.TransactionHistoryPageMetadata
 import com.goldberg.law.document.model.output.TransactionHistoryRecord
-import com.goldberg.law.util.roundToTwoDecimalPlaces
+import com.goldberg.law.util.positiveCurrencyValue
+import java.math.BigDecimal
+import java.util.*
 
-class TransactionTableDebitsRecord(
-    val date: String?,
-    val description: String?,
-    val additions: Double?,
+data class TransactionTableDebitsRecord @JsonCreator constructor(
+    @JsonProperty("date") val date: String?,
+    @JsonProperty("description") val description: String?,
+    @JsonProperty("additions") val additions: BigDecimal?,
 ): TransactionRecord() {
-    override fun toTransactionHistoryRecord(statementYear: String?, metadata: TransactionHistoryPageMetadata): TransactionHistoryRecord = TransactionHistoryRecord(
-        date = fromWrittenDateStatementYearOverride(this.date, statementYear),
+    override fun toTransactionHistoryRecord(statementDate: Date?, metadata: TransactionHistoryPageMetadata): TransactionHistoryRecord = TransactionHistoryRecord(
+        date = fromWrittenDateStatementDateOverride(this.date, statementDate),
         description = this.description,
         amount = additions,
         pageMetadata = metadata
@@ -28,7 +32,7 @@ class TransactionTableDebitsRecord(
             TransactionTableAmountRecord(
                 date = recordFields[Keys.DATE]?.valueAsString,
                 description = recordFields[Keys.DESCRIPTION]?.valueAsString,
-                amount = recordFields[Keys.SUBTRACTIONS]?.valueAsDouble?.roundToTwoDecimalPlaces(),
+                amount = recordFields[Keys.SUBTRACTIONS]?.positiveCurrencyValue(),
             )
         }
     }

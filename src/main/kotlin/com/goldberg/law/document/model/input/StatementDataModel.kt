@@ -1,7 +1,11 @@
 package com.goldberg.law.document.model.input
 
 import com.azure.ai.formrecognizer.documentanalysis.models.AnalyzedDocument
-import com.goldberg.law.document.model.input.SummaryOfAccounts.Companion.getSummaryOfAccounts
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.goldberg.law.document.model.pdf.PdfDocumentPageMetadata
+import com.goldberg.law.document.model.input.SummaryOfAccountsTable.Companion.getSummaryOfAccounts
 import com.goldberg.law.document.model.input.tables.*
 import com.goldberg.law.document.model.input.tables.TransactionTableCreditsCharges.Companion.getTransactionTableCreditsCharges
 import com.goldberg.law.document.model.input.tables.TransactionTableDepositWithdrawal.Companion.getTransactionTableDepositWithdrawal
@@ -10,36 +14,41 @@ import com.goldberg.law.document.model.input.tables.TransactionTableChecks.Compa
 import com.goldberg.law.document.model.input.tables.TransactionTableCredits.Companion.getTransactionTableCredits
 import com.goldberg.law.document.model.input.tables.TransactionTableDebits.Companion.getTransactionTableDebits
 import com.goldberg.law.document.model.output.TransactionHistoryPageMetadata
-import com.goldberg.law.pdf.model.DocumentType
-import com.goldberg.law.util.fromWrittenDate
-import com.goldberg.law.util.roundToTwoDecimalPlaces
+import com.goldberg.law.document.model.pdf.ClassifiedPdfDocumentPage
+import com.goldberg.law.document.model.pdf.DocumentType
+import com.goldberg.law.util.*
+import java.math.BigDecimal
 import java.util.Date
 
-class StatementDataModel(
-    val bankIdentifier: String?,
-    val statementDate: Date?,
-    val pageNum: Int?,
-    val totalPages: Int?,
-    val summaryOfAccounts: SummaryOfAccounts?,
-    val transactionTableDepositWithdrawal: TransactionTableDepositWithdrawal?,
-    val batesStamp: String?,
-    val accountNumber: String?,
-    val beginningBalance: Double?,
-    val endingBalance: Double?,
-    val transactionTableAmount: TransactionTableAmount?,
-    val transactionTableCreditsCharges: TransactionTableCreditsCharges?,
-    val transactionTableDebits: TransactionTableDebits?,
-    val transactionTableCredits: TransactionTableCredits?,
-    val transactionTableChecks: TransactionTableChecks?,
-    val interestCharged: Double?,
-    val feesCharged: Double?
-) {
+data class StatementDataModel @JsonCreator constructor(
+    @JsonProperty("bankIdentifier") val bankIdentifier: String?,
+    @JsonProperty("date") val date: String?,
+    @JsonProperty("pageNum") val pageNum: Int?,
+    @JsonProperty("totalPages") val totalPages: Int?,
+    @JsonProperty("summaryOfAccountsTable") val summaryOfAccountsTable: SummaryOfAccountsTable?,
+    @JsonProperty("transactionTableDepositWithdrawal") val transactionTableDepositWithdrawal: TransactionTableDepositWithdrawal?,
+    @JsonProperty("batesStamp") val batesStamp: String?,
+    @JsonProperty("accountNumber") val accountNumber: String?,
+    @JsonProperty("beginningBalance") val beginningBalance: BigDecimal?,
+    @JsonProperty("endingBalance") val endingBalance: BigDecimal?,
+    @JsonProperty("transactionTableAmount") val transactionTableAmount: TransactionTableAmount?,
+    @JsonProperty("transactionTableCreditsCharges") val transactionTableCreditsCharges: TransactionTableCreditsCharges?,
+    @JsonProperty("transactionTableDebits") val transactionTableDebits: TransactionTableDebits?,
+    @JsonProperty("transactionTableCredits") val transactionTableCredits: TransactionTableCredits?,
+    @JsonProperty("transactionTableChecks") val transactionTableChecks: TransactionTableChecks?,
+    @JsonProperty("interestCharged") val interestCharged: BigDecimal?,
+    @JsonProperty("feesCharged") val feesCharged: BigDecimal?,
+    @JsonProperty("pageMetadata") override val pageMetadata: PdfDocumentPageMetadata
+): DocumentDataModel(pageMetadata) {
+    @JsonIgnore @Transient
+    val statementDate = fromWrittenDate(date)
+    @JsonIgnore
     fun getStatementType(): DocumentType? {
         val isBank = listOfNotNull(
             transactionTableDepositWithdrawal,
             transactionTableCredits,
             transactionTableDebits,
-            summaryOfAccounts,
+            summaryOfAccountsTable,
             transactionTableChecks
         ).isNotEmpty()
         val isCreditCard = listOfNotNull(transactionTableCreditsCharges, transactionTableAmount).isNotEmpty()
@@ -51,10 +60,11 @@ class StatementDataModel(
         }
     }
 
-    fun getTransactionRecords(statementYear: String?, metadata: TransactionHistoryPageMetadata) = listOf(
+    @JsonIgnore
+    fun getTransactionRecords(statementDate: Date?, metadata: TransactionHistoryPageMetadata) = listOf(
         transactionTableDepositWithdrawal, transactionTableAmount, transactionTableCreditsCharges,
         transactionTableDebits, transactionTableCredits, transactionTableChecks
-    ).flatMap { it?.getHistoryRecords(statementYear, metadata) ?: listOf() }
+    ).flatMap { it?.createHistoryRecords(statementDate, metadata) ?: listOf() }
 
     object Keys {
         const val BANK_IDENTIFIER = "BankIdentifier"
@@ -84,9 +94,9 @@ class StatementDataModel(
 
 
     companion object {
-        fun AnalyzedDocument.toBankDocument(): StatementDataModel = this.fields.let { documentFields ->
+        fun AnalyzedDocument.toBankDocument(classifiedPdfDocument: ClassifiedPdfDocumentPage): StatementDataModel = this.fields.let { documentFields ->
             // for citi credit cards, the date field captures both the start and end
-            val statementDate = fromWrittenDate(documentFields[Keys.STATEMENT_DATE]?.valueAsString?.let {
+            val statementDate = normalizeDate(documentFields[Keys.STATEMENT_DATE]?.valueAsString?.let {
                 if (it.contains("-")) it.substringAfter("-").trim()
                 else it
             })
@@ -96,23 +106,28 @@ class StatementDataModel(
                 ?: Pair(documentFields[Keys.PAGE_NUM]?.valueAsString?.toInt(), documentFields[Keys.TOTAL_PAGES]?.valueAsString?.toInt())
             StatementDataModel(
                 bankIdentifier = documentFields[Keys.BANK_IDENTIFIER]?.valueAsString,
-                statementDate = statementDate,
+                date = statementDate,
                 pageNum = page,
                 totalPages = totalPages,
-                summaryOfAccounts = this.getSummaryOfAccounts(),
+                summaryOfAccountsTable = this.getSummaryOfAccounts(),
                 transactionTableDepositWithdrawal = this.getTransactionTableDepositWithdrawal(),
                 accountNumber = documentFields[Keys.ACCOUNT_NUMBER]?.valueAsString,
                 batesStamp = documentFields[Keys.BATES_STAMP]?.valueAsString,
-                beginningBalance = documentFields[Keys.BEGINNING_BALANCE]?.valueAsDouble?.roundToTwoDecimalPlaces(),
-                endingBalance = documentFields[Keys.ENDING_BALANCE]?.valueAsDouble?.roundToTwoDecimalPlaces(),
-                feesCharged = documentFields[Keys.FEES_CHARGED]?.valueAsDouble?.roundToTwoDecimalPlaces(),
-                interestCharged = documentFields[Keys.INTEREST_CHARGED]?.valueAsDouble?.roundToTwoDecimalPlaces(),
+                beginningBalance = documentFields[Keys.BEGINNING_BALANCE]?.currencyValue(),
+                endingBalance = documentFields[Keys.ENDING_BALANCE]?.currencyValue(),
+                feesCharged = documentFields[Keys.FEES_CHARGED]?.positiveCurrencyValue(),
+                interestCharged = documentFields[Keys.INTEREST_CHARGED]?.positiveCurrencyValue(),
                 transactionTableAmount = this.getTransactionTableAmount(),
                 transactionTableCreditsCharges = this.getTransactionTableCreditsCharges(),
                 transactionTableCredits = this.getTransactionTableCredits(),
                 transactionTableDebits = this.getTransactionTableDebits(),
                 transactionTableChecks = this.getTransactionTableChecks(),
+                pageMetadata = classifiedPdfDocument.toDocumentMetadata()
             )
         }
+        fun blankModel(classifiedPdfDocument: ClassifiedPdfDocumentPage) = StatementDataModel(
+            null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            classifiedPdfDocument.toDocumentMetadata()
+        )
     }
 }

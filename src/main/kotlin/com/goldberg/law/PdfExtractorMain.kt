@@ -1,96 +1,131 @@
 package com.goldberg.law
 
+import com.fasterxml.jackson.core.type.TypeReference
+import com.goldberg.law.datamanager.DataManager
 import com.goldberg.law.document.*
-import com.goldberg.law.document.model.output.BankStatement
-import com.goldberg.law.document.model.output.CheckData
-import com.goldberg.law.document.model.output.CheckDataKey
-import com.goldberg.law.document.writer.CsvWriter
-import com.goldberg.law.pdf.PdfSplitter
-import com.goldberg.law.pdf.loader.PdfLoader
-import com.goldberg.law.util.getFilename
+import com.goldberg.law.document.model.input.CheckDataModel
+import com.goldberg.law.document.model.input.DocumentDataModel
+import com.goldberg.law.document.model.input.ExtraPageDataModel
+import com.goldberg.law.document.model.input.StatementDataModel
+import com.goldberg.law.document.model.pdf.PdfDocumentPage
+import com.goldberg.law.util.OBJECT_MAPPER
+import com.goldberg.law.util.getDocumentName
 import com.goldberg.law.util.toStringDetailed
 import com.google.inject.Guice
 import com.google.inject.Injector
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.runBlocking
+import java.nio.file.Files
+import java.nio.file.Paths
 import javax.inject.Inject
 
 
 class PdfExtractorMain @Inject constructor(
-    private val pdfLoader: PdfLoader,
-    private val splitter: PdfSplitter,
+    private val dataManager: DataManager,
     private val classifier: DocumentClassifier,
     private val dataExtractor: DocumentDataExtractor,
-    private val csvWriter: CsvWriter,
+    private val statementCreator: DocumentStatementCreator,
     private val accountNormalizer: AccountNormalizer,
     private val checkToStatementMatcher: CheckToStatementMatcher,
-    private val accountSummaryCreator: AccountSummaryCreator
+    private val accountSummaryCreator: AccountSummaryCreator,
+    numWorkers: Int
 ) {
     private val logger = KotlinLogging.logger {}
+    val workerPoolDispatcher = Dispatchers.IO.limitedParallelism(numWorkers)
 
-    fun run(req: AnalyzeDocumentRequest) {
-        val inputDocuments = pdfLoader.loadPdfs(req.inputFile)
+    fun readPreloadedDoc(filename: String): String =
+        Files.readString(Paths.get(javaClass.getResource("$PATH_TO_DOCS/$filename")!!.toURI()))
 
-        val allStatements: MutableList<BankStatement> = mutableListOf()
-        val allChecksMap: MutableMap<CheckDataKey, CheckData> = mutableMapOf()
-        inputDocuments.forEach { inputDocument ->
-            try {
-                logger.info { "$HEADER_SECTION START DOCUMENT $inputDocument $HEADER_SECTION" }
-                // current version of API can't classify one document into multiple pages (but the preview version can)
-                val desiredPages = if (req.allPages) inputDocument.pages else req.getDesiredPages()
-                val splitDocuments = splitter.splitPdf(inputDocument, desiredPages, true)
+    fun loadModels(filename: String): List<StatementDataModel> {
+        val docString = readPreloadedDoc(filename)
+        return OBJECT_MAPPER.readValue(docString, object: TypeReference<List<StatementDataModel>>() {}).also {
+            logger.debug { "successfully loaded $filename" }
+        }
+    }
 
-                val relevantDocuments = if (req.classifiedTypeOverride != null) {
-                    logger.info { "Skipping classification as requested..." }
-                    splitDocuments.map { it.withType(req.classifiedTypeOverride!!) }
-                } else {
-                    splitDocuments.map { classifier.classifyDocument(it) }
-                }.filter { classifiedDoc -> classifiedDoc.isRelevant() }
+    fun loadChecks(filename: String): List<CheckDataModel> {
+        val docString = readPreloadedDoc(filename)
+        return OBJECT_MAPPER.readValue(docString, object: TypeReference<List<CheckDataModel>>() {}).also {
+            logger.debug { "successfully loaded $filename" }
+        }
+    }
 
-                val transactionDocuments = relevantDocuments.filter { !it.isCheckDocument() }
-                val checkDocuments = relevantDocuments.filter { it.isCheckDocument() }
+    fun run(req: AnalyzeDocumentRequest) = runBlocking {
+        val inputDocuments = loadInputDocuments(req)
 
-                logger.debug { "Found relevant documents: $relevantDocuments" }
-
-                if (transactionDocuments.isNotEmpty()) {
-                    val statements = dataExtractor.extractTransactionHistory(transactionDocuments).sortedBy { it.statementDate }
-                        .onEach { if (it.isSuspicious()) logger.error { "Statement ${it.primaryKey} is suspicious" } }
-                    logger.debug { "=====Statements=====\n${statements.toStringDetailed()}" }
-                    allStatements.addAll(statements)
-                }
-
-                if (checkDocuments.isNotEmpty()) {
-                    val checksMap = dataExtractor.extractCheckData(checkDocuments)
-                    allChecksMap.putAll(checksMap)
-                    logger.debug { "=====Checks=====\n${checksMap.toStringDetailed()}" }
-                }
-
-                logger.info { "$HEADER_SECTION END DOCUMENT $inputDocument $HEADER_SECTION" }
-            } catch (t: Throwable) {
-                logger.error(t) { "Exception processing document $inputDocument: $t" }
+        val documentDataModels = inputDocuments.map { doc ->
+            async(workerPoolDispatcher) {
+                processDocument(doc, req.classifiedTypeOverride, req.outputDirectory)
             }
+        }.awaitAll()
+
+        processStatementsAndChecks(
+            req.outputDirectory, req.outputFile ?: req.inputFile,
+            documentDataModels.mapNotNull { it as? StatementDataModel },
+            documentDataModels.mapNotNull { it as? CheckDataModel }
+        )
+    }
+
+    fun loadInputDocuments(req: AnalyzeDocumentRequest): List<PdfDocumentPage> =
+        dataManager.findMatchingFiles(req.inputFile).flatMap {
+            val desiredPages = if (req.allPages) null else req.getDesiredPages()
+            dataManager.loadInputPdfDocumentPages(req.inputFile, desiredPages)
         }
 
-        val (finalStatements, checksNotUsed, checksNotFound) = checkToStatementMatcher.matchChecksWithStatements(allStatements, allChecksMap)
+    fun processDocument(inputDocument: PdfDocumentPage, classifiedTypeOverride: String?, outputDirectory: String?): DocumentDataModel {
+        val classifiedDocument = if (classifiedTypeOverride != null) {
+            logger.info { "Overriding classification as $classifiedTypeOverride as requested..." }
+            inputDocument.withType(classifiedTypeOverride)
+        } else {
+            classifier.classifyDocument(inputDocument)
+        }
+
+        return when {
+            classifiedDocument.isStatementDocument() -> dataExtractor.extractStatementData(classifiedDocument);
+            classifiedDocument.isRelevant() -> dataExtractor.extractCheckData(classifiedDocument)
+            else -> ExtraPageDataModel(classifiedDocument.toDocumentMetadata())
+        }.also { dataModel ->
+            try {
+                dataManager.saveModel(inputDocument, dataModel, outputDirectory)
+            } catch (ex: Throwable) {
+                logger.error(ex) { "Exception writing model for ${inputDocument.nameWithPage}: $ex" }
+            }
+        }
+    }
+
+    fun processStatementsAndChecks(outputDirectory: String, outputFile: String, allStatementModels: List<StatementDataModel>, allCheckModels: List<CheckDataModel>): List<String> {
+        val (statementModelsUpdatedAccounts, checksUpdatedAccounts) = accountNormalizer.normalizeAccounts(allStatementModels, allCheckModels)
+
+        val statementsWithoutChecks = statementCreator.createBankStatements(statementModelsUpdatedAccounts)
+            .sortedBy { it.statementDate }
+            .onEach { if (it.isSuspicious()) logger.error { "Statement ${it.primaryKey} is suspicious" } }
+        logger.debug { "=====Statements=====\n${statementsWithoutChecks.toStringDetailed()}" }
+
+        val filePrefix = listOf(outputDirectory, outputFile.getDocumentName(), outputFile.getDocumentName()).joinToString("/")
+
+        val finalStatements = checkToStatementMatcher.matchChecksWithStatements(statementsWithoutChecks, checksUpdatedAccounts)
         val summary = accountSummaryCreator.createSummary(finalStatements).also { logger.debug { it } }
 
-        val filePrefix = "${req.outputDirectory}/${req.outputFile?.getFilename() ?: req.inputFile.getFilename()}"
-        csvWriter.writeCheckSummaryToCsv("${filePrefix}_CheckSummary", allChecksMap, checksNotFound, checksNotUsed)
-        csvWriter.writeAccountSummaryToCsv("${filePrefix}_AccountSummary", summary)
-        csvWriter.writeStatementSummaryToCsv("${filePrefix}_StatementSummary", finalStatements.map { it.toStatementSummary() })
-        csvWriter.writeRecordsToCsv("${filePrefix}_Records", finalStatements)
+        return listOf(
+            dataManager.writeCheckSummaryToCsv("${filePrefix}_CheckSummary", checksUpdatedAccounts, finalStatements.getMissingChecks(), finalStatements.getChecksNotUsed(allCheckModels.map { it.checkDataKey }.toSet())),
+            dataManager.writeAccountSummaryToCsv("${filePrefix}_AccountSummary", summary),
+            dataManager.writeStatementSummaryToCsv("${filePrefix}_StatementSummary", finalStatements.map { it.toStatementSummary() }),
+            dataManager.writeRecordsToCsv("${filePrefix}_Records", finalStatements),
+        )
     }
 
     companion object {
-        private const val HEADER_SECTION = "**********************************"
+        private const val PATH_TO_DOCS = "/com/goldberg/law"
         @JvmStatic
         fun main(args: Array<String>) {
             val request = AnalyzeDocumentRequest().parseArgs(args)
-            val service = if (request.isProd) IntelligenceService.PROD else IntelligenceService.TEST
+            val azureConfiguration = if (request.isProd) AzureConfiguration.PROD else AzureConfiguration.TEST
             val injector: Injector = Guice.createInjector(
-                AppModule(AppEnvironmentSettings(service, ExecutionEnvironment.LOCAL))
+                AppModule(AppEnvironmentSettings(azureConfiguration, ExecutionEnvironment.LOCAL))
             )
-            injector.getInstance(PdfLoader::class.java)
-            injector.getInstance(DocumentClassifier::class.java)
             injector.getInstance(PdfExtractorMain::class.java).run(request)
         }
     }

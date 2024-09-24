@@ -1,10 +1,11 @@
 package com.goldberg.law.document.model.output
 
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.goldberg.law.util.addQuotes
 import com.goldberg.law.util.toTransactionDate
 import java.util.Date
 
-data class AccountSummaryEntry(
+data class AccountSummaryEntry @JsonCreator constructor(
     val accountNumber: String,
     val bankType: String,
     val first: Date,

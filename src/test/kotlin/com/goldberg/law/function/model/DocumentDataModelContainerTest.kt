@@ -1,0 +1,112 @@
+package com.goldberg.law.function.model
+
+import com.goldberg.law.document.model.ModelValues.ACCOUNT_NUMBER
+import com.goldberg.law.document.model.ModelValues.BATES_STAMP
+import com.goldberg.law.document.model.ModelValues.FILENAME
+import com.goldberg.law.document.model.ModelValues.FIXED_STATEMENT_DATE
+import com.goldberg.law.document.model.input.*
+import com.goldberg.law.document.model.input.DocumentDataModelTest.Companion.GSON
+import com.goldberg.law.document.model.input.tables.*
+import com.goldberg.law.document.model.pdf.ClassifiedPdfDocumentPage
+import com.goldberg.law.document.model.pdf.DocumentType
+import com.goldberg.law.document.model.pdf.PdfDocumentPageMetadata
+import com.goldberg.law.function.model.activity.ProcessStatementsActivityOutput
+import com.goldberg.law.util.OBJECT_MAPPER
+import com.goldberg.law.util.asCurrency
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+
+class DocumentDataModelContainerTest {
+    @Test
+    fun testStatementDataModelSerializableJackson() {
+        val model = DocumentDataModelContainer(statementDataModel = STATEMENT_DATA_MODEL)
+        val otherModel = OBJECT_MAPPER.readValue(OBJECT_MAPPER.writeValueAsString(model), DocumentDataModelContainer::class.java)
+        assertThat(otherModel).isEqualTo(model)
+    }
+
+    @Test
+    fun testStatementDataModelSerializableGson() {
+        val model = DocumentDataModelContainer(statementDataModel = STATEMENT_DATA_MODEL)
+        val otherModel = GSON.fromJson(GSON.toJson(model), DocumentDataModelContainer::class.java)
+        assertThat(otherModel).isEqualTo(model)
+    }
+
+    @Test
+    fun testProcessStatementAndChecksOutputSerializableGson() {
+        val model = ProcessStatementsActivityOutput(listOf("test", "test"))
+        val otherModel = GSON.fromJson(GSON.toJson(model), ProcessStatementsActivityOutput::class.java)
+        assertThat(otherModel).isEqualTo(model)
+    }
+
+    @Test
+    fun testOneOf(){
+        assertThrows<IllegalArgumentException> { DocumentDataModelContainer(STATEMENT_DATA_MODEL, CHECK_DATA_MODEL, EXTRA_PAGE_DATA_MODEL).getDocumentDataModel() }
+        assertThrows<IllegalArgumentException> { DocumentDataModelContainer(STATEMENT_DATA_MODEL, null, EXTRA_PAGE_DATA_MODEL).getDocumentDataModel() }
+        assertThrows<IllegalArgumentException> { DocumentDataModelContainer(STATEMENT_DATA_MODEL, CHECK_DATA_MODEL, null).getDocumentDataModel() }
+        assertThrows<IllegalArgumentException> { DocumentDataModelContainer(null, CHECK_DATA_MODEL, EXTRA_PAGE_DATA_MODEL).getDocumentDataModel() }
+    }
+
+    @Test
+    fun testCast() {
+        assertThat(DocumentDataModelContainer(statementDataModel = STATEMENT_DATA_MODEL).getDocumentDataModel() as StatementDataModel)
+            .isEqualTo(STATEMENT_DATA_MODEL)
+        assertThat(DocumentDataModelContainer(checkDataModel = CHECK_DATA_MODEL).getDocumentDataModel() as CheckDataModel)
+            .isEqualTo(CHECK_DATA_MODEL)
+        assertThat(DocumentDataModelContainer(extraPageDataModel = EXTRA_PAGE_DATA_MODEL).getDocumentDataModel() as ExtraPageDataModel)
+            .isEqualTo(EXTRA_PAGE_DATA_MODEL)
+    }
+
+    @Test
+    fun testSecondaryConstructor() {
+        val documentDataModel: DocumentDataModel = STATEMENT_DATA_MODEL
+        assertThat(DocumentDataModelContainer(documentDataModel).statementDataModel).isEqualTo(STATEMENT_DATA_MODEL)
+
+        val checkDataModel: DocumentDataModel = CHECK_DATA_MODEL
+        assertThat(DocumentDataModelContainer(checkDataModel).checkDataModel).isEqualTo(CHECK_DATA_MODEL)
+
+        val extraPageDataModel: DocumentDataModel = EXTRA_PAGE_DATA_MODEL
+        assertThat(DocumentDataModelContainer(extraPageDataModel).extraPageDataModel).isEqualTo(EXTRA_PAGE_DATA_MODEL)
+        assertThat(DocumentDataModelContainer(extraPageDataModel).getDocumentDataModel()).isEqualTo(EXTRA_PAGE_DATA_MODEL)
+    }
+
+    companion object {
+        val STATEMENT_DATA_MODEL = StatementDataModel(
+            bankIdentifier = "",
+            date = FIXED_STATEMENT_DATE,
+            pageNum = 1,
+            totalPages = 3,
+            summaryOfAccountsTable = SummaryOfAccountsTable(listOf(SummaryOfAccountsTableRecord("", 3, 4.asCurrency(), 5.asCurrency()))),
+            transactionTableDepositWithdrawal = null,
+            batesStamp = BATES_STAMP,
+            accountNumber = "",
+            beginningBalance = null,
+            endingBalance = null,
+            transactionTableAmount = TransactionTableAmount(records = listOf(TransactionTableAmountRecord("test", "test", 1.asCurrency()))),
+            transactionTableCreditsCharges = TransactionTableCreditsCharges(records = listOf(
+                TransactionTableCreditsChargesRecord("test", "test", 1.asCurrency(), 2.asCurrency())
+            )),
+            transactionTableDebits = TransactionTableDebits(records = listOf(TransactionTableAmountRecord("test", "test", 1.asCurrency()))),
+            transactionTableCredits = TransactionTableCredits(records = listOf(TransactionTableCreditsRecord("test", "test", 1.asCurrency()))),
+            transactionTableChecks = TransactionTableChecks(records = listOf(TransactionTableChecksRecord("test", 1, 1.asCurrency()))),
+            interestCharged = 3.asCurrency(),
+            feesCharged = 4.asCurrency(),
+            pageMetadata = PdfDocumentPageMetadata(FILENAME, 1, DocumentType.BankTypes.WF_BANK)
+        )
+
+        val CHECK_DATA_MODEL = CheckDataModel(
+            accountNumber = ACCOUNT_NUMBER,
+            checkNumber = 1234,
+            to = "",
+            description = "",
+            date = FIXED_STATEMENT_DATE,
+            amount = null,
+            batesStamp = BATES_STAMP,
+            pageMetadata = PdfDocumentPageMetadata(FILENAME, 1, DocumentType.BankTypes.WF_BANK)
+        )
+
+        val EXTRA_PAGE_DATA_MODEL = ExtraPageDataModel(
+            pageMetadata = PdfDocumentPageMetadata(FILENAME, 1, ClassifiedPdfDocumentPage.IRRELEVANT_TYPE)
+        )
+    }
+}

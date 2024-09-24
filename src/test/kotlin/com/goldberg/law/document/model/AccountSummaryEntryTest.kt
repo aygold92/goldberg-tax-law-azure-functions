@@ -2,7 +2,7 @@ package com.goldberg.law.document.model
 
 import com.goldberg.law.document.model.ModelValues.ACCOUNT_NUMBER
 import com.goldberg.law.document.model.output.AccountSummaryEntry
-import com.goldberg.law.pdf.model.DocumentType.BankTypes
+import com.goldberg.law.document.model.pdf.DocumentType.BankTypes
 import com.goldberg.law.util.fromWrittenDate
 import org.assertj.core.api.AssertionsForClassTypes.assertThat
 import org.junit.jupiter.api.Test

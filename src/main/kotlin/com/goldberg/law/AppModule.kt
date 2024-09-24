@@ -3,20 +3,16 @@ package com.goldberg.law
 import com.azure.ai.formrecognizer.documentanalysis.DocumentAnalysisClient
 import com.azure.ai.formrecognizer.documentanalysis.DocumentAnalysisClientBuilder
 import com.azure.core.credential.AzureKeyCredential
-import com.goldberg.law.document.DocumentClassifier
-import com.goldberg.law.document.DocumentDataExtractor
-import com.goldberg.law.document.AccountSummaryCreator
-import com.goldberg.law.document.CheckToStatementMatcher
-import com.goldberg.law.document.writer.AzureStorageCsvWriter
-import com.goldberg.law.document.writer.CsvWriter
-import com.goldberg.law.document.writer.FileCsvWriter
-import com.goldberg.law.pdf.PdfSplitter
-import com.goldberg.law.pdf.loader.AzureStoragePdfLoader
-import com.goldberg.law.pdf.loader.FilePdfLoader
-import com.goldberg.law.pdf.loader.PdfLoader
-import com.goldberg.law.pdf.writer.AzureStoragePdfWriter
-import com.goldberg.law.pdf.writer.FilePdfWriter
-import com.goldberg.law.pdf.writer.PdfWriter
+import com.azure.storage.blob.BlobServiceClient
+import com.azure.storage.blob.BlobServiceClientBuilder
+import com.goldberg.law.datamanager.AzureStorageDataManager
+import com.goldberg.law.datamanager.DataManager
+import com.goldberg.law.datamanager.FileDataManager
+import com.goldberg.law.document.*
+import com.goldberg.law.function.PdfDataExtractorOrchestratorFunction
+import com.goldberg.law.function.WriteCsvSummaryFunction
+import com.goldberg.law.function.activity.*
+import com.goldberg.law.document.PdfSplitter
 import com.google.inject.AbstractModule
 import com.google.inject.Provides
 import javax.inject.Singleton
@@ -26,52 +22,104 @@ class AppModule constructor(private val appEnvironmentSettings: AppEnvironmentSe
 
     }
 
-//    @Provides
-//    @Singleton
-//    @Named("ClassifierModelId")
-//    fun provideClassifierModelId(): String = appEnvironmentSettings.intelligenceService.classifierModel
-
-//    @Provides
-//    @Singleton
-//    @Named("CustomDataModelId")
-//    fun provideCustomDataModelId(): String = appEnvironmentSettings.intelligenceService.dataExtractorModel
-
     @Provides
     @Singleton
     fun documentAnalysisClient(): DocumentAnalysisClient = DocumentAnalysisClientBuilder()
-        .endpoint(appEnvironmentSettings.intelligenceService.apiEndpoint)
-        .credential(AzureKeyCredential(appEnvironmentSettings.intelligenceService.apiKey))
+        .endpoint(appEnvironmentSettings.azureConfig.apiEndpoint)
+        .credential(AzureKeyCredential(appEnvironmentSettings.azureConfig.apiKey))
         .buildClient()
 
     @Provides
     @Singleton
-    fun pdfWriter(): PdfWriter = if (appEnvironmentSettings.executionEnvironment == ExecutionEnvironment.LOCAL) FilePdfWriter() else AzureStoragePdfWriter()
+    fun storageServiceClient(): BlobServiceClient = BlobServiceClientBuilder()
+        .connectionString(appEnvironmentSettings.azureConfig.storageBlobConnectionString)
+        .buildClient()
+
 
     @Provides
     @Singleton
-    fun pdfLoader(): PdfLoader = if (appEnvironmentSettings.executionEnvironment == ExecutionEnvironment.LOCAL) FilePdfLoader() else AzureStoragePdfLoader()
-
-    @Provides
-    @Singleton
-    fun CsvWriter(): CsvWriter = if (appEnvironmentSettings.executionEnvironment == ExecutionEnvironment.LOCAL) FileCsvWriter() else AzureStorageCsvWriter()
+    fun dataManager(pdfSplitter: PdfSplitter, blobServiceClient: BlobServiceClient): DataManager =
+        if (appEnvironmentSettings.executionEnvironment == ExecutionEnvironment.LOCAL) FileDataManager(pdfSplitter)
+        else AzureStorageDataManager(pdfSplitter, blobServiceClient, appEnvironmentSettings.azureConfig.storageBlobConfig.containerNames)
 
     /** these should not have to instantiated here, I have no idea why guice can't find the @Inject constructor **/
     @Provides
     @Singleton
-    fun documentClassifier(documentAnalysisClient: DocumentAnalysisClient): DocumentClassifier = DocumentClassifier(documentAnalysisClient, appEnvironmentSettings.intelligenceService.classifierModel)
+    fun documentClassifier(documentAnalysisClient: DocumentAnalysisClient): DocumentClassifier =
+        DocumentClassifier(documentAnalysisClient, appEnvironmentSettings.azureConfig.classifierModel)
 
     @Provides
     @Singleton
-    fun documentDataExtractor(documentAnalysisClient: DocumentAnalysisClient): DocumentDataExtractor = DocumentDataExtractor(documentAnalysisClient, appEnvironmentSettings.intelligenceService.dataExtractorModel, appEnvironmentSettings.intelligenceService.checkExtractorModel)
+    fun documentDataExtractor(documentAnalysisClient: DocumentAnalysisClient): DocumentDataExtractor =
+        DocumentDataExtractor(
+            documentAnalysisClient,
+            appEnvironmentSettings.azureConfig.dataExtractorModel,
+            appEnvironmentSettings.azureConfig.checkExtractorModel
+        )
 
     @Provides
     @Singleton
-    fun pdfExtractorMain(pdfLoader: PdfLoader,
-                         splitter: PdfSplitter,
-                         classifier: DocumentClassifier,
-                         dataExtractor: DocumentDataExtractor,
-                         csvWriter: CsvWriter,
-                         accountSummaryCreator: AccountSummaryCreator,
-                         checkToStatementMatcher: CheckToStatementMatcher
-    ) = PdfExtractorMain(pdfLoader, splitter, classifier, dataExtractor, csvWriter, checkToStatementMatcher, accountSummaryCreator)
+    fun pdfExtractorMain(
+        dataManager: DataManager,
+        classifier: DocumentClassifier,
+        dataExtractor: DocumentDataExtractor,
+        statementCreator: DocumentStatementCreator,
+        accountNormalizer: AccountNormalizer,
+        checkToStatementMatcher: CheckToStatementMatcher,
+        accountSummaryCreator: AccountSummaryCreator
+    ) = PdfExtractorMain(
+        dataManager,
+        classifier,
+        dataExtractor,
+        statementCreator,
+        accountNormalizer,
+        checkToStatementMatcher,
+        accountSummaryCreator,
+        appEnvironmentSettings.azureConfig.numWorkers
+    )
+
+    @Provides
+    @Singleton
+    fun pdfDataExtractorOrchestratorFunction() = PdfDataExtractorOrchestratorFunction(appEnvironmentSettings.azureConfig.numWorkers)
+
+    @Provides
+    @Singleton
+    fun splitPdfFunction(
+        dataManager: DataManager,
+    ) = SplitPdfActivity(dataManager)
+
+    @Provides
+    @Singleton
+    fun processDataModelFunction(
+        pdfExtractorMain: PdfExtractorMain,
+        dataManager: DataManager
+    ) = ProcessDataModelActivity(pdfExtractorMain, dataManager)
+
+    @Provides
+    @Singleton
+    fun getRelevantFilesActivity(
+        dataManager: DataManager
+    ) = GetFilesToProcessActivity(dataManager)
+
+    @Provides
+    @Singleton
+    fun processStatementsAndChecksActivity(
+        pdfExtractorMain: PdfExtractorMain
+    ) = ProcessStatementsAndChecksActivity(pdfExtractorMain)
+
+    @Provides
+    @Singleton
+    fun processStatementActivity(
+        statementCreator: DocumentStatementCreator,
+        accountNormalizer: AccountNormalizer,
+        checkToStatementMatcher: CheckToStatementMatcher,
+        dataManager: DataManager
+    ) = ProcessStatementsActivity(statementCreator, accountNormalizer, checkToStatementMatcher, dataManager)
+
+    @Provides
+    @Singleton
+    fun writeCsvSummaryFunction(
+        dataManager: DataManager,
+        accountSummaryCreator: AccountSummaryCreator,
+    ) = WriteCsvSummaryFunction(dataManager, accountSummaryCreator)
 }

@@ -8,7 +8,7 @@ import kotlin.math.roundToLong
 private val logger = KotlinLogging.logger {}
 
 class RetryCalculator(
-    private val initialIntervals: List<Long> = listOf(1000, 5000, 8000, 13000, 21000),
+    private val initialIntervals: List<Long> = listOf(1000, 2000, 5000, 8000, 13000, 21000),
     val maxRetries: Int = 5,
     private val power: Double = 1.2,
 ) {

@@ -1,0 +1,548 @@
+{
+  "100002492 - 3142":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3142,
+    "description": "Nell Remigio - 2 nd week 2022 vacation ; MLk",
+    "date": 1642028400000,
+    "amount": 1132.0,
+    "pageMetadata":
+    {
+      "batesStamp": "MH-002100",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 1
+    }
+  },
+  "100002492 - 3143":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3143,
+    "description": "Delaney Stafford - Retainer 2",
+    "date": 1642719600000,
+    "amount": 15000.0,
+    "pageMetadata":
+    {
+      "batesStamp": "MH-002102",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 3
+    }
+  },
+  "100002492 - 3140":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3140,
+    "description": "Joyce - Feb. 2021",
+    "date": 1642978800000,
+    "amount": 400.0,
+    "pageMetadata":
+    {
+      "batesStamp": "MH-002103",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 4
+    }
+  },
+  "100002492 - 3144":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3144,
+    "description": "David Rodriguez - Swing Gutters Housework",
+    "date": 1643065200000,
+    "amount": 400.0,
+    "pageMetadata":
+    {
+      "batesStamp": "MH-002104",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 5
+    }
+  },
+  "100002492 - 3145":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3145,
+    "description": "Nely Remigio - Presa, Blake Bar Mitzvah",
+    "date": 1644879600000,
+    "amount": 600.0,
+    "pageMetadata":
+    {
+      "batesStamp": "MH-002105",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 6
+    }
+  },
+  "100002492 - 3148":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3148,
+    "description": "Nely Remigio - Extra Time",
+    "date": 1646002800000,
+    "amount": 300.0,
+    "pageMetadata":
+    {
+      "batesStamp": "MH-002106",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 7
+    }
+  },
+  "100002492 - 3146":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3146,
+    "description": "Aaron Anderson - Playdate 3 birthday party Ca",
+    "date": 1646607600000,
+    "amount": 1000.0,
+    "pageMetadata":
+    {
+      "batesStamp": "7333106303\nHL00",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 8
+    }
+  },
+  "100002492 - 3277":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3277,
+    "description": "David Rodriguez",
+    "date": 1647212400000,
+    "amount": 300.0,
+    "pageMetadata":
+    {
+      "batesStamp": "MH-002108",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 9
+    }
+  },
+  "100002492 - 3278":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3278,
+    "description": "David Rodriquez - Faucet",
+    "date": 1647212400000,
+    "amount": 170.0,
+    "pageMetadata":
+    {
+      "batesStamp": "MH-002109",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 10
+    }
+  },
+  "100002492 - 3280":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3280,
+    "description": "Dely Remigio - Cell Phone.",
+    "date": 1647385200000,
+    "amount": 500.0,
+    "pageMetadata":
+    {
+      "batesStamp": "MH-002110",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 11
+    }
+  },
+  "100002492 - 3147":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3147,
+    "description": "Robert Herman - my expenses",
+    "date": 1647385200000,
+    "amount": 425.0,
+    "pageMetadata":
+    {
+      "batesStamp": "MH-002111",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 12
+    }
+  },
+  "100002492 - 3139":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3139,
+    "description": "Robert Herman - Tax Credit",
+    "date": 1647385200000,
+    "amount": 550.0,
+    "pageMetadata":
+    {
+      "batesStamp": "MH-002112",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 13
+    }
+  },
+  "100002492 - 3149":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3149,
+    "description": "Yayana",
+    "date": 1647471600000,
+    "amount": 250.0,
+    "pageMetadata":
+    {
+      "batesStamp": "MH-002113",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 14
+    }
+  },
+  "100002492 - 3279":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3279,
+    "description": "Blake Taylor Dwvarken - Mazel Tov",
+    "date": 1648418400000,
+    "amount": 500.0,
+    "pageMetadata":
+    {
+      "batesStamp": "MH-002114",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 15
+    }
+  },
+  "100002492 - 3283":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3283,
+    "description": "Nelv Remigio - Aprilia 30",
+    "date": 1649628000000,
+    "amount": 432.0,
+    "pageMetadata":
+    {
+      "batesStamp": "MH-002115",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 16
+    }
+  },
+  "100002492 - 3287":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3287,
+    "description": "Nelv Remigio - 10 Saturdays plus long holiday",
+    "date": 1650319200000,
+    "amount": 2592.0,
+    "pageMetadata":
+    {
+      "batesStamp": "MH-002116",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 17
+    }
+  },
+  "100002492 - 3284":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3284,
+    "description": "D.C. Treasurer",
+    "date": 1650319200000,
+    "amount": 100.0,
+    "pageMetadata":
+    {
+      "batesStamp": "MH-002117",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 18
+    }
+  },
+  "100002492 - 3288":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3288,
+    "description": "Robert Herman - / Payment from YourMan:",
+    "date": 1651010400000,
+    "amount": 10000.0,
+    "pageMetadata":
+    {
+      "batesStamp": "MH-002118",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 19
+    }
+  },
+  "100002492 - 3285":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3285,
+    "description": "David Rodriguez - April- Nov\nmimo",
+    "date": 1651096800000,
+    "amount": 3000.0,
+    "pageMetadata":
+    {
+      "batesStamp": "MH-002119",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 20
+    }
+  },
+  "100002492 - 3289":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3289,
+    "description": "Nely Remigio - Memorial Day\n22\n⑆055003298⑆3289",
+    "date": 1651615200000,
+    "amount": 432.0,
+    "pageMetadata":
+    {
+      "batesStamp": "MH-002120",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 21
+    }
+  },
+  "100002492 - 3290":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3290,
+    "description": "David Rodriguez - Racion",
+    "date": 1654552800000,
+    "amount": 300.0,
+    "pageMetadata":
+    {
+      "batesStamp": "MH-002121",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 22
+    }
+  },
+  "100002492 - 3292":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3292,
+    "description": "David Redrique 2 - Evenhave Traskan, quitas,",
+    "date": 1656626400000,
+    "amount": 1000.0,
+    "pageMetadata":
+    {
+      "batesStamp": "MH-002122",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 23
+    }
+  },
+  "100002492 - 3295":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3295,
+    "description": "Woodmont Country Club - Readmitance Fec: 1196:",
+    "date": 1658440800000,
+    "amount": 3253.699951171875,
+    "pageMetadata":
+    {
+      "batesStamp": "MH-002123",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 24
+    }
+  },
+  "100002492 - 3298":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3298,
+    "description": "Woodmont Country Club - Deposit : 1196",
+    "date": 1658440800000,
+    "amount": 1000.0,
+    "pageMetadata":
+    {
+      "batesStamp": "MH-002124",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 25
+    }
+  },
+  "100002492 - 3297":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3297,
+    "description": "Maryland Transportation - Bay Bridge 1011",
+    "date": 1658872800000,
+    "amount": 6.0,
+    "pageMetadata":
+    {
+      "batesStamp": "MH-002125",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 26
+    }
+  },
+  "100002492 - 3299":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3299,
+    "description": "David Rodriguez - ME-mo",
+    "date": 1659996000000,
+    "amount": 500.0,
+    "pageMetadata":
+    {
+      "batesStamp": "MH-002126",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 27
+    }
+  },
+  "100002492 - 3301":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3301,
+    "description": "Dr. Matthew mintz - mrno.",
+    "date": 1661810400000,
+    "amount": 1750.0,
+    "pageMetadata":
+    {
+      "batesStamp": "MH-002127",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 28
+    }
+  },
+  "100002492 - 3291":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3291,
+    "description": "Robert Herman - Citi Bill Molly Portion",
+    "date": 1661896800000,
+    "amount": 690.760009765625,
+    "pageMetadata":
+    {
+      "batesStamp": "SMH-002128",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 29
+    }
+  },
+  "100002492 - 3300":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3300,
+    "description": "Maryland Eve Center",
+    "date": 1663624800000,
+    "amount": 30.0,
+    "pageMetadata":
+    {
+      "batesStamp": "MH-002129",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 30
+    }
+  },
+  "100002492 - 3303":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3303,
+    "description": "David Rodriguez",
+    "date": 1663624800000,
+    "amount": 600.0,
+    "pageMetadata":
+    {
+      "batesStamp": "MH-002130",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 31
+    }
+  },
+  "100002492 - 3302":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3302,
+    "description": "Maryland Eye Conter\nThirty XX - At11:23 M",
+    "date": 1664143200000,
+    "amount": 30.0,
+    "pageMetadata":
+    {
+      "batesStamp": "MH-002131",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 32
+    }
+  },
+  "100002492 - 3304":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3304,
+    "description": "Nely Remigio",
+    "date": 1665698400000,
+    "amount": 450.0,
+    "pageMetadata":
+    {
+      "batesStamp": "MH-002132",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 33
+    }
+  },
+  "100002492 - 3305":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3305,
+    "description": "The Barnes ville School of Art Scene - Annual Fund",
+    "date": 1667170800000,
+    "amount": 1000.0,
+    "pageMetadata":
+    {
+      "batesStamp": "`MH-002133",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 34
+    }
+  },
+  "100002492 - 3306":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3306,
+    "description": "Betsy Schugar",
+    "date": 1667862000000,
+    "amount": 120.0,
+    "pageMetadata":
+    {
+      "batesStamp": "MH1002134",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 35
+    }
+  },
+  "100002492 - 3308":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3308,
+    "description": "Nely Remigio. - Thankyning Day or Dec\n18",
+    "date": 1669330800000,
+    "amount": 204.0,
+    "pageMetadata":
+    {
+      "batesStamp": "MH-002135",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 36
+    }
+  },
+  "100002492 - 3307":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3307,
+    "description": "David Rodriguez",
+    "date": 1669590000000,
+    "amount": 200.0,
+    "pageMetadata":
+    {
+      "batesStamp": "MH-002136",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 37
+    }
+  },
+  "100002492 - 3309":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3309,
+    "description": "Pauliann Long - e",
+    "date": 1671577200000,
+    "amount": 450.0,
+    "pageMetadata":
+    {
+      "batesStamp": "3643212500\nMH-002137",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 38
+    }
+  },
+  "100002492 - 3311":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3311,
+    "description": "Joe Doyle - Deposit Bamevilk Gala",
+    "date": 1671577200000,
+    "amount": 100.0,
+    "pageMetadata":
+    {
+      "batesStamp": "WH-002138",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 39
+    }
+  },
+  "100002492 - 3310":
+  {
+    "accountNumber": "100002492",
+    "checkNumber": 3310,
+    "description": "David Rodriguez - Paint Well, Lavin",
+    "date": 1671750000000,
+    "amount": 2000.0,
+    "pageMetadata":
+    {
+      "batesStamp": "MH-002139",
+      "filename": "Bank - Molly - Eagle Bank Ckg x2492 Checks (2022) MH-002100-002139",
+      "filePageNumber": 40
+    }
+  }
+}

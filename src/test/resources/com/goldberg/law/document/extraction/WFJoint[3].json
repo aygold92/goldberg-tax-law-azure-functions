@@ -1,0 +1,264 @@
+{
+  "fields":
+  {
+    "BatesStamp":
+    {
+      "type": "string",
+      "content": "HERMAN-R-000634",
+      "value": "HERMAN-R-000634"
+    },
+    "TransactionTableCredits":
+    {
+      "type": "array",
+      "content": null,
+      "value": null
+    },
+    "ChecksTable":
+    {
+      "type": "array",
+      "content": null,
+      "value": null
+    },
+    "EndingBalance":
+    {
+      "type": "number",
+      "content": null,
+      "value": null
+    },
+    "Page":
+    {
+      "type": "string",
+      "content": "6",
+      "value": "6"
+    },
+    "TotalPages":
+    {
+      "type": "string",
+      "content": "7",
+      "value": "7"
+    },
+    "TransactionTableAmount":
+    {
+      "type": "array",
+      "content": null,
+      "value": null
+    },
+    "StatementDate":
+    {
+      "type": "string",
+      "content": "August 5, 2022",
+      "value": "August 5, 2022"
+    },
+    "FeesCharged":
+    {
+      "type": "number",
+      "content": null,
+      "value": null
+    },
+    "AccountNumber":
+    {
+      "type": "string",
+      "content": null,
+      "value": null
+    },
+    "Page/Total":
+    {
+      "type": "string",
+      "content": null,
+      "value": null
+    },
+    "InterestCharged":
+    {
+      "type": "number",
+      "content": null,
+      "value": null
+    },
+    "TransactionTableDepositWithdrawal":
+    {
+      "type": "array",
+      "content": null,
+      "value":
+      [
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "Transfer IN Branch/Store - to Robert Bernard Herman DDA xxxxxx2578 8302 Woodmont Ave Bethesda MD",
+              "value": "Transfer IN Branch/Store - to Robert Bernard Herman DDA xxxxxx2578 8302 Woodmont Ave Bethesda MD"
+            },
+            "Deposits/ Additions":
+            {
+              "type": "number",
+              "content": null,
+              "value": null
+            },
+            "Check Number":
+            {
+              "type": "integer",
+              "content": null,
+              "value": null
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "7/11",
+              "value": "7/11"
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "type": "number",
+              "content": "1,088.00",
+              "value": 1088.0
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "Transfer IN Branch/Store - to Robert Bernard Herman DDA xxxxxx3443 8302 Woodmont Ave Bethesda MD",
+              "value": "Transfer IN Branch/Store - to Robert Bernard Herman DDA xxxxxx3443 8302 Woodmont Ave Bethesda MD"
+            },
+            "Deposits/ Additions":
+            {
+              "type": "number",
+              "content": null,
+              "value": null
+            },
+            "Check Number":
+            {
+              "type": "integer",
+              "content": null,
+              "value": null
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "7/11",
+              "value": "7/11"
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "type": "number",
+              "content": "50,000.00",
+              "value": 50000.0
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "Cash eWithdrawal in Branch/Store 07/11/2022 08:21 Am 8302 Woodmont Ave Bethesda MD 9899",
+              "value": "Cash eWithdrawal in Branch/Store 07/11/2022 08:21 Am 8302 Woodmont Ave Bethesda MD 9899"
+            },
+            "Deposits/ Additions":
+            {
+              "type": "number",
+              "content": null,
+              "value": null
+            },
+            "Check Number":
+            {
+              "type": "integer",
+              "content": null,
+              "value": null
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "7/11",
+              "value": "7/11"
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "type": "number",
+              "content": "601.60",
+              "value": 601.5999755859375
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "Interest Payment",
+              "value": "Interest Payment"
+            },
+            "Deposits/ Additions":
+            {
+              "type": "number",
+              "content": "1.18",
+              "value": 1.1799999475479126
+            },
+            "Check Number":
+            {
+              "type": "integer",
+              "content": null,
+              "value": null
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "8/5",
+              "value": "8/5"
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "type": "number",
+              "content": null,
+              "value": null
+            }
+          }
+        }
+      ]
+    },
+    "TransactionTableCreditsCharges":
+    {
+      "type": "array",
+      "content": null,
+      "value": null
+    },
+    "SummaryOfAccounts":
+    {
+      "type": "array",
+      "content": null,
+      "value": null
+    },
+    "BankIdentifier":
+    {
+      "type": "string",
+      "content": "WELLS FARGO",
+      "value": "WELLS FARGO"
+    },
+    "TransactionTableDebits":
+    {
+      "type": "array",
+      "content": null,
+      "value": null
+    },
+    "BeginningBalance":
+    {
+      "type": "number",
+      "content": null,
+      "value": null
+    }
+  },
+  "docType": "BankCreditCardExtractor_Prod_V1"
+}

@@ -1,22 +1,25 @@
 package com.goldberg.law.document.model.input.tables
 
 import com.azure.ai.formrecognizer.documentanalysis.models.DocumentField
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.goldberg.law.document.model.output.TransactionHistoryPageMetadata
 import com.goldberg.law.document.model.output.TransactionHistoryRecord
-import com.goldberg.law.util.roundToTwoDecimalPlaces
-import kotlin.math.absoluteValue
+import com.goldberg.law.util.currencyValue
+import java.math.BigDecimal
+import java.util.*
 
-class TransactionTableCreditsChargesRecord(
-    val date: String?,
-    val description: String?,
-    val credits: Double?,
-    val charges: Double?
+data class TransactionTableCreditsChargesRecord @JsonCreator constructor(
+    @JsonProperty("date") val date: String?,
+    @JsonProperty("description") val description: String?,
+    @JsonProperty("credits") val credits: BigDecimal?,
+    @JsonProperty("charges") val charges: BigDecimal?
 ): TransactionRecord() {
-    override fun toTransactionHistoryRecord(statementYear: String?, metadata: TransactionHistoryPageMetadata): TransactionHistoryRecord = TransactionHistoryRecord(
-        date = fromWrittenDateStatementYearOverride(this.date, statementYear),
+    override fun toTransactionHistoryRecord(statementDate: Date?, metadata: TransactionHistoryPageMetadata): TransactionHistoryRecord = TransactionHistoryRecord(
+        date = fromWrittenDateStatementDateOverride(this.date, statementDate),
         description = this.description,
         // a credit represents a net increase in money, a charge is a decrease
-        amount = this.credits ?: this.charges?.let { 0 - it },
+        amount = this.credits ?: this.charges?.negate(),
         pageMetadata = metadata
     )
 
@@ -32,9 +35,9 @@ class TransactionTableCreditsChargesRecord(
             TransactionTableCreditsChargesRecord(
                 date = recordFields[Keys.DATE]?.valueAsString,
                 description = recordFields[Keys.DESCRIPTION]?.valueAsString,
-                // some handwritten values accidentally have negative values, but that's already built in here
-                credits = recordFields[Keys.CREDITS]?.valueAsDouble?.roundToTwoDecimalPlaces()?.absoluteValue,
-                charges = recordFields[Keys.CHARGES]?.valueAsDouble?.roundToTwoDecimalPlaces()?.absoluteValue,
+                // for some reason Wells Fargo can give negative values in the charges column for fees (why wouldn't they use credits??)
+                credits = recordFields[Keys.CREDITS]?.currencyValue(),
+                charges = recordFields[Keys.CHARGES]?.currencyValue(),
             )
         }
     }

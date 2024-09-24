@@ -37,6 +37,7 @@ class DocumentFieldSerializer @JvmOverloads constructor(t: Class<DocumentField?>
                 }
                 jgen.writeEndArray()
             }
+            is Double -> jgen.writeNumberField("value", value.valueAsDouble)
             else -> provider?.defaultSerializeField("value", value?.value, jgen)
         }
         jgen.writeEndObject()

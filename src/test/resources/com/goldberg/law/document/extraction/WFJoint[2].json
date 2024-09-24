@@ -1,0 +1,1004 @@
+{
+  "fields":
+  {
+    "BatesStamp":
+    {
+      "type": "string",
+      "content": null,
+      "value": null
+    },
+    "TransactionTableCredits":
+    {
+      "type": "array",
+      "content": null,
+      "value": null
+    },
+    "ChecksTable":
+    {
+      "type": "array",
+      "content": null,
+      "value": null
+    },
+    "EndingBalance":
+    {
+      "type": "number",
+      "content": null,
+      "value": null
+    },
+    "Page":
+    {
+      "type": "string",
+      "content": "3",
+      "value": "3"
+    },
+    "TotalPages":
+    {
+      "type": "string",
+      "content": "7",
+      "value": "7"
+    },
+    "TransactionTableAmount":
+    {
+      "type": "array",
+      "content": null,
+      "value": null
+    },
+    "StatementDate":
+    {
+      "type": "string",
+      "content": "August 5, 2022",
+      "value": "August 5, 2022"
+    },
+    "FeesCharged":
+    {
+      "type": "number",
+      "content": null,
+      "value": null
+    },
+    "AccountNumber":
+    {
+      "type": "string",
+      "content": null,
+      "value": null
+    },
+    "Page/Total":
+    {
+      "type": "string",
+      "content": null,
+      "value": null
+    },
+    "InterestCharged":
+    {
+      "type": "number",
+      "content": null,
+      "value": null
+    },
+    "TransactionTableDepositWithdrawal":
+    {
+      "type": "array",
+      "content": null,
+      "value":
+      [
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "Check",
+              "value": "Check"
+            },
+            "Deposits/ Additions":
+            {
+              "type": "number",
+              "content": null,
+              "value": null
+            },
+            "Check Number":
+            {
+              "type": "integer",
+              "content": "12141",
+              "value": 12141
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "7/15",
+              "value": "7/15"
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "type": "number",
+              "content": "4,886.46",
+              "value": 4886.4599609375
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "Check",
+              "value": "Check"
+            },
+            "Deposits/ Additions":
+            {
+              "type": "number",
+              "content": null,
+              "value": null
+            },
+            "Check Number":
+            {
+              "type": "integer",
+              "content": "12142",
+              "value": 12142
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "7/15",
+              "value": "7/15"
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "type": "number",
+              "content": "7,751.72",
+              "value": 7751.72021484375
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "WT Fed#05230 Morgan Stanley and /Org=Robert B. Herman Sylvan C Herman CO Srf# S062199192E001 Tr#220718020004 Rfb#",
+              "value": "WT Fed#05230 Morgan Stanley and /Org=Robert B. Herman Sylvan C Herman CO Srf# S062199192E001 Tr#220718020004 Rfb#"
+            },
+            "Deposits/ Additions":
+            {
+              "type": "number",
+              "content": "20,000.00",
+              "value": 20000.0
+            },
+            "Check Number":
+            {
+              "type": "integer",
+              "content": null,
+              "value": null
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "7/18",
+              "value": "7/18"
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "type": "number",
+              "content": null,
+              "value": null
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "Wire Trans Svc Charge - Sequence: 220718020004 Srf# S062199192E001 Tm#220718020004 Rfb#",
+              "value": "Wire Trans Svc Charge - Sequence: 220718020004 Srf# S062199192E001 Tm#220718020004 Rfb#"
+            },
+            "Deposits/ Additions":
+            {
+              "type": "number",
+              "content": null,
+              "value": null
+            },
+            "Check Number":
+            {
+              "type": "integer",
+              "content": null,
+              "value": null
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "7/18",
+              "value": "7/18"
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "type": "number",
+              "content": "15.00",
+              "value": 15.0
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "ATM Withdrawal authorized on 07/16 5701 Connecticut Ave NW Washington DC 0009407 ATM ID 0085P Card 9899",
+              "value": "ATM Withdrawal authorized on 07/16 5701 Connecticut Ave NW Washington DC 0009407 ATM ID 0085P Card 9899"
+            },
+            "Deposits/ Additions":
+            {
+              "type": "number",
+              "content": null,
+              "value": null
+            },
+            "Check Number":
+            {
+              "type": "integer",
+              "content": null,
+              "value": null
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "7/18",
+              "value": "7/18"
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "type": "number",
+              "content": "100.00",
+              "value": 100.0
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "Check",
+              "value": "Check"
+            },
+            "Deposits/ Additions":
+            {
+              "type": "number",
+              "content": null,
+              "value": null
+            },
+            "Check Number":
+            {
+              "type": "integer",
+              "content": "12143",
+              "value": 12143
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "7/18",
+              "value": "7/18"
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "type": "number",
+              "content": "379.28",
+              "value": 379.2799987792969
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "ATM Withdrawal authorized on 07/20 1804 Adams Mill Rd NW Washington DC 0000212 ATM ID 0221N Card 9899",
+              "value": "ATM Withdrawal authorized on 07/20 1804 Adams Mill Rd NW Washington DC 0000212 ATM ID 0221N Card 9899"
+            },
+            "Deposits/ Additions":
+            {
+              "type": "number",
+              "content": null,
+              "value": null
+            },
+            "Check Number":
+            {
+              "type": "integer",
+              "content": null,
+              "value": null
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "7/20",
+              "value": "7/20"
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "type": "number",
+              "content": "100.00",
+              "value": 100.0
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "ATM Withdrawal authorized on 07/22 3700 Calvert St NW Washington DC 0007772 ATM ID 0217F Card 9899",
+              "value": "ATM Withdrawal authorized on 07/22 3700 Calvert St NW Washington DC 0007772 ATM ID 0217F Card 9899"
+            },
+            "Deposits/ Additions":
+            {
+              "type": "number",
+              "content": null,
+              "value": null
+            },
+            "Check Number":
+            {
+              "type": "integer",
+              "content": null,
+              "value": null
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "7/22",
+              "value": "7/22"
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "type": "number",
+              "content": "200.00",
+              "value": 200.0
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "Check",
+              "value": "Check"
+            },
+            "Deposits/ Additions":
+            {
+              "type": "number",
+              "content": null,
+              "value": null
+            },
+            "Check Number":
+            {
+              "type": "integer",
+              "content": "12139",
+              "value": 12139
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "7/25",
+              "value": "7/25"
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "type": "number",
+              "content": "250.00",
+              "value": 250.0
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "ATM Withdrawal authorized on 07/26 1934 14th St NW Washington DC 0009720 ATM ID 1234H Card 9899",
+              "value": "ATM Withdrawal authorized on 07/26 1934 14th St NW Washington DC 0009720 ATM ID 1234H Card 9899"
+            },
+            "Deposits/ Additions":
+            {
+              "type": "number",
+              "content": null,
+              "value": null
+            },
+            "Check Number":
+            {
+              "type": "integer",
+              "content": null,
+              "value": null
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "7/26",
+              "value": "7/26"
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "type": "number",
+              "content": "200.00",
+              "value": 200.0
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "ATM Withdrawal authorized on 07/27 1804 Adams Mill Rd NW Washington DC 0001803 ATM ID 0221N Card 9899",
+              "value": "ATM Withdrawal authorized on 07/27 1804 Adams Mill Rd NW Washington DC 0001803 ATM ID 0221N Card 9899"
+            },
+            "Deposits/ Additions":
+            {
+              "type": "number",
+              "content": null,
+              "value": null
+            },
+            "Check Number":
+            {
+              "type": "integer",
+              "content": null,
+              "value": null
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "7/27",
+              "value": "7/27"
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "type": "number",
+              "content": "200.00",
+              "value": 200.0
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "S C Herman & Ass Ppe220724 Herm01 Robert Herman",
+              "value": "S C Herman & Ass Ppe220724 Herm01 Robert Herman"
+            },
+            "Deposits/ Additions":
+            {
+              "type": "number",
+              "content": "684.76",
+              "value": 684.760009765625
+            },
+            "Check Number":
+            {
+              "type": "integer",
+              "content": null,
+              "value": null
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "7/29",
+              "value": "7/29"
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "type": "number",
+              "content": null,
+              "value": null
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "ATM Withdrawal authorized on 07/29 1804 Adams Mill Rd NW Washington DC 0002083 ATM ID 0221N Card 9899",
+              "value": "ATM Withdrawal authorized on 07/29 1804 Adams Mill Rd NW Washington DC 0002083 ATM ID 0221N Card 9899"
+            },
+            "Deposits/ Additions":
+            {
+              "type": "number",
+              "content": null,
+              "value": null
+            },
+            "Check Number":
+            {
+              "type": "integer",
+              "content": null,
+              "value": null
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "7/29",
+              "value": "7/29"
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "type": "number",
+              "content": "100.00",
+              "value": 100.0
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "ATM Withdrawal authorized on 08/01 1804 Adams Mill Rd NW Washington DC 0002853 ATM ID 0221N Card 9899",
+              "value": "ATM Withdrawal authorized on 08/01 1804 Adams Mill Rd NW Washington DC 0002853 ATM ID 0221N Card 9899"
+            },
+            "Deposits/ Additions":
+            {
+              "type": "number",
+              "content": null,
+              "value": null
+            },
+            "Check Number":
+            {
+              "type": "integer",
+              "content": null,
+              "value": null
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "8/1",
+              "value": "8/1"
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "type": "number",
+              "content": "100.00",
+              "value": 100.0
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "ATM Withdrawal authorized on 08/01 8302 Woodmont Avenue Bethesda MD 0001871 ATM ID 4737L Card 9899",
+              "value": "ATM Withdrawal authorized on 08/01 8302 Woodmont Avenue Bethesda MD 0001871 ATM ID 4737L Card 9899"
+            },
+            "Deposits/ Additions":
+            {
+              "type": "number",
+              "content": null,
+              "value": null
+            },
+            "Check Number":
+            {
+              "type": "integer",
+              "content": null,
+              "value": null
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "8/1",
+              "value": "8/1"
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "type": "number",
+              "content": "20.00",
+              "value": 20.0
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "Comp of Maryland Dir Db Rad 080122 004822209007133 x",
+              "value": "Comp of Maryland Dir Db Rad 080122 004822209007133 x"
+            },
+            "Deposits/ Additions":
+            {
+              "type": "number",
+              "content": null,
+              "value": null
+            },
+            "Check Number":
+            {
+              "type": "integer",
+              "content": null,
+              "value": null
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "8/1",
+              "value": "8/1"
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "type": "number",
+              "content": "1,089.53",
+              "value": 1089.530029296875
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "Check",
+              "value": "Check"
+            },
+            "Deposits/ Additions":
+            {
+              "type": "number",
+              "content": null,
+              "value": null
+            },
+            "Check Number":
+            {
+              "type": "integer",
+              "content": "12145",
+              "value": 12145
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "8/1",
+              "value": "8/1"
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "type": "number",
+              "content": "2,458.99",
+              "value": 2458.989990234375
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "Check",
+              "value": "Check"
+            },
+            "Deposits/ Additions":
+            {
+              "type": "number",
+              "content": null,
+              "value": null
+            },
+            "Check Number":
+            {
+              "type": "integer",
+              "content": "12144",
+              "value": 12144
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "8/2",
+              "value": "8/2"
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "type": "number",
+              "content": "250.00",
+              "value": 250.0
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "ATM Withdrawal authorized on 08/03 3700 Calvert St NW Washington DC 0008168 ATM ID 0217F Card 9899",
+              "value": "ATM Withdrawal authorized on 08/03 3700 Calvert St NW Washington DC 0008168 ATM ID 0217F Card 9899"
+            },
+            "Deposits/ Additions":
+            {
+              "type": "number",
+              "content": null,
+              "value": null
+            },
+            "Check Number":
+            {
+              "type": "integer",
+              "content": null,
+              "value": null
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "8/3",
+              "value": "8/3"
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "type": "number",
+              "content": "100.00",
+              "value": 100.0
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "ATM Withdrawal authorized on 08/03 8302 Woodmont Avenue Bethesda MD 0001918 ATM ID 4737L Card 9899",
+              "value": "ATM Withdrawal authorized on 08/03 8302 Woodmont Avenue Bethesda MD 0001918 ATM ID 4737L Card 9899"
+            },
+            "Deposits/ Additions":
+            {
+              "type": "number",
+              "content": null,
+              "value": null
+            },
+            "Check Number":
+            {
+              "type": "integer",
+              "content": null,
+              "value": null
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "8/3",
+              "value": "8/3"
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "type": "number",
+              "content": "200.00",
+              "value": 200.0
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "Southernmgmt-Ere Sigonfile 080322 Pp2D8B Robertherman",
+              "value": "Southernmgmt-Ere Sigonfile 080322 Pp2D8B Robertherman"
+            },
+            "Deposits/ Additions":
+            {
+              "type": "number",
+              "content": null,
+              "value": null
+            },
+            "Check Number":
+            {
+              "type": "integer",
+              "content": null,
+              "value": null
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "8/3",
+              "value": "8/3"
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "type": "number",
+              "content": "2,175.44",
+              "value": 2175.43994140625
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "ATM Withdrawal authorized on 08/04 8302 Woodmont Avenue Bethesda MD 0001933 ATM ID 4737L Card 9899",
+              "value": "ATM Withdrawal authorized on 08/04 8302 Woodmont Avenue Bethesda MD 0001933 ATM ID 4737L Card 9899"
+            },
+            "Deposits/ Additions":
+            {
+              "type": "number",
+              "content": null,
+              "value": null
+            },
+            "Check Number":
+            {
+              "type": "integer",
+              "content": null,
+              "value": null
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "8/4",
+              "value": "8/4"
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "type": "number",
+              "content": "400.00",
+              "value": 400.0
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "ATM Withdrawal authorized on 08/05 1804 Adams Mill Rd NW Washington DC 0003887 ATM ID 0221N Card 9899",
+              "value": "ATM Withdrawal authorized on 08/05 1804 Adams Mill Rd NW Washington DC 0003887 ATM ID 0221N Card 9899"
+            },
+            "Deposits/ Additions":
+            {
+              "type": "number",
+              "content": null,
+              "value": null
+            },
+            "Check Number":
+            {
+              "type": "integer",
+              "content": null,
+              "value": null
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "8/5",
+              "value": "8/5"
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "type": "number",
+              "content": "100.00",
+              "value": 100.0
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "Interest Payment",
+              "value": "Interest Payment"
+            },
+            "Deposits/ Additions":
+            {
+              "type": "number",
+              "content": "0.37",
+              "value": 0.3700000047683716
+            },
+            "Check Number":
+            {
+              "type": "integer",
+              "content": null,
+              "value": null
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "8/5",
+              "value": "8/5"
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "type": "number",
+              "content": null,
+              "value": null
+            }
+          }
+        }
+      ]
+    },
+    "TransactionTableCreditsCharges":
+    {
+      "type": "array",
+      "content": null,
+      "value": null
+    },
+    "SummaryOfAccounts":
+    {
+      "type": "array",
+      "content": null,
+      "value": null
+    },
+    "BankIdentifier":
+    {
+      "type": "string",
+      "content": "WELLS FARGO",
+      "value": "WELLS FARGO"
+    },
+    "TransactionTableDebits":
+    {
+      "type": "array",
+      "content": null,
+      "value": null
+    },
+    "BeginningBalance":
+    {
+      "type": "number",
+      "content": null,
+      "value": null
+    }
+  },
+  "docType": "BankCreditCardExtractor_Prod_V1"
+}

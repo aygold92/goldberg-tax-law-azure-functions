@@ -1,0 +1,488 @@
+{
+  "fields":
+  {
+    "BatesStamp":
+    {
+      "type": "string",
+      "content": "HERMAN-R-000630",
+      "value": "HERMAN-R-000630"
+    },
+    "TransactionTableCredits":
+    {
+      "type": "array",
+      "content": null,
+      "value": null
+    },
+    "EndingBalance":
+    {
+      "type": "number",
+      "content": "$48,262.17",
+      "value": 48262.171875
+    },
+    "ChecksTable":
+    {
+      "type": "array",
+      "content": null,
+      "value": null
+    },
+    "Page":
+    {
+      "type": "string",
+      "content": "2",
+      "value": "2"
+    },
+    "TotalPages":
+    {
+      "type": "string",
+      "content": "7",
+      "value": "7"
+    },
+    "TransactionTableAmount":
+    {
+      "type": "array",
+      "content": null,
+      "value": null
+    },
+    "StatementDate":
+    {
+      "type": "string",
+      "content": "August 5, 2022",
+      "value": "August 5, 2022"
+    },
+    "FeesCharged":
+    {
+      "type": "number",
+      "content": null,
+      "value": null
+    },
+    "AccountNumber":
+    {
+      "type": "string",
+      "content": "3443",
+      "value": "3443"
+    },
+    "Page/Total":
+    {
+      "type": "string",
+      "content": null,
+      "value": null
+    },
+    "InterestCharged":
+    {
+      "type": "number",
+      "content": null,
+      "value": null
+    },
+    "TransactionTableDepositWithdrawal":
+    {
+      "type": "array",
+      "content": null,
+      "value":
+      [
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "Transfer IN Branch/Store - From Robert Bernard Herman DDA xxxxxx4372 8302 Woodmont Ave Bethesda MD",
+              "value": "Transfer IN Branch/Store - From Robert Bernard Herman DDA xxxxxx4372 8302 Woodmont Ave Bethesda MD"
+            },
+            "Deposits/ Additions":
+            {
+              "type": "number",
+              "content": "50,000.00",
+              "value": 50000.0
+            },
+            "Check Number":
+            {
+              "type": "integer",
+              "content": null,
+              "value": null
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "7/11",
+              "value": "7/11"
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "type": "number",
+              "content": null,
+              "value": null
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "ATM Withdrawal authorized on 07/11 5701 Connecticut Ave NW Washington DC 0008622 ATM ID 0085P Card 9899",
+              "value": "ATM Withdrawal authorized on 07/11 5701 Connecticut Ave NW Washington DC 0008622 ATM ID 0085P Card 9899"
+            },
+            "Deposits/ Additions":
+            {
+              "type": "number",
+              "content": null,
+              "value": null
+            },
+            "Check Number":
+            {
+              "type": "integer",
+              "content": null,
+              "value": null
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "7/11",
+              "value": "7/11"
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "type": "number",
+              "content": "300.00",
+              "value": 300.0
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "Check",
+              "value": "Check"
+            },
+            "Deposits/ Additions":
+            {
+              "type": "number",
+              "content": null,
+              "value": null
+            },
+            "Check Number":
+            {
+              "type": "integer",
+              "content": "12137",
+              "value": 12137
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "7/11",
+              "value": "7/11"
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "type": "number",
+              "content": "480.00",
+              "value": 480.0
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "ATM Withdrawal authorized on 07/13 5701 Connecticut Ave NW Washington DC 0008893 ATM ID 0085P Card 9899",
+              "value": "ATM Withdrawal authorized on 07/13 5701 Connecticut Ave NW Washington DC 0008893 ATM ID 0085P Card 9899"
+            },
+            "Deposits/ Additions":
+            {
+              "type": "number",
+              "content": null,
+              "value": null
+            },
+            "Check Number":
+            {
+              "type": "integer",
+              "content": null,
+              "value": null
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "7/13",
+              "value": "7/13"
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "type": "number",
+              "content": "200.00",
+              "value": 200.0
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "Check",
+              "value": "Check"
+            },
+            "Deposits/ Additions":
+            {
+              "type": "number",
+              "content": null,
+              "value": null
+            },
+            "Check Number":
+            {
+              "type": "integer",
+              "content": "12138",
+              "value": 12138
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "7/13",
+              "value": "7/13"
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "type": "number",
+              "content": "250.00",
+              "value": 250.0
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "S C Herman & Ass Ppe220710 Herm01 Robert Herman",
+              "value": "S C Herman & Ass Ppe220710 Herm01 Robert Herman"
+            },
+            "Deposits/ Additions":
+            {
+              "type": "number",
+              "content": "183.39",
+              "value": 183.38999938964844
+            },
+            "Check Number":
+            {
+              "type": "integer",
+              "content": null,
+              "value": null
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "7/15",
+              "value": "7/15"
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "type": "number",
+              "content": null,
+              "value": null
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "ATM Withdrawal authorized on 07/15 5701 Connecticut Ave NW Washington DC 0009152 ATM ID 0085P Card 9899",
+              "value": "ATM Withdrawal authorized on 07/15 5701 Connecticut Ave NW Washington DC 0009152 ATM ID 0085P Card 9899"
+            },
+            "Deposits/ Additions":
+            {
+              "type": "number",
+              "content": null,
+              "value": null
+            },
+            "Check Number":
+            {
+              "type": "integer",
+              "content": null,
+              "value": null
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "7/15",
+              "value": "7/15"
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "type": "number",
+              "content": "200.00",
+              "value": 200.0
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "ATM Withdrawal authorized on 07/15 8302 Woodmont Avenue Bethesda MD 0001405 ATM ID 4737L Card 9899",
+              "value": "ATM Withdrawal authorized on 07/15 8302 Woodmont Avenue Bethesda MD 0001405 ATM ID 4737L Card 9899"
+            },
+            "Deposits/ Additions":
+            {
+              "type": "number",
+              "content": null,
+              "value": null
+            },
+            "Check Number":
+            {
+              "type": "integer",
+              "content": null,
+              "value": null
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "7/15",
+              "value": "7/15"
+            },
+            "Withdrawals/ Subtractions":
+            {
+              "type": "number",
+              "content": "100.00",
+              "value": 100.0
+            }
+          }
+        }
+      ]
+    },
+    "TransactionTableCreditsCharges":
+    {
+      "type": "array",
+      "content": null,
+      "value": null
+    },
+    "SummaryOfAccounts":
+    {
+      "type": "array",
+      "content": null,
+      "value":
+      [
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Ending Balance":
+            {
+              "type": "number",
+              "content": "48,262.17",
+              "value": 48262.171875
+            },
+            "Account":
+            {
+              "type": "string",
+              "content": "Crown Banking",
+              "value": "Crown Banking"
+            },
+            "Account Number":
+            {
+              "type": "string",
+              "content": "3443",
+              "value": "3443"
+            },
+            "Start Page":
+            {
+              "type": "integer",
+              "content": "2",
+              "value": 2
+            },
+            "Beginning Balance":
+            {
+              "type": "number",
+              "content": "0.07",
+              "value": 0.07000000029802322
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Ending Balance":
+            {
+              "type": "number",
+              "content": "150,001.18",
+              "value": 150001.1875
+            },
+            "Account":
+            {
+              "type": "string",
+              "content": "Wells Fargo Platinum Savings",
+              "value": "Wells Fargo Platinum Savings"
+            },
+            "Account Number":
+            {
+              "type": "string",
+              "content": "4372",
+              "value": "4372"
+            },
+            "Start Page":
+            {
+              "type": "integer",
+              "content": "5",
+              "value": 5
+            },
+            "Beginning Balance":
+            {
+              "type": "number",
+              "content": "201,689.60",
+              "value": 201689.59375
+            }
+          }
+        }
+      ]
+    },
+    "BankIdentifier":
+    {
+      "type": "string",
+      "content": "WELLS FARGO",
+      "value": "WELLS FARGO"
+    },
+    "TransactionTableDebits":
+    {
+      "type": "array",
+      "content": null,
+      "value": null
+    },
+    "BeginningBalance":
+    {
+      "type": "number",
+      "content": "$0.07",
+      "value": 0.07000000029802322
+    }
+  },
+  "docType": "BankCreditCardExtractor_Prod_V1"
+}

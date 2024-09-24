@@ -1,0 +1,114 @@
+{
+  "fields":
+  {
+    "BatesStamp":
+    {
+      "type": "string",
+      "content": "HERMAN-R-000629",
+      "value": "HERMAN-R-000629"
+    },
+    "TransactionTableCredits":
+    {
+      "type": "array",
+      "content": null,
+      "value": null
+    },
+    "ChecksTable":
+    {
+      "type": "array",
+      "content": null,
+      "value": null
+    },
+    "EndingBalance":
+    {
+      "type": "number",
+      "content": null,
+      "value": null
+    },
+    "Page":
+    {
+      "type": "string",
+      "content": "1",
+      "value": "1"
+    },
+    "TotalPages":
+    {
+      "type": "string",
+      "content": "7",
+      "value": "7"
+    },
+    "TransactionTableAmount":
+    {
+      "type": "array",
+      "content": null,
+      "value": null
+    },
+    "StatementDate":
+    {
+      "type": "string",
+      "content": "August 5, 2022",
+      "value": "August 5, 2022"
+    },
+    "FeesCharged":
+    {
+      "type": "number",
+      "content": null,
+      "value": null
+    },
+    "AccountNumber":
+    {
+      "type": "string",
+      "content": null,
+      "value": null
+    },
+    "Page/Total":
+    {
+      "type": "string",
+      "content": null,
+      "value": null
+    },
+    "InterestCharged":
+    {
+      "type": "number",
+      "content": null,
+      "value": null
+    },
+    "TransactionTableDepositWithdrawal":
+    {
+      "type": "array",
+      "content": null,
+      "value": null
+    },
+    "TransactionTableCreditsCharges":
+    {
+      "type": "array",
+      "content": null,
+      "value": null
+    },
+    "SummaryOfAccounts":
+    {
+      "type": "array",
+      "content": null,
+      "value": null
+    },
+    "BankIdentifier":
+    {
+      "type": "string",
+      "content": "WELLS FARGO",
+      "value": "WELLS FARGO"
+    },
+    "TransactionTableDebits":
+    {
+      "type": "array",
+      "content": null,
+      "value": null
+    },
+    "BeginningBalance":
+    {
+      "type": "number",
+      "content": null,
+      "value": null
+    }
+  },
+  "docType": "BankCreditCardExtractor_Prod_V1"
+}

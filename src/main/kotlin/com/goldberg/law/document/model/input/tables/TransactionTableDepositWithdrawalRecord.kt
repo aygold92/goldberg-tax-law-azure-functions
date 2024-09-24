@@ -1,23 +1,27 @@
 package com.goldberg.law.document.model.input.tables
 
 import com.azure.ai.formrecognizer.documentanalysis.models.DocumentField
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.goldberg.law.document.model.output.TransactionHistoryPageMetadata
 import com.goldberg.law.document.model.output.TransactionHistoryRecord
-import com.goldberg.law.util.roundToTwoDecimalPlaces
+import com.goldberg.law.util.positiveCurrencyValue
+import java.math.BigDecimal
+import java.util.*
 
-class TransactionTableDepositWithdrawalRecord(
-    val date: String?,
-    val checkNumber: Int?,
-    val description: String?,
-    val depositAmount: Double?,
-    val withdrawalAmount: Double?
+data class TransactionTableDepositWithdrawalRecord @JsonCreator constructor(
+    @JsonProperty("date") val date: String?,
+    @JsonProperty("checkNumber") val checkNumber: Int?,
+    @JsonProperty("description") val description: String?,
+    @JsonProperty("depositAmount") val depositAmount: BigDecimal?,
+    @JsonProperty("withdrawalAmount") val withdrawalAmount: BigDecimal?
 ): TransactionRecord() {
-    override fun toTransactionHistoryRecord(statementYear: String?, metadata: TransactionHistoryPageMetadata): TransactionHistoryRecord = TransactionHistoryRecord(
-        date = fromWrittenDateStatementYearOverride(this.date, statementYear),
+    override fun toTransactionHistoryRecord(statementDate: Date?, metadata: TransactionHistoryPageMetadata): TransactionHistoryRecord = TransactionHistoryRecord(
+        date = fromWrittenDateStatementDateOverride(this.date, statementDate),
         checkNumber = this.checkNumber,
         description = this.description,
         // TODO: can we do better for the case it has both?
-        amount = this.depositAmount ?: this.withdrawalAmount?.let { 0 - it },
+        amount = this.depositAmount ?: this.withdrawalAmount?.negate(),
         pageMetadata = metadata
     )
 
@@ -36,8 +40,8 @@ class TransactionTableDepositWithdrawalRecord(
                 date = recordFields[Keys.DATE]?.valueAsString,
                 checkNumber = checkNumber,
                 description = description,
-                depositAmount = recordFields[Keys.DEPOSITS_ADDITIONS]?.valueAsDouble?.roundToTwoDecimalPlaces(),
-                withdrawalAmount = recordFields[Keys.WITHDRAWALS_SUBTRACTIONS]?.valueAsDouble?.roundToTwoDecimalPlaces()
+                depositAmount = recordFields[Keys.DEPOSITS_ADDITIONS]?.positiveCurrencyValue(),
+                withdrawalAmount = recordFields[Keys.WITHDRAWALS_SUBTRACTIONS]?.positiveCurrencyValue()
             )
         }
 

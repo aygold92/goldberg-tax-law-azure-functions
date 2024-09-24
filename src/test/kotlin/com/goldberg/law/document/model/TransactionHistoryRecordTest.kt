@@ -12,7 +12,7 @@ import com.goldberg.law.document.model.ModelValues.newCheckData
 import com.goldberg.law.document.model.ModelValues.newHistoryRecord
 import com.goldberg.law.document.model.output.TransactionHistoryRecord
 import com.goldberg.law.document.model.output.TransactionHistoryRecord.SuspiciousReasons
-import com.goldberg.law.pdf.model.DocumentType.BankTypes
+import com.goldberg.law.document.model.pdf.DocumentType.BankTypes
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -20,27 +20,27 @@ class TransactionHistoryRecordTest {
     @Test
     fun testNonSuspiciousRecords() {
         assertThat(BASIC_TH_RECORD.isSuspicious()).isFalse()
-        assertThat(BASIC_TH_RECORD.copy(amount = 500.00).isSuspicious()).isFalse()
+        assertThat(newHistoryRecord(amount = 500.00).isSuspicious()).isFalse()
     }
 
     @Test
     fun testSuspiciousRecordsNullFields() {
         assertThat(TransactionHistoryRecord(pageMetadata = BASIC_TH_PAGE_METADATA).isSuspicious()).isTrue()
-        assertThat(BASIC_TH_RECORD.copy(date = null).isSuspicious()).isTrue()
-        assertThat(BASIC_TH_RECORD.copy(description = null).isSuspicious()).isTrue()
-        assertThat(BASIC_TH_RECORD.copy(amount = 0.0).isSuspicious()).isTrue()
-        assertThat(BASIC_TH_RECORD.copy(amount = null).isSuspicious()).isTrue()
+        assertThat(newHistoryRecord(date = null).isSuspicious()).isTrue()
+        assertThat(newHistoryRecord(description = null).isSuspicious()).isTrue()
+        assertThat(newHistoryRecord(amount = 0.0).isSuspicious()).isTrue()
+        assertThat(newHistoryRecord(amount = null).isSuspicious()).isTrue()
     }
 
     @Test
     fun testSuspiciousRecordsEmptyCheckNumber() {
-        assertThat(BASIC_TH_RECORD.copy(description = "Check").isSuspicious()).isTrue()
-        assertThat(BASIC_TH_RECORD.copy(description = "Check", checkNumber = 1000).isSuspicious()).isFalse()
+        assertThat(newHistoryRecord(description = TransactionHistoryRecord.CHECK_DESCRIPTION).isSuspicious()).isTrue()
+        assertThat(newHistoryRecord(description = TransactionHistoryRecord.CHECK_DESCRIPTION_ALT).isSuspicious()).isTrue()
     }
 
     @Test
     fun testSuspiciousRecordsReasonSingle() {
-        val suspiciousRecord = BASIC_TH_RECORD.copy(description = "Check")
+        val suspiciousRecord = newHistoryRecord(description = "Check")
         assertThat(suspiciousRecord.isSuspicious()).isTrue()
         assertThat(suspiciousRecord.getSuspiciousReasons().size).isEqualTo(1)
         assertThat(suspiciousRecord.getSuspiciousReasons()[0]).contains("no check number")
@@ -63,25 +63,25 @@ class TransactionHistoryRecordTest {
     @Test
     fun testToCsvBasicRecord() {
         assertThat(BASIC_TH_RECORD.toCsv(ACCOUNT_NUMBER, BankTypes.WF_BANK))
-            .isEqualTo("4/3/2020,\"test\",-500.00,,\"WF Bank - 1234567890\",\"$BATES_STAMP\",4/7/2020,2,\"$FILENAME\",1,")
+            .isEqualTo("4/3/2020,\"test\",-500.00,,\"WF Bank - 1234567890\",\"$BATES_STAMP\",4/7/2020,2,\"$FILENAME\",1,,")
     }
 
     @Test
     fun testToCsvWithCheck() {
         assertThat(
-            BASIC_TH_RECORD.copy(description = TransactionHistoryRecord.CHECK_DESCRIPTION, checkNumber = 1234)
+            newHistoryRecord(description = TransactionHistoryRecord.CHECK_DESCRIPTION, checkNumber = 1234)
                 .toCsv(ACCOUNT_NUMBER, BankTypes.WF_BANK)
         ).isEqualTo(
-            "4/3/2020,\"Check 1234\",-500.00,,\"WF Bank - 1234567890\",\"$BATES_STAMP\",4/7/2020,2,\"$FILENAME\",1,"
+            "4/3/2020,\"Check 1234\",-500.00,,\"WF Bank - 1234567890\",\"$BATES_STAMP\",4/7/2020,2,\"$FILENAME\",1,,"
         )
     }
 
     @Test
     fun testToCsvWithCheckAndDescription() {
         assertThat(
-            BASIC_TH_RECORD.copy(checkNumber = 1234).toCsv(ACCOUNT_NUMBER, BankTypes.WF_BANK)
+            newHistoryRecord(checkNumber = 1234).toCsv(ACCOUNT_NUMBER, BankTypes.WF_BANK)
         ).isEqualTo(
-            "4/3/2020,\"test Check 1234\",-500.00,,\"WF Bank - 1234567890\",\"$BATES_STAMP\",4/7/2020,2,\"$FILENAME\",1,"
+            "4/3/2020,\"test Check 1234\",-500.00,,\"WF Bank - 1234567890\",\"$BATES_STAMP\",4/7/2020,2,\"$FILENAME\",1,,"
         )
     }
 
@@ -97,7 +97,25 @@ class TransactionHistoryRecordTest {
         assertThat(
             newHistoryRecord(checkNumber = 1234, checkData = newCheckData(1000)).toCsv(ACCOUNT_NUMBER, BankTypes.WF_BANK)
         ).isEqualTo(
-            "4/3/2020,\"test Check 1234\",-500.00,,\"WF Bank - 1234567890\",\"$BATES_STAMP\",4/7/2020,2,\"$FILENAME\",1,\"$CHECK_BATES_STAMP\",\"$CHECK_FILENAME\",$CHECK_FILE_PAGE"
+            "4/3/2020,\"test Check 1234: Some Guy - check desc\",-500.00,,\"WF Bank - 1234567890\",\"$BATES_STAMP\",4/7/2020,2,\"$FILENAME\",1,\"$CHECK_BATES_STAMP\",\"$CHECK_FILENAME\",$CHECK_FILE_PAGE"
+        )
+    }
+
+    @Test
+    fun testToCsvWithCheckAndCheckData() {
+        assertThat(
+            newHistoryRecord(checkNumber = 1234, description = "Check", checkData = newCheckData(1000)).toCsv(ACCOUNT_NUMBER, BankTypes.WF_BANK)
+        ).isEqualTo(
+            "4/3/2020,\"Check 1234: Some Guy - check desc\",-500.00,,\"WF Bank - 1234567890\",\"$BATES_STAMP\",4/7/2020,2,\"$FILENAME\",1,\"$CHECK_BATES_STAMP\",\"$CHECK_FILENAME\",$CHECK_FILE_PAGE"
+        )
+    }
+
+    @Test
+    fun testToCsvWithCheckNoDescriptionCheckData() {
+        assertThat(
+            newHistoryRecord(checkNumber = 1234, description = null, checkData = newCheckData(1000)).toCsv(ACCOUNT_NUMBER, BankTypes.WF_BANK)
+        ).isEqualTo(
+            "4/3/2020,\"Check 1234: Some Guy - check desc\",-500.00,,\"WF Bank - 1234567890\",\"$BATES_STAMP\",4/7/2020,2,\"$FILENAME\",1,\"$CHECK_BATES_STAMP\",\"$CHECK_FILENAME\",$CHECK_FILE_PAGE"
         )
     }
 }

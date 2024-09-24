@@ -9,7 +9,7 @@ class CheckDataTest {
     fun toCsv() {
         assertThat(newCheckData(1000).toCsv())
             .isEqualTo("""
-                "1234567890",1000,"test",4/3/2020,-500.00,"CH-12345","checkfile",7
+                "1234567890",1000,"check desc",4/3/2020,-500.00,"CH-12345","checkfile",7
             """.trimIndent())
     }
 }

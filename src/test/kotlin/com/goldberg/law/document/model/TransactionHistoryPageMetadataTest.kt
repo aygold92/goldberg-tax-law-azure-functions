@@ -2,7 +2,7 @@ package com.goldberg.law.document.model
 
 import com.goldberg.law.document.model.ModelValues.BASIC_TH_PAGE_METADATA
 import com.goldberg.law.document.model.ModelValues.FILENAME
-import com.goldberg.law.pdf.model.DocumentType
+import com.goldberg.law.document.model.pdf.DocumentType
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 

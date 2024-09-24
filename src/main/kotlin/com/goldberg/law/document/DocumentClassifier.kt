@@ -1,15 +1,14 @@
 package com.goldberg.law.document
 
 import com.azure.ai.formrecognizer.documentanalysis.DocumentAnalysisClient
-import com.goldberg.law.pdf.model.ClassifiedPdfDocument
-import com.goldberg.law.pdf.model.PdfDocument
+import com.goldberg.law.document.model.pdf.ClassifiedPdfDocumentPage
+import com.goldberg.law.document.model.pdf.PdfDocumentPage
 import com.goldberg.law.util.isAzureThrottlingError
 import com.goldberg.law.util.retryWithBackoff
 import com.goldberg.law.util.toStringDetailed
 import io.github.oshai.kotlinlogging.KotlinLogging
 import javax.inject.Inject
 import javax.inject.Named
-import kotlin.math.log
 
 
 class DocumentClassifier @Inject constructor(
@@ -18,7 +17,7 @@ class DocumentClassifier @Inject constructor(
 ) {
     private val logger = KotlinLogging.logger {}
 
-    fun classifyDocument(document: PdfDocument): ClassifiedPdfDocument {
+    fun classifyDocument(document: PdfDocumentPage): ClassifiedPdfDocumentPage {
         val poller = retryWithBackoff(
             { client.beginClassifyDocument(modelId, document.toBinaryData()) },
             ::isAzureThrottlingError

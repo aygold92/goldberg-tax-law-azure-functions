@@ -5,7 +5,9 @@ import com.goldberg.law.document.model.ModelValues.FIXED_STATEMENT_DATE
 import com.goldberg.law.document.model.ModelValues.newBankStatement
 import com.goldberg.law.document.model.ModelValues.newHistoryRecord
 import com.goldberg.law.document.model.output.AccountSummaryEntry
-import com.goldberg.law.pdf.model.DocumentType.BankTypes
+import com.goldberg.law.document.model.pdf.DocumentType.BankTypes
+import com.goldberg.law.util.ZERO
+import com.goldberg.law.util.asCurrency
 import com.goldberg.law.util.fromWrittenDate
 import com.goldberg.law.util.toMonthYear
 import org.assertj.core.api.Assertions.assertThat
@@ -18,10 +20,10 @@ class AccountSummaryEntryCreatorTest {
     @Test
     fun creatorTestBasic() {
         val statements = listOf(
-            newBankStatementNotSus(fromWrittenDate("6 1, 2020")),
-            newBankStatementNotSus(fromWrittenDate("7 1, 2020")),
-            newBankStatementNotSus(fromWrittenDate("8 1, 2020")),
-            newBankStatementNotSus(fromWrittenDate("9 1, 2020")),
+            newBankStatementNotSus("6 1, 2020"),
+            newBankStatementNotSus("7 1, 2020"),
+            newBankStatementNotSus("8 1, 2020"),
+            newBankStatementNotSus("9 1, 2020"),
         )
         val result = creator.createSummary(statements)
 
@@ -34,9 +36,9 @@ class AccountSummaryEntryCreatorTest {
     @Test
     fun creatorTestBasicMissing() {
         val statements = listOf(
-            newBankStatementNotSus(fromWrittenDate("6 1, 2020")),
-            newBankStatementNotSus(fromWrittenDate("7 1, 2020")),
-            newBankStatementNotSus(fromWrittenDate("9 1, 2020")),
+            newBankStatementNotSus("6 1, 2020"),
+            newBankStatementNotSus("7 1, 2020"),
+            newBankStatementNotSus("9 1, 2020"),
         )
         val result = creator.createSummary(statements)
 
@@ -49,9 +51,9 @@ class AccountSummaryEntryCreatorTest {
     @Test
     fun creatorTestBasicMissingAndSus() {
         val statements = listOf(
-            newBankStatementNotSus(fromWrittenDate("6 1, 2020")),
-            newBankStatementNotSus(fromWrittenDate("7 1, 2020")),
-            newBankStatement(statementDate = fromWrittenDate("9 1, 2020")),
+            newBankStatementNotSus("6 1, 2020"),
+            newBankStatementNotSus("7 1, 2020"),
+            newBankStatement(statementDate = "9 1, 2020"),
         )
         val result = creator.createSummary(statements)
 
@@ -64,7 +66,7 @@ class AccountSummaryEntryCreatorTest {
     @Test
     fun testCreateOneStatement() {
         val statements = listOf(
-            newBankStatementNotSus(fromWrittenDate("6 1, 2020"))
+            newBankStatementNotSus("6 1, 2020")
         )
         val result = creator.createSummary(statements)
 
@@ -77,9 +79,9 @@ class AccountSummaryEntryCreatorTest {
     @Test
     fun testMissingWithStatementDateOnDifferentDays() {
         val statements = listOf(
-            newBankStatementNotSus(fromWrittenDate("6 5, 2020")),
-            newBankStatementNotSus(fromWrittenDate("7 19, 2020")),
-            newBankStatement(statementDate = fromWrittenDate("9 2, 2020")),
+            newBankStatementNotSus("6 5, 2020"),
+            newBankStatementNotSus("7 19, 2020"),
+            newBankStatement(statementDate = "9 2, 2020"),
         )
         val result = creator.createSummary(statements)
 
@@ -92,8 +94,8 @@ class AccountSummaryEntryCreatorTest {
     @Test
     fun testCreateManyMissing() {
         val statements = listOf(
-            newBankStatementNotSus(fromWrittenDate("6 1, 2020")),
-            newBankStatementNotSus(fromWrittenDate("8 1, 2022"))
+            newBankStatementNotSus("6 1, 2020"),
+            newBankStatementNotSus("8 1, 2022"),
         )
         val result = creator.createSummary(statements)
 
@@ -129,9 +131,9 @@ class AccountSummaryEntryCreatorTest {
 
     companion object {
         fun newBankStatementNotSus(
-            statementDate: Date? = FIXED_STATEMENT_DATE,
+            statementDate: String? = FIXED_STATEMENT_DATE,
         ) = newBankStatement(ACCOUNT_NUMBER, statementDate)
-            .update(beginningBalance = 500.0, endingBalance = 0.0, transactions = listOf(newHistoryRecord(date = statementDate)))
+            .update(beginningBalance = 500.asCurrency(), endingBalance = ZERO, transactions = listOf(newHistoryRecord(date = statementDate)))
 
     }
 }

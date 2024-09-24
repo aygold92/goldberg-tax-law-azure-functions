@@ -1,21 +1,25 @@
 package com.goldberg.law.document.model.input.tables
 
 import com.azure.ai.formrecognizer.documentanalysis.models.DocumentField
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.goldberg.law.document.model.output.TransactionHistoryPageMetadata
 import com.goldberg.law.document.model.output.TransactionHistoryRecord
-import com.goldberg.law.util.roundToTwoDecimalPlaces
+import com.goldberg.law.util.currencyValue
 import com.goldberg.law.util.valueAsInt
+import java.math.BigDecimal
+import java.util.*
 
-class TransactionTableChecksRecord(
-    val date: String?,
-    val number: Int?,
-    val amount: Double?,
+data class TransactionTableChecksRecord @JsonCreator constructor(
+    @JsonProperty("date") val date: String?,
+    @JsonProperty("number") val number: Int?,
+    @JsonProperty("amount") val amount: BigDecimal?,
 ): TransactionRecord() {
-    override fun toTransactionHistoryRecord(statementYear: String?, metadata: TransactionHistoryPageMetadata): TransactionHistoryRecord = TransactionHistoryRecord(
-        date = fromWrittenDateStatementYearOverride(this.date, statementYear),
+    override fun toTransactionHistoryRecord(statementDate: Date?, metadata: TransactionHistoryPageMetadata): TransactionHistoryRecord = TransactionHistoryRecord(
+        date = fromWrittenDateStatementDateOverride(this.date, statementDate),
         description = TransactionHistoryRecord.CHECK_DESCRIPTION,
         checkNumber = this.number,
-        amount = if (amount != null) 0.0 - amount else null,  // a check represents money leaving, so we subtract
+        amount = amount?.negate(),  // a check represents money leaving, so we subtract
         pageMetadata = metadata
     )
 
@@ -30,7 +34,7 @@ class TransactionTableChecksRecord(
             TransactionTableChecksRecord(
                 date = recordFields[Keys.DATE]?.valueAsString,
                 number = recordFields[Keys.NUMBER]?.valueAsInt(),
-                amount = recordFields[Keys.AMOUNT]?.valueAsDouble?.roundToTwoDecimalPlaces(),
+                amount = recordFields[Keys.AMOUNT]?.currencyValue(),
             )
         }
     }

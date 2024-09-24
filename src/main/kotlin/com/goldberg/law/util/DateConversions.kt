@@ -3,6 +3,10 @@ package com.goldberg.law.util
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.text.ParseException
 import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.temporal.TemporalField
 import java.util.*
 
 private val logger = KotlinLogging.logger {}
@@ -17,8 +21,10 @@ private val acceptedDateFormats = listOf(
     "M d yy"       // 4 7 20
 )
 
-fun Date.toTransactionDate(): String = SimpleDateFormat("M/d/yyyy").format(this)
-fun Date.toMonthYear(): String = SimpleDateFormat("M/yyyy").format(this)
+private val TRANSACTION_DATE_FORMAT = SimpleDateFormat("M/d/yyyy")
+fun Date.toTransactionDate(): String = TRANSACTION_DATE_FORMAT.format(this)
+private val MONTH_YEAR_FORMAT = SimpleDateFormat("M/yyyy")
+fun Date.toMonthYear(): String = MONTH_YEAR_FORMAT.format(this)
 fun Date.getYearSafe(): String = getYearInt().toString()
 fun Date.getYearInt(): Int = Calendar.getInstance().apply { time = this@getYearInt }.get(Calendar.YEAR)
 fun Date.getMonthInt(): Int = Calendar.getInstance().apply { time = this@getMonthInt }.get(Calendar.MONTH)
@@ -27,6 +33,8 @@ private fun Date.adjustYear(): Date = Calendar.getInstance().apply { time = this
     if (year < 100) cal.set(Calendar.YEAR, year + 2000)
     cal.time
 }
+
+fun normalizeDate(dateString: String?): String? = fromWrittenDate(dateString)?.toTransactionDate()
 
 fun fromWrittenDate(monthDay: String?, year: String?): Date? =
     if (monthDay == null || year == null) null
