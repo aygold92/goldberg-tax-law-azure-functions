@@ -4,6 +4,7 @@ import com.goldberg.law.datamanager.DataManager
 import com.goldberg.law.document.model.output.BankStatement
 import com.goldberg.law.document.model.pdf.PdfDocumentPage
 import com.goldberg.law.document.PdfSplitter
+import com.goldberg.law.function.model.InputFileMetadata
 
 class TestDataManager: DataManager(PdfSplitter()) {
     // can capture these values to check what's being passed
@@ -35,6 +36,10 @@ class TestDataManager: DataManager(PdfSplitter()) {
     }
 
     override fun loadBankStatement(bankStatementKey: String, outputDirectory: String?): BankStatement {
+        TODO("Not yet implemented")
+    }
+
+    override fun updateInputPdfMetadata(fileName: String, metadata: InputFileMetadata) {
         TODO("Not yet implemented")
     }
 

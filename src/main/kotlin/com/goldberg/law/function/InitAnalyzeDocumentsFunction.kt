@@ -23,7 +23,7 @@ class InitAnalyzeDocumentsFunction {
      */
     @FunctionName(FUNCTION_NAME)
     fun initAnalyzeDocumentsFunction(
-        @HttpTrigger(name = "req", methods = [HttpMethod.GET, HttpMethod.POST], authLevel = AuthorizationLevel.ANONYMOUS)
+        @HttpTrigger(name = "req", methods = [HttpMethod.POST], authLevel = AuthorizationLevel.ANONYMOUS)
         request: HttpRequestMessage<Optional<String?>?>?,
         @DurableClientInput(name = "durableContext") durableContext: DurableClientContext,
         context: ExecutionContext

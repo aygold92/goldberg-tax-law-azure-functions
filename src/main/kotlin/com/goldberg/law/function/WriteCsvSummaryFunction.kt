@@ -6,6 +6,7 @@ import com.goldberg.law.document.getChecksUsed
 import com.goldberg.law.document.getMissingChecks
 import com.goldberg.law.function.model.request.AnalyzeDocumentResult
 import com.goldberg.law.function.model.request.WriteCsvSummaryRequest
+import com.goldberg.law.function.model.request.WriteCsvSummaryResponse
 import com.goldberg.law.util.OBJECT_MAPPER
 import com.goldberg.law.util.getDocumentName
 import com.goldberg.law.util.mapAsync
@@ -30,7 +31,7 @@ class WriteCsvSummaryFunction @Inject constructor(
         request: HttpRequestMessage<Optional<String>>,
         ctx: ExecutionContext
     ): HttpResponseMessage = try {
-        logger.info { "[${ctx.invocationId}] processing ${request.toStringDetailed()}" }
+        logger.info { "[${ctx.invocationId}] processing ${request.body.orElseThrow()}" }
         val req = OBJECT_MAPPER.readValue(request.body.orElseThrow(), WriteCsvSummaryRequest::class.java)
 
         val statements = req.statementKeys.mapAsync { dataManager.loadBankStatement(it.getDocumentName()) }
@@ -39,20 +40,20 @@ class WriteCsvSummaryFunction @Inject constructor(
         val outputFile = req.outputFile ?: ctx.invocationId
         val filePrefix = listOf(req.outputDirectory, outputFile.getDocumentName(), outputFile.getDocumentName()).joinToString("/")
 
-        val files = listOf(
-            dataManager.writeCheckSummaryToCsv("${filePrefix}_CheckSummary", statements.getChecksUsed(), statements.getMissingChecks(), setOf()),
-            dataManager.writeAccountSummaryToCsv("${filePrefix}_AccountSummary", summary),
-            dataManager.writeStatementSummaryToCsv("${filePrefix}_StatementSummary", statements.map { it.toStatementSummary() }),
-            dataManager.writeRecordsToCsv("${filePrefix}_Records", statements),
-        )
-
         request.createResponseBuilder(HttpStatus.OK)
-            .body(AnalyzeDocumentResult.success(files))
+            .body(WriteCsvSummaryResponse(
+                AnalyzeDocumentResult.Status.SUCCESS,
+                    checkSummaryFile = dataManager.writeCheckSummaryToCsv("${filePrefix}_CheckSummary", statements.getChecksUsed(), statements.getMissingChecks(), setOf()),
+                    accountSummaryFile = dataManager.writeAccountSummaryToCsv("${filePrefix}_AccountSummary", summary),
+                    statementSummaryFile = dataManager.writeStatementSummaryToCsv("${filePrefix}_StatementSummary", statements.map { it.toStatementSummary() }),
+                    recordsFile = dataManager.writeRecordsToCsv("${filePrefix}_Records", statements),
+                )
+            )
             .build()
     } catch (ex: Exception) {
         // TODO: fix this
         request.createResponseBuilder(HttpStatus.BAD_REQUEST)
-            .body(AnalyzeDocumentResult.failed(ex))
+            .body(WriteCsvSummaryResponse.failed(ex))
             .build()
     }
     companion object {

@@ -13,6 +13,7 @@ import com.goldberg.law.function.PdfDataExtractorOrchestratorFunction
 import com.goldberg.law.function.WriteCsvSummaryFunction
 import com.goldberg.law.function.activity.*
 import com.goldberg.law.document.PdfSplitter
+import com.goldberg.law.function.FetchSASTokenFunction
 import com.google.inject.AbstractModule
 import com.google.inject.Provides
 import javax.inject.Singleton
@@ -103,12 +104,6 @@ class AppModule constructor(private val appEnvironmentSettings: AppEnvironmentSe
 
     @Provides
     @Singleton
-    fun processStatementsAndChecksActivity(
-        pdfExtractorMain: PdfExtractorMain
-    ) = ProcessStatementsAndChecksActivity(pdfExtractorMain)
-
-    @Provides
-    @Singleton
     fun processStatementActivity(
         statementCreator: DocumentStatementCreator,
         accountNormalizer: AccountNormalizer,
@@ -122,4 +117,10 @@ class AppModule constructor(private val appEnvironmentSettings: AppEnvironmentSe
         dataManager: DataManager,
         accountSummaryCreator: AccountSummaryCreator,
     ) = WriteCsvSummaryFunction(dataManager, accountSummaryCreator)
+
+    @Provides
+    @Singleton
+    fun fetchSasTokenFunction(
+        blobServiceClient: BlobServiceClient
+    ) = FetchSASTokenFunction(blobServiceClient)
 }

@@ -6,10 +6,13 @@ import com.goldberg.law.document.model.output.*
 import com.goldberg.law.document.model.pdf.PdfDocumentPage
 import com.goldberg.law.function.model.PdfPageData
 import com.goldberg.law.document.PdfSplitter
+import com.goldberg.law.document.exception.InvalidPdfException
+import com.goldberg.law.function.model.InputFileMetadata
 import com.goldberg.law.util.addQuotes
 import com.goldberg.law.util.toStringDetailed
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.pdfbox.Loader
+import java.io.IOException
 
 abstract class DataManager(protected val pdfSplitter: PdfSplitter) {
     protected val logger = KotlinLogging.logger {}
@@ -75,8 +78,14 @@ abstract class DataManager(protected val pdfSplitter: PdfSplitter) {
 
     // loads a single PDF file into a collection of pages
     fun loadInputPdfDocumentPages(fileName: String, desiredPages: List<Int>?): Collection<PdfDocumentPage> = loadInputFile(fileName).let {
-        pdfSplitter.splitPdf(fileName, Loader.loadPDF(it), desiredPages)
+        pdfSplitter.splitPdf(fileName, loadPdfDocument(fileName, it), desiredPages)
     }.also { logger.debug { "Successfully loaded file $fileName, pages ${desiredPages ?: "[All]"}" } }
+
+    private fun loadPdfDocument(fileName: String, bytes: ByteArray) = try {
+        Loader.loadPDF(bytes)
+    } catch (ex: Exception) {
+        throw InvalidPdfException("Unable to load PDF $fileName: $ex")
+    }
 
     protected abstract fun loadInputFile(fileName: String): ByteArray
     protected abstract fun loadSplitPdfDocumentFile(fileName: String): ByteArray
@@ -88,6 +97,8 @@ abstract class DataManager(protected val pdfSplitter: PdfSplitter) {
     abstract fun checkFilesExist(requestedFileNames: Set<String>): Set<String>
 
     abstract fun getProcessedFiles(fileNames: Set<String>): Set<String>
+
+    abstract fun updateInputPdfMetadata(fileName: String, metadata: InputFileMetadata)
 
 //    abstract fun fileExists(fileName: String): Boolean
 

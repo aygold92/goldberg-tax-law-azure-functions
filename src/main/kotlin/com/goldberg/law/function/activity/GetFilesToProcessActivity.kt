@@ -13,7 +13,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 class GetFilesToProcessActivity(private val dataManager: DataManager) {
     private val logger = KotlinLogging.logger {}
     @FunctionName(FUNCTION_NAME)
-    fun getRelevantFilesActivity(@DurableActivityTrigger(name = "input") input: GetFilesToProcessActivityInput, context: ExecutionContext): GetFilesToProcessActivityOutput {
+    fun getFilesToProcessActivity(@DurableActivityTrigger(name = "input") input: GetFilesToProcessActivityInput, context: ExecutionContext): GetFilesToProcessActivityOutput {
         logger.info { "[${input.requestId}][${context.invocationId}] processing ${input.toStringDetailed()}" }
         val filesRequested = dataManager.checkFilesExist(input.request.documents)
         val alreadyProcessed = if (!input.request.overwrite) dataManager.getProcessedFiles(input.request.documents)
@@ -26,6 +26,6 @@ class GetFilesToProcessActivity(private val dataManager: DataManager) {
     }
 
     companion object {
-        const val FUNCTION_NAME = "GetRelevantFilesActivity"
+        const val FUNCTION_NAME = "GetFilesToProcessActivity"
     }
 }

@@ -16,7 +16,7 @@ import java.math.BigDecimal
 import java.util.*
 import com.goldberg.law.document.model.input.StatementDataModel.Keys as FieldKeys
 
-@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonIgnoreProperties(ignoreUnknown = true, value = ["netTransactions", "suspiciousReasons"], allowGetters = true)
 data class BankStatement @JsonCreator constructor(
     @JsonProperty("filename")
     val filename: String,
@@ -91,7 +91,7 @@ data class BankStatement @JsonCreator constructor(
             valueIfDifferent ?: new.also { otherSuspiciousReasons.add(SuspiciousReasons.MULTIPLE_FIELD_VALUES.format(fieldName, original.toString(), new.toString())) }
         } else new ?: original
 
-    @JsonIgnore
+    @JsonProperty("netTransactions")
     fun getNetTransactions(): BigDecimal = try {
         if (transactions.isEmpty()) {
             0.asCurrency().also { logger.error { "Unable to calculate net deposits for statement $primaryKey: statement no transactions" } }
@@ -149,7 +149,7 @@ data class BankStatement @JsonCreator constructor(
         getSuspiciousReasons()
     )
 
-    fun toCsv(): String = transactions.sortedBy { it.date }.joinToString("\n") {
+    fun toCsv(): String = transactions.sortedBy { it.transactionDate }.joinToString("\n") {
         it.toCsv(accountNumber, classification)
     }
 
@@ -193,7 +193,7 @@ data class BankStatement @JsonCreator constructor(
         return getSuspiciousReasons().isNotEmpty()
     }
 
-    @JsonIgnore
+    @JsonProperty("suspiciousReasons")
     fun getSuspiciousReasons(): List<String> = suspiciousReasonMap.mapNotNull { if (it.first(this)) it.second(this) else null }
         .plus(transactions.flatMap { it.getSuspiciousReasons() })
         .plus(otherSuspiciousReasons)

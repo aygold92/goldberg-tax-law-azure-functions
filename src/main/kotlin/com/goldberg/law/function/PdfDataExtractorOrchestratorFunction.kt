@@ -31,6 +31,7 @@ class PdfDataExtractorOrchestratorFunction @Inject constructor(private val numWo
 
         if (!ctx.isReplaying) logger.info { "[${ctx.instanceId}] processing ${request.toStringDetailed()}" }
 
+        ctx.setCustomStatus(OrchestrationStatus.ofAction(OrchestrationStage.VERIFYING_DOCUMENTS, request.documents))
         val relevantFiles = ctx.callActivity(
             GetFilesToProcessActivity.FUNCTION_NAME,
             GetFilesToProcessActivityInput(ctx.instanceId, request),
@@ -45,7 +46,10 @@ class PdfDataExtractorOrchestratorFunction @Inject constructor(private val numWo
             )
         }
 
-        val inputDocuments = ctx.allOf(splitDocumentTasks).await().flatMap { it.pdfPages }
+        val inputDocumentsByFile = ctx.allOf(splitDocumentTasks).await()
+        val inputDocuments = inputDocumentsByFile.flatMap { it.pdfPages }
+
+        var documentsStatus = inputDocumentsByFile.map { DocumentOrchestrationStatus(it.pdfPages.first().name, it.pdfPages.size, 0) }
 
         if (!ctx.isReplaying) logger.info { "Successfully split pdfs" }
 
@@ -53,7 +57,8 @@ class PdfDataExtractorOrchestratorFunction @Inject constructor(private val numWo
 
         val groupedDocuments = inputDocuments.breakIntoGroups(inputDocuments.size / numWorkers)
         var documentsCompleted = 0
-        ctx.setCustomStatus(OrchestrationStatus(inputDocuments.size, documentsCompleted))
+        val totalDocuments = inputDocuments.size
+        ctx.setCustomStatus(OrchestrationStatus(OrchestrationStage.EXTRACTING_DATA, documentsStatus, totalDocuments, documentsCompleted))
         groupedDocuments.forEach { documentGroup ->
             val documentDataModelTasks = documentGroup.value.map { pdfPage ->
                 ctx.callActivity(
@@ -62,10 +67,13 @@ class PdfDataExtractorOrchestratorFunction @Inject constructor(private val numWo
                     DocumentDataModelContainer::class.java
                 )
             }
-            if (!ctx.isReplaying) logger.info { "processing data models for group ${documentGroup.key + 1}" }
             dataModels.addAll(ctx.allOf(documentDataModelTasks).await())
+
             documentsCompleted += documentGroup.value.size
-            ctx.setCustomStatus(OrchestrationStatus(inputDocuments.size, documentsCompleted))
+
+            val processedDocuments = documentGroup.value.groupBy { it.name }
+            documentsStatus = documentsStatus.map { it.copy(pagesCompleted = it.pagesCompleted!! + (processedDocuments[it.documentName]?.size ?: 0)) }
+            ctx.setCustomStatus(OrchestrationStatus(OrchestrationStage.EXTRACTING_DATA, documentsStatus, totalDocuments, documentsCompleted))
             if (!ctx.isReplaying) logger.info { "[${ctx.instanceId}] Processed group ${documentGroup.key + 1}, now completed $documentsCompleted docs" }
         }
 
@@ -78,16 +86,7 @@ class PdfDataExtractorOrchestratorFunction @Inject constructor(private val numWo
         ).await()
             .also { logger.info { "[${ctx.instanceId}] Got Final Result: ${it.fileNames}" } }
 
-
-//        val finalResult = ctx.callActivity(
-//            ProcessStatementsAndChecksActivity.FUNCTION_NAME,
-//            ProcessStatementsAndChecksActivityInput(ctx.instanceId, request, dataModels),
-//            ProcessStatementsAndChecksActivityOutput::class.java
-//        ).await()
-//            .also { logger.info { "[${ctx.instanceId}] Got Final Result: ${it.fileNames}" } }
-
-
-        AnalyzeDocumentResult.success(listOf(finalResult.toStringDetailed()))
+        AnalyzeDocumentResult.success(finalResult.fileNames)
     } catch (ex: Throwable) {
         if (ex is OrchestratorBlockedException) {
             throw ex

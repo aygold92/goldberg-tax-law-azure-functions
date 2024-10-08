@@ -1,9 +1,7 @@
 package com.goldberg.law.document.model
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.goldberg.law.document.model.ModelValues.ACCOUNT_NUMBER
 import com.goldberg.law.document.model.ModelValues.BASIC_BANK_STATEMENT
-import com.goldberg.law.document.model.ModelValues.BASIC_CHECK_PAGE_METADATA
 import com.goldberg.law.document.model.ModelValues.BASIC_TH_PAGE_METADATA
 import com.goldberg.law.document.model.ModelValues.BASIC_TH_RECORD
 import com.goldberg.law.document.model.ModelValues.BATES_STAMP
@@ -19,7 +17,6 @@ import com.goldberg.law.document.model.input.StatementDataModel.Keys.ENDING_BALA
 import com.goldberg.law.document.model.output.*
 import com.goldberg.law.document.model.pdf.DocumentType
 import com.goldberg.law.document.model.pdf.DocumentType.BankTypes
-import com.goldberg.law.document.model.pdf.PdfDocumentPageMetadata
 import com.goldberg.law.util.*
 import com.nimbusds.jose.shaded.gson.Gson
 import io.github.oshai.kotlinlogging.KotlinLogging

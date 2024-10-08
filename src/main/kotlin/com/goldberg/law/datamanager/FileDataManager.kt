@@ -5,6 +5,7 @@ import com.goldberg.law.document.exception.InvalidArgumentException
 import com.goldberg.law.document.model.output.BankStatement
 import com.goldberg.law.document.model.pdf.PdfDocumentPage
 import com.goldberg.law.document.PdfSplitter
+import com.goldberg.law.function.model.InputFileMetadata
 import com.goldberg.law.util.OBJECT_MAPPER
 import com.goldberg.law.util.toStringDetailed
 import java.io.File
@@ -44,6 +45,10 @@ class FileDataManager(pdfSplitter: PdfSplitter): DataManager(pdfSplitter) {
     override fun loadBankStatement(bankStatementKey: String, outputDirectory: String?): BankStatement {
         val fileName = listOfNotNull(outputDirectory, "${bankStatementKey}.json").joinToString("/")
         return OBJECT_MAPPER.readValue(loadFile(fileName), BankStatement::class.java)
+    }
+
+    override fun updateInputPdfMetadata(fileName: String, metadata: InputFileMetadata) {
+        TODO("Not yet implemented")
     }
 
     override fun findMatchingFiles(fileName: String): Set<String> {

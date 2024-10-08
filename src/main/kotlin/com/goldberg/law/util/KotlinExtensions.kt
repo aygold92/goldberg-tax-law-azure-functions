@@ -2,13 +2,13 @@ package com.goldberg.law.util
 
 import com.azure.ai.formrecognizer.documentanalysis.models.AnalyzedDocument
 import com.azure.ai.formrecognizer.documentanalysis.models.DocumentField
+import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.module.SimpleModule
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.*
 import org.apache.pdfbox.pdmodel.PDDocument
-import java.io.File
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.security.MessageDigest
@@ -27,6 +27,8 @@ val ZERO: BigDecimal = 0.asCurrency()
 fun Any.toStringDetailed(): String {
     return OBJECT_MAPPER.writeValueAsString(this)
 }
+
+fun <K, V> Any.toMap(): Map<K, V> = OBJECT_MAPPER.convertValue(this, object: TypeReference<Map<K, V>>() {})
 
 // TODO: if the file ends with ".json.pdf" it will remove both
 fun String.withoutExtension() = removeSuffix(".pdf").removeSuffix(".json").removeSuffix("csv")

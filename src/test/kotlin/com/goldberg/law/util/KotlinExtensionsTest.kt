@@ -3,6 +3,7 @@ package com.goldberg.law.util
 import com.azure.ai.formrecognizer.documentanalysis.models.AnalyzedDocument
 import com.azure.ai.formrecognizer.documentanalysis.models.DocumentField
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.goldberg.law.function.model.InputFileMetadata
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -48,6 +49,12 @@ class KotlinExtensionsTest {
         new.fields.forEach { fieldEntry ->
             assertThat(fieldEntry.value.value).isEqualTo(expected.fields[fieldEntry.key]?.value)
         }
+    }
+
+    @Test
+    fun testToMap() {
+        assertThat(InputFileMetadata(true, true, listOf("Test", "test2")).toMap<String, String>())
+            .isEqualTo(mapOf("split" to "true", "analyzed" to "true", "statements" to "[Test, test2]"))
     }
 
     @Test
