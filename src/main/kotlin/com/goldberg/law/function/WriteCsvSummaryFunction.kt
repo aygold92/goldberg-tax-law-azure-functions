@@ -27,7 +27,7 @@ class WriteCsvSummaryFunction @Inject constructor(
 
     @FunctionName(FUNCTION_NAME)
     fun run(
-        @HttpTrigger(name = "req", methods = [HttpMethod.POST], authLevel = AuthorizationLevel.FUNCTION)
+        @HttpTrigger(name = "req", methods = [HttpMethod.POST], authLevel = AuthorizationLevel.ANONYMOUS)
         request: HttpRequestMessage<Optional<String>>,
         ctx: ExecutionContext
     ): HttpResponseMessage = try {
@@ -57,6 +57,6 @@ class WriteCsvSummaryFunction @Inject constructor(
             .build()
     }
     companion object {
-        const val FUNCTION_NAME = "WriteCsvSummaryFunction"
+        const val FUNCTION_NAME = "WriteCsvSummary"
     }
 }

@@ -22,10 +22,12 @@ plugins {
 
 val suspend = if (project.findProperty("debug")?.toString()?.toBoolean() == true) "y" else "n"
 
+val isProd = project.findProperty("prod")?.toString()?.toBoolean() == true
+
 azurefunctions {
     subscription = "39fd9868-2043-43d5-80a5-4e2e7145ba11"
     resourceGroup = "DefaultResourceGroup"
-    appName = "goldberg-tax-law"
+    appName = if (isProd) "goldberg-tax-law-prod" else "goldberg-tax-law"
     pricingTier = "Consumption"
     region = "eastus"
     setRuntime(closureOf<com.microsoft.azure.gradle.configuration.GradleRuntimeConfig> {

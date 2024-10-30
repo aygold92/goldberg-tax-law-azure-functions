@@ -1,9 +1,6 @@
 package com.goldberg.law.function
 
-import com.azure.core.util.Configuration
-import com.azure.storage.blob.BlobContainerClientBuilder
 import com.azure.storage.blob.BlobServiceClient
-import com.azure.storage.blob.BlobServiceClientBuilder
 import com.azure.storage.blob.sas.BlobContainerSasPermission
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues
 import com.goldberg.law.function.model.request.AnalyzeDocumentResult
@@ -33,11 +30,6 @@ class FetchSASTokenFunction @Inject constructor(
     ): HttpResponseMessage = try {
         logger.info { "[${ctx.invocationId}] processing ${request.queryParameters.toStringDetailed()}" }
         val req = OBJECT_MAPPER.convertValue(request.queryParameters, SASTokenRequest::class.java)
-
-        // TODO: replace with login
-        if (req.token != SPECIAL_PASSWORD) {
-            throw IllegalArgumentException("Invalid password")
-        }
 
         val token: String = when (req.action) {
             // TODO: probably fix these actions
@@ -78,6 +70,5 @@ class FetchSASTokenFunction @Inject constructor(
     }
     companion object {
         const val FUNCTION_NAME = "RequestSASToken"
-        const val SPECIAL_PASSWORD = "pleasegivemeatoken"
     }
 }

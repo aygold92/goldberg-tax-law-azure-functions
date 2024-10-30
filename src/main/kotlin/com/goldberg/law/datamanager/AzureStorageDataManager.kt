@@ -60,7 +60,7 @@ class AzureStorageDataManager(pdfSplitter: PdfSplitter, serviceClient: BlobServi
         )
         outputContainerClient.getBlobClient(fileName).uploadWithResponse(
             BlobParallelUploadOptions(content).apply {
-                setMetadata(tags)
+                metadata = tags
                 setTags(tags)
 //                setRequestConditions(BlobRequestConditions()
 //                    .setTagsConditions("NOT ($MANUALLY_VERIFIED_BLOB_KEY = 'true') OR MissingChecks = 'true' OR md5 = '${bankStatement.md5Hash()}'"))
@@ -106,12 +106,16 @@ class AzureStorageDataManager(pdfSplitter: PdfSplitter, serviceClient: BlobServi
 //            if (it.name.startsWith(fileName) && it.isPdf()) it.name else null
 //        }.filterNotNull().toSet().ifEmpty { throw InvalidArgumentException("No PDF files found for $fileName") }
 
+    // TODO: if there were 1000s of documents this would be very slow
     override fun checkFilesExist(requestedFileNames: Set<String>): Set<String> {
-        val existingFiles = inputContainerClient.listBlobs().map { it.name }.toSet()
+        val blobs = inputContainerClient.listBlobs().toSet()
+        val existingFiles = blobs.map { it.name }.toSet()
         val intersection = Sets.intersection(existingFiles, requestedFileNames)
         if (!intersection.containsAll(requestedFileNames)) {
             throw IllegalArgumentException("The following files do not exist: ${Sets.difference(requestedFileNames, intersection)}")
         }
+
+//        blobs.filter { it.metadata. }
 
         return requestedFileNames
     }

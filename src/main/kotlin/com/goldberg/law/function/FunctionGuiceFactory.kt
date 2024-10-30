@@ -15,6 +15,6 @@ class FunctionGuiceFactory : FunctionInstanceInjector {
     }
 
     companion object {
-        private val INJECTOR = Guice.createInjector(AppModule(AppEnvironmentSettings(AzureConfiguration.TEST, ExecutionEnvironment.AZURE)))
+        private val INJECTOR = Guice.createInjector(AppModule(AppEnvironmentSettings(AzureConfiguration.valueOf(System.getenv("AzureConfigurationStage")), ExecutionEnvironment.AZURE)))
     }
 }
