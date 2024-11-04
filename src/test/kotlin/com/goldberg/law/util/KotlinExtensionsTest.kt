@@ -53,7 +53,7 @@ class KotlinExtensionsTest {
 
     @Test
     fun testToMap() {
-        assertThat(InputFileMetadata(true, true, listOf("Test", "test2")).toMap<String, String>())
+        assertThat(InputFileMetadata(true, true, listOf("Test", "test2")).toMap())
             .isEqualTo(mapOf("split" to "true", "analyzed" to "true", "statements" to "[Test, test2]"))
     }
 

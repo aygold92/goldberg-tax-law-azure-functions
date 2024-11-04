@@ -28,13 +28,11 @@ fun Any.toStringDetailed(): String {
     return OBJECT_MAPPER.writeValueAsString(this)
 }
 
-fun <K, V> Any.toMap(): Map<K, V> = OBJECT_MAPPER.convertValue(this, object: TypeReference<Map<K, V>>() {})
-
 // TODO: if the file ends with ".json.pdf" it will remove both
-fun String.withoutExtension() = removeSuffix(".pdf").removeSuffix(".json").removeSuffix("csv")
+fun String.withoutExtension() = removeSuffix(".pdf").removeSuffix(".json").removeSuffix(".csv")
 
 // without extension
-fun String.getDocumentName() = this.substringBeforeLast(".")
+fun String.getDocumentName() = this.substringAfterLast("/").substringBeforeLast(".")
 
 fun BigDecimal.toCurrency(): String = "%.2f".format(this)
 

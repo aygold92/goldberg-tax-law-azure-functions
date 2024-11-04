@@ -18,7 +18,6 @@ import com.goldberg.law.document.model.StatementModelValues.Companion.STATEMENT_
 import com.goldberg.law.document.model.input.CheckDataModel
 import com.goldberg.law.document.model.pdf.DocumentType.CheckTypes
 import com.goldberg.law.document.model.pdf.PdfDocumentPageMetadata
-import com.goldberg.law.util.OBJECT_MAPPER
 import com.goldberg.law.util.asCurrency
 import com.goldberg.law.util.fromWrittenDate
 import com.goldberg.law.util.normalizeDate
@@ -236,6 +235,7 @@ class DocumentDataExtractorTest {
     companion object {
         val PATH_TO_CLASS = "/" + DocumentDataExtractor::class.java.packageName.replace('.', '/')
 
+        private val OBJECT_MAPPER = ObjectMapper()
         fun readFileRelative(filename: String): String =
             Files.readString(Paths.get(javaClass.getResource("$PATH_TO_CLASS/extraction/$filename")!!.toURI()))
 
