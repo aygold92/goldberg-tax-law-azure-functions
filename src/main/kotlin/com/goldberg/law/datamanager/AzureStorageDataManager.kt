@@ -14,7 +14,6 @@ import com.goldberg.law.document.PdfSplitter
 import com.goldberg.law.function.model.InputFileMetadata
 import com.goldberg.law.util.getDocumentName
 import com.goldberg.law.util.md5Hash
-import com.goldberg.law.util.toMap
 import com.goldberg.law.util.toStringDetailed
 import com.google.common.collect.Sets
 import java.time.Duration
