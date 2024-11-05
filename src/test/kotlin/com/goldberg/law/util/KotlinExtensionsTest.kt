@@ -132,6 +132,15 @@ class KotlinExtensionsTest {
     }
 
     @Test
+    fun breakIntoGroupsLarger() {
+        val list = listOf("A", "B", "C", "D", "E", "F", "G", "H")
+        val group = list.breakIntoGroups(0)
+        assertThat(group).hasSize(1)
+        assertThat(group[0]).hasSize(list.size)
+        assertThat(group.flatMap { it.value }).hasSameElementsAs(list).hasSize(list.size)
+    }
+
+    @Test
     fun testMapAsync() {
         assertThat(listOf("A", "B", "C", "D", "E", "F", "G", "H").mapAsync {
             it + it

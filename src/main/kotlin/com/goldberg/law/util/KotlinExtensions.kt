@@ -90,7 +90,8 @@ fun DocumentField.positiveCurrencyValue(): BigDecimal? = this.currencyValue()?.a
 fun String.addQuotes() = '"' + this + '"'
 
 fun <T> Collection<T>.breakIntoGroups(numGroups: Int): Map<Int, List<T>> {
-    return this.mapIndexed { idx, it -> idx % numGroups to it }.groupBy({ it.first }, { it.second })
+    return if (numGroups == 0) mapOf(0 to this.toList())
+        else this.mapIndexed { idx, it -> idx % numGroups to it }.groupBy({ it.first }, { it.second })
 }
 
 fun PDDocument.docForPage(pageNum: Int) = PDDocument().apply { addPage(this@docForPage.getPage(pageNum - 1)) }
