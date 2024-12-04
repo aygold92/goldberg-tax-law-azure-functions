@@ -9,7 +9,7 @@ data class AzureAnalyzeDocumentsRequest @JsonCreator constructor(
     @JsonProperty("classifiedTypeOverrides") val classifiedTypeOverrides: Set<ClassifiedTypeOverrides>? = null,
     @JsonProperty("overwrite") val overwrite: Boolean = false,
 ) {
-    fun findClassifiedTypeOverride(pdfPageData: PdfPageData): String? = findClassifiedTypeOverride(pdfPageData.name, pdfPageData.page)
+    fun findClassifiedTypeOverride(pdfPageData: PdfPageData): String? = findClassifiedTypeOverride(pdfPageData.fileName, pdfPageData.page)
     fun findClassifiedTypeOverride(filename: String, pageNum: Int): String? =
         classifiedTypeOverrides?.find { it.fileName == filename }?.typesOverrides?.find { it.pages.contains(pageNum) }?.type
 }

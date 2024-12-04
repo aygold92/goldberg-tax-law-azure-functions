@@ -57,7 +57,7 @@ class DocumentDataExtractor @Inject constructor(
 
         val documents = poller.finalResult.documents
         if (documents.size != 1) {
-            logger.error { "${pdfDocumentPage.nameWithPage} returned ${documents.size} analyzed pages" }
+            logger.error { "${pdfDocumentPage.nameWithPage()} returned ${documents.size} analyzed pages" }
         }
 
         return documents[0].also { logger.trace { it.toStringDetailed() } }

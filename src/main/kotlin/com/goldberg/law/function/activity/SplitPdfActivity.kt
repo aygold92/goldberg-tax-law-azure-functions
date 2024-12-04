@@ -1,6 +1,7 @@
 package com.goldberg.law.function.activity
 
 import com.goldberg.law.datamanager.DataManager
+import com.goldberg.law.function.model.InputFileMetadata
 import com.goldberg.law.function.model.activity.SplitPdfActivityInput
 import com.goldberg.law.function.model.activity.SplitPdfActivityOutput
 import com.goldberg.law.util.mapAsync
@@ -16,13 +17,14 @@ class SplitPdfActivity @Inject constructor(
     private val logger = KotlinLogging.logger {}
 
     @FunctionName(FUNCTION_NAME)
-    fun splitPdfActivity(@DurableActivityTrigger(name = "name") input: SplitPdfActivityInput, context: ExecutionContext): SplitPdfActivityOutput = try {
+    fun splitPdf(@DurableActivityTrigger(name = "name") input: SplitPdfActivityInput, context: ExecutionContext): SplitPdfActivityOutput = try {
         logger.info { "[${input.requestId}][${context.invocationId}] processing $input" }
         val pages = dataManager.loadInputPdfDocumentPages(input.fileName)
-            .onEach {
-                dataManager.savePdfPage(it, input.overwrite)
-            }
-        pages.mapAsync { page -> dataManager.savePdfPage(page, input.overwrite) }
+        pages.mapAsync { page -> dataManager.savePdfPage(page, true) }
+
+        val metadata = InputFileMetadata(true, pages.size)
+        dataManager.updateInputPdfMetadata(input.fileName, InputFileMetadata(true, pages.size))
+        logger.info { "[${input.requestId}][${context.invocationId}] updating metadata for ${input.fileName}: ${metadata.toMap()}" }
         SplitPdfActivityOutput(pages.map { it.pdfPage() }.toSet())
             .also { logger.info { "[${input.requestId}][${context.invocationId}] returning $it" } }
     } catch (ex: Throwable) {

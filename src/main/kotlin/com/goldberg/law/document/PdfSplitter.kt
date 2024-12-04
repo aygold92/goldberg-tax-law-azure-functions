@@ -14,7 +14,7 @@ class PdfSplitter {
         return input.pages.mapIndexedNotNull { idx, _ ->
             val pageNum = idx + 1
             if (pageNum in desiredPages) {
-                PdfDocumentPage(fileName.withoutExtension(), input.docForPage(pageNum), pageNum)
+                PdfDocumentPage(fileName, input.docForPage(pageNum), pageNum)
             } else {
                 null
             }

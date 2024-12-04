@@ -2,7 +2,6 @@ package com.goldberg.law.util
 
 import com.azure.ai.formrecognizer.documentanalysis.models.AnalyzedDocument
 import com.azure.ai.formrecognizer.documentanalysis.models.DocumentField
-import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.module.SimpleModule
@@ -20,6 +19,7 @@ val OBJECT_MAPPER = ObjectMapper().apply {
     registerModule(SimpleModule().apply { addSerializer(DocumentField::class.java, DocumentFieldSerializer()) })
     registerModule(SimpleModule().apply { addSerializer(AnalyzedDocument::class.java, AnalyzedDocumentSerializer()) })
 }
+
 private val logger = KotlinLogging.logger {}
 
 val ZERO: BigDecimal = 0.asCurrency()
@@ -30,6 +30,7 @@ fun Any.toStringDetailed(): String {
 
 // TODO: if the file ends with ".json.pdf" it will remove both
 fun String.withoutExtension() = removeSuffix(".pdf").removeSuffix(".json").removeSuffix(".csv")
+fun String.withExtension(ext: String) = removeSuffix(ext) + ext
 
 // without extension
 fun String.getDocumentName() = this.substringAfterLast("/").substringBeforeLast(".")
@@ -100,6 +101,14 @@ fun <T, R> Collection<T>.mapAsync(dispatcher: CoroutineDispatcher = Dispatchers.
     this@mapAsync.map {
         async(dispatcher) {
             block(it)
+        }
+    }.awaitAll()
+}
+
+fun <K, V, R> Map<K, V>.mapAsync(dispatcher: CoroutineDispatcher = Dispatchers.IO, block: (K, V) -> R): List<R> = runBlocking {
+    this@mapAsync.map {
+        async(dispatcher) {
+            block(it.key, it.value)
         }
     }.awaitAll()
 }

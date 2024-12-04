@@ -92,9 +92,10 @@ class AppModule constructor(private val appEnvironmentSettings: AppEnvironmentSe
     @Provides
     @Singleton
     fun processDataModelFunction(
-        pdfExtractorMain: PdfExtractorMain,
+        classifier: DocumentClassifier,
+        dataExtractor: DocumentDataExtractor,
         dataManager: DataManager
-    ) = ProcessDataModelActivity(pdfExtractorMain, dataManager)
+    ) = ProcessDataModelActivity(classifier, dataExtractor, dataManager)
 
     @Provides
     @Singleton
@@ -123,4 +124,16 @@ class AppModule constructor(private val appEnvironmentSettings: AppEnvironmentSe
     fun fetchSasTokenFunction(
         blobServiceClient: BlobServiceClient
     ) = FetchSASTokenFunction(blobServiceClient)
+
+    @Provides
+    @Singleton
+    fun updateMetadataFunction(
+        dataManager: DataManager
+    ) = UpdateMetadataActivity(dataManager)
+
+    @Provides
+    @Singleton
+    fun loadAnalyzedModelsFunction(
+        dataManager: DataManager
+    ) = LoadAnalyzedModelsActivity(dataManager)
 }

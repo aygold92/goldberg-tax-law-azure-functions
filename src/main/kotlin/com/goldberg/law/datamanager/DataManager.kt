@@ -7,12 +7,12 @@ import com.goldberg.law.document.model.pdf.PdfDocumentPage
 import com.goldberg.law.function.model.PdfPageData
 import com.goldberg.law.document.PdfSplitter
 import com.goldberg.law.document.exception.InvalidPdfException
+import com.goldberg.law.document.model.pdf.PdfDocumentMetadata
 import com.goldberg.law.function.model.InputFileMetadata
 import com.goldberg.law.util.addQuotes
 import com.goldberg.law.util.toStringDetailed
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.pdfbox.Loader
-import java.io.IOException
 
 abstract class DataManager(protected val pdfSplitter: PdfSplitter) {
     protected val logger = KotlinLogging.logger {}
@@ -57,7 +57,7 @@ abstract class DataManager(protected val pdfSplitter: PdfSplitter) {
 
     abstract fun savePdfPage(document: PdfDocumentPage, overwrite: Boolean, outputDirectory: String? = null)
 
-    fun saveModel(pdfDocumentPage: PdfDocumentPage, dataModel: DocumentDataModel, outputDirectory: String? = null) =
+    fun saveModel(pdfDocumentPage: PdfPageData, dataModel: DocumentDataModel, outputDirectory: String? = null) =
         saveModel(listOfNotNull(outputDirectory, pdfDocumentPage.modelFileName()).joinToString("/"), dataModel.toStringDetailed())
 
     abstract fun saveBankStatement(bankStatement: BankStatement, outputDirectory: String? = null): String
@@ -66,10 +66,12 @@ abstract class DataManager(protected val pdfSplitter: PdfSplitter) {
 
     // loads a PDF Page document that has already been stored in the filesystem according to convention
     fun loadSplitPdfDocumentPage(pdfPageData: PdfPageData): PdfDocumentPage = loadSplitPdfDocumentFile(pdfPageData.splitPageFilePath()).let {
-        PdfDocumentPage(pdfPageData.name, Loader.loadPDF(it), pdfPageData.page).also {
+        PdfDocumentPage(pdfPageData.fileName, Loader.loadPDF(it), pdfPageData.page).also {
             logger.debug { "Successfully loaded file $pdfPageData" }
         }
     }
+
+    abstract fun loadModel(pdfPageData: PdfPageData, outputDirectory: String? = null): DocumentDataModel
 
     abstract fun loadBankStatement(bankStatementKey: String, outputDirectory: String? = null): BankStatement
 
@@ -94,7 +96,7 @@ abstract class DataManager(protected val pdfSplitter: PdfSplitter) {
     abstract fun findMatchingFiles(fileName: String): Set<String>
 
     // ensures requested files already exist
-    abstract fun checkFilesExist(requestedFileNames: Set<String>): Set<String>
+    abstract fun fetchInputPdfDocuments(requestedFileNames: Set<String>): Set<PdfDocumentMetadata>
 
     abstract fun getProcessedFiles(fileNames: Set<String>): Set<String>
 

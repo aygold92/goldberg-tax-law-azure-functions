@@ -7,7 +7,7 @@ import com.goldberg.law.util.addQuotes
 
 
 data class PdfDocumentPageMetadata @JsonCreator constructor(
-    @JsonProperty("name") val name: String,
+    @JsonProperty("filename") val filename: String,
     @JsonProperty("page") val page: Int,
     @JsonProperty("classification") val classification: String
 ) {
@@ -15,9 +15,9 @@ data class PdfDocumentPageMetadata @JsonCreator constructor(
     val documentType = DocumentType.getBankType(classification)
 
     fun toCsv() = listOf(
-        name.addQuotes(),
+        filename.addQuotes(),
         page
     ).joinToString(",")
 
-    override fun toString() = "{name: $name, page: $page, classification: $classification, statementType: $documentType}"
+    override fun toString() = "{name: $filename, page: $page, classification: $classification, statementType: $documentType}"
 }

@@ -26,7 +26,7 @@ class ProcessStatementsActivity @Inject constructor(
      * This is the activity function that is invoked by the orchestrator function.
      */
     @FunctionName(FUNCTION_NAME)
-    fun processStatementsAndChecksActivity(
+    fun processStatementsAndChecks(
         @DurableActivityTrigger(name = "input") input: ProcessStatementsActivityInput,
         context: ExecutionContext
     ): ProcessStatementsActivityOutput {
@@ -42,7 +42,18 @@ class ProcessStatementsActivity @Inject constructor(
 
         val finalStatements = checkToStatementMatcher.matchChecksWithStatements(statementsWithoutChecks, checksUpdatedAccounts)
 
-        val fileNames = finalStatements.mapAsync { dataManager.saveBankStatement(it) }
+        val fileNames = finalStatements.mapAsync { dataManager.saveBankStatement(it) }.toSet()
+
+        val inputFileToStatement: MutableMap<String, MutableSet<String>> = mutableMapOf()
+        finalStatements.forEach { statement ->
+            statement.pages.associate { it.filename to statement.azureFileName() }.onEach {
+                inputFileToStatement[it.key] = inputFileToStatement.getOrDefault(it.key, mutableSetOf()).apply { add(it.value) }
+            }
+        }
+        inputFileToStatement.mapAsync { filename, azureFileNames ->
+            dataManager.updateInputPdfMetadata(filename, input.metadataMap[filename]!!.copy(statements = azureFileNames))
+        }
+
         return ProcessStatementsActivityOutput(fileNames)
     }
 

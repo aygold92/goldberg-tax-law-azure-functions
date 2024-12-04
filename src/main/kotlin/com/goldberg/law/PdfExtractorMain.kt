@@ -91,9 +91,9 @@ class PdfExtractorMain @Inject constructor(
             else -> ExtraPageDataModel(classifiedDocument.toDocumentMetadata())
         }.also { dataModel ->
             try {
-                dataManager.saveModel(inputDocument, dataModel, outputDirectory)
+                dataManager.saveModel(inputDocument.pdfPage(), dataModel, outputDirectory)
             } catch (ex: Throwable) {
-                logger.error(ex) { "Exception writing model for ${inputDocument.nameWithPage}: $ex" }
+                logger.error(ex) { "Exception writing model for ${inputDocument.nameWithPage()}: $ex" }
             }
         }
     }

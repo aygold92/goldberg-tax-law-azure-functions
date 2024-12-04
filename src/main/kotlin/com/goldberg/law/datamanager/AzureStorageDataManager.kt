@@ -6,16 +6,23 @@ import com.azure.storage.blob.BlobContainerClient
 import com.azure.storage.blob.BlobServiceClient
 import com.azure.storage.blob.models.*
 import com.azure.storage.blob.options.BlobParallelUploadOptions
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException
+import com.fasterxml.jackson.databind.module.SimpleModule
 import com.goldberg.law.StorageBlobContainersNames
 import com.goldberg.law.document.exception.FileNotFoundException
 import com.goldberg.law.document.model.output.BankStatement
 import com.goldberg.law.document.model.pdf.PdfDocumentPage
 import com.goldberg.law.document.PdfSplitter
+import com.goldberg.law.document.model.input.CheckDataModel
+import com.goldberg.law.document.model.input.DocumentDataModel
+import com.goldberg.law.document.model.input.ExtraPageDataModel
+import com.goldberg.law.document.model.input.StatementDataModel
+import com.goldberg.law.document.model.pdf.PdfDocumentMetadata
 import com.goldberg.law.function.model.InputFileMetadata
-import com.goldberg.law.util.getDocumentName
-import com.goldberg.law.util.md5Hash
-import com.goldberg.law.util.toStringDetailed
+import com.goldberg.law.function.model.PdfPageData
+import com.goldberg.law.util.*
 import com.google.common.collect.Sets
+import java.sql.Blob
 import java.time.Duration
 
 class AzureStorageDataManager(pdfSplitter: PdfSplitter, serviceClient: BlobServiceClient, containersNames: StorageBlobContainersNames): DataManager(pdfSplitter) {
@@ -44,7 +51,7 @@ class AzureStorageDataManager(pdfSplitter: PdfSplitter, serviceClient: BlobServi
         saveFile(modelsContainerClient, fileName, content, true)
 
     override fun saveBankStatement(bankStatement: BankStatement, outputDirectory: String?): String {
-        val fileName = listOfNotNull(outputDirectory, bankStatement.fileName()).joinToString("/")
+        val fileName = listOfNotNull(outputDirectory, bankStatement.azureFileName()).joinToString("/")
         val content = BinaryData.fromString(bankStatement.toStringDetailed())
 
         // TODO: build overwrite feature
@@ -92,12 +99,21 @@ class AzureStorageDataManager(pdfSplitter: PdfSplitter, serviceClient: BlobServi
         return loadFile(outputContainerClient, fileName).toObject(BankStatement::class.java)
     }
 
+    override fun loadModel(pdfPageData: PdfPageData, outputDirectory: String?): DocumentDataModel {
+        val modelBinaryData = loadFile(modelsContainerClient, pdfPageData.modelFileName())
+        val tempModel = modelBinaryData.toObject(ExtraPageDataModel::class.java)
+        return when {
+            tempModel.isStatement() -> modelBinaryData.toObject(StatementDataModel::class.java)
+            tempModel.isCheck() -> modelBinaryData.toObject(CheckDataModel::class.java)
+            else -> tempModel
+        }
+    }
+
     override fun updateInputPdfMetadata(fileName: String, metadata: InputFileMetadata) {
-        inputContainerClient.getBlobClient(fileName).apply {
+        inputContainerClient.getBlobClient(fileName.withExtension(".pdf")).apply {
             setMetadata(metadata.toMap())
             tags = metadata.toMap()
         }
-
     }
 
     override fun findMatchingFiles(fileName: String): Set<String> = TODO("Not used")
@@ -106,17 +122,21 @@ class AzureStorageDataManager(pdfSplitter: PdfSplitter, serviceClient: BlobServi
 //        }.filterNotNull().toSet().ifEmpty { throw InvalidArgumentException("No PDF files found for $fileName") }
 
     // TODO: if there were 1000s of documents this would be very slow
-    override fun checkFilesExist(requestedFileNames: Set<String>): Set<String> {
-        val blobs = inputContainerClient.listBlobs().toSet()
+    override fun fetchInputPdfDocuments(requestedFileNames: Set<String>): Set<PdfDocumentMetadata> {
+        val blobs = inputContainerClient.listBlobs(ListBlobsOptions().apply {
+            details = BlobListDetails().apply { retrieveMetadata = true }
+        }, Duration.ofSeconds(5)).toSet()
         val existingFiles = blobs.map { it.name }.toSet()
         val intersection = Sets.intersection(existingFiles, requestedFileNames)
         if (!intersection.containsAll(requestedFileNames)) {
             throw IllegalArgumentException("The following files do not exist: ${Sets.difference(requestedFileNames, intersection)}")
         }
 
-//        blobs.filter { it.metadata. }
-
-        return requestedFileNames
+        return blobs.filter { intersection.contains(it.name) }
+            .map {
+                val metadata = if (it.metadata != null) METADATA_OBJECT_MAPPER.convertValue(it.metadata, InputFileMetadata::class.java) else InputFileMetadata()
+                PdfDocumentMetadata(it.name, metadata)
+            }.toSet()
     }
 
     override fun getProcessedFiles(fileNames: Set<String>): Set<String> {
@@ -131,5 +151,11 @@ class AzureStorageDataManager(pdfSplitter: PdfSplitter, serviceClient: BlobServi
         const val CHECKS_MISSING_BLOB_KEY = "MissingChecks"
         const val MD5_BLOB_KEY = "md5"
         const val MANUALLY_VERIFIED_BLOB_KEY = "ManuallyVerified"
+        val METADATA_OBJECT_MAPPER = OBJECT_MAPPER.copy().apply {
+            val module = SimpleModule().apply {
+                addDeserializer(Set::class.java, SetWithoutBracesDeserializer())
+            }
+            registerModule(module)
+        }
     }
 }

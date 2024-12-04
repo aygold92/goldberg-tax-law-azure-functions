@@ -32,7 +32,15 @@ class KotlinExtensionsTest {
 
     @Test
     fun testGetFileName() {
-        assertThat("./testInput/nonexistent/12345.asdknalksdn/test.pdf".getDocumentName()).isEqualTo("test")
+        assertThat("./TestInput/nonexistent/12345.asdknalksdn/test.pdf".getDocumentName()).isEqualTo("test")
+    }
+
+    @Test
+    fun testWithExtension() {
+        assertThat("myfile".withExtension(".pdf")).isEqualTo("myfile.pdf")
+        assertThat("myfile.pdf".withExtension(".pdf")).isEqualTo("myfile.pdf")
+        assertThat("myfile.pd".withExtension(".pdf")).isEqualTo("myfile.pd.pdf")
+        assertThat("myfile.csv".withExtension(".pdf")).isEqualTo("myfile.csv.pdf")
     }
 
     @Test
@@ -53,8 +61,20 @@ class KotlinExtensionsTest {
 
     @Test
     fun testToMap() {
-        assertThat(InputFileMetadata(true, true, listOf("Test", "test2")).toMap())
-            .isEqualTo(mapOf("split" to "true", "analyzed" to "true", "statements" to "[Test, test2]"))
+        assertThat(InputFileMetadata(true, 10, true, setOf("Test", "test2")).toMap())
+            .isEqualTo(mapOf("split" to "true", "totalpages" to "10", "analyzed" to "true", "statements" to "Test, test2"))
+    }
+
+    @Test
+    fun testToMapNulls() {
+        assertThat(InputFileMetadata(true, null, true, null).toMap())
+            .isEqualTo(mapOf("split" to "true", "analyzed" to "true"))
+    }
+
+    @Test
+    fun testToMapDefault() {
+        assertThat(InputFileMetadata().toMap())
+            .isEqualTo(mapOf("split" to "false", "analyzed" to "false"))
     }
 
     @Test

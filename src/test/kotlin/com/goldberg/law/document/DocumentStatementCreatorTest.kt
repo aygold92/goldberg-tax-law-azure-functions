@@ -87,6 +87,64 @@ class DocumentStatementCreatorTest {
     }
 
     @Test
+    fun testStatementCreatorProcessesInCorrectOrder() {
+        val page1 = StatementDataModel(
+            date = "4/7/2022",
+            pageNum = 1,
+            totalPages = 5,
+            batesStamp = "123",
+            accountNumber = "1234",
+            bankIdentifier = null, summaryOfAccountsTable = null, transactionTableDepositWithdrawal = null, beginningBalance = null, endingBalance = null, transactionTableAmount = null, transactionTableCreditsCharges = null, transactionTableDebits = null, transactionTableCredits = null, transactionTableChecks = null, interestCharged = null, feesCharged = null,
+            pageMetadata = PdfDocumentPageMetadata(FILENAME, 1, BankTypes.WF_BANK),
+        )
+
+        val page2 = StatementDataModel(
+            date = null,
+            pageNum = 2,
+            totalPages = 5,
+            batesStamp = "123",
+            accountNumber = null,
+            bankIdentifier = null, summaryOfAccountsTable = null, transactionTableDepositWithdrawal = null, beginningBalance = null, endingBalance = null, transactionTableAmount = null, transactionTableCreditsCharges = null, transactionTableDebits = null, transactionTableCredits = null, transactionTableChecks = null, interestCharged = null, feesCharged = null,
+            pageMetadata = PdfDocumentPageMetadata(FILENAME, 2, BankTypes.WF_BANK),
+        )
+
+        val page3 = StatementDataModel(
+            date = "5/7/2022",
+            pageNum = 2,
+            totalPages = 5,
+            batesStamp = "123",
+            accountNumber = null,
+            bankIdentifier = null, summaryOfAccountsTable = null, transactionTableDepositWithdrawal = null, beginningBalance = null, endingBalance = null, transactionTableAmount = null, transactionTableCreditsCharges = null, transactionTableDebits = null, transactionTableCredits = null, transactionTableChecks = null, interestCharged = null, feesCharged = null,
+            pageMetadata = PdfDocumentPageMetadata(FILENAME, 3, BankTypes.WF_BANK),
+        )
+
+        val page4 = StatementDataModel(
+            date = null,
+            pageNum = 2,
+            totalPages = 5,
+            batesStamp = "123",
+            accountNumber = "1235",
+            bankIdentifier = null, summaryOfAccountsTable = null, transactionTableDepositWithdrawal = null, beginningBalance = null, endingBalance = null, transactionTableAmount = null, transactionTableCreditsCharges = null, transactionTableDebits = null, transactionTableCredits = null, transactionTableChecks = null, interestCharged = null, feesCharged = null,
+            pageMetadata = PdfDocumentPageMetadata(FILENAME, 4, BankTypes.WF_BANK),
+        )
+
+        val page5 = StatementDataModel(
+            date = null,
+            pageNum = 2,
+            totalPages = 5,
+            batesStamp = "123",
+            accountNumber = null,
+            bankIdentifier = null, summaryOfAccountsTable = null, transactionTableDepositWithdrawal = null, beginningBalance = null, endingBalance = null, transactionTableAmount = null, transactionTableCreditsCharges = null, transactionTableDebits = null, transactionTableCredits = null, transactionTableChecks = null, interestCharged = null, feesCharged = null,
+            pageMetadata = PdfDocumentPageMetadata(FILENAME, 5, BankTypes.EAGLE_BANK),
+        )
+
+        val result = statementCreator.createBankStatements(listOf(page1, page2, page3, page4, page5)).toList()
+        val result2 = statementCreator.createBankStatements(listOf(page5, page2, page4, page3, page1)).toList()
+
+        assertThat(result).isEqualTo(result2)
+    }
+
+    @Test
     fun testFullIndividualStatementBank() {
         val models = listOf(
             StatementModelValues.STATEMENT_MODEL_WF_BANK_0,

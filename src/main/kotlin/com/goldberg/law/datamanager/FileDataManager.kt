@@ -5,7 +5,10 @@ import com.goldberg.law.document.exception.InvalidArgumentException
 import com.goldberg.law.document.model.output.BankStatement
 import com.goldberg.law.document.model.pdf.PdfDocumentPage
 import com.goldberg.law.document.PdfSplitter
+import com.goldberg.law.document.model.input.DocumentDataModel
+import com.goldberg.law.document.model.pdf.PdfDocumentMetadata
 import com.goldberg.law.function.model.InputFileMetadata
+import com.goldberg.law.function.model.PdfPageData
 import com.goldberg.law.util.OBJECT_MAPPER
 import com.goldberg.law.util.toStringDetailed
 import java.io.File
@@ -13,6 +16,7 @@ import java.io.FileInputStream
 import java.nio.file.Files
 import java.nio.file.Paths
 
+// TODO: can we just get rid of this?
 class FileDataManager(pdfSplitter: PdfSplitter): DataManager(pdfSplitter) {
     private fun writeFile(fileName: String, content: String): String {
         logger.info { "Writing data to file $fileName" }
@@ -23,7 +27,7 @@ class FileDataManager(pdfSplitter: PdfSplitter): DataManager(pdfSplitter) {
     }
 
     override fun saveBankStatement(bankStatement: BankStatement, outputDirectory: String?): String = writeFile(
-        listOfNotNull(outputDirectory, bankStatement.fileName()).joinToString("/"),
+        listOfNotNull(outputDirectory, bankStatement.azureFileName()).joinToString("/"),
         bankStatement.toStringDetailed()
     )
 
@@ -38,6 +42,10 @@ class FileDataManager(pdfSplitter: PdfSplitter): DataManager(pdfSplitter) {
 
     private fun loadFile(fileName: String) = File(fileName).let {
         if (it.exists()) it.readBytes() else throw FileNotFoundException("File $fileName not found")
+    }
+
+    override fun loadModel(pdfPageData: PdfPageData, outputDirectory: String?): DocumentDataModel {
+        TODO("Not yet implemented")
     }
 
     override fun loadInputFile(fileName: String): ByteArray = loadFile(fileName)
@@ -80,7 +88,7 @@ class FileDataManager(pdfSplitter: PdfSplitter): DataManager(pdfSplitter) {
         }
     }
 
-    override fun checkFilesExist(requestedFileNames: Set<String>): Set<String> {
+    override fun fetchInputPdfDocuments(requestedFileNames: Set<String>): Set<PdfDocumentMetadata> {
         TODO("Not yet implemented")
     }
 

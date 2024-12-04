@@ -1,4 +1,4 @@
-package com.goldberg.law.function.model
+package com.goldberg.law.function.model.tracking
 
 enum class OrchestrationStage(private val action: String) {
     VERIFYING_DOCUMENTS("Verifying Documents"),

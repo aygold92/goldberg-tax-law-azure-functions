@@ -28,7 +28,7 @@ class DocumentClassifier @Inject constructor(
         logger.debug { "Classify Operation Completed: ${result.toStringDetailed()}" }
 
         if (poller.finalResult.documents.size != 1) {
-            logger.error { "${document.nameWithPage} returned ${poller.finalResult.documents.size} classified pages" }
+            logger.error { "${document.nameWithPage()} returned ${poller.finalResult.documents.size} classified pages" }
         }
 
         // If I want multi page documents, I can get the pageNumber within the document using

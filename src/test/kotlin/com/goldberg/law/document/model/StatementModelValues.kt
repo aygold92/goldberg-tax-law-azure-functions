@@ -190,7 +190,7 @@ class StatementModelValues {
             transactionTableChecks = null,
             interestCharged = 0.asCurrency(),
             feesCharged = 0.asCurrency(),
-            pageMetadata = PdfDocumentPageMetadata(name = FileNames.DOUBLE_CASH, page = 1, classification = "WF Bank")
+            pageMetadata = PdfDocumentPageMetadata(filename = FileNames.DOUBLE_CASH, page = 1, classification = "WF Bank")
         )
 
          val DOUBLE_CASH_1 = StatementDataModel(
@@ -256,7 +256,7 @@ class StatementModelValues {
              transactionTableChecks = null,
              interestCharged = null,
              feesCharged = 0.asCurrency(),
-             pageMetadata = PdfDocumentPageMetadata(name = "test.pdf", page = 2, classification = "WF Bank"))
+             pageMetadata = PdfDocumentPageMetadata(filename = "test.pdf", page = 2, classification = "WF Bank"))
 
         val WF_JOINT_0 = StatementDataModel(
             bankIdentifier = "WELLS FARGO",

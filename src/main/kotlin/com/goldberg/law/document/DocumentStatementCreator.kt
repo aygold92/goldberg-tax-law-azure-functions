@@ -14,7 +14,7 @@ class DocumentStatementCreator {
 
     fun createBankStatements(models: Collection<StatementDataModel>): Collection<BankStatement> {
         val sortedModels = models.sortedWith(
-            compareBy<StatementDataModel> { it.pageMetadata.name }.thenBy { it.pageMetadata.page })
+            compareBy<StatementDataModel> { it.pageMetadata.filename }.thenBy { it.pageMetadata.page })
 
         val statements: MutableMap<BankStatementKey, BankStatement> = mutableMapOf()
 
@@ -56,7 +56,7 @@ class DocumentStatementCreator {
                         val accountStatementKey = BankStatementKey(statementDate?.toTransactionDate(), account.accountNumber, analyzedBankDocument.pageMetadata.classification)
                         statements[accountStatementKey] = statements.getOrDefault(
                             accountStatementKey,
-                            BankStatement(analyzedBankDocument.pageMetadata.name, analyzedBankDocument.pageMetadata.classification, accountStatementKey, account.startPage)
+                            BankStatement(analyzedBankDocument.pageMetadata.filename, analyzedBankDocument.pageMetadata.classification, accountStatementKey, account.startPage)
                         ).update(
                             beginningBalance = account.beginningBalance,
                             endingBalance = account.endingBalance
@@ -69,7 +69,7 @@ class DocumentStatementCreator {
                 }
 
                 val metadata = TransactionHistoryPageMetadata(
-                    filename = analyzedBankDocument.pageMetadata.name,
+                    filename = analyzedBankDocument.pageMetadata.filename,
                     filePageNumber = analyzedBankDocument.pageMetadata.page,
                     date = statementDate?.toTransactionDate(),
                     statementPageNum = analyzedBankDocument.pageNum,
@@ -79,7 +79,7 @@ class DocumentStatementCreator {
                 val thRecords = analyzedBankDocument.getTransactionRecords(statementDate, metadata)
 
                 statements[statementKey] = statements.getOrDefault(statementKey,
-                    BankStatement(analyzedBankDocument.pageMetadata.name, analyzedBankDocument.pageMetadata.classification, statementKey)).update(
+                    BankStatement(analyzedBankDocument.pageMetadata.filename, analyzedBankDocument.pageMetadata.classification, statementKey)).update(
                         accountNumber = analyzedBankDocument.accountNumber,
                         totalPages = analyzedBankDocument.totalPages,
                         beginningBalance = analyzedBankDocument.beginningBalance,

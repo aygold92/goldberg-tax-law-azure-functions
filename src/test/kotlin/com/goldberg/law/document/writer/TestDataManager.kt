@@ -4,7 +4,10 @@ import com.goldberg.law.datamanager.DataManager
 import com.goldberg.law.document.model.output.BankStatement
 import com.goldberg.law.document.model.pdf.PdfDocumentPage
 import com.goldberg.law.document.PdfSplitter
+import com.goldberg.law.document.model.input.DocumentDataModel
+import com.goldberg.law.document.model.pdf.PdfDocumentMetadata
 import com.goldberg.law.function.model.InputFileMetadata
+import com.goldberg.law.function.model.PdfPageData
 
 class TestDataManager: DataManager(PdfSplitter()) {
     // can capture these values to check what's being passed
@@ -39,6 +42,10 @@ class TestDataManager: DataManager(PdfSplitter()) {
         TODO("Not yet implemented")
     }
 
+    override fun loadModel(pdfPageData: PdfPageData, outputDirectory: String?): DocumentDataModel {
+        TODO("Not yet implemented")
+    }
+
     override fun updateInputPdfMetadata(fileName: String, metadata: InputFileMetadata) {
         TODO("Not yet implemented")
     }
@@ -47,7 +54,7 @@ class TestDataManager: DataManager(PdfSplitter()) {
         TODO("Not yet implemented")
     }
 
-    override fun checkFilesExist(requestedFileNames: Set<String>): Set<String> {
+    override fun fetchInputPdfDocuments(requestedFileNames: Set<String>): Set<PdfDocumentMetadata> {
         TODO("Not yet implemented")
     }
 

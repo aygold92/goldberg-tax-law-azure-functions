@@ -59,7 +59,7 @@ data class BankStatement @JsonCreator constructor(
             this(filename, classification, key.date, key.accountNumber, startPage = startPage ?: 1)
 
     @JsonIgnore
-    fun fileName() = getFileName(accountNumber, date, classification, filename, pages.map { it.pageData })
+    fun azureFileName() = getFileName(accountNumber, date, classification, filename, pages.map { it.pageData })
 
     fun update(documentType: DocumentType? = null,
                accountNumber: String? = null,
@@ -268,12 +268,13 @@ data class BankStatement @JsonCreator constructor(
             Pair(BankStatement::hasRecordsWithIncorrectDates) { stmt -> SuspiciousReasons.INCORRECT_DATES.format(stmt.getTransactionDatesOutsideOfStatement()) }
         )
 
+        // TODO: filename on BankStatement is one value but in PDF Pages it's multiple values.  Technically a bank statement could come from multiple files although in practice probably not
         fun getFileName(accountNumber: String?, date: String?, classification: String, filename: String, pages: Collection<PdfPageData>? = null): String {
             val name = "$accountNumber:$classification:${date?.replace("/", "_")}"
             if (accountNumber != null && date != null) {
                 return "$name.json"
             } else {
-                val fileNameSuffix = pages?.takeIf { it.isNotEmpty() }?.sortedBy { it.page }?.let { "${it.first().name}[${it.first().page}-${it.last().page}]" } ?: filename
+                val fileNameSuffix = pages?.takeIf { it.isNotEmpty() }?.sortedBy { it.page }?.let { "${it.first().fileName}[${it.first().page}-${it.last().page}]" } ?: filename
                 return "$name:$fileNameSuffix.json"
             }
         }

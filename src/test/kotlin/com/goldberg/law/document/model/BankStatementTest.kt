@@ -423,24 +423,24 @@ class BankStatementTest {
     }
 
     @Test
-    fun testFileName() {
-        assertThat(newBasicBankStatement().fileName())
+    fun testAzureFileName() {
+        assertThat(newBasicBankStatement().azureFileName())
             .isEqualTo("1234567890:WF Bank:4_7_2020.json")
 
-        assertThat(newBankStatement(statementDate = null).update(pageMetadata = BASIC_TH_PAGE_METADATA).fileName())
+        assertThat(newBankStatement(statementDate = null).update(pageMetadata = BASIC_TH_PAGE_METADATA).azureFileName())
             .isEqualTo("1234567890:WF Bank:null:test.pdf[1-1].json")
 
-        assertThat(BankStatement(FILENAME, BankTypes.WF_BANK, BankStatementKey(FIXED_STATEMENT_DATE, null, BankTypes.WF_BANK)).fileName())
+        assertThat(BankStatement(FILENAME, BankTypes.WF_BANK, BankStatementKey(FIXED_STATEMENT_DATE, null, BankTypes.WF_BANK)).azureFileName())
             .isEqualTo("null:WF Bank:4_7_2020:test.pdf.json")
 
-        assertThat(BankStatement(FILENAME, BankTypes.WF_BANK, BankStatementKey(null, null, BankTypes.WF_BANK)).fileName())
+        assertThat(BankStatement(FILENAME, BankTypes.WF_BANK, BankStatementKey(null, null, BankTypes.WF_BANK)).azureFileName())
             .isEqualTo("null:WF Bank:null:test.pdf.json")
 
         assertThat(BankStatement(FILENAME, BankTypes.WF_BANK, BankStatementKey(null, null, BankTypes.WF_BANK))
             .update(pageMetadata = newTransactionPage(3))
             .update(pageMetadata = newTransactionPage(2))
             .update(pageMetadata = newTransactionPage(7))
-            .fileName()
+            .azureFileName()
         ).isEqualTo("null:WF Bank:null:test.pdf[2-7].json")
     }
 }

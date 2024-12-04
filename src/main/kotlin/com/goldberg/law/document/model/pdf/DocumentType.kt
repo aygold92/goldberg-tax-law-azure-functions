@@ -7,13 +7,19 @@ import com.goldberg.law.document.model.pdf.DocumentType.CreditCardTypes.AMEX_CC
 import com.goldberg.law.document.model.pdf.DocumentType.CreditCardTypes.C1_CC
 import com.goldberg.law.document.model.pdf.DocumentType.CreditCardTypes.CITI_CC
 import com.goldberg.law.document.model.pdf.DocumentType.CreditCardTypes.WF_CC
+import com.goldberg.law.document.model.pdf.DocumentType.IrrelevantTypes.EXTRA_PAGES
 
 enum class DocumentType(val docTypes: List<String> = listOf()) {
     CREDIT_CARD(listOf(AMEX_CC, C1_CC, CITI_CC, WF_CC)),
     BANK(listOf(EAGLE_BANK, WF_BANK)),
     CHECK(listOf(EAGLE_BANK_CHECK)),
+    IRRELEVANT(listOf(EXTRA_PAGES)),
     MIXED,
     UNKNOWN;
+
+    fun isCheck() = this == CHECK
+    fun isRelevant() = this != IRRELEVANT
+    fun isStatement() = !isCheck() && isRelevant()
 
     object CreditCardTypes {
         const val AMEX_CC = "AMEX CC"
@@ -29,6 +35,10 @@ enum class DocumentType(val docTypes: List<String> = listOf()) {
 
     object CheckTypes {
         const val EAGLE_BANK_CHECK = "Eagle Bank Check"
+    }
+
+    object IrrelevantTypes {
+        const val EXTRA_PAGES = "Extra Pages"
     }
 
     companion object {

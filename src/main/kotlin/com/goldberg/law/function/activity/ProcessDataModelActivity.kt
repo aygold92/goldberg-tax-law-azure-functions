@@ -1,11 +1,18 @@
 package com.goldberg.law.function.activity
 
-import com.goldberg.law.PdfExtractorMain
 import com.goldberg.law.datamanager.DataManager
-import com.goldberg.law.document.model.input.*
+import com.goldberg.law.document.DocumentClassifier
+import com.goldberg.law.document.DocumentDataExtractor
+import com.goldberg.law.document.model.input.CheckDataModel
+import com.goldberg.law.document.model.input.DocumentDataModel
+import com.goldberg.law.document.model.input.ExtraPageDataModel
+import com.goldberg.law.document.model.input.StatementDataModel
+import com.goldberg.law.document.model.pdf.DocumentType
 import com.goldberg.law.document.model.pdf.DocumentType.BankTypes
+import com.goldberg.law.document.model.pdf.PdfDocumentPage
 import com.goldberg.law.document.model.pdf.PdfDocumentPageMetadata
 import com.goldberg.law.function.model.DocumentDataModelContainer
+import com.goldberg.law.function.model.PdfPageData
 import com.goldberg.law.function.model.activity.ProcessDataModelActivityInput
 import com.goldberg.law.util.asCurrency
 import com.goldberg.law.util.normalizeDate
@@ -17,7 +24,8 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import javax.inject.Inject
 
 class ProcessDataModelActivity @Inject constructor(
-    private val pdfExtractorMain: PdfExtractorMain,
+    private val classifier: DocumentClassifier,
+    private val dataExtractor: DocumentDataExtractor,
     private val dataManager: DataManager,
 ) {
     private val logger = KotlinLogging.logger {}
@@ -25,31 +33,68 @@ class ProcessDataModelActivity @Inject constructor(
      * This is the activity function that is invoked by the orchestrator function.
      */
     @FunctionName(FUNCTION_NAME)
-    fun processDataModelActivity(@DurableActivityTrigger(name = "name") input: ProcessDataModelActivityInput, context: ExecutionContext): DocumentDataModelContainer {
+    fun processDataModel(@DurableActivityTrigger(name = "name") input: ProcessDataModelActivityInput, context: ExecutionContext): DocumentDataModelContainer {
 
         logger.info { "[${input.requestId}][${context.invocationId}] processing ${input.pdfPageData}" }
         val pdfDocument = dataManager.loadSplitPdfDocumentPage(input.pdfPageData)
-        val dataModel = pdfExtractorMain.processDocument(pdfDocument, input.overrideTypeClassification, null)
+        val dataModel = processDocument(pdfDocument, input.overrideTypeClassification)
+
+        // val dataModel = getStatementPage(input.pdfPageData)
+
+        try {
+            dataManager.saveModel(pdfDocument.pdfPage(), dataModel)
+        } catch (ex: Throwable) {
+            logger.error(ex) { "Exception writing model for ${pdfDocument.nameWithPage()}: $ex" }
+        }
         return DocumentDataModelContainer(dataModel).also {
             logger.info { "[${input.requestId}][${context.invocationId}] returning model ${it.toStringDetailed()}" }
+        }
+    }
+
+    private fun processDocument(inputDocument: PdfDocumentPage, classifiedTypeOverride: String?): DocumentDataModel {
+        val classifiedDocument = if (classifiedTypeOverride != null) {
+            logger.info { "Overriding classification as $classifiedTypeOverride as requested..." }
+            inputDocument.withType(classifiedTypeOverride)
+        } else {
+            classifier.classifyDocument(inputDocument)
+        }
+
+        return when {
+            classifiedDocument.isStatementDocument() -> dataExtractor.extractStatementData(classifiedDocument);
+            classifiedDocument.isRelevant() -> dataExtractor.extractCheckData(classifiedDocument)
+            else -> ExtraPageDataModel(classifiedDocument.toDocumentMetadata())
         }
     }
 
     companion object {
         const val FUNCTION_NAME = "ProcessDataModelActivity"
 
+        /**
+         * The following are test statements for quick testing that doesn't require contacting the document intelligence service
+         */
+        fun getStatementPage(pdfPageData: PdfPageData): DocumentDataModel {
+            val statement = statements[pdfPageData.page - 1]
+            return if (statement.isStatement()) {
+                (statement as StatementDataModel).copy(pageMetadata = statement.pageMetadata.copy(filename = pdfPageData.fileName, page = pdfPageData.page))
+            } else if (statement.isCheck()) {
+                (statement as CheckDataModel).copy(pageMetadata = statement.pageMetadata.copy(filename = pdfPageData.fileName, page = pdfPageData.page))
+            } else {
+                (statement as ExtraPageDataModel).copy(pageMetadata = statement.pageMetadata.copy(filename = pdfPageData.fileName, page = pdfPageData.page))
+            }
+        }
+
         const val FILENAME = "test.pdf"
 
         val statements = listOf(
             CheckDataModel(
                 batesStamp = "HERMAN-R-000629",
-                accountNumber = null,
+                accountNumber = "3443",
                 to = "Some Guy",
                 checkNumber = 400,
                 amount = 50.asCurrency(),
                 date = normalizeDate("6 2 2022"),
                 description = "test",
-                pageMetadata = PdfDocumentPageMetadata(FILENAME, 1, BankTypes.WF_BANK)
+                pageMetadata = PdfDocumentPageMetadata(FILENAME, 1, DocumentType.CheckTypes.EAGLE_BANK_CHECK)
             ),
             StatementDataModel(
                 bankIdentifier = "WELLS FARGO",
@@ -71,10 +116,10 @@ class ProcessDataModelActivity @Inject constructor(
                 feesCharged = null,
                 pageMetadata = PdfDocumentPageMetadata(FILENAME, 1, BankTypes.WF_BANK)
             ),
-            ExtraPageDataModel(PdfDocumentPageMetadata(FILENAME, 1, BankTypes.WF_BANK)),
-            ExtraPageDataModel(PdfDocumentPageMetadata(FILENAME, 2, BankTypes.WF_BANK)),
-            ExtraPageDataModel(PdfDocumentPageMetadata(FILENAME, 3, BankTypes.WF_BANK)),
-            ExtraPageDataModel(PdfDocumentPageMetadata(FILENAME, 4, BankTypes.WF_BANK)),
+            ExtraPageDataModel(PdfDocumentPageMetadata(FILENAME, 1, DocumentType.IrrelevantTypes.EXTRA_PAGES)),
+            ExtraPageDataModel(PdfDocumentPageMetadata(FILENAME, 2, DocumentType.IrrelevantTypes.EXTRA_PAGES)),
+            ExtraPageDataModel(PdfDocumentPageMetadata(FILENAME, 3, DocumentType.IrrelevantTypes.EXTRA_PAGES)),
+            ExtraPageDataModel(PdfDocumentPageMetadata(FILENAME, 4, DocumentType.IrrelevantTypes.EXTRA_PAGES)),
         )
     }
 }

@@ -1,7 +1,8 @@
-package com.goldberg.law.function.model
+package com.goldberg.law.function.model.tracking
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.goldberg.law.util.getDocumentName
 
 data class OrchestrationStatus @JsonCreator constructor(
     @JsonProperty("stage") val stage: OrchestrationStage,
@@ -12,7 +13,7 @@ data class OrchestrationStatus @JsonCreator constructor(
     companion object {
         fun ofAction(stage: OrchestrationStage, filenames: Collection<String>) = OrchestrationStatus(
             stage,
-            filenames.map { DocumentOrchestrationStatus(it, null, null) },
+            filenames.map { DocumentOrchestrationStatus(it.getDocumentName(), null, null, null) },
             null,
             null
         )

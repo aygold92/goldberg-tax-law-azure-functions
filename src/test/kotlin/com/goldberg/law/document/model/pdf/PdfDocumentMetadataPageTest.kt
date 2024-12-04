@@ -7,16 +7,16 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
-class PdfDocumentPageTest {
+class PdfDocumentMetadataPageTest {
 
     @Test
     fun testValidState() {
         val page = PdfDocumentPage("Test", PD_DOCUMENT_1_PAGE, 1)
         assertThat(page).isEqualTo(PdfDocumentPage(PdfPageData("Test", 1), PD_DOCUMENT_1_PAGE))
         assertThat(page.page).isEqualTo(1)
-        assertThat(page.name).isEqualTo("Test")
+        assertThat(page.fileName).isEqualTo("Test")
         assertThat(page.pdfPage()).isEqualTo(PdfPageData("Test", 1))
-        assertThat(page.nameWithPage).isEqualTo("Test[1]")
+        assertThat(page.nameWithPage()).isEqualTo("Test[1]")
         assertThat(page.fileNameWithPage()).isEqualTo("Test[1].pdf")
         assertThat(page.splitPageFilePath()).isEqualTo("Test/Test[1].pdf")
         assertThat(page.modelFileName()).isEqualTo("Test/Test[1]_Model.json")
@@ -32,7 +32,7 @@ class PdfDocumentPageTest {
         val originalDocument = PdfDocumentPage("Test", PD_DOCUMENT_1_PAGE, 4)
         val classifiedType = originalDocument.withType("test")
 
-        assertThat(classifiedType.name).isEqualTo("Test")
+        assertThat(classifiedType.fileName).isEqualTo("Test")
         assertThat(classifiedType.isDocEqual(originalDocument)).isTrue()
         assertThat(classifiedType.page).isEqualTo(4)
         assertThat(classifiedType.classification).isEqualTo("test")

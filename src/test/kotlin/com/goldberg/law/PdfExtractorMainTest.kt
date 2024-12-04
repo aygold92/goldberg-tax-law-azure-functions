@@ -2,7 +2,14 @@ package com.goldberg.law
 
 import com.goldberg.law.datamanager.DataManager
 import com.goldberg.law.document.*
+import com.goldberg.law.document.model.pdf.DocumentType
+import com.goldberg.law.document.model.pdf.PdfDocumentPageMetadata
+import com.goldberg.law.function.activity.ProcessDataModelActivity
+import com.goldberg.law.function.model.PdfPageData
+import com.goldberg.law.function.model.activity.ProcessDataModelActivityInput
+import com.microsoft.azure.functions.ExecutionContext
 import com.nhaarman.mockitokotlin2.*
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 
@@ -32,6 +39,30 @@ class PdfExtractorMainTest {
         accountSummaryCreator,
         1
     )
+
+    @Mock
+    val context: ExecutionContext = mock()
+
+    @Test
+    fun test() {
+        val output = ProcessDataModelActivity(classifier, dataExtractor, dataManager).processDataModel(ProcessDataModelActivityInput("1234", PdfPageData("newpage.pdf", 1), null), context)
+        assertThat(output.isCheckModel()).isTrue()
+        assertThat(output.getDocumentDataModel().pageMetadata).isEqualTo(PdfDocumentPageMetadata("newpage.pdf", 1, DocumentType.CheckTypes.EAGLE_BANK_CHECK))
+    }
+
+    @Test
+    fun test2() {
+        val output = ProcessDataModelActivity(classifier, dataExtractor, dataManager).processDataModel(ProcessDataModelActivityInput("1234", PdfPageData("newpage.pdf", 2), null), context)
+        assertThat(output.isStatementModel()).isTrue()
+        assertThat(output.getDocumentDataModel().pageMetadata).isEqualTo(PdfDocumentPageMetadata("newpage.pdf", 2, DocumentType.BankTypes.WF_BANK))
+    }
+
+    @Test
+    fun test3() {
+        val output = ProcessDataModelActivity(classifier, dataExtractor, dataManager).processDataModel(ProcessDataModelActivityInput("1234", PdfPageData("newpage.pdf", 6), null), context)
+        assertThat(output.isExtraPageDataModel()).isTrue()
+        assertThat(output.getDocumentDataModel().pageMetadata).isEqualTo(PdfDocumentPageMetadata("newpage.pdf", 6, DocumentType.IrrelevantTypes.EXTRA_PAGES))
+    }
 
 //    @BeforeEach
 //    fun setup() {
@@ -258,16 +289,4 @@ class PdfExtractorMainTest {
 //            ),
 //        )
 //    }
-
-    @Test
-    fun testContent() {
-        val data = "{\"bankIdentifier\":\"CITI® / AADVANTAGE® GOLD CARD\",\"statementDate\":1686088800000,\"pageNum\":null,\"totalPages\":null,\"summaryOfAccountsTable\":null,\"transactionTableDepositWithdrawal\":null,\"batesStamp\":\"MH - 002472\",\"accountNumber\":\"9652\",\"beginningBalance\":7164.29,\"endingBalance\":2644.81,\"transactionTableAmount\":null,\"transactionTableCreditsCharges\":null,\"transactionTableDebits\":null,\"transactionTableCredits\":null,\"transactionTableChecks\":null,\"interestCharged\":0.00,\"feesCharged\":0.00,\"pageMetadata\":{\"name\":\"CC - Molly - Citi x9652 Stmt (2023.05.06 - 2023.06.07)MH-002472-002475[1]\",\"page\":1,\"classification\":\"CITI CC\"}}"
-        println(data.length)
-        println(data.toByteArray(charset = Charsets.US_ASCII).size)
-
-
-        val otherData = "{\"bankIdentifier\":\"www.citicards.com\",\"statementDate\":null,\"pageNum\":4,\"totalPages\":4,\"summaryOfAccountsTable\":null,\"transactionTableDepositWithdrawal\":null,\"batesStamp\":\"MH - 002475\",\"accountNumber\":null,\"beginningBalance\":null,\"endingBalance\":null,\"transactionTableAmount\":{\"records\":[{\"date\":\"06/05\",\"description\":\"carters, Inc. Atlanta GA\",\"amount\":93.49},{\"date\":\"06/05\",\"description\":\"EDGE FLORAL EVENT DESI NORTH BETHESD MD\",\"amount\":150.00},{\"date\":\"06/05\",\"description\":\"ONSTAR DATA PLAN-AT&T DALLAS TX\",\"amount\":15.00},{\"date\":\"06/06\",\"description\":\"AMZN Mktp US*P593R4US3 Amzn.com/bill WA\",\"amount\":28.59},{\"date\":\"06/06\",\"description\":\"SQ *ZOHRA SALON Rockville MD\",\"amount\":175.00},{\"date\":\"06/07\",\"description\":\"DD DOORDASH VIEDEFRAN 8559731040 CA\",\"amount\":15.08},{\"date\":\"06/07\",\"description\":\"DD DOORDASH DUNKIN 8559731040 CA\",\"amount\":16.85},{\"date\":\"06/07\",\"description\":\"DD DOORDASH MCDONALDS 8559731040 CA\",\"amount\":25.35},{\"date\":\"06/07\",\"description\":\"DD DOORDASH BURGERKIN 8559731040 CA\",\"amount\":51.85},{\"date\":\"06/07\",\"description\":\"PERSONALIZATION MALL 630-910-6000 IL\",\"amount\":104.85},{\"date\":\"06/07\",\"description\":\"AMZN Mktp US*RT01J5183 Amzn.com/bill WA\",\"amount\":171.75},{\"date\":\"06/07\",\"description\":\"DD DOORDASH BALDUCCIS 8559731040 CA\",\"amount\":53.35}]},\"transactionTableCreditsCharges\":null,\"transactionTableDebits\":null,\"transactionTableCredits\":null,\"transactionTableChecks\":null,\"interestCharged\":0.00,\"feesCharged\":0.00,\"pageMetadata\":{\"name\":\"CC - Molly - Citi x9652 Stmt (2023.05.06 - 2023.06.07)MH-002472-002475[4]\",\"page\":1,\"classification\":\"CITI CC\"}}"
-        println(otherData.length)
-        println(otherData.toByteArray().size)
-    }
 }
