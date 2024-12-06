@@ -34,7 +34,7 @@ class DocumentDataModelContainerTest {
 
     @Test
     fun testProcessStatementAndChecksOutputSerializableGson() {
-        val model = ProcessStatementsActivityOutput(listOf("test", "test"))
+        val model = ProcessStatementsActivityOutput(mapOf("test" to setOf("st1", "st2", "test2"), "test2" to setOf("st3", "st4")))
         val otherModel = GSON.fromJson(GSON.toJson(model), ProcessStatementsActivityOutput::class.java)
         assertThat(otherModel).isEqualTo(model)
     }

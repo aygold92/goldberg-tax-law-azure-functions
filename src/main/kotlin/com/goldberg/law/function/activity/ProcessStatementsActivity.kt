@@ -42,8 +42,9 @@ class ProcessStatementsActivity @Inject constructor(
 
         val finalStatements = checkToStatementMatcher.matchChecksWithStatements(statementsWithoutChecks, checksUpdatedAccounts)
 
-        val fileNames = finalStatements.mapAsync { dataManager.saveBankStatement(it) }.toSet()
+        finalStatements.mapAsync { dataManager.saveBankStatement(it) }
 
+        // match filenames to statements
         val inputFileToStatement: MutableMap<String, MutableSet<String>> = mutableMapOf()
         finalStatements.forEach { statement ->
             statement.pages.associate { it.filename to statement.azureFileName() }.onEach {
@@ -54,7 +55,7 @@ class ProcessStatementsActivity @Inject constructor(
             dataManager.updateInputPdfMetadata(filename, input.metadataMap[filename]!!.copy(statements = azureFileNames))
         }
 
-        return ProcessStatementsActivityOutput(fileNames)
+        return ProcessStatementsActivityOutput(inputFileToStatement)
     }
 
     companion object {

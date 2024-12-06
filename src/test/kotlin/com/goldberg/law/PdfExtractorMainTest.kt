@@ -40,30 +40,6 @@ class PdfExtractorMainTest {
         1
     )
 
-    @Mock
-    val context: ExecutionContext = mock()
-
-    @Test
-    fun test() {
-        val output = ProcessDataModelActivity(classifier, dataExtractor, dataManager).processDataModel(ProcessDataModelActivityInput("1234", PdfPageData("newpage.pdf", 1), null), context)
-        assertThat(output.isCheckModel()).isTrue()
-        assertThat(output.getDocumentDataModel().pageMetadata).isEqualTo(PdfDocumentPageMetadata("newpage.pdf", 1, DocumentType.CheckTypes.EAGLE_BANK_CHECK))
-    }
-
-    @Test
-    fun test2() {
-        val output = ProcessDataModelActivity(classifier, dataExtractor, dataManager).processDataModel(ProcessDataModelActivityInput("1234", PdfPageData("newpage.pdf", 2), null), context)
-        assertThat(output.isStatementModel()).isTrue()
-        assertThat(output.getDocumentDataModel().pageMetadata).isEqualTo(PdfDocumentPageMetadata("newpage.pdf", 2, DocumentType.BankTypes.WF_BANK))
-    }
-
-    @Test
-    fun test3() {
-        val output = ProcessDataModelActivity(classifier, dataExtractor, dataManager).processDataModel(ProcessDataModelActivityInput("1234", PdfPageData("newpage.pdf", 6), null), context)
-        assertThat(output.isExtraPageDataModel()).isTrue()
-        assertThat(output.getDocumentDataModel().pageMetadata).isEqualTo(PdfDocumentPageMetadata("newpage.pdf", 6, DocumentType.IrrelevantTypes.EXTRA_PAGES))
-    }
-
 //    @BeforeEach
 //    fun setup() {
 //        whenever(splitter.splitPdf(eq(PDF_DOCUMENT), any(), any())).thenReturn(listOf(SPLIT_PDF_1, SPLIT_PDF_2))

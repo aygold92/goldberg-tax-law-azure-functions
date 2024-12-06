@@ -4,5 +4,5 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 
 data class ProcessStatementsActivityOutput @JsonCreator constructor(
-    @JsonProperty("fileNames") val fileNames: Collection<String>
+    @JsonProperty("filenameStatementMap") val filenameStatementMap: Map<String, Set<String>>
 )

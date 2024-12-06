@@ -5,6 +5,6 @@ import com.goldberg.law.function.model.InputFileMetadata
 import javax.inject.Inject
 
 data class PdfDocumentMetadata @Inject constructor(
-    @JsonProperty("name") val name: String,
+    @JsonProperty("filename") val filename: String,
     @JsonProperty("metadata") val metadata: InputFileMetadata
 )

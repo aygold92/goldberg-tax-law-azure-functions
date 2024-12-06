@@ -122,12 +122,20 @@ class PdfDataExtractorOrchestratorFunctionTest {
             )
 
         whenever(processStatementsTask.await()).thenReturn(
-            ProcessStatementsActivityOutput(listOf(SAVED_FILE_1, SAVED_FILE_2, SAVED_FILE_3))
+            ProcessStatementsActivityOutput(mapOf(
+                FILE_10 to setOf(STATEMENT_1),
+                FILE_20 to setOf(STATEMENT_2),
+                FILE_30 to setOf(STATEMENT_3)
+            ))
         )
 
         val result = dataExtractorOrchestratorFunction.pdfDataExtractorOrchestrator(mockContext)
 
-        assertThat(result).isEqualTo(AnalyzeDocumentResult(AnalyzeDocumentResult.Status.SUCCESS, listOf(SAVED_FILE_1, SAVED_FILE_2, SAVED_FILE_3), null))
+        assertThat(result).isEqualTo(AnalyzeDocumentResult(AnalyzeDocumentResult.Status.SUCCESS, mapOf(
+            FILE_10 to setOf(STATEMENT_1),
+            FILE_20 to setOf(STATEMENT_2),
+            FILE_30 to setOf(STATEMENT_3)
+        ), null))
 
         verify(mockContext).getInput(AzureAnalyzeDocumentsRequest::class.java)
         verify(mockContext).setCustomStatus(OrchestrationStatus(OrchestrationStage.VERIFYING_DOCUMENTS, listOf(
@@ -253,12 +261,21 @@ class PdfDataExtractorOrchestratorFunctionTest {
         )))
 
         whenever(processStatementsTask.await()).thenReturn(
-            ProcessStatementsActivityOutput(listOf(SAVED_FILE_1, SAVED_FILE_2))
+            ProcessStatementsActivityOutput(mapOf(
+                FILE_10 to setOf(STATEMENT_1),
+                FILE_20 to setOf(STATEMENT_2),
+                FILE_30 to setOf(STATEMENT_3, STATEMENT_4),
+            ))
         )
 
         val result = dataExtractorOrchestratorFunction.pdfDataExtractorOrchestrator(mockContext)
 
-        assertThat(result).isEqualTo(AnalyzeDocumentResult(AnalyzeDocumentResult.Status.SUCCESS, listOf(SAVED_FILE_1, SAVED_FILE_2, SAVED_FILE_3, SAVED_FILE_4), null))
+        assertThat(result).isEqualTo(AnalyzeDocumentResult(AnalyzeDocumentResult.Status.SUCCESS, mapOf(
+            FILE_10 to setOf(STATEMENT_1),
+            FILE_20 to setOf(STATEMENT_2),
+            FILE_30 to setOf(STATEMENT_3, STATEMENT_4),
+            FILE_40 to setOf(STATEMENT_5, STATEMENT_6)
+        ), null))
 
         verify(mockContext).getInput(AzureAnalyzeDocumentsRequest::class.java)
         verify(mockContext).setCustomStatus(OrchestrationStatus(OrchestrationStage.VERIFYING_DOCUMENTS, listOf(
@@ -271,28 +288,28 @@ class PdfDataExtractorOrchestratorFunctionTest {
             DocumentOrchestrationStatus(FILE_10, 3, 0, InputFileMetadata(true, 3)),
             DocumentOrchestrationStatus(FILE_20, 3, 0, InputFileMetadata(true, 3)),
             DocumentOrchestrationStatus(FILE_30, 2, 2, InputFileMetadata(true, 2, true)),
-            DocumentOrchestrationStatus(FILE_40, 40, 40, InputFileMetadata(true, 40, true, setOf(SAVED_FILE_3, SAVED_FILE_4))),
+            DocumentOrchestrationStatus(FILE_40, 40, 40, InputFileMetadata(true, 40, true, setOf(STATEMENT_5, STATEMENT_6))),
         ), 6, 0))
 
         verify(mockContext).setCustomStatus(OrchestrationStatus(OrchestrationStage.EXTRACTING_DATA, listOf(
             DocumentOrchestrationStatus(FILE_10, 3, 1, InputFileMetadata(true, 3)),
             DocumentOrchestrationStatus(FILE_20, 3, 1, InputFileMetadata(true, 3)),
             DocumentOrchestrationStatus(FILE_30, 2, 2, InputFileMetadata(true, 2, true)),
-            DocumentOrchestrationStatus(FILE_40, 40, 40, InputFileMetadata(true, 40, true, setOf(SAVED_FILE_3, SAVED_FILE_4))),
+            DocumentOrchestrationStatus(FILE_40, 40, 40, InputFileMetadata(true, 40, true, setOf(STATEMENT_5, STATEMENT_6))),
         ), 6, 2))
 
         verify(mockContext).setCustomStatus(OrchestrationStatus(OrchestrationStage.EXTRACTING_DATA, listOf(
             DocumentOrchestrationStatus(FILE_10, 3, 2, InputFileMetadata(true, 3)),
             DocumentOrchestrationStatus(FILE_20, 3, 2, InputFileMetadata(true, 3)),
             DocumentOrchestrationStatus(FILE_30, 2, 2, InputFileMetadata(true, 2, true)),
-            DocumentOrchestrationStatus(FILE_40, 40, 40, InputFileMetadata(true, 40, true, setOf(SAVED_FILE_3, SAVED_FILE_4))),
+            DocumentOrchestrationStatus(FILE_40, 40, 40, InputFileMetadata(true, 40, true, setOf(STATEMENT_5, STATEMENT_6))),
         ), 6, 4))
 
         verify(mockContext).setCustomStatus(OrchestrationStatus(OrchestrationStage.EXTRACTING_DATA, listOf(
             DocumentOrchestrationStatus(FILE_10, 3, 3, InputFileMetadata(true, 3, true)),
             DocumentOrchestrationStatus(FILE_20, 3, 3, InputFileMetadata(true, 3, true)),
             DocumentOrchestrationStatus(FILE_30, 2, 2, InputFileMetadata(true, 2, true)),
-            DocumentOrchestrationStatus(FILE_40, 40, 40, InputFileMetadata(true, 40, true, setOf(SAVED_FILE_3, SAVED_FILE_4))),
+            DocumentOrchestrationStatus(FILE_40, 40, 40, InputFileMetadata(true, 40, true, setOf(STATEMENT_5, STATEMENT_6))),
         ), 6, 6))
 
         verify(mockContext, atLeastOnce()).isReplaying
@@ -322,7 +339,7 @@ class PdfDataExtractorOrchestratorFunctionTest {
             FILE_10 to InputFileMetadata(true, 3, true),
             FILE_20 to InputFileMetadata(true, 3, true),
             FILE_30 to InputFileMetadata(true, 2, true),
-            FILE_40 to InputFileMetadata(true, 40, true, setOf(SAVED_FILE_3, SAVED_FILE_4)),
+            FILE_40 to InputFileMetadata(true, 40, true, setOf(STATEMENT_5, STATEMENT_6)),
         )
         verify(mockContext).callActivity(ProcessStatementsActivity.FUNCTION_NAME, ProcessStatementsActivityInput(REQUEST_ID,
             setOf(
@@ -361,10 +378,17 @@ class PdfDataExtractorOrchestratorFunctionTest {
         private const val SAVED_FILE_3 = "File3"
         private const val SAVED_FILE_4 = "File4"
 
+        private const val STATEMENT_1 = "Statement1"
+        private const val STATEMENT_2 = "Statement2"
+        private const val STATEMENT_3 = "Statement3"
+        private const val STATEMENT_4 = "Statement4"
+        private const val STATEMENT_5 = "Statement5"
+        private const val STATEMENT_6 = "Statement6"
+
         private val PDF_METADATA_10 = PdfDocumentMetadata(FILE_10, InputFileMetadata())
         private val PDF_METADATA_20 = PdfDocumentMetadata(FILE_20, InputFileMetadata(true, 3))
         private val PDF_METADATA_30 = PdfDocumentMetadata(FILE_30, InputFileMetadata(true, 2, true))
-        private val PDF_METADATA_40 = PdfDocumentMetadata(FILE_40, InputFileMetadata(true, 40, true, setOf(SAVED_FILE_3, SAVED_FILE_4)))
+        private val PDF_METADATA_40 = PdfDocumentMetadata(FILE_40, InputFileMetadata(true, 40, true, setOf(STATEMENT_5, STATEMENT_6)))
 
         private val PDF_PAGE_10_1 = PdfPageData(FILE_10, 1)
         private val PDF_PAGE_10_2 = PdfPageData(FILE_10, 2)

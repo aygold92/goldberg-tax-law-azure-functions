@@ -48,17 +48,18 @@ class PdfDataExtractorOrchestratorFunction @Inject constructor(private val numWo
         val alreadySplitDocuments = filesToProcess.filter { it.metadata.split }.toSet()
         val alreadyAnalyzedDocuments = filesToProcess.filter { it.metadata.analyzed }.toSet()
         val alreadyAnalyzedNotProcessedToBankStatement = alreadyAnalyzedDocuments.filter { it.metadata.statements == null }
+        val alreadyCompletedDocuments = alreadyAnalyzedDocuments.filter { it.metadata.statements?.isNotEmpty() == true }
         val alreadySplitNotAnalyzedDocuments = alreadySplitDocuments - alreadyAnalyzedDocuments
 
-        if (!ctx.isReplaying) logger.info { "[${ctx.instanceId}] Splitting files ${filesToSplit.map { it.name }}\n" +
-                "Already split files ${alreadySplitDocuments.map { it.name }}\n" +
-                "Already analyzed files ${alreadyAnalyzedDocuments.map { it.name }}" }
+        if (!ctx.isReplaying) logger.info { "[${ctx.instanceId}] Splitting files ${filesToSplit.map { it.filename }}\n" +
+                "Already split files ${alreadySplitDocuments.map { it.filename }}\n" +
+                "Already analyzed files ${alreadyAnalyzedDocuments.map { it.filename }}" }
 
         // step 3: split the necessary PDFs
         val splitDocumentTasks = filesToSplit.map { file ->
             ctx.callActivity(
                 SplitPdfActivity.FUNCTION_NAME,
-                SplitPdfActivityInput(ctx.instanceId, file.name, request.overwrite),
+                SplitPdfActivityInput(ctx.instanceId, file.filename, request.overwrite),
                 SplitPdfActivityOutput::class.java
             )
         }
@@ -67,7 +68,7 @@ class PdfDataExtractorOrchestratorFunction @Inject constructor(private val numWo
         if (!ctx.isReplaying) logger.info { "[${ctx.instanceId}] Successfully split pdfs: $filesToSplit" }
 
         val pagesAlreadySplitNotAnalyzed: Set<PdfPageData> = alreadySplitNotAnalyzedDocuments.flatMap { pdfDocument ->
-            (1.. pdfDocument.metadata.totalpages!!).toList().map { PdfPageData(pdfDocument.name, it) }
+            (1.. pdfDocument.metadata.totalpages!!).toList().map { PdfPageData(pdfDocument.filename, it) }
         }.toSet()
 
         val pagesToAnalyze: Set<PdfPageData> = pagesAlreadySplitNotAnalyzed + newlySplitDocumentsResults.flatMap { it.pdfPages }
@@ -75,8 +76,8 @@ class PdfDataExtractorOrchestratorFunction @Inject constructor(private val numWo
         // set status for all documents. The ones that have already been analyzed are already completed.
         var documentsStatus: List<DocumentOrchestrationStatus> =
             newlySplitDocumentsResults.map { DocumentOrchestrationStatus(it.pdfPages.first().fileName, it.pdfPages.size, 0, InputFileMetadata(true, it.pdfPages.size)) } +
-                alreadySplitNotAnalyzedDocuments.map { DocumentOrchestrationStatus(it.name, it.metadata.totalpages, 0, it.metadata) } +
-                alreadyAnalyzedDocuments.map { DocumentOrchestrationStatus(it.name, it.metadata.totalpages, it.metadata.totalpages, it.metadata) }
+                alreadySplitNotAnalyzedDocuments.map { DocumentOrchestrationStatus(it.filename, it.metadata.totalpages, 0, it.metadata) } +
+                alreadyAnalyzedDocuments.map { DocumentOrchestrationStatus(it.filename, it.metadata.totalpages, it.metadata.totalpages, it.metadata) }
 
         val dataModels = mutableSetOf<DocumentDataModelContainer>()
         val updateMetadataTasks: MutableList<Task<Void>> = mutableListOf()
@@ -120,9 +121,12 @@ class PdfDataExtractorOrchestratorFunction @Inject constructor(private val numWo
         ctx.allOf(updateMetadataTasks).await()
         if (!ctx.isReplaying) logger.info { "[${ctx.instanceId}] successfully updated all input file metadata" }
 
+        // step 4.2: load models for those files that are already analyzed but not processed to a bank statement (probably due to an error)
+        // TODO: what about files that don't contain any bank statements?
+        // TODO: if overwrite feature is on, should pass all data models including those already processed
         if (alreadyAnalyzedNotProcessedToBankStatement.isNotEmpty()) {
             val pagesAlreadyAnalyzedNotInBankStatement: Set<PdfPageData> = alreadyAnalyzedNotProcessedToBankStatement.flatMap { pdfDocument ->
-                (1.. pdfDocument.metadata.totalpages!!).toList().map { PdfPageData(pdfDocument.name, it) }
+                (1.. pdfDocument.metadata.totalpages!!).toList().map { PdfPageData(pdfDocument.filename, it) }
             }.toSet()
             val alreadyAnalyzedModelsNotInBankStatement = ctx.callActivity(
                 LoadAnalyzedModelsActivity.FUNCTION_NAME,
@@ -133,16 +137,15 @@ class PdfDataExtractorOrchestratorFunction @Inject constructor(private val numWo
         }
 
         // step 5: create bank statements using all the analyzed models
-        // TODO: if overwrite feature is on, should pass all data models
         val finalResult = ctx.callActivity(
             ProcessStatementsActivity.FUNCTION_NAME,
             ProcessStatementsActivityInput(ctx.instanceId, dataModels, documentsStatus.associateBy({ it.fileName }, { it.metadata!! })),
             ProcessStatementsActivityOutput::class.java
         ).await()
-            .also { logger.info { "[${ctx.instanceId}] Got Final Result: ${it.fileNames}" } }
+            .also { logger.info { "[${ctx.instanceId}] Created new bank statements: ${it.filenameStatementMap}" } }
 
-        // TODO: should probably handle this weird case where metadata is incorrect (and statements is null on an already analyzed document)
-        AnalyzeDocumentResult.success(finalResult.fileNames + alreadyAnalyzedDocuments.flatMap { it.metadata.statements ?: setOf() })
+        // TODO: should probably handle the weird case where metadata is incorrect (and statements is null on an already analyzed document)
+        AnalyzeDocumentResult.success(finalResult.filenameStatementMap + alreadyCompletedDocuments.associate { it.filename to it.metadata.statements!! })
     } catch (ex: Throwable) {
         if (ex is OrchestratorBlockedException) {
             throw ex
