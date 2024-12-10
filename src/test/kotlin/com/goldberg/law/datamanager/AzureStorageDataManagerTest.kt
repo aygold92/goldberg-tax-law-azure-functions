@@ -1,13 +1,10 @@
 package com.goldberg.law.datamanager
 
-import com.azure.core.http.rest.PagedIterable
-import com.azure.core.http.rest.PagedResponse
 import com.azure.core.util.BinaryData
 import com.azure.storage.blob.BlobClient
 import com.azure.storage.blob.BlobContainerClient
 import com.azure.storage.blob.BlobServiceClient
-import com.goldberg.law.StorageBlobContainersNames
-import com.goldberg.law.document.PdfSplitter
+import com.goldberg.law.splitpdftool.PdfSplitter
 import com.goldberg.law.document.model.ModelValues
 import com.goldberg.law.document.model.StatementModelValues
 import com.goldberg.law.document.model.input.ExtraPageDataModel
@@ -25,8 +22,6 @@ import org.mockito.Mock
 class AzureStorageDataManagerTest {
     @Mock
     val serviceClient: BlobServiceClient = mock()
-
-
     @Mock
     val inputContainerClient: BlobContainerClient = mock()
     @Mock
@@ -34,20 +29,20 @@ class AzureStorageDataManagerTest {
     @Mock
     val modelsContainerClient: BlobContainerClient = mock()
     @Mock
+    val statementsContainerClient: BlobContainerClient = mock()
+    @Mock
     val outputContainerClient: BlobContainerClient = mock()
 
     @Mock
     val blobClient: BlobClient = mock()
 
-    @Mock
-    val pdfSplitter: PdfSplitter = mock()
-
     @BeforeEach
     fun setup() {
-        whenever(serviceClient.getBlobContainerClient("input")).thenReturn(inputContainerClient)
-        whenever(serviceClient.getBlobContainerClient("splitInput")).thenReturn(splitInputContainerClient)
-        whenever(serviceClient.getBlobContainerClient("models")).thenReturn(modelsContainerClient)
-        whenever(serviceClient.getBlobContainerClient("output")).thenReturn(outputContainerClient)
+        whenever(serviceClient.getBlobContainerClient(AzureStorageDataManager.INPUT_CONTAINER_NAME)).thenReturn(inputContainerClient)
+        whenever(serviceClient.getBlobContainerClient(AzureStorageDataManager.SPLIT_INPUT_CONTAINER_NAME)).thenReturn(splitInputContainerClient)
+        whenever(serviceClient.getBlobContainerClient(AzureStorageDataManager.MODELS_CONTAINER_NAME)).thenReturn(modelsContainerClient)
+        whenever(serviceClient.getBlobContainerClient(AzureStorageDataManager.STATEMENTS_CONTAINER_NAME)).thenReturn(statementsContainerClient)
+        whenever(serviceClient.getBlobContainerClient(AzureStorageDataManager.OUTPUT_CONTAINER_NAME)).thenReturn(outputContainerClient)
     }
 
 //    @Test
@@ -59,7 +54,7 @@ class AzureStorageDataManagerTest {
 
     @Test
     fun testLoadStatementModel() {
-        val dataManager = AzureStorageDataManager(pdfSplitter, serviceClient, CONTAINER_NAMES)
+        val dataManager = AzureStorageDataManager(serviceClient)
         val blobName = "Test"
         whenever(modelsContainerClient.getBlobClient("$blobName/$blobName[1]_Model.json")).thenReturn(blobClient)
         whenever(blobClient.downloadContent()).thenReturn(BinaryData.fromString(StatementModelValues.STATEMENT_MODEL_WF_BANK_0.toStringDetailed()))
@@ -70,7 +65,7 @@ class AzureStorageDataManagerTest {
 
     @Test
     fun testLoadCheckModel() {
-        val dataManager = AzureStorageDataManager(pdfSplitter, serviceClient, CONTAINER_NAMES)
+        val dataManager = AzureStorageDataManager(serviceClient)
         val blobName = "Test"
         whenever(modelsContainerClient.getBlobClient("$blobName/$blobName[1]_Model.json")).thenReturn(blobClient)
 
@@ -83,7 +78,7 @@ class AzureStorageDataManagerTest {
 
     @Test
     fun testLoadExtraPageModel() {
-        val dataManager = AzureStorageDataManager(pdfSplitter, serviceClient, CONTAINER_NAMES)
+        val dataManager = AzureStorageDataManager(serviceClient)
         val blobName = "Test"
         whenever(modelsContainerClient.getBlobClient("$blobName/$blobName[1]_Model.json")).thenReturn(blobClient)
 
@@ -92,9 +87,5 @@ class AzureStorageDataManagerTest {
         val result = dataManager.loadModel(PdfPageData(blobName, 1))
 
         assertThat(result).isEqualTo(model)
-    }
-
-    companion object {
-        val CONTAINER_NAMES = StorageBlobContainersNames("input", "splitInput", "models", "output")
     }
 }

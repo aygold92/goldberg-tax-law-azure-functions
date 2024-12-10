@@ -6,13 +6,11 @@ import com.azure.core.credential.AzureKeyCredential
 import com.azure.storage.blob.BlobServiceClient
 import com.azure.storage.blob.BlobServiceClientBuilder
 import com.goldberg.law.datamanager.AzureStorageDataManager
-import com.goldberg.law.datamanager.DataManager
-import com.goldberg.law.datamanager.FileDataManager
 import com.goldberg.law.document.*
 import com.goldberg.law.function.PdfDataExtractorOrchestratorFunction
 import com.goldberg.law.function.WriteCsvSummaryFunction
 import com.goldberg.law.function.activity.*
-import com.goldberg.law.document.PdfSplitter
+import com.goldberg.law.splitpdftool.PdfSplitter
 import com.goldberg.law.function.FetchSASTokenFunction
 import com.google.inject.AbstractModule
 import com.google.inject.Provides
@@ -39,9 +37,8 @@ class AppModule constructor(private val appEnvironmentSettings: AppEnvironmentSe
 
     @Provides
     @Singleton
-    fun dataManager(pdfSplitter: PdfSplitter, blobServiceClient: BlobServiceClient): DataManager =
-        if (appEnvironmentSettings.executionEnvironment == ExecutionEnvironment.LOCAL) FileDataManager(pdfSplitter)
-        else AzureStorageDataManager(pdfSplitter, blobServiceClient, appEnvironmentSettings.azureConfig.storageBlobConfig.containerNames)
+    fun azureStorageDataManager(blobServiceClient: BlobServiceClient): AzureStorageDataManager =
+        AzureStorageDataManager(blobServiceClient)
 
     /** these should not have to instantiated here, I have no idea why guice can't find the @Inject constructor **/
     @Provides
@@ -60,48 +57,27 @@ class AppModule constructor(private val appEnvironmentSettings: AppEnvironmentSe
 
     @Provides
     @Singleton
-    fun pdfExtractorMain(
-        dataManager: DataManager,
-        classifier: DocumentClassifier,
-        dataExtractor: DocumentDataExtractor,
-        statementCreator: DocumentStatementCreator,
-        accountNormalizer: AccountNormalizer,
-        checkToStatementMatcher: CheckToStatementMatcher,
-        accountSummaryCreator: AccountSummaryCreator
-    ) = PdfExtractorMain(
-        dataManager,
-        classifier,
-        dataExtractor,
-        statementCreator,
-        accountNormalizer,
-        checkToStatementMatcher,
-        accountSummaryCreator,
-        appEnvironmentSettings.azureConfig.numWorkers
-    )
-
-    @Provides
-    @Singleton
     fun pdfDataExtractorOrchestratorFunction() = PdfDataExtractorOrchestratorFunction(appEnvironmentSettings.azureConfig.numWorkers)
 
     @Provides
     @Singleton
     fun splitPdfFunction(
-        dataManager: DataManager,
-    ) = SplitPdfActivity(dataManager)
+        azureStorageDataManager: AzureStorageDataManager,
+    ) = SplitPdfActivity(azureStorageDataManager)
 
     @Provides
     @Singleton
     fun processDataModelFunction(
         classifier: DocumentClassifier,
         dataExtractor: DocumentDataExtractor,
-        dataManager: DataManager
-    ) = ProcessDataModelActivity(classifier, dataExtractor, dataManager)
+        azureStorageDataManager: AzureStorageDataManager
+    ) = ProcessDataModelActivity(classifier, dataExtractor, azureStorageDataManager)
 
     @Provides
     @Singleton
     fun getRelevantFilesActivity(
-        dataManager: DataManager
-    ) = GetFilesToProcessActivity(dataManager)
+        azureStorageDataManager: AzureStorageDataManager
+    ) = GetFilesToProcessActivity(azureStorageDataManager)
 
     @Provides
     @Singleton
@@ -109,15 +85,16 @@ class AppModule constructor(private val appEnvironmentSettings: AppEnvironmentSe
         statementCreator: DocumentStatementCreator,
         accountNormalizer: AccountNormalizer,
         checkToStatementMatcher: CheckToStatementMatcher,
-        dataManager: DataManager
-    ) = ProcessStatementsActivity(statementCreator, accountNormalizer, checkToStatementMatcher, dataManager)
+        azureStorageDataManager: AzureStorageDataManager
+    ) = ProcessStatementsActivity(statementCreator, accountNormalizer, checkToStatementMatcher, azureStorageDataManager)
 
     @Provides
     @Singleton
     fun writeCsvSummaryFunction(
-        dataManager: DataManager,
+        azureStorageDataManager: AzureStorageDataManager,
         accountSummaryCreator: AccountSummaryCreator,
-    ) = WriteCsvSummaryFunction(dataManager, accountSummaryCreator)
+        csvCreator: CsvCreator,
+    ) = WriteCsvSummaryFunction(azureStorageDataManager, accountSummaryCreator, csvCreator)
 
     @Provides
     @Singleton
@@ -128,12 +105,12 @@ class AppModule constructor(private val appEnvironmentSettings: AppEnvironmentSe
     @Provides
     @Singleton
     fun updateMetadataFunction(
-        dataManager: DataManager
-    ) = UpdateMetadataActivity(dataManager)
+        azureStorageDataManager: AzureStorageDataManager
+    ) = UpdateMetadataActivity(azureStorageDataManager)
 
     @Provides
     @Singleton
     fun loadAnalyzedModelsFunction(
-        dataManager: DataManager
-    ) = LoadAnalyzedModelsActivity(dataManager)
+        azureStorageDataManager: AzureStorageDataManager
+    ) = LoadAnalyzedModelsActivity(azureStorageDataManager)
 }

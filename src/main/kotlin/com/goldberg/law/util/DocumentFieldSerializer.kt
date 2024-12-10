@@ -10,7 +10,9 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer
 import com.goldberg.law.document.model.input.tables.asDocumentField
 import java.io.IOException
 
-
+/**
+ * removes extra unneeded output from Azure DocumentField
+ */
 class DocumentFieldSerializer @JvmOverloads constructor(t: Class<DocumentField?>? = null) :
     StdSerializer<DocumentField?>(t) {
     @Throws(IOException::class, JsonProcessingException::class)
@@ -44,6 +46,9 @@ class DocumentFieldSerializer @JvmOverloads constructor(t: Class<DocumentField?>
     }
 }
 
+/**
+ * removes extra unneeded output from Azure AnalyzedDocument
+ */
 class AnalyzedDocumentSerializer @JvmOverloads constructor(t: Class<AnalyzedDocument?>? = null) :
     StdSerializer<AnalyzedDocument?>(t) {
     @Throws(IOException::class, JsonProcessingException::class)

@@ -1,6 +1,6 @@
 package com.goldberg.law.function.activity
 
-import com.goldberg.law.datamanager.DataManager
+import com.goldberg.law.datamanager.AzureStorageDataManager
 import com.goldberg.law.document.DocumentClassifier
 import com.goldberg.law.document.DocumentDataExtractor
 import com.goldberg.law.document.model.input.CheckDataModel
@@ -26,7 +26,7 @@ import javax.inject.Inject
 class ProcessDataModelActivity @Inject constructor(
     private val classifier: DocumentClassifier,
     private val dataExtractor: DocumentDataExtractor,
-    private val dataManager: DataManager,
+    private val dataManager: AzureStorageDataManager,
 ) {
     private val logger = KotlinLogging.logger {}
     /**

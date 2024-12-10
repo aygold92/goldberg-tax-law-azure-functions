@@ -1,7 +1,7 @@
 package com.goldberg.law.function.activity
 
-import com.goldberg.law.datamanager.DataManager
-import com.goldberg.law.function.model.InputFileMetadata
+import com.goldberg.law.datamanager.AzureStorageDataManager
+import com.goldberg.law.function.model.metadata.InputFileMetadata
 import com.goldberg.law.function.model.activity.SplitPdfActivityInput
 import com.goldberg.law.function.model.activity.SplitPdfActivityOutput
 import com.goldberg.law.util.mapAsync
@@ -12,7 +12,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import javax.inject.Inject
 
 class SplitPdfActivity @Inject constructor(
-    private val dataManager: DataManager,
+    private val dataManager: AzureStorageDataManager,
 ) {
     private val logger = KotlinLogging.logger {}
 

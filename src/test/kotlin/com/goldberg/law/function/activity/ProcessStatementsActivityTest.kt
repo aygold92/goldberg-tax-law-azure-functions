@@ -1,13 +1,13 @@
 package com.goldberg.law.function.activity
 
-import com.goldberg.law.datamanager.DataManager
+import com.goldberg.law.datamanager.AzureStorageDataManager
 import com.goldberg.law.document.AccountNormalizer
 import com.goldberg.law.document.CheckToStatementMatcher
 import com.goldberg.law.document.DocumentStatementCreator
 import com.goldberg.law.document.model.ModelValues
 import com.goldberg.law.document.model.StatementModelValues
 import com.goldberg.law.function.model.DocumentDataModelContainer
-import com.goldberg.law.function.model.InputFileMetadata
+import com.goldberg.law.function.model.metadata.InputFileMetadata
 import com.goldberg.law.function.model.activity.ProcessStatementsActivityInput
 import com.goldberg.law.util.normalizeDate
 import com.microsoft.azure.functions.ExecutionContext
@@ -24,7 +24,7 @@ class ProcessStatementsActivityTest {
     @Mock
     private val checkToStatementMatcher: CheckToStatementMatcher = mock()
     @Mock
-    private val dataManager: DataManager = mock()
+    private val dataManager: AzureStorageDataManager = mock()
 
     @Mock
     private val context: ExecutionContext = mock()
@@ -35,7 +35,7 @@ class ProcessStatementsActivityTest {
         whenever(accountNormalizer.normalizeAccounts(any(), any())).thenReturn(Pair(STATEMENT_DATA_MODELS, CHECK_DATA_MODELS))
         whenever(statementCreator.createBankStatements(any())).thenReturn(BANK_STATEMENTS)
         whenever(checkToStatementMatcher.matchChecksWithStatements(any(), any())).thenReturn(BANK_STATEMENTS)
-        whenever(dataManager.saveBankStatement(any(), eq(null))).thenReturn(SAVED_FILE_1, SAVED_FILE_2, SAVED_FILE_3, SAVED_FILE_4)
+        whenever(dataManager.saveBankStatement(any())).thenReturn(SAVED_FILE_1, SAVED_FILE_2, SAVED_FILE_3, SAVED_FILE_4)
     }
 
     @Test

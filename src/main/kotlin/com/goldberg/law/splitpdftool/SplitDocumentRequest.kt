@@ -1,4 +1,4 @@
-package com.goldberg.law.document
+package com.goldberg.law.splitpdftool
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonIgnore
@@ -11,26 +11,22 @@ import org.kohsuke.args4j.spi.Setter
 import java.util.*
 import kotlin.system.exitProcess
 
-class AnalyzeDocumentRequest() {
+class SplitDocumentRequest() {
 
     @JsonCreator
     constructor(
         @JsonProperty("InputFile") inputFile: String,
         @JsonProperty("OutputDirectory") outputDirectory: String? = "./",
-        @JsonProperty("UseProd") isProd: Boolean? = false,
         @JsonProperty("UseAllPages") allPages: Boolean? = false,
         @JsonProperty("Range") range: Pair<Int, Int>? = null,
         @JsonProperty("Pages") pages: Set<Int>? = null,
-        @JsonProperty("ClassifiedTypeOverride") classifiedTypeOverride: String? = null,
         @JsonProperty("OutputFilename") outputFile: String? = null,
     ): this() {
         this.inputFile = inputFile
         this.outputDirectory = outputDirectory ?: "./"
-        this.isProd = isProd ?: false
         this.allPages = allPages ?: false
         this.range = range
         this.pages = pages
-        this.classifiedTypeOverride = classifiedTypeOverride
         this.outputFile = outputFile
     }
 
@@ -43,9 +39,6 @@ class AnalyzeDocumentRequest() {
     @JsonProperty("OutputDirectory")
     @Option(name = "-od", aliases = ["outputDirectory"], usage = "Output directory", required = false)
     var outputDirectory: String = "./"
-    @JsonProperty("UseProd")
-    @Option(name = "-prod", usage = "use the prod endpoint", required = false)
-    var isProd: Boolean = false
     @JsonProperty("UseAllPages")
     @Option(name = "-a", usage = "use all pages", required = false, forbids = [])
     var allPages: Boolean = false
@@ -55,9 +48,6 @@ class AnalyzeDocumentRequest() {
     @JsonProperty("Pages")
     @Option(name = "-p", usage = "list of page numbers", required = false, handler = IntSetOptionHandler::class)
     var pages: Set<Int>? = null
-    @JsonProperty("ClassifiedTypeOverride")
-    @Option(name = "-to", usage = "type override -- used to preclassify documents", required = false)
-    var classifiedTypeOverride: String? = null
     @JsonProperty("OutputFilename")
     @Option(name = "-of", aliases = ["--outputFilename"], usage = "Output filename", required = false)
     var outputFile: String? = null
@@ -66,7 +56,7 @@ class AnalyzeDocumentRequest() {
     var isSeparate: Boolean = false
 
 
-    fun parseArgs(args: Array<String>): AnalyzeDocumentRequest {
+    fun parseArgs(args: Array<String>): SplitDocumentRequest {
         // Register the custom handler
         OptionHandlerRegistry.getRegistry().registerHandler(Pair::class.java, PairOptionHandler::class.java)
         val parser = CmdLineParser(this)
@@ -80,18 +70,6 @@ class AnalyzeDocumentRequest() {
         return this
     }
 
-    fun forFile(filename: String): AnalyzeDocumentRequest = AnalyzeDocumentRequest().apply {
-        this@apply.inputFile = filename
-        this@apply.outputDirectory = this@AnalyzeDocumentRequest.outputDirectory
-        this@apply.isProd = this@AnalyzeDocumentRequest.isProd
-        this@apply.allPages = this@AnalyzeDocumentRequest.allPages
-        this@apply.range = this@AnalyzeDocumentRequest.range
-        this@apply.pages = this@AnalyzeDocumentRequest.pages
-        this@apply.classifiedTypeOverride = this@AnalyzeDocumentRequest.classifiedTypeOverride
-        this@apply.outputFile = this@AnalyzeDocumentRequest.outputFile
-        this@apply.isSeparate = this@AnalyzeDocumentRequest.isSeparate
-    }
-
     fun getDesiredPages(): List<Int> {
         val range: List<Int> = this.range?.first?.rangeTo(this.range!!.second)?.toList()
             .let { it ?: Collections.emptyList() }
@@ -101,9 +79,7 @@ class AnalyzeDocumentRequest() {
 
         return (range + pages).distinct().sorted()
     }
-
 }
-
 
 class PairOptionHandler(parser: CmdLineParser?, option: OptionDef?, setter: Setter<in Pair<Int, Int>>?) : OptionHandler<Pair<Int, Int>>(parser, option, setter) {
 

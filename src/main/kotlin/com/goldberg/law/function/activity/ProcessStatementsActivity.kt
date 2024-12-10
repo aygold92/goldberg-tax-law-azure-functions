@@ -1,6 +1,6 @@
 package com.goldberg.law.function.activity
 
-import com.goldberg.law.datamanager.DataManager
+import com.goldberg.law.datamanager.AzureStorageDataManager
 import com.goldberg.law.document.AccountNormalizer
 import com.goldberg.law.document.CheckToStatementMatcher
 import com.goldberg.law.document.DocumentStatementCreator
@@ -18,7 +18,7 @@ class ProcessStatementsActivity @Inject constructor(
     private val statementCreator: DocumentStatementCreator,
     private val accountNormalizer: AccountNormalizer,
     private val checkToStatementMatcher: CheckToStatementMatcher,
-    private val dataManager: DataManager
+    private val dataManager: AzureStorageDataManager
 ) {
     private val logger = KotlinLogging.logger {}
 

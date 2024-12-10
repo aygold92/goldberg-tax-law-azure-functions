@@ -1,8 +1,7 @@
-package com.goldberg.law.document
+package com.goldberg.law.splitpdftool
 
 import com.goldberg.law.document.model.pdf.PdfDocumentPage
 import com.goldberg.law.util.docForPage
-import com.goldberg.law.util.withoutExtension
 import org.apache.pdfbox.pdmodel.PDDocument
 
 class PdfSplitter {

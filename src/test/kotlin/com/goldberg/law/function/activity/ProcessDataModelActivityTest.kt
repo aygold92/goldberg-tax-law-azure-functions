@@ -1,6 +1,6 @@
 package com.goldberg.law.function.activity
 
-import com.goldberg.law.datamanager.DataManager
+import com.goldberg.law.datamanager.AzureStorageDataManager
 import com.goldberg.law.document.*
 import com.goldberg.law.document.model.pdf.DocumentType
 import com.goldberg.law.document.model.pdf.PdfDocumentPageMetadata
@@ -15,7 +15,7 @@ import kotlin.test.Ignore
 
 class ProcessDataModelActivityTest {
     @Mock
-    private val dataManager: DataManager = mock()
+    private val dataManager: AzureStorageDataManager = mock()
     @Mock
     private val classifier: DocumentClassifier = mock()
     @Mock

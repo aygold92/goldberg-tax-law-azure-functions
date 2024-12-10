@@ -1,8 +1,7 @@
 package com.goldberg.law.document.model.pdf
 
 import com.azure.core.util.BinaryData
-import com.fasterxml.jackson.annotation.JsonIgnore
-import com.goldberg.law.function.model.InputFileMetadata
+import com.goldberg.law.function.model.metadata.InputFileMetadata
 import com.goldberg.law.function.model.PdfPageData
 import com.goldberg.law.util.withoutExtension
 import io.github.oshai.kotlinlogging.KotlinLogging

@@ -3,6 +3,7 @@ package com.goldberg.law.function
 import com.goldberg.law.function.activity.*
 import com.goldberg.law.function.model.*
 import com.goldberg.law.function.model.activity.*
+import com.goldberg.law.function.model.metadata.InputFileMetadata
 import com.goldberg.law.function.model.request.AnalyzeDocumentResult
 import com.goldberg.law.function.model.request.AzureAnalyzeDocumentsRequest
 import com.goldberg.law.function.model.tracking.DocumentOrchestrationStatus
@@ -158,7 +159,7 @@ class PdfDataExtractorOrchestratorFunction @Inject constructor(private val numWo
         } else {
             AnalyzeDocumentResult.failed(ex)
         }
-    }
+    }.also { logger.info { "[${ctx.instanceId}] returning final result ${it.toStringDetailed()}" } }
 
     companion object {
         const val FUNCTION_NAME = "PdfDataExtractorOrchestratorFunction"

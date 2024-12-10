@@ -5,6 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 data class WriteCsvSummaryRequest @JsonCreator constructor(
     @JsonProperty("statementKeys") val statementKeys: Set<String>,
-    @JsonProperty("outputDirectory") val outputDirectory: String = "",
+    @JsonProperty("outputDirectory") val outputDirectory: String? = null,
     @JsonProperty("outputFile") val outputFile: String? = null,
 )

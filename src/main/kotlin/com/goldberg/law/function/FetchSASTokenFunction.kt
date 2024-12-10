@@ -3,6 +3,7 @@ package com.goldberg.law.function
 import com.azure.storage.blob.BlobServiceClient
 import com.azure.storage.blob.sas.BlobContainerSasPermission
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues
+import com.goldberg.law.datamanager.AzureStorageDataManager
 import com.goldberg.law.function.model.request.AnalyzeDocumentResult
 import com.goldberg.law.function.model.request.SASTokenRequest
 import com.goldberg.law.function.model.request.SASTokenResponse
@@ -33,7 +34,7 @@ class FetchSASTokenFunction @Inject constructor(
 
         val token: String = when (req.action) {
             // TODO: probably fix these actions
-            "input" -> blobServiceClient.getBlobContainerClient("input")
+            AzureStorageDataManager.INPUT_CONTAINER_NAME -> blobServiceClient.getBlobContainerClient(AzureStorageDataManager.INPUT_CONTAINER_NAME)
                 .generateSas(
                     BlobServiceSasSignatureValues(
                         OffsetDateTime.now().plusMinutes(15), BlobContainerSasPermission()
@@ -44,8 +45,8 @@ class FetchSASTokenFunction @Inject constructor(
                     )
                 )
 
-            "output" ->
-                blobServiceClient.getBlobContainerClient("output")
+            AzureStorageDataManager.OUTPUT_CONTAINER_NAME ->
+                blobServiceClient.getBlobContainerClient(AzureStorageDataManager.OUTPUT_CONTAINER_NAME)
                     .generateSas(
                         BlobServiceSasSignatureValues(
                             OffsetDateTime.now().plusMinutes(15), BlobContainerSasPermission()

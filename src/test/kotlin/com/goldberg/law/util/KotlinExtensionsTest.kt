@@ -3,7 +3,7 @@ package com.goldberg.law.util
 import com.azure.ai.formrecognizer.documentanalysis.models.AnalyzedDocument
 import com.azure.ai.formrecognizer.documentanalysis.models.DocumentField
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.goldberg.law.function.model.InputFileMetadata
+import com.goldberg.law.function.model.metadata.InputFileMetadata
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest

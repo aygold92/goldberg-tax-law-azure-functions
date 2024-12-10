@@ -5,7 +5,7 @@ import com.goldberg.law.document.model.StatementModelValues
 import com.goldberg.law.document.model.pdf.PdfDocumentMetadata
 import com.goldberg.law.function.activity.*
 import com.goldberg.law.function.model.DocumentDataModelContainer
-import com.goldberg.law.function.model.InputFileMetadata
+import com.goldberg.law.function.model.metadata.InputFileMetadata
 import com.goldberg.law.function.model.PdfPageData
 import com.goldberg.law.function.model.activity.*
 import com.goldberg.law.function.model.request.AnalyzeDocumentResult

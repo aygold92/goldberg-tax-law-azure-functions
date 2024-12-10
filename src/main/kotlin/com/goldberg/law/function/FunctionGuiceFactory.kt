@@ -3,7 +3,6 @@ package com.goldberg.law.function
 import com.goldberg.law.AppEnvironmentSettings
 import com.goldberg.law.AppModule
 import com.goldberg.law.AzureConfiguration
-import com.goldberg.law.ExecutionEnvironment
 import com.google.inject.Guice
 import com.microsoft.azure.functions.spi.inject.FunctionInstanceInjector
 
@@ -15,6 +14,6 @@ class FunctionGuiceFactory : FunctionInstanceInjector {
     }
 
     companion object {
-        private val INJECTOR = Guice.createInjector(AppModule(AppEnvironmentSettings(AzureConfiguration.valueOf(System.getenv("AzureConfigurationStage")), ExecutionEnvironment.AZURE)))
+        private val INJECTOR = Guice.createInjector(AppModule(AppEnvironmentSettings(AzureConfiguration.valueOf(System.getenv("AzureConfigurationStage")))))
     }
 }

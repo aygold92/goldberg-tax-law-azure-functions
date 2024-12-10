@@ -1,9 +1,7 @@
 package com.goldberg.law.function.activity
 
-import com.goldberg.law.datamanager.DataManager
+import com.goldberg.law.datamanager.AzureStorageDataManager
 import com.goldberg.law.function.model.DocumentDataModelContainer
-import com.goldberg.law.function.model.activity.GetFilesToProcessActivityInput
-import com.goldberg.law.function.model.activity.GetFilesToProcessActivityOutput
 import com.goldberg.law.function.model.activity.LoadAnalyzedModelsActivityInput
 import com.goldberg.law.function.model.activity.LoadAnalyzedModelsActivityOutput
 import com.goldberg.law.util.mapAsync
@@ -13,7 +11,7 @@ import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.durabletask.azurefunctions.DurableActivityTrigger
 import io.github.oshai.kotlinlogging.KotlinLogging
 
-class LoadAnalyzedModelsActivity(private val dataManager: DataManager) {
+class LoadAnalyzedModelsActivity(private val dataManager: AzureStorageDataManager) {
     private val logger = KotlinLogging.logger {}
     @FunctionName(FUNCTION_NAME)
     fun loadAnalyzedModels(@DurableActivityTrigger(name = "input") input: LoadAnalyzedModelsActivityInput, context: ExecutionContext): LoadAnalyzedModelsActivityOutput {

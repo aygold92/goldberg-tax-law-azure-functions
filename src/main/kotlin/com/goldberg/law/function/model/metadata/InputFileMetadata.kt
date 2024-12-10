@@ -1,8 +1,6 @@
-package com.goldberg.law.function.model
+package com.goldberg.law.function.model.metadata
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
-import com.goldberg.law.util.SetWithoutBracesDeserializer
 import javax.inject.Inject
 
 /**
