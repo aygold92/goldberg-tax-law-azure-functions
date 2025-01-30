@@ -42,6 +42,18 @@ class FetchSASTokenFunction @Inject constructor(
                             .setReadPermission(true)
                             .setWritePermission(true)
                             .setDeletePermission(true)
+                            .setTagsPermission(true)
+                    )
+                )
+
+            AzureStorageDataManager.STATEMENTS_CONTAINER_NAME -> blobServiceClient.getBlobContainerClient(AzureStorageDataManager.STATEMENTS_CONTAINER_NAME)
+                .generateSas(
+                    BlobServiceSasSignatureValues(
+                        OffsetDateTime.now().plusMinutes(15), BlobContainerSasPermission()
+                            .setListPermission(true)
+                            .setTagsPermission(true)
+                            .setReadPermission(true)
+                            .setWritePermission(true)
                     )
                 )
 

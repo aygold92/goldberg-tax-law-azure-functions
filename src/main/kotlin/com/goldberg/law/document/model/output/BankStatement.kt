@@ -16,7 +16,7 @@ import java.math.BigDecimal
 import java.util.*
 import com.goldberg.law.document.model.input.StatementDataModel.Keys as FieldKeys
 
-@JsonIgnoreProperties(ignoreUnknown = true, value = ["netTransactions", "suspiciousReasons"], allowGetters = true)
+@JsonIgnoreProperties(ignoreUnknown = true, value = ["netTransactions", "totalSpending", "totalIncomeCredits", "suspiciousReasons"], allowGetters = true)
 data class BankStatement @JsonCreator constructor(
     @JsonProperty("filename")
     val filename: String,
@@ -92,17 +92,25 @@ data class BankStatement @JsonCreator constructor(
         } else new ?: original
 
     @JsonProperty("netTransactions")
-    fun getNetTransactions(): BigDecimal = try {
-        if (transactions.isEmpty()) {
-            0.asCurrency().also { logger.error { "Unable to calculate net deposits for statement $primaryKey: statement no transactions" } }
-        } else {
-            transactions
-                .map { it.amount ?: 0.asCurrency() }
-                .reduce {acc, amt -> (acc + amt) }
-        }
-    } catch (e: UnsupportedOperationException) {
-        0.asCurrency().also { logger.error(e) { "Unable to calculate net deposits for statement $primaryKey: $e" } }
-    }
+    fun getNetTransactions(): BigDecimal = getTotalIncomeCredits() - getTotalSpending()
+
+    // for credit card statements, all the numbers are reversed so we need to negate
+    @JsonProperty("totalSpending")
+    fun getTotalSpending() = transactions
+        .map { it.amount ?: 0.asCurrency() }
+        .filter { it < 0.asCurrency() }
+        .takeIf { it.isNotEmpty() }
+        ?.reduce {acc, amt -> (acc + amt) }?.abs() ?: 0.asCurrency()
+
+    @JsonProperty("totalIncomeCredits")
+    fun getTotalIncomeCredits(): BigDecimal = transactions
+        .map { it.amount ?: 0.asCurrency() }
+        .filter { it > 0.asCurrency() }
+        .takeIf { it.isNotEmpty() }
+        ?.reduce {acc, amt -> (acc + amt) }?.abs() ?: 0.asCurrency()
+
+    @JsonIgnore
+    fun getPageRange(): Pair<Int, Int> = pages.sortedBy { it.filePageNumber }.let { Pair(it.first().filePageNumber, it.last().filePageNumber) }
 
     // TODO
     fun addInterestAndFeesTransactionsIfNecessary() {
@@ -221,15 +229,28 @@ data class BankStatement @JsonCreator constructor(
     @JsonIgnore
     fun hasRecordsWithIncorrectDates() = getTransactionDatesOutsideOfStatement().isNotEmpty()
 
-    private fun numbersAddUpBank(): Boolean = beginningBalance?.plus(getNetTransactions()) == endingBalance
-    private fun numbersAddUpCreditCard(): Boolean = beginningBalance?.minus(getNetTransactions()) == endingBalance ||
-            beginningBalance?.minus(getNetTransactions())?.plus(interestCharged ?: ZERO) == endingBalance ||
-            beginningBalance?.minus(getNetTransactions())?.plus(feesCharged ?: ZERO) == endingBalance ||
-            beginningBalance?.minus(getNetTransactions())?.plus(interestCharged ?: ZERO)?.plus(feesCharged ?: ZERO) == endingBalance
+    // we've already ensured not null on beginningBalance/endingBalance when we call this function
+    private fun numbersAddUpBank(): Boolean = beginningBalance!! + getNetTransactions() == endingBalance
 
-    // for credit card statements, all the numbers become negative, so we test the absolute value (TODO: only do this for CC)
-    // we also add in interest, fees, or both to see if they add up, because some statements include it in transactions and others don't
+    // net transactions are reversed on a credit card since spending (positive balance on the physical statement) is stored as a negative cash flow
+    // for that reason we subtract the net transactions to get to endingBalance
+    //
+    // we then add in interest, fees, or both to see if they add up, because some statements include it in transactions and others don't
+    // TODO: maybe some logic to check if it's already included?
+    private fun numbersAddUpCreditCard(): Boolean = getNetTransactions().negate().let { netTransactions ->
+        val interest = interestCharged ?: ZERO
+        val fees = feesCharged ?: ZERO
+        // we've already ensured not null on beginningBalance/endingBalance when we call this function
+        beginningBalance!! + netTransactions == endingBalance ||
+                beginningBalance!! + netTransactions + interest == endingBalance ||
+                beginningBalance!! + netTransactions + fees == endingBalance ||
+                beginningBalance!! + netTransactions + interest + fees == endingBalance
+    }
+
+
     private fun numbersAddUp(): Boolean {
+        // the statement will be flagged as suspicious already for null values, we don't care about this here
+        if (beginningBalance == null || endingBalance == null) return true
         return when (statementType) {
             DocumentType.BANK -> numbersAddUpBank()
             DocumentType.CREDIT_CARD -> numbersAddUpCreditCard()
@@ -243,7 +264,9 @@ data class BankStatement @JsonCreator constructor(
     @JsonIgnore
     fun hasNoRecords(): Boolean = transactions.isEmpty()
 
-    // TODO: fix suspicious reasons
+    @JsonIgnore
+    fun isCreditCard(): Boolean = statementType == DocumentType.CREDIT_CARD
+
     object SuspiciousReasons {
         const val MISSING_FIELDS = "Missing fields: %s"
         const val BALANCE_DOES_NOT_ADD_UP = "Beginning balance (%f) + net deposits (%f) != ending balance (%f). Expected (%f)"
@@ -257,14 +280,13 @@ data class BankStatement @JsonCreator constructor(
         private val suspiciousReasonMap: List<Pair<(BankStatement) -> Boolean, (BankStatement) -> String>> = listOf(
             Pair(BankStatement::hasMissingFields) { stmt -> SuspiciousReasons.MISSING_FIELDS.format(stmt.getMissingFields().toString()) },
             Pair(BankStatement::numbersDoNotAddUp) { stmt ->
-                val transactions = if (stmt.statementType == DocumentType.CREDIT_CARD) stmt.getNetTransactions().negate() else stmt.getNetTransactions()
                 val expected = if (stmt.beginningBalance == null || stmt.endingBalance == null) null
-                    else if (stmt.statementType == DocumentType.CREDIT_CARD) stmt.beginningBalance!! - stmt.endingBalance!!
+                    else if (stmt.isCreditCard()) stmt.beginningBalance!! - stmt.endingBalance!!
                     else stmt.endingBalance!! - stmt.beginningBalance!!
-                SuspiciousReasons.BALANCE_DOES_NOT_ADD_UP.format(stmt.beginningBalance, transactions, stmt.endingBalance, expected)
+                SuspiciousReasons.BALANCE_DOES_NOT_ADD_UP.format(stmt.beginningBalance, stmt.getNetTransactions(), stmt.endingBalance, expected)
            },
-            Pair(BankStatement::hasNoRecords) { stmt -> SuspiciousReasons.NO_TRANSACTIONS_FOUND },
-            Pair(BankStatement::hasSuspiciousRecords) { stmt -> SuspiciousReasons.CONTAINS_SUSPICIOUS_RECORDS },
+            Pair(BankStatement::hasNoRecords) { _ -> SuspiciousReasons.NO_TRANSACTIONS_FOUND },
+            Pair(BankStatement::hasSuspiciousRecords) { _ -> SuspiciousReasons.CONTAINS_SUSPICIOUS_RECORDS },
             Pair(BankStatement::hasRecordsWithIncorrectDates) { stmt -> SuspiciousReasons.INCORRECT_DATES.format(stmt.getTransactionDatesOutsideOfStatement()) }
         )
 

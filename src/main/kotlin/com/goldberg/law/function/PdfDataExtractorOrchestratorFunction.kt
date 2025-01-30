@@ -154,8 +154,10 @@ class PdfDataExtractorOrchestratorFunction @Inject constructor(private val numWo
 
         logger.info(ex) { "[${ctx.instanceId}] Caught unexpected exception" }
         // TODO: create/categorize customer facing exceptions, etc.
-        if (ex is TaskFailedException || ex is CompositeTaskFailedException) {
-            AnalyzeDocumentResult.failed(ex.cause ?: ex)
+        if (ex is TaskFailedException) {
+            AnalyzeDocumentResult.failed(ex)
+        } else if (ex is CompositeTaskFailedException) {
+            AnalyzeDocumentResult.failed(ex.exceptions)
         } else {
             AnalyzeDocumentResult.failed(ex)
         }

@@ -13,7 +13,7 @@ data class OrchestrationStatus @JsonCreator constructor(
     companion object {
         fun ofAction(stage: OrchestrationStage, filenames: Collection<String>) = OrchestrationStatus(
             stage,
-            filenames.map { DocumentOrchestrationStatus(it.getDocumentName(), null, null, null) },
+            filenames.map { DocumentOrchestrationStatus(it, null, null, null) },
             null,
             null
         )

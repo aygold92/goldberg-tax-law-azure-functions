@@ -22,24 +22,42 @@ import com.nimbusds.jose.shaded.gson.Gson
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import java.math.BigDecimal
 
 class BankStatementTest {
     private val logger = KotlinLogging.logger {}
 
-    @Test
-    fun testNetSpendingMultipleUpdates() {
-        val statement = newBankStatement()
-        assertThat(statement.getNetTransactions()).isEqualTo(0.0.asCurrency())
+    @ParameterizedTest
+    @ValueSource(strings = [BankTypes.WF_BANK, DocumentType.CreditCardTypes.C1_CC])
+    fun testNetSpendingMultipleUpdates(bankType: String) {
+        val statement = newBankStatement(classification = bankType)
+        assertThat(statement.getNetTransactions()).isEqualTo(0.asCurrency())
+        assertThat(statement.getTotalSpending()).isEqualTo(0.asCurrency())
+        assertThat(statement.getTotalIncomeCredits()).isEqualTo(0.asCurrency())
 
-        statement.update(transactions = listOf(newHistoryRecord(amount = 0.0, pageMetadata = newTransactionPage(1))))
-        assertThat(statement.getNetTransactions()).isEqualTo(0.0.asCurrency())
-        statement.update(transactions = listOf(newHistoryRecord(amount = 500.0, pageMetadata = newTransactionPage(2))))
-        assertThat(statement.getNetTransactions()).isEqualTo(500.0.asCurrency())
-        statement.update(transactions = listOf(newHistoryRecord(amount = -500.0, pageMetadata = newTransactionPage(3))))
-        assertThat(statement.getNetTransactions()).isEqualTo(0.0.asCurrency())
-        statement.update(transactions = listOf(newHistoryRecord(amount = -500.0, pageMetadata = newTransactionPage(4))))
-        assertThat(statement.getNetTransactions()).isEqualTo(-500.0.asCurrency())
+        statement.update(transactions = listOf(newHistoryRecord(amount = 0.0, pageMetadata = newTransactionPage(1))), pageMetadata = newTransactionPage(1))
+        assertThat(statement.getNetTransactions()).isEqualTo(0.asCurrency())
+        assertThat(statement.getTotalSpending()).isEqualTo(0.asCurrency())
+        assertThat(statement.getTotalIncomeCredits()).isEqualTo(0.asCurrency())
+
+        statement.update(transactions = listOf(newHistoryRecord(amount = 500.0, pageMetadata = newTransactionPage(2))), pageMetadata = newTransactionPage(2))
+        assertThat(statement.getNetTransactions()).isEqualTo(500.asCurrency())
+        assertThat(statement.getTotalSpending()).isEqualTo(0.asCurrency())
+        assertThat(statement.getTotalIncomeCredits()).isEqualTo(500.asCurrency())
+
+        statement.update(transactions = listOf(newHistoryRecord(amount = -500.0, pageMetadata = newTransactionPage(3))), pageMetadata = newTransactionPage(3))
+        assertThat(statement.getNetTransactions()).isEqualTo(ZERO)
+        assertThat(statement.getTotalSpending()).isEqualTo(500.asCurrency())
+        assertThat(statement.getTotalIncomeCredits()).isEqualTo(500.asCurrency())
+
+        statement.update(transactions = listOf(newHistoryRecord(amount = -500.0, pageMetadata = newTransactionPage(4))), pageMetadata = newTransactionPage(4))
+        assertThat(statement.getNetTransactions()).isEqualTo(-500.asCurrency())
+        assertThat(statement.getTotalSpending()).isEqualTo(1000.asCurrency())
+        assertThat(statement.getTotalIncomeCredits()).isEqualTo(500.asCurrency())
+
+        assertThat(statement.getPageRange()).isEqualTo(Pair(1, 4))
     }
 
     @Test
@@ -55,7 +73,7 @@ class BankStatementTest {
             newHistoryRecord(amount = -50.0, pageMetadata = page1),
             newHistoryRecord(amount = -25.0, pageMetadata = page1),
         ))
-        assertThat(statement.getNetTransactions()).isEqualTo(25.0.asCurrency())
+        assertThat(statement.getNetTransactions()).isEqualTo(25.asCurrency())
         val page2 = newTransactionPage(2)
         statement.update(transactions = listOf(
             newHistoryRecord(amount = 10.0, pageMetadata = page1),
@@ -66,7 +84,9 @@ class BankStatementTest {
             newHistoryRecord(amount = -25.0, pageMetadata = page1),
             newHistoryRecord(amount = -1000.0, pageMetadata = page1),
         ))
-        assertThat(statement.getNetTransactions()).isEqualTo((-950.0).asCurrency())
+        assertThat(statement.getNetTransactions()).isEqualTo((-950).asCurrency())
+        assertThat(statement.getTotalSpending()).isEqualTo(1150.asCurrency())
+        assertThat(statement.getTotalIncomeCredits()).isEqualTo(200.asCurrency())
     }
 
     @Test
@@ -174,7 +194,7 @@ class BankStatementTest {
             newHistoryRecord(amount = 40.0, pageMetadata = page1),
         ))
 
-        assertThat(statement.getNetTransactions()).isEqualTo(70.0.asCurrency())
+        assertThat(statement.getNetTransactions()).isEqualTo(70.asCurrency())
         assertThat(statement.numbersDoNotAddUp()).isTrue()
         val suspiciousReasons = statement.getSuspiciousReasons()
         assertThat(statement.isSuspicious()).isTrue()
@@ -201,7 +221,7 @@ class BankStatementTest {
                 newHistoryRecord(amount = -25.0, pageMetadata = page1),
             ))
             .update(transactions = listOf(newHistoryRecord(amount = 0.0, pageMetadata = page2)))
-        assertThat(statement.getNetTransactions()).isEqualTo(25.0.asCurrency())
+        assertThat(statement.getNetTransactions()).isEqualTo(25.asCurrency())
         assertThat(statement.numbersDoNotAddUp()).isTrue()
         assertThat(statement.hasSuspiciousRecords()).isTrue()
 
@@ -209,9 +229,16 @@ class BankStatementTest {
         assertThat(statement.isSuspicious()).isTrue()
         assertThat(suspiciousReasons).hasSize(4)
             .contains(BankStatement.SuspiciousReasons.CONTAINS_SUSPICIOUS_RECORDS)
-            .contains(BankStatement.SuspiciousReasons.BALANCE_DOES_NOT_ADD_UP.format(0.0.asCurrency(), 25.0.asCurrency(), 100.0.asCurrency(), 100.0.asCurrency()))
-            .contains(BankStatement.SuspiciousReasons.MULTIPLE_FIELD_VALUES.format(ENDING_BALANCE, 50.0.asCurrency(), 100.0.asCurrency()))
+            .contains(BankStatement.SuspiciousReasons.BALANCE_DOES_NOT_ADD_UP.format(ZERO, 25.asCurrency(), 100.asCurrency(), 100.asCurrency()))
+            .contains(BankStatement.SuspiciousReasons.MULTIPLE_FIELD_VALUES.format(ENDING_BALANCE, 50.asCurrency(), 100.asCurrency()))
             .contains(TransactionHistoryRecord.SuspiciousReasons.NO_AMOUNT.format("4/3/2020"))
+    }
+
+    @Test
+    fun testNumbersAddUpBank() {
+        val statement = newBankStatement()
+            .update(beginningBalance = ZERO, endingBalance = 500.asCurrency(), transactions = listOf(BASIC_TH_RECORD))
+        assertThat(statement.isSuspicious()).isTrue()
     }
 
     @Test
@@ -238,14 +265,14 @@ class BankStatementTest {
     @Test
     fun testNumbersAddUpCreditCardWithInterestAndFeesCharged() {
         val statement = newBankStatement(classification = DocumentType.CreditCardTypes.C1_CC)
-            .update(beginningBalance = ZERO, endingBalance = 1000.0.asCurrency(), transactions = listOf(BASIC_TH_RECORD), feesCharged = 250.0.asCurrency(), interestCharged = 250.0.asCurrency())
+            .update(beginningBalance = ZERO, endingBalance = 1000.asCurrency(), transactions = listOf(BASIC_TH_RECORD), feesCharged = 250.asCurrency(), interestCharged = 250.asCurrency())
         assertThat(statement.isSuspicious()).isFalse()
     }
 
     @Test
     fun testNumbersAddUpCreditCardWithInterestAndFeesChargedAlreadyIncluded() {
         val statement = newBankStatement(classification = DocumentType.CreditCardTypes.C1_CC)
-            .update(beginningBalance = ZERO, endingBalance = 500.0.asCurrency(), transactions = listOf(BASIC_TH_RECORD), feesCharged = 250.0.asCurrency(), interestCharged = 250.0.asCurrency())
+            .update(beginningBalance = ZERO, endingBalance = 500.asCurrency(), transactions = listOf(BASIC_TH_RECORD), feesCharged = 250.asCurrency(), interestCharged = 250.asCurrency())
         assertThat(statement.isSuspicious()).isFalse()
     }
 
@@ -304,9 +331,9 @@ class BankStatementTest {
                 ACCOUNT_NUMBER,
                 BankTypes.WF_BANK,
                 FIXED_STATEMENT_DATE_DATE,
-                500.0.asCurrency(),
+                500.asCurrency(),
                 ZERO,
-                (-500.0).asCurrency(),
+                (-500).asCurrency(),
                 1,
                 setOf(BATES_STAMP),
                 FILENAME,

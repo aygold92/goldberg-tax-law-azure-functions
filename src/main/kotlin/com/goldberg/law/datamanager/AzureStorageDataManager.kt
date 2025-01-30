@@ -39,7 +39,12 @@ class AzureStorageDataManager(serviceClient: BlobServiceClient) {
      */
     private fun saveFile(client: BlobContainerClient, fileName: String, content: BinaryData, overwrite: Boolean) {
         val blobClient = client.getBlobClient(fileName)
-        blobClient.upload(content, overwrite)
+        try {
+            blobClient.upload(content, overwrite)
+        } catch (ex: Throwable) {
+            logger.error { ex }
+            throw ex
+        }
         // Optionally, set the content type to indicate it's a CSV file
         // blobClient.setHttpHeaders(BlobHttpHeaders().setContentType("text/csv"))
     }
@@ -65,22 +70,29 @@ class AzureStorageDataManager(serviceClient: BlobServiceClient) {
 //            "md5 = '${bankStatement.md5Hash()}",
 //            "NOT ($MANUALLY_VERIFIED_BLOB_KEY = 'true')",
 //        ).joinToString(" OR ")
-        val tags = StatementMetadata(
+        val statementMetadata = StatementMetadata(
             bankStatement.md5Hash(),
             bankStatement.isSuspicious(),
-            bankStatement.getMissingChecks().isNotEmpty()
+            bankStatement.getMissingChecks().isNotEmpty(),
+            false,
+            bankStatement.statementType,
+            bankStatement.getTotalSpending(),
+            bankStatement.getTotalIncomeCredits(),
+            bankStatement.transactions.size,
+            bankStatement.filename,
+            bankStatement.getPageRange()
         )
         statementsContainerClient.getBlobClient(bankStatement.azureFileName()).uploadWithResponse(
             BlobParallelUploadOptions(content).apply {
-                metadata = tags.toMap()
-                setTags(tags.toMap())
+                metadata = statementMetadata.toMetadataMap()
+                tags = statementMetadata.toTagsMap()
 //                setRequestConditions(BlobRequestConditions()
 //                    .setTagsConditions("NOT ($MANUALLY_VERIFIED_BLOB_KEY = 'true') OR MissingChecks = 'true' OR md5 = '${bankStatement.md5Hash()}'"))
             },
             Duration.ofSeconds(5),
             Context.NONE
         )
-        logger.debug { "Saved statement to ${statementsContainerClient.blobContainerName}/${bankStatement.azureFileName()}" }
+        logger.debug { "Saved statement to ${statementsContainerClient.blobContainerName}/${bankStatement.azureFileName()} with metadata ${statementMetadata.toMetadataMap()}" }
 
         return bankStatement.azureFileName()
     }
@@ -103,9 +115,9 @@ class AzureStorageDataManager(serviceClient: BlobServiceClient) {
     // loads a single PDF file into a collection of pages
     fun loadInputPdfDocumentPages(fileName: String): Collection<PdfDocumentPage> = loadFile(inputContainerClient, fileName).toBytes().let {
         val pdfDocument = loadPdfDocument(fileName, it)
-        pdfDocument.pages.mapIndexed { idx, page -> PdfDocumentPage(fileName, pdfDocument.docForPage(idx), idx) }.also {
-            logger.debug { "Successfully loaded file $fileName" }
-        }
+        pdfDocument.pages.mapIndexed { idx, _ ->
+            (idx + 1).let { pageNum -> PdfDocumentPage(fileName, pdfDocument.docForPage(pageNum), pageNum) }
+        }.also { logger.debug { "Successfully loaded file $fileName" } }
     }
 
     // loads a PDF Page document that has already been stored in the filesystem according to convention
@@ -163,7 +175,6 @@ class AzureStorageDataManager(serviceClient: BlobServiceClient) {
     fun updateInputPdfMetadata(fileName: String, metadata: InputFileMetadata) {
         inputContainerClient.getBlobClient(fileName.withExtension(".pdf")).apply {
             setMetadata(metadata.toMap())
-            tags = metadata.toMap()
         }
     }
 
@@ -176,7 +187,7 @@ class AzureStorageDataManager(serviceClient: BlobServiceClient) {
         }
 
         const val INPUT_CONTAINER_NAME = "input"
-        const val SPLIT_INPUT_CONTAINER_NAME = "splitInput"
+        const val SPLIT_INPUT_CONTAINER_NAME = "splitinput"
         const val MODELS_CONTAINER_NAME = "models"
         const val STATEMENTS_CONTAINER_NAME = "statements"
         const val OUTPUT_CONTAINER_NAME = "output"
