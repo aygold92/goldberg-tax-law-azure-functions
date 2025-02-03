@@ -25,14 +25,20 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.pdfbox.Loader
 import java.time.Duration
 
-class AzureStorageDataManager(serviceClient: BlobServiceClient) {
+class AzureStorageDataManager(private val serviceClient: BlobServiceClient) {
     private val logger = KotlinLogging.logger {}
 
-    private val inputContainerClient = serviceClient.getBlobContainerClient(INPUT_CONTAINER_NAME)
-    private val splitInputContainerClient = serviceClient.getBlobContainerClient(SPLIT_INPUT_CONTAINER_NAME)
-    private val modelsContainerClient = serviceClient.getBlobContainerClient(MODELS_CONTAINER_NAME)
-    private val statementsContainerClient = serviceClient.getBlobContainerClient(STATEMENTS_CONTAINER_NAME)
-    private val outputContainerClient = serviceClient.getBlobContainerClient(OUTPUT_CONTAINER_NAME)
+    private val clients: MutableMap<String, BlobContainerClient> = mutableMapOf()
+
+    private fun getContainerClient(clientName: String, containerName: BlobContainer, ): BlobContainerClient {
+        val containerClientName = containerName.forClient(clientName)
+        if (clients.containsKey(containerClientName)) {
+            return clients[containerClientName]!!
+        } else {
+            clients[containerClientName] = serviceClient.getBlobContainerClient(containerClientName)
+            return clients[containerClientName]!!
+        }
+    }
 
     /**
      * Functions to save files
@@ -55,14 +61,14 @@ class AzureStorageDataManager(serviceClient: BlobServiceClient) {
         return fileName
     }
 
-    fun savePdfPage(document: PdfDocumentPage, overwrite: Boolean) {
-        saveFile(splitInputContainerClient, document.splitPageFilePath(), document.toBinaryData(), overwrite)
+    fun savePdfPage(clientName: String, document: PdfDocumentPage, overwrite: Boolean) {
+        saveFile(getContainerClient(clientName, BlobContainer.SPLIT_INPUT), document.splitPageFilePath(), document.toBinaryData(), overwrite)
     }
 
-    fun saveModel(pdfDocumentPage: PdfPageData, dataModel: DocumentDataModel) =
-        saveFile(modelsContainerClient, pdfDocumentPage.modelFileName(), dataModel.toStringDetailed(), true)
+    fun saveModel(clientName: String, pdfDocumentPage: PdfPageData, dataModel: DocumentDataModel) =
+        saveFile(getContainerClient(clientName, BlobContainer.MODELS), pdfDocumentPage.modelFileName(), dataModel.toStringDetailed(), true)
 
-    fun saveBankStatement(bankStatement: BankStatement): String {
+    fun saveBankStatement(clientName: String, bankStatement: BankStatement): String {
         val content = BinaryData.fromString(bankStatement.toStringDetailed())
 
         // TODO: build overwrite feature
@@ -82,7 +88,8 @@ class AzureStorageDataManager(serviceClient: BlobServiceClient) {
             bankStatement.filename,
             bankStatement.getPageRange()
         )
-        statementsContainerClient.getBlobClient(bankStatement.azureFileName()).uploadWithResponse(
+        val containerClient = getContainerClient(clientName, BlobContainer.STATEMENTS)
+        containerClient.getBlobClient(bankStatement.azureFileName()).uploadWithResponse(
             BlobParallelUploadOptions(content).apply {
                 metadata = statementMetadata.toMetadataMap()
                 tags = statementMetadata.toTagsMap()
@@ -92,13 +99,13 @@ class AzureStorageDataManager(serviceClient: BlobServiceClient) {
             Duration.ofSeconds(5),
             Context.NONE
         )
-        logger.debug { "Saved statement to ${statementsContainerClient.blobContainerName}/${bankStatement.azureFileName()} with metadata ${statementMetadata.toMetadataMap()}" }
+        logger.debug { "Saved statement to ${containerClient.blobContainerName}/${bankStatement.azureFileName()} with metadata ${statementMetadata.toMetadataMap()}" }
 
         return bankStatement.azureFileName()
     }
 
-    fun saveCsvOutput(fileName: String, content: String): String =
-        saveFile(outputContainerClient, fileName, content, true)
+    fun saveCsvOutput(clientName: String, fileName: String, content: String): String =
+        saveFile(getContainerClient(clientName, BlobContainer.OUTPUT), fileName, content, true)
 
     /**
      * Functions to load files
@@ -113,7 +120,7 @@ class AzureStorageDataManager(serviceClient: BlobServiceClient) {
     }
 
     // loads a single PDF file into a collection of pages
-    fun loadInputPdfDocumentPages(fileName: String): Collection<PdfDocumentPage> = loadFile(inputContainerClient, fileName).toBytes().let {
+    fun loadInputPdfDocumentPages(clientName: String, fileName: String): Collection<PdfDocumentPage> = loadFile(getContainerClient(clientName, BlobContainer.INPUT), fileName).toBytes().let {
         val pdfDocument = loadPdfDocument(fileName, it)
         pdfDocument.pages.mapIndexed { idx, _ ->
             (idx + 1).let { pageNum -> PdfDocumentPage(fileName, pdfDocument.docForPage(pageNum), pageNum) }
@@ -121,7 +128,7 @@ class AzureStorageDataManager(serviceClient: BlobServiceClient) {
     }
 
     // loads a PDF Page document that has already been stored in the filesystem according to convention
-    fun loadSplitPdfDocumentPage(pdfPageData: PdfPageData): PdfDocumentPage = loadFile(splitInputContainerClient, pdfPageData.splitPageFilePath()).toBytes().let {
+    fun loadSplitPdfDocumentPage(clientName: String, pdfPageData: PdfPageData): PdfDocumentPage = loadFile(getContainerClient(clientName, BlobContainer.SPLIT_INPUT), pdfPageData.splitPageFilePath()).toBytes().let {
         PdfDocumentPage(pdfPageData.fileName, loadPdfDocument(pdfPageData.fileName, it), pdfPageData.page).also {
             logger.debug { "Successfully loaded file $pdfPageData" }
         }
@@ -133,8 +140,8 @@ class AzureStorageDataManager(serviceClient: BlobServiceClient) {
         throw InvalidPdfException("Unable to load PDF $fileName: $ex")
     }
 
-    fun loadModel(pdfPageData: PdfPageData): DocumentDataModel {
-        val modelBinaryData = loadFile(modelsContainerClient, pdfPageData.modelFileName())
+    fun loadModel(clientName: String, pdfPageData: PdfPageData): DocumentDataModel {
+        val modelBinaryData = loadFile(getContainerClient(clientName, BlobContainer.MODELS), pdfPageData.modelFileName())
         val tempModel = modelBinaryData.toObject(ExtraPageDataModel::class.java)
         return when {
             tempModel.isStatement() -> modelBinaryData.toObject(StatementDataModel::class.java)
@@ -143,17 +150,17 @@ class AzureStorageDataManager(serviceClient: BlobServiceClient) {
         }
     }
 
-    fun loadBankStatement(bankStatementKey: String): BankStatement {
+    fun loadBankStatement(clientName: String, bankStatementKey: String): BankStatement {
         val fileName = "${bankStatementKey}.json"
-        return loadFile(statementsContainerClient, fileName).toObject(BankStatement::class.java)
+        return loadFile(getContainerClient(clientName, BlobContainer.STATEMENTS), fileName).toObject(BankStatement::class.java)
     }
 
     /**
      * Functions to list files
      */
     // TODO: if there were 1000s of documents this would be very slow
-    fun fetchInputPdfDocuments(requestedFileNames: Set<String>): Set<PdfDocumentMetadata> {
-        val blobs = inputContainerClient.listBlobs(ListBlobsOptions().apply {
+    fun fetchInputPdfDocuments(clientName: String, requestedFileNames: Set<String>): Set<PdfDocumentMetadata> {
+        val blobs = getContainerClient(clientName, BlobContainer.INPUT).listBlobs(ListBlobsOptions().apply {
             details = BlobListDetails().apply { retrieveMetadata = true }
         }, Duration.ofSeconds(5)).toSet()
         val existingFiles = blobs.map { it.name }.toSet()
@@ -172,8 +179,8 @@ class AzureStorageDataManager(serviceClient: BlobServiceClient) {
     /**
      * Additional functions such as interacting with metadata
      */
-    fun updateInputPdfMetadata(fileName: String, metadata: InputFileMetadata) {
-        inputContainerClient.getBlobClient(fileName.withExtension(".pdf")).apply {
+    fun updateInputPdfMetadata(clientName: String, fileName: String, metadata: InputFileMetadata) {
+        getContainerClient(clientName, BlobContainer.INPUT).getBlobClient(fileName.withExtension(".pdf")).apply {
             setMetadata(metadata.toMap())
         }
     }

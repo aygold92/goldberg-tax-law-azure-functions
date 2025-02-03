@@ -60,7 +60,7 @@ class PdfDataExtractorOrchestratorFunction @Inject constructor(private val numWo
         val splitDocumentTasks = filesToSplit.map { file ->
             ctx.callActivity(
                 SplitPdfActivity.FUNCTION_NAME,
-                SplitPdfActivityInput(ctx.instanceId, file.filename, request.overwrite),
+                SplitPdfActivityInput(ctx.instanceId, request.clientName, file.filename, request.overwrite),
                 SplitPdfActivityOutput::class.java
             )
         }
@@ -91,7 +91,7 @@ class PdfDataExtractorOrchestratorFunction @Inject constructor(private val numWo
             val documentDataModelTasks = documentGroup.value.map { pdfPage ->
                 ctx.callActivity(
                     ProcessDataModelActivity.FUNCTION_NAME,
-                    ProcessDataModelActivityInput(ctx.instanceId, pdfPage, request.findClassifiedTypeOverride(pdfPage)),
+                    ProcessDataModelActivityInput(ctx.instanceId, request.clientName, pdfPage, request.findClassifiedTypeOverride(pdfPage)),
                     DocumentDataModelContainer::class.java
                 )
             }
@@ -106,7 +106,7 @@ class PdfDataExtractorOrchestratorFunction @Inject constructor(private val numWo
                 // Step 4.1: update the metadata when analysis is complete
                 if (newPagesCompleted == it.totalPages && !it.metadata!!.analyzed) {
                     val newMetadata = it.metadata.copy(analyzed = true)
-                    updateMetadataTasks.add(ctx.callActivity(UpdateMetadataActivity.FUNCTION_NAME, UpdateMetadataActivityInput(it.fileName, newMetadata)))
+                    updateMetadataTasks.add(ctx.callActivity(UpdateMetadataActivity.FUNCTION_NAME, UpdateMetadataActivityInput(request.clientName, it.fileName, newMetadata)))
                     it.copy(pagesCompleted = newPagesCompleted, metadata = newMetadata)
                 } else {
                     it.copy(pagesCompleted = newPagesCompleted)
@@ -131,7 +131,7 @@ class PdfDataExtractorOrchestratorFunction @Inject constructor(private val numWo
             }.toSet()
             val alreadyAnalyzedModelsNotInBankStatement = ctx.callActivity(
                 LoadAnalyzedModelsActivity.FUNCTION_NAME,
-                LoadAnalyzedModelsActivityInput(ctx.instanceId, pagesAlreadyAnalyzedNotInBankStatement),
+                LoadAnalyzedModelsActivityInput(ctx.instanceId, request.clientName, pagesAlreadyAnalyzedNotInBankStatement),
                 LoadAnalyzedModelsActivityOutput::class.java
             ).await().models
             dataModels.addAll(alreadyAnalyzedModelsNotInBankStatement)
@@ -140,7 +140,7 @@ class PdfDataExtractorOrchestratorFunction @Inject constructor(private val numWo
         // step 5: create bank statements using all the analyzed models
         val finalResult = ctx.callActivity(
             ProcessStatementsActivity.FUNCTION_NAME,
-            ProcessStatementsActivityInput(ctx.instanceId, dataModels, documentsStatus.associateBy({ it.fileName }, { it.metadata!! })),
+            ProcessStatementsActivityInput(ctx.instanceId, request.clientName, dataModels, documentsStatus.associateBy({ it.fileName }, { it.metadata!! })),
             ProcessStatementsActivityOutput::class.java
         ).await()
             .also { logger.info { "[${ctx.instanceId}] Created new bank statements: ${it.filenameStatementMap}" } }

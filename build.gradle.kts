@@ -133,7 +133,7 @@ tasks.register<JavaExec>("splitPdf") {
     group = "application"
     description = "splits a PDF"
     classpath = sourceSets["main"].runtimeClasspath
-    mainClass = "com.goldberg.law.PdfSplitterMain"
+    mainClass = "com.goldberg.law.splitpdftool.PdfSplitterMain"
 
     val properties =  mutableListOf("-if", project.findProperty("filename")?.toString())
     properties.addAll(project.findProperty("args")?.toString()?.split(" ") ?: listOf())

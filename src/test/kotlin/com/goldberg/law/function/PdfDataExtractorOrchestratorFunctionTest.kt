@@ -1,6 +1,7 @@
 package com.goldberg.law.function
 
 import com.goldberg.law.document.model.ModelValues
+import com.goldberg.law.document.model.ModelValues.CLIENT_NAME
 import com.goldberg.law.document.model.StatementModelValues
 import com.goldberg.law.document.model.pdf.PdfDocumentMetadata
 import com.goldberg.law.function.activity.*
@@ -187,24 +188,24 @@ class PdfDataExtractorOrchestratorFunctionTest {
 
         verify(mockContext).callActivity(GetFilesToProcessActivity.FUNCTION_NAME, GetFilesToProcessActivityInput(REQUEST_ID, INPUT), GetFilesToProcessActivityOutput::class.java)
 
-        verify(mockContext).callActivity(SplitPdfActivity.FUNCTION_NAME, SplitPdfActivityInput(REQUEST_ID, FILE_10, false), SplitPdfActivityOutput::class.java)
-        verify(mockContext).callActivity(SplitPdfActivity.FUNCTION_NAME, SplitPdfActivityInput(REQUEST_ID, FILE_20, false), SplitPdfActivityOutput::class.java)
-        verify(mockContext).callActivity(SplitPdfActivity.FUNCTION_NAME, SplitPdfActivityInput(REQUEST_ID, FILE_30, false), SplitPdfActivityOutput::class.java)
-        verify(mockContext).callActivity(SplitPdfActivity.FUNCTION_NAME, SplitPdfActivityInput(REQUEST_ID, FILE_40, false), SplitPdfActivityOutput::class.java)
-        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, PDF_PAGE_10_1, null), DocumentDataModelContainer::class.java)
-        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, PDF_PAGE_10_2, null), DocumentDataModelContainer::class.java)
-        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, PDF_PAGE_10_3, null), DocumentDataModelContainer::class.java)
-        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, PDF_PAGE_20_1, null), DocumentDataModelContainer::class.java)
-        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, PDF_PAGE_20_2, null), DocumentDataModelContainer::class.java)
-        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, PDF_PAGE_20_3, null), DocumentDataModelContainer::class.java)
-        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, PDF_PAGE_30_1, null), DocumentDataModelContainer::class.java)
-        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, PDF_PAGE_30_2, null), DocumentDataModelContainer::class.java)
-        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, PDF_PAGE_40_1, null), DocumentDataModelContainer::class.java)
+        verify(mockContext).callActivity(SplitPdfActivity.FUNCTION_NAME, SplitPdfActivityInput(REQUEST_ID, CLIENT_NAME, FILE_10, false), SplitPdfActivityOutput::class.java)
+        verify(mockContext).callActivity(SplitPdfActivity.FUNCTION_NAME, SplitPdfActivityInput(REQUEST_ID, CLIENT_NAME, FILE_20, false), SplitPdfActivityOutput::class.java)
+        verify(mockContext).callActivity(SplitPdfActivity.FUNCTION_NAME, SplitPdfActivityInput(REQUEST_ID, CLIENT_NAME, FILE_30, false), SplitPdfActivityOutput::class.java)
+        verify(mockContext).callActivity(SplitPdfActivity.FUNCTION_NAME, SplitPdfActivityInput(REQUEST_ID, CLIENT_NAME, FILE_40, false), SplitPdfActivityOutput::class.java)
+        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, CLIENT_NAME, PDF_PAGE_10_1, null), DocumentDataModelContainer::class.java)
+        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, CLIENT_NAME, PDF_PAGE_10_2, null), DocumentDataModelContainer::class.java)
+        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, CLIENT_NAME, PDF_PAGE_10_3, null), DocumentDataModelContainer::class.java)
+        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, CLIENT_NAME, PDF_PAGE_20_1, null), DocumentDataModelContainer::class.java)
+        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, CLIENT_NAME, PDF_PAGE_20_2, null), DocumentDataModelContainer::class.java)
+        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, CLIENT_NAME, PDF_PAGE_20_3, null), DocumentDataModelContainer::class.java)
+        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, CLIENT_NAME, PDF_PAGE_30_1, null), DocumentDataModelContainer::class.java)
+        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, CLIENT_NAME, PDF_PAGE_30_2, null), DocumentDataModelContainer::class.java)
+        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, CLIENT_NAME, PDF_PAGE_40_1, null), DocumentDataModelContainer::class.java)
 
-        verify(mockContext).callActivity(UpdateMetadataActivity.FUNCTION_NAME, UpdateMetadataActivityInput(FILE_10, InputFileMetadata(true,3, true)))
-        verify(mockContext).callActivity(UpdateMetadataActivity.FUNCTION_NAME, UpdateMetadataActivityInput(FILE_20, InputFileMetadata(true,3, true)))
-        verify(mockContext).callActivity(UpdateMetadataActivity.FUNCTION_NAME, UpdateMetadataActivityInput(FILE_30, InputFileMetadata(true,2, true)))
-        verify(mockContext).callActivity(UpdateMetadataActivity.FUNCTION_NAME, UpdateMetadataActivityInput(FILE_40, InputFileMetadata(true,1, true)))
+        verify(mockContext).callActivity(UpdateMetadataActivity.FUNCTION_NAME, UpdateMetadataActivityInput(CLIENT_NAME, FILE_10, InputFileMetadata(true,3, true)))
+        verify(mockContext).callActivity(UpdateMetadataActivity.FUNCTION_NAME, UpdateMetadataActivityInput(CLIENT_NAME, FILE_20, InputFileMetadata(true,3, true)))
+        verify(mockContext).callActivity(UpdateMetadataActivity.FUNCTION_NAME, UpdateMetadataActivityInput(CLIENT_NAME, FILE_30, InputFileMetadata(true,2, true)))
+        verify(mockContext).callActivity(UpdateMetadataActivity.FUNCTION_NAME, UpdateMetadataActivityInput(CLIENT_NAME, FILE_40, InputFileMetadata(true,1, true)))
 
         val metadataMap = mapOf(
             FILE_10 to InputFileMetadata(true, 3, true),
@@ -212,7 +213,7 @@ class PdfDataExtractorOrchestratorFunctionTest {
             FILE_30 to InputFileMetadata(true, 2, true),
             FILE_40 to InputFileMetadata(true, 1, true),
         )
-        verify(mockContext).callActivity(ProcessStatementsActivity.FUNCTION_NAME, ProcessStatementsActivityInput(REQUEST_ID,
+        verify(mockContext).callActivity(ProcessStatementsActivity.FUNCTION_NAME, ProcessStatementsActivityInput(REQUEST_ID, CLIENT_NAME,
             setOf(
                 DocumentDataModelContainer(statementDataModel = StatementModelValues.STATEMENT_MODEL_WF_BANK_0),
                 DocumentDataModelContainer(statementDataModel = StatementModelValues.STATEMENT_MODEL_WF_BANK_1),
@@ -320,19 +321,19 @@ class PdfDataExtractorOrchestratorFunctionTest {
 
         verify(mockContext).callActivity(GetFilesToProcessActivity.FUNCTION_NAME, GetFilesToProcessActivityInput(REQUEST_ID, INPUT), GetFilesToProcessActivityOutput::class.java)
 
-        verify(mockContext).callActivity(SplitPdfActivity.FUNCTION_NAME, SplitPdfActivityInput(REQUEST_ID, FILE_10, false), SplitPdfActivityOutput::class.java)
-        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, PDF_PAGE_10_1, null), DocumentDataModelContainer::class.java)
-        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, PDF_PAGE_10_2, null), DocumentDataModelContainer::class.java)
-        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, PDF_PAGE_10_3, null), DocumentDataModelContainer::class.java)
-        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, PDF_PAGE_20_1, null), DocumentDataModelContainer::class.java)
-        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, PDF_PAGE_20_2, null), DocumentDataModelContainer::class.java)
-        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, PDF_PAGE_20_3, null), DocumentDataModelContainer::class.java)
+        verify(mockContext).callActivity(SplitPdfActivity.FUNCTION_NAME, SplitPdfActivityInput(REQUEST_ID, CLIENT_NAME, FILE_10, false), SplitPdfActivityOutput::class.java)
+        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, CLIENT_NAME, PDF_PAGE_10_1, null), DocumentDataModelContainer::class.java)
+        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, CLIENT_NAME, PDF_PAGE_10_2, null), DocumentDataModelContainer::class.java)
+        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, CLIENT_NAME, PDF_PAGE_10_3, null), DocumentDataModelContainer::class.java)
+        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, CLIENT_NAME, PDF_PAGE_20_1, null), DocumentDataModelContainer::class.java)
+        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, CLIENT_NAME, PDF_PAGE_20_2, null), DocumentDataModelContainer::class.java)
+        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, CLIENT_NAME, PDF_PAGE_20_3, null), DocumentDataModelContainer::class.java)
 
-        verify(mockContext).callActivity(UpdateMetadataActivity.FUNCTION_NAME, UpdateMetadataActivityInput(FILE_10, InputFileMetadata(true,3, true)))
-        verify(mockContext).callActivity(UpdateMetadataActivity.FUNCTION_NAME, UpdateMetadataActivityInput(FILE_20, InputFileMetadata(true,3, true)))
+        verify(mockContext).callActivity(UpdateMetadataActivity.FUNCTION_NAME, UpdateMetadataActivityInput(CLIENT_NAME, FILE_10, InputFileMetadata(true,3, true)))
+        verify(mockContext).callActivity(UpdateMetadataActivity.FUNCTION_NAME, UpdateMetadataActivityInput(CLIENT_NAME, FILE_20, InputFileMetadata(true,3, true)))
 
         verify(mockContext).callActivity(LoadAnalyzedModelsActivity.FUNCTION_NAME, LoadAnalyzedModelsActivityInput(
-            REQUEST_ID, setOf(PDF_PAGE_30_1, PDF_PAGE_30_2)), LoadAnalyzedModelsActivityOutput::class.java
+            REQUEST_ID, CLIENT_NAME, setOf(PDF_PAGE_30_1, PDF_PAGE_30_2)), LoadAnalyzedModelsActivityOutput::class.java
         )
 
         val metadataMap = mapOf(
@@ -341,7 +342,7 @@ class PdfDataExtractorOrchestratorFunctionTest {
             FILE_30 to InputFileMetadata(true, 2, true),
             FILE_40 to InputFileMetadata(true, 40, true, setOf(STATEMENT_5, STATEMENT_6)),
         )
-        verify(mockContext).callActivity(ProcessStatementsActivity.FUNCTION_NAME, ProcessStatementsActivityInput(REQUEST_ID,
+        verify(mockContext).callActivity(ProcessStatementsActivity.FUNCTION_NAME, ProcessStatementsActivityInput(REQUEST_ID, CLIENT_NAME,
             setOf(
                 DocumentDataModelContainer(statementDataModel = StatementModelValues.STATEMENT_MODEL_WF_BANK_0),
                 DocumentDataModelContainer(statementDataModel = StatementModelValues.STATEMENT_MODEL_WF_BANK_1),
@@ -371,7 +372,7 @@ class PdfDataExtractorOrchestratorFunctionTest {
         private const val FILE_30 = "File30"
         private const val FILE_40 = "File40"
 
-        private val INPUT = AzureAnalyzeDocumentsRequest(setOf(FILE_10, FILE_20, FILE_30, FILE_40))
+        private val INPUT = AzureAnalyzeDocumentsRequest(CLIENT_NAME, setOf(FILE_10, FILE_20, FILE_30, FILE_40))
 
         private const val SAVED_FILE_1 = "File1"
         private const val SAVED_FILE_2 = "File2"

@@ -15,7 +15,7 @@ class GetFilesToProcessActivity(private val dataManager: AzureStorageDataManager
     @FunctionName(FUNCTION_NAME)
     fun getFilesToProcess(@DurableActivityTrigger(name = "input") input: GetFilesToProcessActivityInput, context: ExecutionContext): GetFilesToProcessActivityOutput {
         logger.info { "[${input.requestId}][${context.invocationId}] processing ${input.toStringDetailed()}" }
-        val filesRequested = dataManager.fetchInputPdfDocuments(input.request.documents)
+        val filesRequested = dataManager.fetchInputPdfDocuments(input.request.clientName, input.request.documents)
 
         return GetFilesToProcessActivityOutput(filesRequested).also {
             logger.info { "[${input.requestId}][${context.invocationId}] returning $it" }

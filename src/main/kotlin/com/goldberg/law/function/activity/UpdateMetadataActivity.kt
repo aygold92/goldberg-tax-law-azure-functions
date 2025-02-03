@@ -13,7 +13,7 @@ class UpdateMetadataActivity @Inject constructor(private val dataManager: AzureS
     @FunctionName(FUNCTION_NAME)
     fun updateMetadata(@DurableActivityTrigger(name = "input") input: UpdateMetadataActivityInput, context: ExecutionContext) {
         logger.info { "[${context.invocationId}] processing $input" }
-        dataManager.updateInputPdfMetadata(input.filename, input.metadata)
+        dataManager.updateInputPdfMetadata(input.clientName, input.filename, input.metadata)
         logger.info { "[${context.invocationId}] successfully applied ${input.metadata} to ${input.filename}" }
     }
 

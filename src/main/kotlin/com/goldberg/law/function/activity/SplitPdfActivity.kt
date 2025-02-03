@@ -19,11 +19,11 @@ class SplitPdfActivity @Inject constructor(
     @FunctionName(FUNCTION_NAME)
     fun splitPdf(@DurableActivityTrigger(name = "name") input: SplitPdfActivityInput, context: ExecutionContext): SplitPdfActivityOutput = try {
         logger.info { "[${input.requestId}][${context.invocationId}] processing $input" }
-        val pages = dataManager.loadInputPdfDocumentPages(input.fileName)
-        pages.mapAsync { page -> dataManager.savePdfPage(page, true) }
+        val pages = dataManager.loadInputPdfDocumentPages(input.clientName, input.fileName)
+        pages.mapAsync { page -> dataManager.savePdfPage(input.clientName, page, true) }
 
         val metadata = InputFileMetadata(true, pages.size)
-        dataManager.updateInputPdfMetadata(input.fileName, InputFileMetadata(true, pages.size))
+        dataManager.updateInputPdfMetadata(input.clientName, input.fileName, InputFileMetadata(true, pages.size))
         logger.info { "[${input.requestId}][${context.invocationId}] updating metadata for ${input.fileName}: ${metadata.toMap()}" }
         SplitPdfActivityOutput(pages.map { it.pdfPage() }.toSet())
             .also { logger.info { "[${input.requestId}][${context.invocationId}] returning $it" } }

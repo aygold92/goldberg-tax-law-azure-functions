@@ -19,7 +19,7 @@ open class PdfDocumentPage(val fileName: String, private val document: PDDocumen
         }
     }
 
-    private fun documentName() = fileName.withoutExtension()
+    private fun documentName() = fileName.substringAfterLast("/").withoutExtension()
     fun nameWithPage() = "${documentName()}[$page]"
     fun fileNameWithPage() = "${nameWithPage()}.pdf"
     fun modelFileName() = "${documentName()}/${nameWithPage()}_Model.json"

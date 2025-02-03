@@ -6,6 +6,7 @@ import com.goldberg.law.function.model.PdfPageData
 
 data class ProcessDataModelActivityInput @JsonCreator constructor(
     @JsonProperty("requestId") val requestId: String,
+    @JsonProperty("clientName") val clientName: String,
     @JsonProperty("pdfPageData") val pdfPageData: PdfPageData,
     @JsonProperty("overrideTypeClassification") val overrideTypeClassification: String?,
 )

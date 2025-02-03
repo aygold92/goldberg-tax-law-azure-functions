@@ -42,7 +42,7 @@ class ProcessStatementsActivity @Inject constructor(
 
         val finalStatements = checkToStatementMatcher.matchChecksWithStatements(statementsWithoutChecks, checksUpdatedAccounts)
 
-        finalStatements.mapAsync { dataManager.saveBankStatement(it) }
+        finalStatements.mapAsync { dataManager.saveBankStatement(input.clientName, it) }
 
         // match filenames to statements
         val inputFileToStatement: MutableMap<String, MutableSet<String>> = mutableMapOf()
@@ -52,7 +52,7 @@ class ProcessStatementsActivity @Inject constructor(
             }
         }
         inputFileToStatement.mapAsync { filename, azureFileNames ->
-            dataManager.updateInputPdfMetadata(filename, input.metadataMap[filename]!!.copy(statements = azureFileNames))
+            dataManager.updateInputPdfMetadata(input.clientName, filename, input.metadataMap[filename]!!.copy(statements = azureFileNames))
         }
 
         return ProcessStatementsActivityOutput(inputFileToStatement)

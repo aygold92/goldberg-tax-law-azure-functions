@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.goldberg.law.function.model.PdfPageData
 
 data class AzureAnalyzeDocumentsRequest @JsonCreator constructor(
+    @JsonProperty("clientName") val clientName: String,
     @JsonProperty("documents") val documents: Set<String>,
     @JsonProperty("classifiedTypeOverrides") val classifiedTypeOverrides: Set<ClassifiedTypeOverrides>? = null,
     @JsonProperty("overwrite") val overwrite: Boolean = false,

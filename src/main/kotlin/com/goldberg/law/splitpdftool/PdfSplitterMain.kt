@@ -5,6 +5,8 @@ import com.goldberg.law.document.exception.InvalidPdfException
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.pdfbox.Loader
 import java.io.File
+import java.nio.file.Files
+import java.nio.file.Paths
 import javax.inject.Inject
 
 /**
@@ -32,6 +34,7 @@ class PdfSplitterMain@Inject constructor(
         // TODO: add ability to choose whether to process into one document or a single document with all selected pages
         splitDocuments.forEach { document ->
             val fileName = listOfNotNull(req.outputDirectory, document.splitPageFilePath()).joinToString("/")
+            Files.createDirectories(Paths.get(fileName.substringBeforeLast("/")))
             document.saveToFile(fileName)
                 .also { logger.info { "Saved to file $fileName" } }
         }

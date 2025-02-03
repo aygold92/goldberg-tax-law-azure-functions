@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 data class SplitPdfActivityInput @JsonCreator constructor(
     @JsonProperty("requestId") val requestId: String,
+    @JsonProperty("clientName") val clientName: String,
     @JsonProperty("fileName") val fileName: String,
     @JsonProperty("overwrite") val overwrite: Boolean,
 )

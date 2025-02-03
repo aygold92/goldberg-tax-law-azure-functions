@@ -7,11 +7,9 @@ import com.azure.storage.blob.BlobServiceClient
 import com.azure.storage.blob.BlobServiceClientBuilder
 import com.goldberg.law.datamanager.AzureStorageDataManager
 import com.goldberg.law.document.*
-import com.goldberg.law.function.PdfDataExtractorOrchestratorFunction
-import com.goldberg.law.function.WriteCsvSummaryFunction
+import com.goldberg.law.function.*
 import com.goldberg.law.function.activity.*
 import com.goldberg.law.splitpdftool.PdfSplitter
-import com.goldberg.law.function.FetchSASTokenFunction
 import com.google.inject.AbstractModule
 import com.google.inject.Provides
 import javax.inject.Singleton
@@ -101,6 +99,18 @@ class AppModule constructor(private val appEnvironmentSettings: AppEnvironmentSe
     fun fetchSasTokenFunction(
         blobServiceClient: BlobServiceClient
     ) = FetchSASTokenFunction(blobServiceClient)
+
+    @Provides
+    @Singleton
+    fun newClientFunction(
+        blobServiceClient: BlobServiceClient
+    ) = NewClientFunction(blobServiceClient)
+
+    @Provides
+    @Singleton
+    fun listClientsFunction(
+        blobServiceClient: BlobServiceClient
+    ) = ListClientsFunction(blobServiceClient)
 
     @Provides
     @Singleton

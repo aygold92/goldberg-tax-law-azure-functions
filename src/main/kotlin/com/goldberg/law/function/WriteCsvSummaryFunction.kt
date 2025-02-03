@@ -35,7 +35,7 @@ class WriteCsvSummaryFunction @Inject constructor(
         logger.info { "[${ctx.invocationId}] processing ${request.body.orElseThrow()}" }
         val req = OBJECT_MAPPER.readValue(request.body.orElseThrow(), WriteCsvSummaryRequest::class.java)
 
-        val statements = req.statementKeys.mapAsync { dataManager.loadBankStatement(it.getDocumentName()) }
+        val statements = req.statementKeys.mapAsync { dataManager.loadBankStatement(req.clientName, it.getDocumentName()) }
         val summary = accountSummaryCreator.createSummary(statements).also { logger.debug { it } }
 
         val outputFile = req.outputFile ?: ctx.invocationId
@@ -49,10 +49,10 @@ class WriteCsvSummaryFunction @Inject constructor(
         request.createResponseBuilder(HttpStatus.OK)
             .body(WriteCsvSummaryResponse(
                 AnalyzeDocumentResult.Status.SUCCESS,
-                    checkSummaryFile = dataManager.saveCsvOutput("${filePrefix}_CheckSummary.csv", checkSummary),
-                    accountSummaryFile = dataManager.saveCsvOutput("${filePrefix}_AccountSummary.csv", accountSummary),
-                    statementSummaryFile = dataManager.saveCsvOutput("${filePrefix}_StatementSummary.csv", statementSummary),
-                    recordsFile = dataManager.saveCsvOutput("${filePrefix}_Records.csv", records),
+                    checkSummaryFile = dataManager.saveCsvOutput(req.clientName, "${filePrefix}_CheckSummary.csv", checkSummary),
+                    accountSummaryFile = dataManager.saveCsvOutput(req.clientName, "${filePrefix}_AccountSummary.csv", accountSummary),
+                    statementSummaryFile = dataManager.saveCsvOutput(req.clientName, "${filePrefix}_StatementSummary.csv", statementSummary),
+                    recordsFile = dataManager.saveCsvOutput(req.clientName, "${filePrefix}_Records.csv", records),
                 )
             )
             .build()

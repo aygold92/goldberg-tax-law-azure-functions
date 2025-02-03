@@ -18,6 +18,7 @@ object ModelValues {
     const val FILENAME = "test.pdf"
     const val BATES_STAMP = "AG-12345"
     const val ACCOUNT_NUMBER = "1234567890"
+    const val CLIENT_NAME = "client"
 
     val FIXED_TRANSACTION_DATE = normalizeDate("4/3 2020")!!
     val FIXED_STATEMENT_DATE = normalizeDate("4/7 2020")!!

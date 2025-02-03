@@ -5,6 +5,7 @@ import com.goldberg.law.document.AccountNormalizer
 import com.goldberg.law.document.CheckToStatementMatcher
 import com.goldberg.law.document.DocumentStatementCreator
 import com.goldberg.law.document.model.ModelValues
+import com.goldberg.law.document.model.ModelValues.CLIENT_NAME
 import com.goldberg.law.document.model.StatementModelValues
 import com.goldberg.law.function.model.DocumentDataModelContainer
 import com.goldberg.law.function.model.metadata.InputFileMetadata
@@ -35,13 +36,14 @@ class ProcessStatementsActivityTest {
         whenever(accountNormalizer.normalizeAccounts(any(), any())).thenReturn(Pair(STATEMENT_DATA_MODELS, CHECK_DATA_MODELS))
         whenever(statementCreator.createBankStatements(any())).thenReturn(BANK_STATEMENTS)
         whenever(checkToStatementMatcher.matchChecksWithStatements(any(), any())).thenReturn(BANK_STATEMENTS)
-        whenever(dataManager.saveBankStatement(any())).thenReturn(SAVED_FILE_1, SAVED_FILE_2, SAVED_FILE_3, SAVED_FILE_4)
+        whenever(dataManager.saveBankStatement(any(), any())).thenReturn(SAVED_FILE_1, SAVED_FILE_2, SAVED_FILE_3, SAVED_FILE_4)
     }
 
     @Test
     fun testMetadata() {
         activity.processStatementsAndChecks(ProcessStatementsActivityInput(
             REQUEST_ID,
+            CLIENT_NAME,
             setOf(
                 DocumentDataModelContainer(statementDataModel = StatementModelValues.STATEMENT_MODEL_WF_BANK_0),
                 DocumentDataModelContainer(statementDataModel = StatementModelValues.STATEMENT_MODEL_WF_BANK_1),
@@ -55,14 +57,14 @@ class ProcessStatementsActivityTest {
             )
         ), context)
 
-        verify(dataManager).saveBankStatement(STATEMENT_1)
-        verify(dataManager).saveBankStatement(STATEMENT_2)
-        verify(dataManager).saveBankStatement(STATEMENT_3)
-        verify(dataManager).saveBankStatement(STATEMENT_4)
+        verify(dataManager).saveBankStatement(CLIENT_NAME, STATEMENT_1)
+        verify(dataManager).saveBankStatement(CLIENT_NAME, STATEMENT_2)
+        verify(dataManager).saveBankStatement(CLIENT_NAME, STATEMENT_3)
+        verify(dataManager).saveBankStatement(CLIENT_NAME, STATEMENT_4)
 
-        verify(dataManager).updateInputPdfMetadata(FILE_10, InputFileMetadata(true, 10, true, setOf(STATEMENT_1.azureFileName())))
-        verify(dataManager).updateInputPdfMetadata(FILE_20, InputFileMetadata(true, 20, true, setOf(STATEMENT_2.azureFileName())))
-        verify(dataManager).updateInputPdfMetadata(FILE_30, InputFileMetadata(true, 30, true, setOf(STATEMENT_3.azureFileName(), STATEMENT_4.azureFileName())))
+        verify(dataManager).updateInputPdfMetadata(CLIENT_NAME, FILE_10, InputFileMetadata(true, 10, true, setOf(STATEMENT_1.azureFileName())))
+        verify(dataManager).updateInputPdfMetadata(CLIENT_NAME, FILE_20, InputFileMetadata(true, 20, true, setOf(STATEMENT_2.azureFileName())))
+        verify(dataManager).updateInputPdfMetadata(CLIENT_NAME, FILE_30, InputFileMetadata(true, 30, true, setOf(STATEMENT_3.azureFileName(), STATEMENT_4.azureFileName())))
         verifyNoMoreInteractions(dataManager)
     }
 

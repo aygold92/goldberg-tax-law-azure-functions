@@ -36,13 +36,13 @@ class ProcessDataModelActivity @Inject constructor(
     fun processDataModel(@DurableActivityTrigger(name = "name") input: ProcessDataModelActivityInput, context: ExecutionContext): DocumentDataModelContainer {
 
         logger.info { "[${input.requestId}][${context.invocationId}] processing ${input.pdfPageData}" }
-        val pdfDocument = dataManager.loadSplitPdfDocumentPage(input.pdfPageData)
+        val pdfDocument = dataManager.loadSplitPdfDocumentPage(input.clientName, input.pdfPageData)
         val dataModel = processDocument(pdfDocument, input.overrideTypeClassification)
 
 //         val dataModel = getStatementPage(input.pdfPageData)
 
         try {
-            dataManager.saveModel(pdfDocument.pdfPage(), dataModel)
+            dataManager.saveModel(input.clientName, pdfDocument.pdfPage(), dataModel)
         } catch (ex: Throwable) {
             logger.error(ex) { "Exception writing model for ${pdfDocument.nameWithPage()}: $ex" }
         }

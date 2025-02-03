@@ -4,6 +4,7 @@ import com.azure.storage.blob.BlobServiceClient
 import com.azure.storage.blob.sas.BlobContainerSasPermission
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues
 import com.goldberg.law.datamanager.AzureStorageDataManager
+import com.goldberg.law.datamanager.BlobContainer
 import com.goldberg.law.function.model.request.AnalyzeDocumentResult
 import com.goldberg.law.function.model.request.SASTokenRequest
 import com.goldberg.law.function.model.request.SASTokenResponse
@@ -32,43 +33,15 @@ class FetchSASTokenFunction @Inject constructor(
         logger.info { "[${ctx.invocationId}] processing ${request.queryParameters.toStringDetailed()}" }
         val req = OBJECT_MAPPER.convertValue(request.queryParameters, SASTokenRequest::class.java)
 
-        val token: String = when (req.action) {
-            // TODO: probably fix these actions
-            AzureStorageDataManager.INPUT_CONTAINER_NAME -> blobServiceClient.getBlobContainerClient(AzureStorageDataManager.INPUT_CONTAINER_NAME)
-                .generateSas(
-                    BlobServiceSasSignatureValues(
-                        OffsetDateTime.now().plusMinutes(15), BlobContainerSasPermission()
-                            .setListPermission(true)
-                            .setReadPermission(true)
-                            .setWritePermission(true)
-                            .setDeletePermission(true)
-                            .setTagsPermission(true)
-                    )
-                )
+        val permission = BlobContainerSasPermission()
+            .setListPermission(true)
+            .setReadPermission(true)
+            .setWritePermission(true)
+            .setTagsPermission(true)
+            .setDeletePermission(true)
 
-            AzureStorageDataManager.STATEMENTS_CONTAINER_NAME -> blobServiceClient.getBlobContainerClient(AzureStorageDataManager.STATEMENTS_CONTAINER_NAME)
-                .generateSas(
-                    BlobServiceSasSignatureValues(
-                        OffsetDateTime.now().plusMinutes(15), BlobContainerSasPermission()
-                            .setListPermission(true)
-                            .setTagsPermission(true)
-                            .setReadPermission(true)
-                            .setWritePermission(true)
-                    )
-                )
-
-            AzureStorageDataManager.OUTPUT_CONTAINER_NAME ->
-                blobServiceClient.getBlobContainerClient(AzureStorageDataManager.OUTPUT_CONTAINER_NAME)
-                    .generateSas(
-                        BlobServiceSasSignatureValues(
-                            OffsetDateTime.now().plusMinutes(15), BlobContainerSasPermission()
-                                .setListPermission(true)
-                                .setReadPermission(true)
-                                .setWritePermission(true)
-                        )
-                    )
-            else -> throw IllegalArgumentException("Invalid action ${req.action}")
-        }
+        val token = blobServiceClient.getBlobContainerClient(req.action.forClient(req.clientName))
+            .generateSas(BlobServiceSasSignatureValues(OffsetDateTime.now().plusMinutes(15), permission))
 
         request.createResponseBuilder(HttpStatus.OK)
             .body(SASTokenResponse(token))
