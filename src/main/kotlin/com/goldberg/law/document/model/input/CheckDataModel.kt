@@ -4,6 +4,8 @@ import com.azure.ai.formrecognizer.documentanalysis.models.AnalyzedDocument
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.goldberg.law.document.model.input.tables.CheckEntriesTable
+import com.goldberg.law.document.model.input.tables.CheckEntriesTable.Companion.getCheckImageTable
 import com.goldberg.law.document.model.pdf.PdfDocumentPageMetadata
 import com.goldberg.law.document.model.output.CheckDataKey
 import com.goldberg.law.document.model.output.TransactionHistoryRecord
@@ -19,6 +21,7 @@ data class CheckDataModel @JsonCreator constructor(
     @JsonProperty("description") val description: String?,
     @JsonProperty("date") val date: String?,
     @JsonProperty("amount") val amount: BigDecimal?,
+    @JsonProperty("checkEntries") val checkEntries: CheckEntriesTable?,
     @JsonProperty("batesStamp") val batesStamp: String?,
     @JsonProperty("pageMetadata") override val pageMetadata: PdfDocumentPageMetadata
 ): DocumentDataModel(pageMetadata) {
@@ -49,6 +52,9 @@ data class CheckDataModel @JsonCreator constructor(
                 amountMatches
     }
 
+    fun extractNestedChecks(): List<CheckDataModel> = checkEntries?.images?.map { it.toCheckDataModel(accountNumber, batesStamp, pageMetadata) }
+        ?: listOf(this)
+
     object Keys {
         const val ACCOUNT_NUMBER = "AccountNumber"
         const val CHECK_NUMBER = "CheckNumber"
@@ -56,10 +62,10 @@ data class CheckDataModel @JsonCreator constructor(
         const val DESCRIPTION = "Description"
         const val DATE = "Date"
         const val AMOUNT = "Amount"
+        const val CHECK_ENTRIES_TABLE = "Check Entries"
         const val BATES_STAMP = "BatesStamp"
     }
     companion object {
-        // TODO: there could be multiple checks on one page?
         fun AnalyzedDocument.toCheckDataModel(classifiedPdfDocument: ClassifiedPdfDocumentPage): CheckDataModel = this.fields.let { documentFields ->
             CheckDataModel(
                 accountNumber = documentFields[Keys.ACCOUNT_NUMBER]?.valueAsString,
@@ -69,12 +75,13 @@ data class CheckDataModel @JsonCreator constructor(
                 date = normalizeDate(documentFields[Keys.DATE]?.valueAsString),
                 amount = documentFields[Keys.AMOUNT]?.currencyValue(),
                 batesStamp = documentFields[Keys.BATES_STAMP]?.valueAsString,
+                checkEntries = this.getCheckImageTable(),
                 pageMetadata = classifiedPdfDocument.toDocumentMetadata()
             )
         }
 
         fun blankModel(classifiedPdfDocument: ClassifiedPdfDocumentPage): CheckDataModel = CheckDataModel(
-            null, null, null, null, null, null, null,
+            null, null, null, null, null, null, null, null,
             classifiedPdfDocument.toDocumentMetadata()
         )
 

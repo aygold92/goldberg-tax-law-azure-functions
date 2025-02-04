@@ -1,7 +1,9 @@
 package com.goldberg.law.document.model.pdf
 
+import com.goldberg.law.document.model.pdf.DocumentType.BankTypes.B_OF_A
 import com.goldberg.law.document.model.pdf.DocumentType.BankTypes.EAGLE_BANK
 import com.goldberg.law.document.model.pdf.DocumentType.BankTypes.WF_BANK
+import com.goldberg.law.document.model.pdf.DocumentType.CheckTypes.B_OF_A_CHECK
 import com.goldberg.law.document.model.pdf.DocumentType.CheckTypes.EAGLE_BANK_CHECK
 import com.goldberg.law.document.model.pdf.DocumentType.CreditCardTypes.AMEX_CC
 import com.goldberg.law.document.model.pdf.DocumentType.CreditCardTypes.C1_CC
@@ -11,8 +13,8 @@ import com.goldberg.law.document.model.pdf.DocumentType.IrrelevantTypes.EXTRA_PA
 
 enum class DocumentType(val docTypes: List<String> = listOf()) {
     CREDIT_CARD(listOf(AMEX_CC, C1_CC, CITI_CC, WF_CC)),
-    BANK(listOf(EAGLE_BANK, WF_BANK)),
-    CHECK(listOf(EAGLE_BANK_CHECK)),
+    BANK(listOf(EAGLE_BANK, WF_BANK, B_OF_A)),
+    CHECK(listOf(EAGLE_BANK_CHECK, B_OF_A_CHECK)),
     IRRELEVANT(listOf(EXTRA_PAGES)),
     MIXED,
     UNKNOWN;
@@ -31,10 +33,12 @@ enum class DocumentType(val docTypes: List<String> = listOf()) {
     object BankTypes {
         const val EAGLE_BANK = "Eagle Bank"
         const val WF_BANK = "WF Bank"
+        const val B_OF_A = "BofA"
     }
 
     object CheckTypes {
         const val EAGLE_BANK_CHECK = "Eagle Bank Check"
+        const val B_OF_A_CHECK = "BofA Check"
     }
 
     object IrrelevantTypes {

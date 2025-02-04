@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.goldberg.law.document.model.output.TransactionHistoryPageMetadata
 import com.goldberg.law.document.model.output.TransactionHistoryRecord
+import com.goldberg.law.document.model.pdf.DocumentType
 import com.goldberg.law.util.currencyValue
 import java.math.BigDecimal
 import java.util.*
@@ -15,7 +16,7 @@ data class TransactionTableCreditsChargesRecord @JsonCreator constructor(
     @JsonProperty("credits") val credits: BigDecimal?,
     @JsonProperty("charges") val charges: BigDecimal?
 ): TransactionRecord() {
-    override fun toTransactionHistoryRecord(statementDate: Date?, metadata: TransactionHistoryPageMetadata): TransactionHistoryRecord = TransactionHistoryRecord(
+    override fun toTransactionHistoryRecord(statementDate: Date?, metadata: TransactionHistoryPageMetadata, documentType: DocumentType): TransactionHistoryRecord = TransactionHistoryRecord(
         date = fromWrittenDateStatementDateOverride(this.date, statementDate),
         description = this.description,
         // a credit represents a net increase in money, a charge is a decrease

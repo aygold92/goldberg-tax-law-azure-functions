@@ -64,7 +64,7 @@ data class StatementDataModel @JsonCreator constructor(
     fun getTransactionRecords(statementDate: Date?, metadata: TransactionHistoryPageMetadata) = listOf(
         transactionTableDepositWithdrawal, transactionTableAmount, transactionTableCreditsCharges,
         transactionTableDebits, transactionTableCredits, transactionTableChecks
-    ).flatMap { it?.createHistoryRecords(statementDate, metadata) ?: listOf() }
+    ).flatMap { it?.createHistoryRecords(statementDate, metadata, pageMetadata.documentType) ?: listOf() }
 
     object Keys {
         const val BANK_IDENTIFIER = "BankIdentifier"

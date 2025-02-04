@@ -85,6 +85,7 @@ object ModelValues {
         "check desc",
         FIXED_TRANSACTION_DATE,
         (-500).asCurrency(),
+        null,
         CHECK_BATES_STAMP,
         BASIC_CHECK_PAGE_METADATA
     )

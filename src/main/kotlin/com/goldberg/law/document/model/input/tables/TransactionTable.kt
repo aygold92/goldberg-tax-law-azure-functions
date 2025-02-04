@@ -4,20 +4,21 @@ import com.azure.ai.formrecognizer.documentanalysis.models.DocumentField
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.goldberg.law.document.model.output.TransactionHistoryPageMetadata
 import com.goldberg.law.document.model.output.TransactionHistoryRecord
+import com.goldberg.law.document.model.pdf.DocumentType
 import com.goldberg.law.util.*
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.util.*
 import kotlin.collections.LinkedHashMap
 
 abstract class TransactionTable(@JsonIgnore @Transient open val records: List<TransactionRecord>) {
-    fun createHistoryRecords(statementDate: Date?, metadata: TransactionHistoryPageMetadata): List<TransactionHistoryRecord> = records.map {
-        it.toTransactionHistoryRecord(statementDate, metadata)
+    fun createHistoryRecords(statementDate: Date?, metadata: TransactionHistoryPageMetadata, documentType: DocumentType): List<TransactionHistoryRecord> = records.map {
+        it.toTransactionHistoryRecord(statementDate, metadata, documentType)
     }
 }
 abstract class TransactionRecord {
     @JsonIgnore @Transient
     val logger = KotlinLogging.logger {}
-    abstract fun toTransactionHistoryRecord(statementDate: Date?, metadata: TransactionHistoryPageMetadata): TransactionHistoryRecord
+    abstract fun toTransactionHistoryRecord(statementDate: Date?, metadata: TransactionHistoryPageMetadata, documentType: DocumentType): TransactionHistoryRecord
 
     // TODO: need the full statement date to check if it's a january statement
     fun fromWrittenDateStatementDateOverride(monthDay: String?, statementDate: Date?): String? {

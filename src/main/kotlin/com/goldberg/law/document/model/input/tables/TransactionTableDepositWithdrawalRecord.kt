@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.goldberg.law.document.model.output.TransactionHistoryPageMetadata
 import com.goldberg.law.document.model.output.TransactionHistoryRecord
+import com.goldberg.law.document.model.pdf.DocumentType
 import com.goldberg.law.util.positiveCurrencyValue
 import java.math.BigDecimal
 import java.util.*
@@ -16,7 +17,7 @@ data class TransactionTableDepositWithdrawalRecord @JsonCreator constructor(
     @JsonProperty("depositAmount") val depositAmount: BigDecimal?,
     @JsonProperty("withdrawalAmount") val withdrawalAmount: BigDecimal?
 ): TransactionRecord() {
-    override fun toTransactionHistoryRecord(statementDate: Date?, metadata: TransactionHistoryPageMetadata): TransactionHistoryRecord = TransactionHistoryRecord(
+    override fun toTransactionHistoryRecord(statementDate: Date?, metadata: TransactionHistoryPageMetadata, documentType: DocumentType): TransactionHistoryRecord = TransactionHistoryRecord(
         date = fromWrittenDateStatementDateOverride(this.date, statementDate),
         checkNumber = this.checkNumber,
         description = this.description,

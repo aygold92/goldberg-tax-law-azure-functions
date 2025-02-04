@@ -8,6 +8,8 @@ import com.goldberg.law.document.model.ModelValues.newBankStatement
 import com.goldberg.law.document.model.ModelValues.newCheckData
 import com.goldberg.law.document.model.ModelValues.newHistoryRecord
 import com.goldberg.law.document.model.input.CheckDataModel
+import com.goldberg.law.document.model.input.tables.CheckEntriesTable
+import com.goldberg.law.document.model.input.tables.CheckEntriesTableRow
 import com.goldberg.law.document.model.output.CheckDataKey
 import com.goldberg.law.document.model.output.TransactionHistoryRecord
 import com.goldberg.law.util.asCurrency
@@ -199,6 +201,7 @@ class CheckToStatementMatcherTest {
             "test",
             normalizeDate("4 10 2020"),
             1500.asCurrency(),
+            null,
             CHECK_BATES_STAMP,
             BASIC_CHECK_PAGE_METADATA
         )
@@ -223,6 +226,82 @@ class CheckToStatementMatcherTest {
         assertThat(finalStatements).isEqualTo(listOf(statement1, bankStatement2WithCheckData))
         assertThat(finalStatements.getMissingChecks()).isEqualTo(setOf(CHECK_DATA_KEY_1000))
         assertThat(finalStatements.getChecksNotUsed(setOf(checkData1.checkDataKey, checkData2.checkDataKey))).isEqualTo(setOf(CHECK_DATA_KEY_1001))
+    }
+
+    @Test
+    fun testExtractCheckEntries() {
+        val compositeCheckData = CheckDataModel(
+            ACCOUNT_NUMBER,
+            null,
+            null,
+            null,
+            null,
+            null,
+            CheckEntriesTable(images = listOf(
+                CheckEntriesTableRow(
+                    normalizeDate("4 10 2020"),
+                    1000,
+                    "Some Guy",
+                    "test",
+                    1500.asCurrency(),
+                ),
+                CheckEntriesTableRow(
+                    normalizeDate("4 15 2020"),
+                    1001,
+                    "Another Guy",
+                    "desc",
+                    2000.asCurrency(),
+                ),
+            )),
+            CHECK_BATES_STAMP,
+            BASIC_CHECK_PAGE_METADATA
+        )
+        val checkData1 = CheckDataModel(
+            ACCOUNT_NUMBER,
+            1000,
+            "Some Guy",
+            "test",
+            normalizeDate("4 10 2020"),
+            1500.asCurrency(),
+            null,
+            CHECK_BATES_STAMP,
+            BASIC_CHECK_PAGE_METADATA
+        )
+        val checkData2 = CheckDataModel(
+            ACCOUNT_NUMBER,
+            1001,
+            "Another Guy",
+            "desc",
+            normalizeDate("4 15 2020"),
+            2000.asCurrency(),
+            null,
+            CHECK_BATES_STAMP,
+            BASIC_CHECK_PAGE_METADATA
+        )
+
+        val statement1 = statementWithRecords(
+            newHistoryRecord(checkNumber = 1000, amount = 1500.0, date = normalizeDate("4 10 2020"))
+        )
+
+        val statement2 = statementWithRecords(
+            newHistoryRecord(checkNumber = 1001, amount = 2000.0, date = "4 15 2020")
+        )
+
+        val finalStatements = checkToStatementMatcher.matchChecksWithStatements(
+            listOf(statement1, statement2), listOf(compositeCheckData)
+        )
+
+        val bankStatement1WithCheckData = statementWithRecords(
+            newHistoryRecord(amount = 1500.0, date = "4 10 2020", checkNumber = 1000, checkData = checkData1)
+        )
+
+        val bankStatement2WithCheckData = statementWithRecords(
+            newHistoryRecord(amount = 2000.0, date = "4 15 2020", checkNumber = 1001, checkData = checkData2)
+        )
+
+        assertThat(finalStatements).isEqualTo(listOf(bankStatement1WithCheckData, bankStatement2WithCheckData))
+        assertThat(finalStatements.getMissingChecks()).isEqualTo(emptySet<CheckDataModel>())
+        assertThat(finalStatements.getChecksNotUsed(setOf(checkData1.checkDataKey, checkData2.checkDataKey))).isEqualTo(emptySet<CheckDataModel>())
     }
 
     companion object {

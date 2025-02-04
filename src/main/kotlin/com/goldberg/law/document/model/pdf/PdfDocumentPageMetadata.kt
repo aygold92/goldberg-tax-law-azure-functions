@@ -12,12 +12,21 @@ data class PdfDocumentPageMetadata @JsonCreator constructor(
     @JsonProperty("classification") val classification: String
 ) {
     @JsonIgnore @Transient
-    val documentType = DocumentType.getBankType(classification)
+    private var _documentType: DocumentType? = null
+
+    val documentType: DocumentType
+        get() {
+            if (_documentType == null) {
+                _documentType = DocumentType.getBankType(classification)
+            }
+            return _documentType!!
+        }
+
 
     fun toCsv() = listOf(
         filename.addQuotes(),
         page
     ).joinToString(",")
 
-    override fun toString() = "{name: $filename, page: $page, classification: $classification, statementType: $documentType}"
+    override fun toString() = "{filename: $filename, page: $page, classification: $classification, statementType: ${documentType}}"
 }

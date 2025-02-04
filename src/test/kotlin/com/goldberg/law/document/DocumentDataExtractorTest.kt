@@ -227,6 +227,7 @@ class DocumentDataExtractorTest {
             description = "Mondays - June 21",
             date = normalizeDate("12 24 2020"),
             amount = 3600.asCurrency(),
+            null,
             batesStamp = "MH-002017",
             pageMetadata = PdfDocumentPageMetadata(CHECK_FILENAME, 4, CheckTypes.EAGLE_BANK_CHECK),
         ))

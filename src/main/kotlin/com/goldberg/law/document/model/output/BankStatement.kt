@@ -281,9 +281,9 @@ data class BankStatement @JsonCreator constructor(
             Pair(BankStatement::hasMissingFields) { stmt -> SuspiciousReasons.MISSING_FIELDS.format(stmt.getMissingFields().toString()) },
             Pair(BankStatement::numbersDoNotAddUp) { stmt ->
                 val expected = if (stmt.beginningBalance == null || stmt.endingBalance == null) null
-                    else if (stmt.isCreditCard()) stmt.beginningBalance!! - stmt.endingBalance!!
+                    else if (stmt.isCreditCard()) stmt.beginningBalance!!.asCurrency()!! - stmt.endingBalance!!.asCurrency()!!
                     else stmt.endingBalance!! - stmt.beginningBalance!!
-                SuspiciousReasons.BALANCE_DOES_NOT_ADD_UP.format(stmt.beginningBalance, stmt.getNetTransactions(), stmt.endingBalance, expected)
+                SuspiciousReasons.BALANCE_DOES_NOT_ADD_UP.format(stmt.beginningBalance?.asCurrency(), stmt.getNetTransactions().asCurrency(), stmt.endingBalance?.asCurrency(), expected?.asCurrency())
            },
             Pair(BankStatement::hasNoRecords) { _ -> SuspiciousReasons.NO_TRANSACTIONS_FOUND },
             Pair(BankStatement::hasSuspiciousRecords) { _ -> SuspiciousReasons.CONTAINS_SUSPICIOUS_RECORDS },

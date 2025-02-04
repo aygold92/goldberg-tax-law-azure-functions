@@ -8,9 +8,11 @@ import com.goldberg.law.document.model.output.TransactionHistoryPageMetadata
 import com.goldberg.law.document.model.output.TransactionHistoryRecord
 import com.goldberg.law.document.model.pdf.DocumentType.BankTypes
 import com.goldberg.law.document.model.pdf.PdfDocumentPageMetadata
+import com.goldberg.law.util.OBJECT_MAPPER
 import com.goldberg.law.util.asCurrency
 import com.goldberg.law.util.fromWrittenDate
 import com.goldberg.law.util.normalizeDate
+import com.nimbusds.jose.shaded.gson.Gson
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 

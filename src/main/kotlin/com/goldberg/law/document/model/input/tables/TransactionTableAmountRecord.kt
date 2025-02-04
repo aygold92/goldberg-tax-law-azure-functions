@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.goldberg.law.document.model.output.TransactionHistoryPageMetadata
 import com.goldberg.law.document.model.output.TransactionHistoryRecord
+import com.goldberg.law.document.model.pdf.DocumentType
 import com.goldberg.law.util.currencyValue
 import java.math.BigDecimal
 import java.util.*
@@ -14,13 +15,13 @@ data class TransactionTableAmountRecord @JsonCreator constructor(
     @JsonProperty("description") val description: String?,
     @JsonProperty("amount") val amount: BigDecimal?,
 ): TransactionRecord() {
-    override fun toTransactionHistoryRecord(statementDate: Date?, metadata: TransactionHistoryPageMetadata): TransactionHistoryRecord {
+    override fun toTransactionHistoryRecord(statementDate: Date?, metadata: TransactionHistoryPageMetadata, documentType: DocumentType): TransactionHistoryRecord {
         return TransactionHistoryRecord(
             date = fromWrittenDateStatementDateOverride(this.date, statementDate),
             description = this.description,
             // a positive entry on the credit card statement is a charge, which means money is going down
             // a negative entry is a credit, which means money goes up
-            amount = amount?.negate(),
+            amount = if (documentType == DocumentType.CREDIT_CARD) amount?.negate() else amount,
             pageMetadata = metadata
         )
     }

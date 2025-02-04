@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.goldberg.law.document.model.output.TransactionHistoryPageMetadata
 import com.goldberg.law.document.model.output.TransactionHistoryRecord
+import com.goldberg.law.document.model.pdf.DocumentType
 import com.goldberg.law.util.currencyValue
 import com.goldberg.law.util.valueAsInt
 import java.math.BigDecimal
@@ -15,11 +16,11 @@ data class TransactionTableChecksRecord @JsonCreator constructor(
     @JsonProperty("number") val number: Int?,
     @JsonProperty("amount") val amount: BigDecimal?,
 ): TransactionRecord() {
-    override fun toTransactionHistoryRecord(statementDate: Date?, metadata: TransactionHistoryPageMetadata): TransactionHistoryRecord = TransactionHistoryRecord(
+    override fun toTransactionHistoryRecord(statementDate: Date?, metadata: TransactionHistoryPageMetadata, documentType: DocumentType): TransactionHistoryRecord = TransactionHistoryRecord(
         date = fromWrittenDateStatementDateOverride(this.date, statementDate),
         description = TransactionHistoryRecord.CHECK_DESCRIPTION,
         checkNumber = this.number,
-        amount = amount?.negate(),  // a check represents money leaving, so we subtract
+        amount = amount?.abs()?.negate(),  // a check represents money leaving, so it is always negative. Some statements show it as positive while others negative
         pageMetadata = metadata
     )
 

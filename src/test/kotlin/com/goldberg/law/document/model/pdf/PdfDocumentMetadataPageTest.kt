@@ -1,6 +1,8 @@
 package com.goldberg.law.document.model.pdf
 
 import com.goldberg.law.function.model.PdfPageData
+import com.goldberg.law.util.OBJECT_MAPPER
+import com.nimbusds.jose.shaded.gson.Gson
 import org.apache.pdfbox.pdmodel.PDDocument
 import org.apache.pdfbox.pdmodel.PDPage
 import org.assertj.core.api.Assertions.assertThat
@@ -36,6 +38,15 @@ class PdfDocumentMetadataPageTest {
         assertThat(classifiedType.isDocEqual(originalDocument)).isTrue()
         assertThat(classifiedType.page).isEqualTo(4)
         assertThat(classifiedType.classification).isEqualTo("test")
+    }
+
+    @Test
+    fun testDeserializationJacksonGson() {
+        val modelString = "{\"filename\": \"12_22_21 2.pdf\", \"page\": 4, \"classification\": \"BofA\"}"
+        val pmJackson = OBJECT_MAPPER.readValue(modelString, PdfDocumentPageMetadata::class.java)
+        val pmGson = Gson().fromJson(modelString, PdfDocumentPageMetadata::class.java)
+        assertThat(pmJackson).isEqualTo(pmGson)
+        assertThat(pmGson.documentType).isEqualTo(pmJackson.documentType).isEqualTo(DocumentType.BANK)
     }
 
     companion object {

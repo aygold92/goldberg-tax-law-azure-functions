@@ -33,6 +33,20 @@ class DocumentDataModelContainerTest {
     }
 
     @Test
+    fun testCheckDataModelSerializableJackson() {
+        val model = DocumentDataModelContainer(checkDataModel = CHECK_DATA_MODEL_CHECK_ENTRIES)
+        val otherModel = OBJECT_MAPPER.readValue(OBJECT_MAPPER.writeValueAsString(model), DocumentDataModelContainer::class.java)
+        assertThat(otherModel).isEqualTo(model)
+    }
+
+    @Test
+    fun testCheckDataModelSerializableGson() {
+        val model = DocumentDataModelContainer(checkDataModel = CHECK_DATA_MODEL_CHECK_ENTRIES)
+        val otherModel = GSON.fromJson(GSON.toJson(model), DocumentDataModelContainer::class.java)
+        assertThat(otherModel).isEqualTo(model)
+    }
+
+    @Test
     fun testProcessStatementAndChecksOutputSerializableGson() {
         val model = ProcessStatementsActivityOutput(mapOf("test" to setOf("st1", "st2", "test2"), "test2" to setOf("st3", "st4")))
         val otherModel = GSON.fromJson(GSON.toJson(model), ProcessStatementsActivityOutput::class.java)
@@ -101,8 +115,29 @@ class DocumentDataModelContainerTest {
             description = "",
             date = FIXED_STATEMENT_DATE,
             amount = null,
+            checkEntries = null,
             batesStamp = BATES_STAMP,
             pageMetadata = PdfDocumentPageMetadata(FILENAME, 1, DocumentType.BankTypes.WF_BANK)
+        )
+
+        val CHECK_DATA_MODEL_CHECK_ENTRIES = CheckDataModel(
+            accountNumber = ACCOUNT_NUMBER,
+            checkNumber = null,
+            to = null,
+            description = null,
+            date = null,
+            amount = null,
+            checkEntries = CheckEntriesTable(images = listOf(
+                CheckEntriesTableRow(
+                    checkNumber = 1234,
+                    to = "test",
+                    description = "desc",
+                    date = FIXED_STATEMENT_DATE,
+                    amount = 65.60.asCurrency(),
+            )
+            )),
+            batesStamp = BATES_STAMP,
+            pageMetadata = PdfDocumentPageMetadata(FILENAME, 1, DocumentType.CheckTypes.B_OF_A_CHECK)
         )
 
         val EXTRA_PAGE_DATA_MODEL = ExtraPageDataModel(

@@ -94,6 +94,7 @@ class ProcessDataModelActivity @Inject constructor(
                 amount = 50.asCurrency(),
                 date = normalizeDate("6 2 2022"),
                 description = "test",
+                checkEntries = null,
                 pageMetadata = PdfDocumentPageMetadata(FILENAME, 1, DocumentType.CheckTypes.EAGLE_BANK_CHECK)
             ),
             StatementDataModel(
