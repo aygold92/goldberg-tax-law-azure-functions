@@ -9,6 +9,10 @@ import com.goldberg.law.util.toTransactionDate
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.util.*
 
+/**
+ *
+ * Hack for NFCU Bank: <TODO: fill in explanation>
+ */
 class DocumentStatementCreator {
     private val logger = KotlinLogging.logger {}
 
@@ -40,6 +44,7 @@ class DocumentStatementCreator {
                  * 2. check if the last joint account summary matches and if so select the relevant account from the summary
                  * 3. use the account number from the last used statement
                  */
+                // TODO: add in hack for NFCU to make sure account number is okay
                 val accountNumber = analyzedBankDocument.accountNumber
                     ?: lastJointStatementSummary?.findRelevantAccountIfMatches(statementDate, analyzedBankDocument.pageMetadata.classification, analyzedBankDocument.pageNum)
                     ?: if (couldNotBeLastUsedStatement)
@@ -95,13 +100,15 @@ class DocumentStatementCreator {
                 logger.error(e) { "Exception processing $analyzedBankDocument: $e" }
             }
         }
+
+        // TODO: add in hack for NFCU
         return statements.values
     }
 
     companion object {
         fun BankStatementKey.couldNotMatch(statementModel: StatementDataModel): Boolean {
             return statementModel.date != null && statementModel.statementDate != this.statementDate ||
-                    statementModel.accountNumber != null && accountNumber != this.accountNumber ||
+                    statementModel.accountNumber != null && statementModel.accountNumber != this.accountNumber ||
                     statementModel.pageMetadata.classification != this.classification
         }
     }

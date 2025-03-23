@@ -32,7 +32,7 @@ class ProcessStatementsActivity @Inject constructor(
     ): ProcessStatementsActivityOutput {
         logger.info { "[${input.requestId}][${context.invocationId}] processing ${input.documentDataModels.size} models" }
         val statementModels = input.documentDataModels.mapNotNull { it.statementDataModel }
-        val checkModels = input.documentDataModels.mapNotNull { it.checkDataModel }
+        val checkModels = input.documentDataModels.mapNotNull { it.checkDataModel }.flatMap { it.extractNestedChecks() }
         val (statementModelsUpdatedAccounts, checksUpdatedAccounts) = accountNormalizer.normalizeAccounts(statementModels, checkModels)
 
         val statementsWithoutChecks = statementCreator.createBankStatements(statementModelsUpdatedAccounts)

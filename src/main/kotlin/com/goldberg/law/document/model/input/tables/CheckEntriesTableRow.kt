@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.goldberg.law.document.model.input.CheckDataModel
 import com.goldberg.law.document.model.pdf.PdfDocumentPageMetadata
+import com.goldberg.law.util.asCurrency
 import com.goldberg.law.util.currencyValue
 import com.goldberg.law.util.normalizeDate
 import com.goldberg.law.util.valueAsInt
@@ -43,7 +44,7 @@ data class CheckEntriesTableRow @JsonCreator constructor(
         fun DocumentField.toCheckEntriesTableRow() = this.getFieldMapHack().let { recordFields ->
             CheckEntriesTableRow(
                 date = normalizeDate(recordFields[Keys.DATE]?.valueAsString),
-                checkNumber = recordFields[Keys.CHECK_NUMBER]?.valueAsInt(),
+                checkNumber = recordFields[Keys.CHECK_NUMBER]?.valueAsString?.toInt(), // TODO: fix in model
                 to = recordFields[Keys.TO]?.valueAsString,
                 description = recordFields[Keys.DESCRIPTION]?.valueAsString,
                 amount = recordFields[Keys.AMOUNT]?.currencyValue(),

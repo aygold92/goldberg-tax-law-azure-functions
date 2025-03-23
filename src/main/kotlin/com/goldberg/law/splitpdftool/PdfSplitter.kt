@@ -5,8 +5,8 @@ import com.goldberg.law.util.docForPage
 import org.apache.pdfbox.pdmodel.PDDocument
 
 class PdfSplitter {
-    fun splitPdf(fileName: String, input: PDDocument, pagesRequested: List<Int>?): List<PdfDocumentPage> {
-        val desiredPages = pagesRequested ?: (1..input.numberOfPages).toList() // default to all pages if null
+    fun splitPdf(fileName: String, input: PDDocument, pagesRequested: List<Int>): List<PdfDocumentPage> {
+        val desiredPages = pagesRequested.ifEmpty { (1..input.numberOfPages).toList() } // default to all pages if empty
         desiredPages.filter { it > input.pages.count }.takeIf { it.isNotEmpty() }?.let {
             throw IllegalArgumentException("Requesting nonexistent pages $it from document $fileName")
         }

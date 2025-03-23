@@ -2,10 +2,11 @@ package com.goldberg.law.document.model.pdf
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.goldberg.law.util.addQuotes
 
-
+@JsonIgnoreProperties("documentType")
 data class PdfDocumentPageMetadata @JsonCreator constructor(
     @JsonProperty("filename") val filename: String,
     @JsonProperty("page") val page: Int,

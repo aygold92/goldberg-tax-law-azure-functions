@@ -48,8 +48,7 @@ data class CheckDataModel @JsonCreator constructor(
     fun matches(record: TransactionHistoryRecord): Boolean {
         // if one of the amounts does not exist, we can probably say it matches
         val amountMatches: Boolean = if (this.amount != null && record.amount != null) this.amount.abs() == record.amount.abs() else true
-        return this.checkNumber == record.checkNumber && this.date == record.date &&
-                amountMatches
+        return this.checkNumber == record.checkNumber && amountMatches
     }
 
     fun extractNestedChecks(): List<CheckDataModel> = checkEntries?.images?.map { it.toCheckDataModel(accountNumber, batesStamp, pageMetadata) }
@@ -67,6 +66,7 @@ data class CheckDataModel @JsonCreator constructor(
     }
     companion object {
         fun AnalyzedDocument.toCheckDataModel(classifiedPdfDocument: ClassifiedPdfDocumentPage): CheckDataModel = this.fields.let { documentFields ->
+            // TODO: add hack for when you get account number + checkNumber
             CheckDataModel(
                 accountNumber = documentFields[Keys.ACCOUNT_NUMBER]?.valueAsString,
                 checkNumber = documentFields[Keys.CHECK_NUMBER]?.valueAsInt(),

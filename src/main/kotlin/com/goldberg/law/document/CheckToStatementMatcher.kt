@@ -9,8 +9,7 @@ class CheckToStatementMatcher {
     private val logger = KotlinLogging.logger {}
 
     fun matchChecksWithStatements(allStatements: List<BankStatement>, allChecks: List<CheckDataModel>): List<BankStatement> {
-        val extractedChecks = allChecks.flatMap { it.extractNestedChecks() }
-        val allChecksMap = extractedChecks.associateBy { it.checkDataKey }
+        val allChecksMap = allChecks.associateBy { it.checkDataKey }
 
         val finalStatements = allStatements.sortedBy { it.statementDate }.map { originalStatement ->
             val transactions = originalStatement.transactions.map { record ->

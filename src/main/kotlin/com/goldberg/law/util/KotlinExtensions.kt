@@ -74,8 +74,9 @@ fun DocumentField.currencyValue(): BigDecimal? = this.content?.parseCurrency()?.
         } catch (ex: ClassCastException) {
             contentValue.also { logger.error { "value ${this.toStringDetailed()} cannot be processed as a double" } }
         }
-        // fixes bug where sometimes randomly the value becomes off by .01 -- in this case the content is accurate
-        if ((contentValue.abs() - doubleValue.abs()).abs() == .01.asCurrency()) {
+        // fixes bug where sometimes randomly the value becomes off by some very small amount -- in this case the content is accurate.
+        // for example, content says "$534,446.46 and the double value randomly is 53446.4375
+        if ((contentValue.abs() - doubleValue.abs()).abs() < .05.asCurrency()) {
             contentValue
         }
         // fixes bug where "- $5,000.00" misses the subtraction sign

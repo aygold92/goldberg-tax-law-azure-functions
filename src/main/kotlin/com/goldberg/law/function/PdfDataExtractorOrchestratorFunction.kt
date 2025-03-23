@@ -125,16 +125,18 @@ class PdfDataExtractorOrchestratorFunction @Inject constructor(private val numWo
         // step 4.2: load models for those files that are already analyzed but not processed to a bank statement (probably due to an error)
         // TODO: what about files that don't contain any bank statements?
         // TODO: if overwrite feature is on, should pass all data models including those already processed
-        if (alreadyAnalyzedNotProcessedToBankStatement.isNotEmpty()) {
-            val pagesAlreadyAnalyzedNotInBankStatement: Set<PdfPageData> = alreadyAnalyzedNotProcessedToBankStatement.flatMap { pdfDocument ->
+
+        val analyzedDocumentsToLoad = if (request.overwrite) alreadyAnalyzedDocuments else alreadyAnalyzedNotProcessedToBankStatement
+        if (analyzedDocumentsToLoad.isNotEmpty()) {
+            val analyzedPagesToLoad: Set<PdfPageData> = analyzedDocumentsToLoad.flatMap { pdfDocument ->
                 (1.. pdfDocument.metadata.totalpages!!).toList().map { PdfPageData(pdfDocument.filename, it) }
             }.toSet()
-            val alreadyAnalyzedModelsNotInBankStatement = ctx.callActivity(
+            val alreadyAnalyzedModels = ctx.callActivity(
                 LoadAnalyzedModelsActivity.FUNCTION_NAME,
-                LoadAnalyzedModelsActivityInput(ctx.instanceId, request.clientName, pagesAlreadyAnalyzedNotInBankStatement),
+                LoadAnalyzedModelsActivityInput(ctx.instanceId, request.clientName, analyzedPagesToLoad),
                 LoadAnalyzedModelsActivityOutput::class.java
             ).await().models
-            dataModels.addAll(alreadyAnalyzedModelsNotInBankStatement)
+            dataModels.addAll(alreadyAnalyzedModels)
         }
 
         // step 5: create bank statements using all the analyzed models

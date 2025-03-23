@@ -40,7 +40,7 @@ class SplitDocumentRequest() {
     @Option(name = "-od", aliases = ["outputDirectory"], usage = "Output directory", required = false)
     var outputDirectory: String = "./"
     @JsonProperty("UseAllPages")
-    @Option(name = "-a", usage = "use all pages", required = false, forbids = [])
+    @Option(name = "-a", usage = "use all pages", required = false, forbids = ["r", "p"])
     var allPages: Boolean = false
     @JsonProperty("Range")
     @Option(name = "-r", usage = "start page to end page", required = false, handler = PairOptionHandler::class)
@@ -71,13 +71,24 @@ class SplitDocumentRequest() {
     }
 
     fun getDesiredPages(): List<Int> {
+        if (this.range == null && this.pages == null && !this.allPages) {
+            throw IllegalArgumentException("You must specify at least one of range (-r), pages (-p), or all (-a)")
+        }
+
+        if (this.allPages) {
+            return emptyList()
+        }
         val range: List<Int> = this.range?.first?.rangeTo(this.range!!.second)?.toList()
             .let { it ?: Collections.emptyList() }
 
         val pages: List<Int> = this.pages?.toList()
             .let { it ?: Collections.emptyList() }
 
-        return (range + pages).distinct().sorted()
+        val totalPages = (range + pages).distinct().sorted()
+        if (totalPages.isEmpty()) {
+            throw IllegalArgumentException("No pages were specified")
+        }
+        return totalPages
     }
 }
 

@@ -9,7 +9,6 @@ import com.goldberg.law.datamanager.AzureStorageDataManager
 import com.goldberg.law.document.*
 import com.goldberg.law.function.*
 import com.goldberg.law.function.activity.*
-import com.goldberg.law.splitpdftool.PdfSplitter
 import com.google.inject.AbstractModule
 import com.google.inject.Provides
 import javax.inject.Singleton
@@ -111,6 +110,24 @@ class AppModule constructor(private val appEnvironmentSettings: AppEnvironmentSe
     fun listClientsFunction(
         blobServiceClient: BlobServiceClient
     ) = ListClientsFunction(blobServiceClient)
+
+    @Provides
+    @Singleton
+    fun testAnalyzePageFunction(
+        processDataModelActivity: ProcessDataModelActivity
+    ) = AnalyzePageFunction(processDataModelActivity)
+
+    @Provides
+    @Singleton
+    fun putDocumentDataModelFunction(
+        dataManager: AzureStorageDataManager
+    ) = PutDocumentDataModelFunction(dataManager)
+
+    @Provides
+    @Singleton
+    fun getDocumentDataModelFunction(
+        dataManager: AzureStorageDataManager
+    ) = GetDocumentDataModelFunction(dataManager)
 
     @Provides
     @Singleton

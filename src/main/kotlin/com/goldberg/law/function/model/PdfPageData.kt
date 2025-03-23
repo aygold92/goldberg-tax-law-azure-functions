@@ -10,7 +10,7 @@ data class PdfPageData @JsonCreator constructor(
     @JsonProperty("page") val page: Int,
 ) {
     private fun documentName() = fileName.withoutExtension()
-    private fun nameWithPage() = "${documentName()}[$page]"
+    fun nameWithPage() = "${documentName()}[$page]"
     private fun fileNameWithPage() = "${nameWithPage()}.pdf"
     fun modelFileName() = "${documentName()}/${nameWithPage()}_Model.json"
     fun splitPageFilePath() = "${documentName()}/${fileNameWithPage()}"

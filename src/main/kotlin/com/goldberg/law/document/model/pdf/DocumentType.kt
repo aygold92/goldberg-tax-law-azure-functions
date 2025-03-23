@@ -28,17 +28,21 @@ enum class DocumentType(val docTypes: List<String> = listOf()) {
         const val C1_CC = "C1 CC"
         const val CITI_CC = "CITI CC"
         const val WF_CC = "WF CC"
+        const val B_OF_A_CC = "BofA CC"
     }
 
     object BankTypes {
         const val EAGLE_BANK = "Eagle Bank"
         const val WF_BANK = "WF Bank"
         const val B_OF_A = "BofA"
+        const val NFCU_BANK = "NFCU Bank"
     }
 
     object CheckTypes {
         const val EAGLE_BANK_CHECK = "Eagle Bank Check"
         const val B_OF_A_CHECK = "BofA Check"
+        const val MISC_CHECK = "Misc Check"
+        const val NFCU_CHECK = "NFCU Check"
     }
 
     object IrrelevantTypes {

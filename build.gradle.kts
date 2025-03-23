@@ -24,6 +24,7 @@ val suspend = if (project.findProperty("debug")?.toString()?.toBoolean() == true
 
 val isProd = project.findProperty("prod")?.toString()?.toBoolean() == true
 
+// TODO: this should be passed in on the command line
 azurefunctions {
     subscription = "39fd9868-2043-43d5-80a5-4e2e7145ba11"
     resourceGroup = "DefaultResourceGroup"

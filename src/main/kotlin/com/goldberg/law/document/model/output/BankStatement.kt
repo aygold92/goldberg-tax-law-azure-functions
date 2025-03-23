@@ -7,10 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.goldberg.law.document.model.input.CheckDataModel
 import com.goldberg.law.document.model.pdf.DocumentType
 import com.goldberg.law.function.model.PdfPageData
-import com.goldberg.law.util.ZERO
-import com.goldberg.law.util.addQuotes
-import com.goldberg.law.util.asCurrency
-import com.goldberg.law.util.fromWrittenDate
+import com.goldberg.law.util.*
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.math.BigDecimal
 import java.util.*
@@ -230,7 +227,7 @@ data class BankStatement @JsonCreator constructor(
     fun hasRecordsWithIncorrectDates() = getTransactionDatesOutsideOfStatement().isNotEmpty()
 
     // we've already ensured not null on beginningBalance/endingBalance when we call this function
-    private fun numbersAddUpBank(): Boolean = beginningBalance!! + getNetTransactions() == endingBalance
+    private fun numbersAddUpBank(): Boolean = (beginningBalance!! + getNetTransactions()).stripTrailingZeros() == endingBalance?.stripTrailingZeros()
 
     // net transactions are reversed on a credit card since spending (positive balance on the physical statement) is stored as a negative cash flow
     // for that reason we subtract the net transactions to get to endingBalance
@@ -240,11 +237,12 @@ data class BankStatement @JsonCreator constructor(
     private fun numbersAddUpCreditCard(): Boolean = getNetTransactions().negate().let { netTransactions ->
         val interest = interestCharged ?: ZERO
         val fees = feesCharged ?: ZERO
+        val endBalance = endingBalance?.stripTrailingZeros()
         // we've already ensured not null on beginningBalance/endingBalance when we call this function
-        beginningBalance!! + netTransactions == endingBalance ||
-                beginningBalance!! + netTransactions + interest == endingBalance ||
-                beginningBalance!! + netTransactions + fees == endingBalance ||
-                beginningBalance!! + netTransactions + interest + fees == endingBalance
+        (beginningBalance!! + netTransactions).stripTrailingZeros() == endBalance ||
+                (beginningBalance!! + netTransactions + interest).stripTrailingZeros() == endBalance ||
+                (beginningBalance!! + netTransactions + fees).stripTrailingZeros() == endBalance ||
+                (beginningBalance!! + netTransactions + interest + fees).stripTrailingZeros() == endBalance
     }
 
 
@@ -269,7 +267,7 @@ data class BankStatement @JsonCreator constructor(
 
     object SuspiciousReasons {
         const val MISSING_FIELDS = "Missing fields: %s"
-        const val BALANCE_DOES_NOT_ADD_UP = "Beginning balance (%f) + net deposits (%f) != ending balance (%f). Expected (%f)"
+        const val BALANCE_DOES_NOT_ADD_UP = "Beginning balance (%s) + net transactions (%s) != ending balance (%s). Expected net (%s)"
         const val NO_TRANSACTIONS_FOUND = "No transactions recorded"
         const val CONTAINS_SUSPICIOUS_RECORDS = "Contains suspicious records"
         const val MULTIPLE_FIELD_VALUES = "Found multiple values for [%s]: [%s, %s]"
@@ -283,7 +281,7 @@ data class BankStatement @JsonCreator constructor(
                 val expected = if (stmt.beginningBalance == null || stmt.endingBalance == null) null
                     else if (stmt.isCreditCard()) stmt.beginningBalance!!.asCurrency()!! - stmt.endingBalance!!.asCurrency()!!
                     else stmt.endingBalance!! - stmt.beginningBalance!!
-                SuspiciousReasons.BALANCE_DOES_NOT_ADD_UP.format(stmt.beginningBalance?.asCurrency(), stmt.getNetTransactions().asCurrency(), stmt.endingBalance?.asCurrency(), expected?.asCurrency())
+                SuspiciousReasons.BALANCE_DOES_NOT_ADD_UP.format(stmt.beginningBalance?.toCurrency(), stmt.getNetTransactions().toCurrency(), stmt.endingBalance?.toCurrency(), expected?.toCurrency())
            },
             Pair(BankStatement::hasNoRecords) { _ -> SuspiciousReasons.NO_TRANSACTIONS_FOUND },
             Pair(BankStatement::hasSuspiciousRecords) { _ -> SuspiciousReasons.CONTAINS_SUSPICIOUS_RECORDS },
