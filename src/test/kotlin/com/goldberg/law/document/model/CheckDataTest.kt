@@ -37,6 +37,7 @@ class CheckDataTest {
                     "Some Guy",
                     "test",
                     1500.asCurrency(),
+                    null
                 ),
                 CheckEntriesTableRow(
                     normalizeDate("4 15 2020"),
@@ -44,6 +45,7 @@ class CheckDataTest {
                     "Another Guy",
                     "desc",
                     2000.asCurrency(),
+                    null
                 ),
             )),
             CHECK_BATES_STAMP,
@@ -74,4 +76,63 @@ class CheckDataTest {
 
         assertThat(compositeCheckData.extractNestedChecks()).isEqualTo(listOf(checkData1, checkData2))
     }
+
+    @Test
+    fun extractCompositeCheckDataWithAccountNumber() {
+        val otherAccountNumber = "9876"
+        val compositeCheckData = CheckDataModel(
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            CheckEntriesTable(images = listOf(
+                CheckEntriesTableRow(
+                    normalizeDate("4 10 2020"),
+                    1000,
+                    "Some Guy",
+                    "test",
+                    1500.asCurrency(),
+                    ACCOUNT_NUMBER
+                ),
+                CheckEntriesTableRow(
+                    normalizeDate("4 15 2020"),
+                    1001,
+                    "Another Guy",
+                    "desc",
+                    2000.asCurrency(),
+                    otherAccountNumber
+                ),
+            )),
+            CHECK_BATES_STAMP,
+            BASIC_CHECK_PAGE_METADATA
+        )
+        val checkData1 = CheckDataModel(
+            ACCOUNT_NUMBER,
+            1000,
+            "Some Guy",
+            "test",
+            normalizeDate("4 10 2020"),
+            1500.asCurrency(),
+            null,
+            CHECK_BATES_STAMP,
+            BASIC_CHECK_PAGE_METADATA
+        )
+        val checkData2 = CheckDataModel(
+            otherAccountNumber,
+            1001,
+            "Another Guy",
+            "desc",
+            normalizeDate("4 15 2020"),
+            2000.asCurrency(),
+            null,
+            CHECK_BATES_STAMP,
+            BASIC_CHECK_PAGE_METADATA
+        )
+
+        assertThat(compositeCheckData.extractNestedChecks()).isEqualTo(listOf(checkData1, checkData2))
+    }
+
+
 }

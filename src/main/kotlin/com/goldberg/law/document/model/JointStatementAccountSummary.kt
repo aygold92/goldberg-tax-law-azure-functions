@@ -13,4 +13,14 @@ data class JointStatementAccountSummary(
             summaryOfAccountsTable.findRelevantAccount(statementPage).accountNumber
         else null
     }
+
+    // For NFCU bank hack
+    fun getCombinedAccount(): String? {
+        if (summaryOfAccountsTable.records.isEmpty()) return null
+        return summaryOfAccountsTable.records.map { it.accountNumber }.joinToString(COMBINED_ACCOUNT_SEPARATOR)
+    }
+
+    companion object {
+        const val COMBINED_ACCOUNT_SEPARATOR = "--"
+    }
 }

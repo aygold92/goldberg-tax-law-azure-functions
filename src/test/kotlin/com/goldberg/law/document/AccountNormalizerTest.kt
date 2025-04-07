@@ -42,15 +42,15 @@ class AccountNormalizerTest {
         assertThat(resultModels).isEqualTo(
             listOf(
                 newStatementDataModel("aa123"),
-                newStatementDataModel("00001234"),
-                newStatementDataModel("00001234"),
-                newStatementDataModel("00001234"),
-                newStatementDataModel("99234")
+                newStatementDataModel("1234"),
+                newStatementDataModel("1234"),
+                newStatementDataModel("1234"),
+                newStatementDataModel("9234")
             )
         )
         assertThat(resultChecks).isEqualTo(
             listOf(
-                newCheckData(1000, accountNumber = "00001234"),
+                newCheckData(1000, accountNumber = "1234"),
                 newCheckData(1001, accountNumber = "5678"),
                 newCheckData(1001, accountNumber = "aa123")
             )
@@ -74,13 +74,13 @@ class AccountNormalizerTest {
         val (resultModels, resultChecks) = accountNormalizer.normalizeAccounts(models, checks)
         assertThat(resultModels).isEqualTo(
             listOf(
-                newStatementDataModel("991234"),
-                newStatementDataModel("991234"),
-                newStatementDataModel("00001234"))
+                newStatementDataModel("1234"),
+                newStatementDataModel("1234"),
+                newStatementDataModel("1234"))
         )
         assertThat(resultChecks).isEqualTo(
             listOf(
-                newCheckData(1000, accountNumber = "00001234"),
+                newCheckData(1000, accountNumber = "1234"),
                 newCheckData(1001, accountNumber = "5678")
             )
         )
@@ -91,14 +91,14 @@ class AccountNormalizerTest {
         assertThat(accountNormalizer.getAccountMapping(
             setOf("xxxx", "xxx123", "7890", "567890", "1234567890", "1234", "001234", "098001234", "xxx1234", "xxxx1234")
         )).isEqualTo(mapOf(
-            "7890" to "1234567890",
-            "567890" to "1234567890",
-            "1234567890" to "1234567890",
-            "1234" to "098001234",
-            "xxx1234" to "098001234",
-            "xxxx1234" to "098001234",
-            "001234" to "098001234",
-            "098001234" to "098001234"
+            "7890" to "7890",
+            "567890" to "7890",
+            "1234567890" to "7890",
+            "1234" to "1234",
+            "xxx1234" to "1234",
+            "xxxx1234" to "1234",
+            "001234" to "1234",
+            "098001234" to "1234"
         ))
     }
     

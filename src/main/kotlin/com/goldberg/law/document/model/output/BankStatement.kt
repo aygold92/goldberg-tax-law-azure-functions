@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.goldberg.law.document.model.input.CheckDataModel
+import com.goldberg.law.document.model.input.SummaryOfAccountsTable
 import com.goldberg.law.document.model.pdf.DocumentType
 import com.goldberg.law.function.model.PdfPageData
 import com.goldberg.law.util.*
@@ -26,7 +27,7 @@ data class BankStatement @JsonCreator constructor(
     @JsonProperty("bankIdentifier")
     var bankIdentifier: String? = null,
     @JsonProperty("startPage")
-    var startPage: Int = 1, // for combined statements
+    var startPage: Int? = null, // for combined statements
     @JsonProperty("totalPages")
     var totalPages: Int? = null,
     @JsonProperty("beginningBalance")
@@ -52,8 +53,11 @@ data class BankStatement @JsonCreator constructor(
     @JsonIgnore @Transient
     val primaryKey = BankStatementKey(date, accountNumber, classification)
 
-    constructor(filename: String, classification: String, key: BankStatementKey, startPage: Int? = 1) :
-            this(filename, classification, key.date, key.accountNumber, startPage = startPage ?: 1)
+    @JsonIgnore @Transient
+    var summaryOfAccountsTable: SummaryOfAccountsTable? = null
+
+    constructor(filename: String, classification: String, key: BankStatementKey, startPage: Int? = null) :
+            this(filename, classification, key.date, key.accountNumber, startPage = startPage)
 
     @JsonIgnore
     fun azureFileName() = getFileName(accountNumber, date, classification, filename, pages.map { it.pageData })
@@ -107,7 +111,7 @@ data class BankStatement @JsonCreator constructor(
         ?.reduce {acc, amt -> (acc + amt) }?.abs() ?: 0.asCurrency()
 
     @JsonIgnore
-    fun getPageRange(): Pair<Int, Int> = pages.sortedBy { it.filePageNumber }.let { Pair(it.first().filePageNumber, it.last().filePageNumber) }
+    fun getPageRange(): Pair<Int, Int> = if (pages.isEmpty()) Pair(0,0) else pages.sortedBy { it.filePageNumber }.let { Pair(it.first().filePageNumber, it.last().filePageNumber) }
 
     // TODO
     fun addInterestAndFeesTransactionsIfNecessary() {
@@ -265,9 +269,12 @@ data class BankStatement @JsonCreator constructor(
     @JsonIgnore
     fun isCreditCard(): Boolean = statementType == DocumentType.CREDIT_CARD
 
+    @JsonIgnore
+    fun isNFCUBank(): Boolean = classification == DocumentType.BankTypes.NFCU_BANK
+
     object SuspiciousReasons {
         const val MISSING_FIELDS = "Missing fields: %s"
-        const val BALANCE_DOES_NOT_ADD_UP = "Beginning balance (%s) + net transactions (%s) != ending balance (%s). Expected net (%s)"
+        const val BALANCE_DOES_NOT_ADD_UP = "Beginning balance (%s) + net transactions (%s) != ending balance (%s). Expected (%s)"
         const val NO_TRANSACTIONS_FOUND = "No transactions recorded"
         const val CONTAINS_SUSPICIOUS_RECORDS = "Contains suspicious records"
         const val MULTIPLE_FIELD_VALUES = "Found multiple values for [%s]: [%s, %s]"

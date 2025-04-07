@@ -4,9 +4,6 @@ import com.goldberg.law.document.model.input.CheckDataModel
 import com.goldberg.law.document.model.input.StatementDataModel
 import io.github.oshai.kotlinlogging.KotlinLogging
 
-/**
- * TODO: normalize to last 4
- */
 class AccountNormalizer {
     private val logger = KotlinLogging.logger {}
 
@@ -34,7 +31,7 @@ class AccountNormalizer {
             if (resultMap.keys.none { it.endsWith(longestAccount) }) {
                 for (account in sortedAccountNumbers.filter { longestAccount.endsWith(it) }) {
                     originalToNumberOnlyMapping[account]?.forEach {
-                        resultMap[it] = longestAccount
+                        resultMap[it] = longestAccount.substring(longestAccount.length - 4)
                     }
                 }
             }

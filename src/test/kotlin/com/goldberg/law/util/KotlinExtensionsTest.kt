@@ -17,7 +17,7 @@ class KotlinExtensionsTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = ["-50.0", "-50.00", "-50", "-$50", "-$50.00", "-$50.0", " - 50.0 * "])
+    @ValueSource(strings = ["-50.0", "-50.00", "-50", "-$50", "-$50.00", "-$50.0", " - 50.0 * ", "50.0-"])
     fun testParseCurrencyNegative(value: String) {
         assertThat(value.parseCurrency()).isEqualTo((-50.0).asCurrency())
     }

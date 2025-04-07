@@ -19,6 +19,7 @@ data class TransactionTableAmountRecord @JsonCreator constructor(
         return TransactionHistoryRecord(
             date = fromWrittenDateStatementDateOverride(this.date, statementDate),
             description = this.description,
+            checkNumber = extractCheckNumber(this.description),
             // a positive entry on the credit card statement is a charge, which means money is going down
             // a negative entry is a credit, which means money goes up
             amount = if (documentType == DocumentType.CREDIT_CARD) amount?.negate() else amount,

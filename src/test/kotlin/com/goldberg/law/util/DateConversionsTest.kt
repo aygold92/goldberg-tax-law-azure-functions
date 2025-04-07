@@ -9,18 +9,19 @@ import java.time.Instant
 class DateConversionsTest {
     @ParameterizedTest
     @ValueSource(strings = ["April 7 2020", "April 7, 2020", "April 7,2020", ".April 7, 2020", "April 7,  2020", "Apr 7, 2020",
-        "4/7/2020", "04/07/2020", "4/7/20", "04/07/20", " .-4/7. 2020 ; "])
+        "4/7/2020", "04/07/2020", "4/7/20", "04/07/20", " .-4/7. 2020 ; ",
+        // these dates were found on checks
+        "20200407", "2020 Apr 7"])
     fun testFromStatementDate(monthDayYear: String) {
         val date = fromWrittenDate(monthDayYear)
         assertThat(date?.toTransactionDate()).isEqualTo("4/7/2020")
         assertThat(normalizeDate(monthDayYear)).isEqualTo("4/7/2020")
     }
 
-    // TODO: add "20230518" and "2024 Sep 20"
     @ParameterizedTest
     @ValueSource(strings = ["4/7", "04/07", "4/7/2020", "04/07/2020", "4/7/20", "04/07/20", ".-4/7.", "Apr 7", "April 7",
         "April 7 2020", "April 7, 2020", "April 7,2020", ".April 7, 2020", "April 7,  2020", "Apr 7, 2020",
-        "4/7/2020", "04/07/2020", "4/7/20", "04/07/20", " .-4/7. 2020 ; "])
+        "4/7/2020", "04/07/2020", "4/7/20", "04/07/20", " .-4/7. 2020 ; ", "20200407", "2020 Apr 7"])
     fun testFromTransactionDate(monthDay: String) {
         val date = fromWrittenDate(monthDay, "2020")
         assertThat(date?.toTransactionDate()).isEqualTo("4/7/2020")

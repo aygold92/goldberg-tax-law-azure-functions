@@ -66,10 +66,13 @@ data class CheckDataModel @JsonCreator constructor(
     }
     companion object {
         fun AnalyzedDocument.toCheckDataModel(classifiedPdfDocument: ClassifiedPdfDocumentPage): CheckDataModel = this.fields.let { documentFields ->
-            // TODO: add hack for when you get account number + checkNumber
+            val accountNumberRead = documentFields[Keys.ACCOUNT_NUMBER]?.valueAsString?.hackToNumber()
+            val checkNumber = documentFields[Keys.CHECK_NUMBER]?.valueAsInt()
+            val accountNumber = getAccountNumber(accountNumberRead, checkNumber)
+
             CheckDataModel(
-                accountNumber = documentFields[Keys.ACCOUNT_NUMBER]?.valueAsString,
-                checkNumber = documentFields[Keys.CHECK_NUMBER]?.valueAsInt(),
+                accountNumber = accountNumber,
+                checkNumber = checkNumber,
                 to = documentFields[Keys.TO]?.valueAsString,
                 description = documentFields[Keys.DESCRIPTION]?.valueAsString,
                 date = normalizeDate(documentFields[Keys.DATE]?.valueAsString),
@@ -79,6 +82,13 @@ data class CheckDataModel @JsonCreator constructor(
                 pageMetadata = classifiedPdfDocument.toDocumentMetadata()
             )
         }
+
+        // for some checks, we need to get the account number from the bottom of the check,
+        // which can get smashed together with the checkNumber, like "8558⑈5563"
+        private fun getAccountNumber(accountNumberRead: String?, checkNumber: Int?): String? =
+            if (accountNumberRead?.length == 8 && accountNumberRead.endsWith(checkNumber.toString()))
+                accountNumberRead.substring(0, 4)
+            else accountNumberRead
 
         fun blankModel(classifiedPdfDocument: ClassifiedPdfDocumentPage): CheckDataModel = CheckDataModel(
             null, null, null, null, null, null, null, null,

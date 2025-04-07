@@ -77,7 +77,7 @@ data class TransactionHistoryRecord @JsonCreator constructor(
     @JsonIgnore
     fun hasCheckWithoutNumber() = hasCheckDescription() && checkNumber == null
     @JsonIgnore
-    fun hasNumberWithoutCheck() = checkNumber != null && !hasCheckDescription()
+    fun hasNumberWithoutCheck() = checkNumber != null && !hasCheckDescription() && this.description?.lowercase()?.contains("check") != true
 
     private fun hasCheckDescription() = CHECK_DESCRIPTIONS.any { it.equals(this.description?.trim(), ignoreCase = true) }
 

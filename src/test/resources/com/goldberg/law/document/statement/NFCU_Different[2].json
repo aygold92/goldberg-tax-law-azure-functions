@@ -1,0 +1,25 @@
+{
+    "bankIdentifier": "NAVY @ FEDERAL Credit Union",
+    "date": "12/14/2024",
+    "pageNum": 3,
+    "totalPages": 3,
+    "accountNumber": "9667",
+    "transactionTableAmount": {
+      "records": [
+        {
+          "date": "11-15",
+          "description": "Beginning Balance"
+        },
+        {
+          "date": "11-29",
+          "description": "Dividend",
+          "amount": 0.05
+        }
+      ]
+    },
+    "pageMetadata": {
+      "filename": "NFCU_2024_Different_Page.pdf",
+      "page": 3,
+      "classification": "NFCU Bank"
+    }
+}

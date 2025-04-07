@@ -42,7 +42,13 @@ class ProcessStatementsActivity @Inject constructor(
 
         val finalStatements = checkToStatementMatcher.matchChecksWithStatements(statementsWithoutChecks, checksUpdatedAccounts)
 
-        finalStatements.mapAsync { dataManager.saveBankStatement(input.clientName, it) }
+        finalStatements.mapAsync {
+            try {
+                dataManager.saveBankStatement(input.clientName, it)
+            } catch (e: Exception) {
+                logger.error { "Unable to save statement $it: $e" }
+            }
+        }
 
         // match filenames to statements
         val inputFileToStatement: MutableMap<String, MutableSet<String>> = mutableMapOf()

@@ -1,20 +1,24 @@
 package com.goldberg.law.document
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.goldberg.law.document.model.ModelValues.FILENAME
 import com.goldberg.law.document.model.StatementModelValues
 import com.goldberg.law.document.model.input.StatementDataModel
 import com.goldberg.law.document.model.output.BankStatement
+import com.goldberg.law.document.model.output.BankStatementKey
 import com.goldberg.law.document.model.output.TransactionHistoryPageMetadata
 import com.goldberg.law.document.model.output.TransactionHistoryRecord
 import com.goldberg.law.document.model.pdf.DocumentType.BankTypes
 import com.goldberg.law.document.model.pdf.PdfDocumentPageMetadata
-import com.goldberg.law.util.OBJECT_MAPPER
 import com.goldberg.law.util.asCurrency
 import com.goldberg.law.util.fromWrittenDate
 import com.goldberg.law.util.normalizeDate
-import com.nimbusds.jose.shaded.gson.Gson
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
+import java.nio.file.Files
+import java.nio.file.Paths
 
 class DocumentStatementCreatorTest {
     private val statementCreator = DocumentStatementCreator()
@@ -182,7 +186,7 @@ class DocumentStatementCreatorTest {
                 classification = BankTypes.WF_BANK,
                 date = firstStatementDate,
                 accountNumber = "1010086913443",
-                startPage = 1,
+                startPage = null,
                 totalPages = 4,
                 beginningBalance = 10124.23.asCurrency(),
                 endingBalance = 6390.78.asCurrency(),
@@ -284,7 +288,7 @@ class DocumentStatementCreatorTest {
 
         assertThat(statement.getSuspiciousReasons())
             .hasSize(1)
-            .contains(BankStatement.SuspiciousReasons.BALANCE_DOES_NOT_ADD_UP.format(1881.4, -6195.49, 1649.41, -231.99))
+            .contains(BankStatement.SuspiciousReasons.BALANCE_DOES_NOT_ADD_UP.format(1881.40.asCurrency(), 6195.49, 1649.41, -231.99))
 
     }
 
@@ -297,7 +301,7 @@ class DocumentStatementCreatorTest {
         val statement = result[0]
         assertThat(statement.statementDate).isEqualTo(fromWrittenDate("Jun 09, 2021"))
         assertThat(statement.accountNumber).isEqualTo("5695")
-        assertThat(statement.getNetTransactions()).isEqualTo((-59.0).asCurrency())
+        assertThat(statement.getNetTransactions()).isEqualTo((59.0).asCurrency())
         assertThat(statement.getSuspiciousReasons()).isEmpty()
     }
 
@@ -312,6 +316,7 @@ class DocumentStatementCreatorTest {
         val statement = result[0]
         assertThat(statement.statementDate).isEqualTo(fromWrittenDate("May 15, 2019"))
         assertThat(statement.accountNumber).isEqualTo("0100002492")
+        println(statement.transactions)
         assertThat(statement.getNetTransactions()).isEqualTo(330.94.asCurrency())
         assertThat(statement.getSuspiciousReasons()).isEmpty()
 
@@ -410,6 +415,167 @@ class DocumentStatementCreatorTest {
         assertThat(statement3.isSuspicious()).isFalse()
         assertThat(statement3.transactions.size).isEqualTo(4)
         assertThat(statement3.getNetTransactions()).isEqualTo(-51688.42.asCurrency())
+    }
+
+    @Test
+    fun testNFCUJointStatementsOnSamePage() {
+        val models = listOf(
+            readFileRelative("NFCU_Same[0].json"),
+            readFileRelative("NFCU_Same[1].json"),
+        ).map { OBJECT_MAPPER.readValue(it, StatementDataModel::class.java) }
+
+        val result = statementCreator.createBankStatements(models).toList()
+
+        assertThat(result).hasSize(2)
+
+        assertThat(result[0].accountNumber).isEqualTo("1663")
+        assertThat(result[0].transactions.size).isEqualTo(6)
+        assertThat(result[0].getNetTransactions()).isEqualTo((-3051.87).asCurrency())
+        assertThat(result[0].isSuspicious()).isFalse()
+
+        assertThat(result[1].accountNumber).isEqualTo("9667")
+        assertThat(result[1].transactions.size).isEqualTo(2)
+        assertThat(result[1].getNetTransactions()).isEqualTo((-299.88).asCurrency())
+        assertThat(result[1].isSuspicious()).isFalse()
+    }
+
+    @Test
+    fun testNFCUJointStatementsOnDifferentPages() {
+        val models = listOf(
+            readFileRelative("NFCU_Different[0].json"),
+            readFileRelative("NFCU_Different[1].json"),
+            readFileRelative("NFCU_Different[2].json"),
+        ).map { OBJECT_MAPPER.readValue(it, StatementDataModel::class.java) }
+
+        val result = statementCreator.createBankStatements(models).toList()
+
+        assertThat(result).hasSize(2)
+
+        assertThat(result[0].accountNumber).isEqualTo("1663")
+        assertThat(result[0].transactions.size).isEqualTo(14)
+        assertThat(result[0].getNetTransactions()).isEqualTo((6209.1).asCurrency())
+        assertThat(result[0].isSuspicious()).isFalse()
+
+        assertThat(result[1].accountNumber).isEqualTo("9667")
+        assertThat(result[1].transactions.size).isEqualTo(1)
+        assertThat(result[1].getNetTransactions()).isEqualTo(.05.asCurrency())
+        assertThat(result[1].isSuspicious()).isFalse()
+    }
+
+    @Test
+    fun testNFCUSingleAccountStatement() {
+        val models = listOf(
+            readFileRelative("NFCU_SingleAccount[0].json"),
+            readFileRelative("NFCU_SingleAccount[1].json"),
+        ).map { OBJECT_MAPPER.readValue(it, StatementDataModel::class.java) }
+
+        val result = statementCreator.createBankStatements(models).toList()
+
+        assertThat(result).hasSize(1)
+
+        assertThat(result[0].accountNumber).isEqualTo("9667")
+        assertThat(result[0].transactions.size).isEqualTo(4)
+        assertThat(result[0].getNetTransactions()).isEqualTo(5762.23.asCurrency())
+        assertThat(result[0].isSuspicious()).isFalse()
+    }
+
+    @Test
+    fun testNFCUAllInOne() {
+        val models = listOf(
+            readFileRelative("NFCU_Different[0].json"),
+            readFileRelative("NFCU_Different[1].json"),
+            readFileRelative("NFCU_Different[2].json"),
+            readFileRelative("NFCU_SingleAccount[0].json"),
+            readFileRelative("NFCU_SingleAccount[1].json"),
+            readFileRelative("NFCU_Same[0].json"),
+            readFileRelative("NFCU_Same[1].json"),
+        ).map { OBJECT_MAPPER.readValue(it, StatementDataModel::class.java) }
+
+        val result = statementCreator.createBankStatements(models).toList()
+
+        assertThat(result).hasSize(5)
+
+        val singleAccountStmt = result.find { it.date == "3/14/2022" }!!
+        val differentPageStmt1663 = result.find { it.filename == "NFCU_2024_Different_Page.pdf" && it.accountNumber == "1663" }!!
+        val differentPageStmt9667 = result.find { it.filename == "NFCU_2024_Different_Page.pdf" && it.accountNumber == "9667" }!!
+        val samePageStmt1663 = result.find { it.filename == "NFCU_2024_SamePage.pdf" && it.accountNumber == "1663" }!!
+        val samePageStmt9667 = result.find { it.filename == "NFCU_2024_SamePage.pdf" && it.accountNumber == "9667" }!!
+
+        assertThat(differentPageStmt1663.accountNumber).isEqualTo("1663")
+        assertThat(differentPageStmt1663.transactions.size).isEqualTo(14)
+        assertThat(differentPageStmt1663.getNetTransactions()).isEqualTo((6209.1).asCurrency())
+        assertThat(differentPageStmt1663.isSuspicious()).isFalse()
+
+        assertThat(differentPageStmt9667.accountNumber).isEqualTo("9667")
+        assertThat(differentPageStmt9667.transactions.size).isEqualTo(1)
+        assertThat(differentPageStmt9667.getNetTransactions()).isEqualTo(.05.asCurrency())
+        assertThat(differentPageStmt9667.isSuspicious()).isFalse()
+
+        assertThat(singleAccountStmt.accountNumber).isEqualTo("9667")
+        assertThat(singleAccountStmt.transactions.size).isEqualTo(4)
+        assertThat(singleAccountStmt.getNetTransactions()).isEqualTo(5762.23.asCurrency())
+        assertThat(singleAccountStmt.isSuspicious()).isFalse()
+
+        assertThat(samePageStmt1663.accountNumber).isEqualTo("1663")
+        assertThat(samePageStmt1663.transactions.size).isEqualTo(6)
+        assertThat(samePageStmt1663.getNetTransactions()).isEqualTo((-3051.87).asCurrency())
+        assertThat(samePageStmt1663.isSuspicious()).isFalse()
+
+        assertThat(samePageStmt9667.accountNumber).isEqualTo("9667")
+        assertThat(samePageStmt9667.transactions.size).isEqualTo(2)
+        assertThat(samePageStmt9667.getNetTransactions()).isEqualTo((-299.88).asCurrency())
+        assertThat(samePageStmt9667.isSuspicious()).isFalse()
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["EOYWithYear.json", "EOYNoYear.json"])
+    fun testEOYTransactions(filename: String) {
+        val models = listOf(
+            readFileRelative(filename),
+        ).map { OBJECT_MAPPER.readValue(it, StatementDataModel::class.java) }
+
+        val result = statementCreator.createBankStatements(models).toList()
+
+        assertThat(result).hasSize(1)
+        val statement = result[0]
+
+        assertThat(statement.accountNumber).isEqualTo("8558")
+        assertThat(statement.transactions.size).isEqualTo(4)
+        assertThat(statement.transactions.map { it.transactionDate }).containsAll(listOf(
+            fromWrittenDate("12/22/21"),
+            fromWrittenDate("12/30/21"),
+            fromWrittenDate("01/03/22"),
+            fromWrittenDate("01/07/22"),
+        ))
+    }
+
+    @Test
+    fun testNFCUNotWorking() {
+        val models = listOf(
+            readFileRelative("NFCU_NotWorking[0].json"),
+            readFileRelative("NFCU_NotWorking[1].json"),
+        ).map { OBJECT_MAPPER.readValue(it, StatementDataModel::class.java) }
+
+        val result = statementCreator.createBankStatements(models).toList()
+
+        assertThat(result).hasSize(2)
+
+        assertThat(result[0].accountNumber).isEqualTo("1663")
+        assertThat(result[0].transactions.size).isEqualTo(9)
+        assertThat(result[0].isSuspicious()).isFalse()
+
+        assertThat(result[1].accountNumber).isEqualTo("9667")
+        assertThat(result[1].transactions.size).isEqualTo(1)
+        assertThat(result[1].isSuspicious()).isFalse()
+
+    }
+
+    companion object {
+        val PATH_TO_CLASS = "/" + DocumentStatementCreator::class.java.packageName.replace('.', '/')
+
+        private val OBJECT_MAPPER = ObjectMapper()
+        fun readFileRelative(filename: String): String =
+            Files.readString(Paths.get(javaClass.getResource("$PATH_TO_CLASS/statement/$filename")!!.toURI()))
     }
 
 }

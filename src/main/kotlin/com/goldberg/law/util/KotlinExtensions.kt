@@ -50,7 +50,13 @@ fun Number.asCurrency(): BigDecimal? = BigDecimal(this.toString()).setScale(2, R
 fun Map<String?, *>.valueNotNull(key: String): Boolean = this.containsKey(key) && this.get(key) != null
 
 fun String.hackToNumber(): String = this.trim()
-    .filterIndexed { idx, ch -> ch.isLetterOrDigit() || (ch == '-' && idx != 1) ||  listOf('.', '$').contains(ch) }
+    .filterIndexed { idx, ch -> ch.isLetterOrDigit() || (ch == '-' && idx != 1) ||  listOf('.', '$').contains(ch) }.let { value ->
+        if (value.trim().endsWith("-")) {
+            "-${value.trim().dropLast(1)}" // Move the minus sign to the front
+        } else {
+            value
+        }
+    }
 
 fun DocumentField.valueAsInt(): Int? = try {
     this.valueAsLong.toInt()

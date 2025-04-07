@@ -1,0 +1,316 @@
+{
+  "fields":
+  {
+    "BatesStamp":
+    {
+      "type": "string",
+      "content": null,
+      "value": null
+    },
+    "TransactionTableCredits":
+    {
+      "type": "array",
+      "content": null,
+      "value": null
+    },
+    "ChecksTable":
+    {
+      "type": "array",
+      "content": null,
+      "value": null
+    },
+    "EndingBalance":
+    {
+      "type": "number",
+      "content": null,
+      "value": null
+    },
+    "Page":
+    {
+      "type": "string",
+      "content": "2",
+      "value": "2"
+    },
+    "TotalPages":
+    {
+      "type": "string",
+      "content": "3",
+      "value": "3"
+    },
+    "TransactionTableAmount":
+    {
+      "type": "array",
+      "content": null,
+      "value":
+      [
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "Beginning Balance",
+              "value": "Beginning Balance"
+            },
+            "Amount":
+            {
+              "type": "number",
+              "content": null,
+              "value": null
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "12-15",
+              "value": "12-15"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "ATM Withdrawal 12-23-23 Fcba Rockville, MD",
+              "value": "ATM Withdrawal 12-23-23 Fcba Rockville, MD"
+            },
+            "Amount":
+            {
+              "type": "number",
+              "content": "300.00-",
+              "value": -300.0
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "12-26",
+              "value": "12-26"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "Dividend",
+              "value": "Dividend"
+            },
+            "Amount":
+            {
+              "type": "number",
+              "content": "0.05",
+              "value": 0.05000000074505806
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "12-29",
+              "value": "12-29"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "ATM Withdrawal 01-10-24 Fort Laurel Town Ctr, MD",
+              "value": "ATM Withdrawal 01-10-24 Fort Laurel Town Ctr, MD"
+            },
+            "Amount":
+            {
+              "type": "number",
+              "content": "200.00-",
+              "value": -200.0
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "01-11",
+              "value": "01-11"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "Beginning Balance",
+              "value": "Beginning Balance"
+            },
+            "Amount":
+            {
+              "type": "number",
+              "content": null,
+              "value": null
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "12-15",
+              "value": "12-15"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "Withdrawal by Cash 12-23-23 Foba Rockville, MD",
+              "value": "Withdrawal by Cash 12-23-23 Foba Rockville, MD"
+            },
+            "Amount":
+            {
+              "type": "number",
+              "content": "300.00-",
+              "value": -300.0
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "12-26",
+              "value": "12-26"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "Dividend",
+              "value": "Dividend"
+            },
+            "Amount":
+            {
+              "type": "number",
+              "content": "0.32",
+              "value": 0.3199999928474426
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "12-29",
+              "value": "12-29"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "Withdrawal by Cash 01-10-24 Fort Laurel Town Ctr, MD",
+              "value": "Withdrawal by Cash 01-10-24 Fort Laurel Town Ctr, MD"
+            },
+            "Amount":
+            {
+              "type": "number",
+              "content": "200.00",
+              "value": 200.0
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "01-11",
+              "value": "01-11"
+            }
+          }
+        }
+      ]
+    },
+    "StatementDate":
+    {
+      "type": "string",
+      "content": "01/14/24",
+      "value": "01/14/24"
+    },
+    "FeesCharged":
+    {
+      "type": "number",
+      "content": null,
+      "value": null
+    },
+    "AccountNumber":
+    {
+      "type": "string",
+      "content": "1663",
+      "value": "1663"
+    },
+    "Page/Total":
+    {
+      "type": "string",
+      "content": null,
+      "value": null
+    },
+    "InterestCharged":
+    {
+      "type": "number",
+      "content": null,
+      "value": null
+    },
+    "TransactionTableDepositWithdrawal":
+    {
+      "type": "array",
+      "content": null,
+      "value": null
+    },
+    "TransactionTableCreditsCharges":
+    {
+      "type": "array",
+      "content": null,
+      "value": null
+    },
+    "SummaryOfAccounts":
+    {
+      "type": "array",
+      "content": null,
+      "value": null
+    },
+    "BankIdentifier":
+    {
+      "type": "string",
+      "content": "NAVY\nFEDERAL Credit Union",
+      "value": "NAVY FEDERAL Credit Union"
+    },
+    "TransactionTableDebits":
+    {
+      "type": "array",
+      "content": null,
+      "value": null
+    },
+    "BeginningBalance":
+    {
+      "type": "number",
+      "content": null,
+      "value": null
+    }
+  },
+  "docType": "BankCreditCardExtractor_Prod_V5"
+}

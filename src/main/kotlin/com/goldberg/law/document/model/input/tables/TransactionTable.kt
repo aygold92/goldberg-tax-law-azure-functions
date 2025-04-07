@@ -23,12 +23,22 @@ abstract class TransactionRecord {
     // TODO: need the full statement date to check if it's a january statement
     fun fromWrittenDateStatementDateOverride(monthDay: String?, statementDate: Date?): String? {
         val date = fromWrittenDate(monthDay, statementDate?.getYearSafe())
-        return (if (date != null && date.getMonthInt() == 11 && statementDate?.getMonthInt() == 0) {
+        return (if (date != null && date.getMonthInt() == 11 && statementDate?.getMonthInt() == 0 && date.getYearInt() != (statementDate.getYearInt() - 1)) {
             Calendar.getInstance().apply {
                 time = date
                 add(Calendar.YEAR, -1)
             }.time
         } else date)?.toTransactionDate()
+    }
+
+    fun extractCheckNumber(desc: String?): Int? {
+        if (desc == null) return null
+        val match = CHECK_REGEX.find(desc) ?: return null
+        return match.groupValues[1].toInt()
+    }
+
+    companion object {
+        private val CHECK_REGEX = Regex("^Check (\\d+)$") // Matches "Check xxx" where xxx is a number
     }
 }
 

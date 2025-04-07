@@ -1,0 +1,74 @@
+{
+  "bankIdentifier": "NAVY @ FEDERAL Credit Union",
+  "date": "5/14/2024",
+  "pageNum": 2,
+  "totalPages": 3,
+  "accountNumber": "1663",
+  "transactionTableAmount": {
+    "records": [
+      {
+        "date": "04-15",
+        "description": "Beginning Balance"
+      },
+      {
+        "date": "04-18",
+        "description": "ATM Withdrawal 04-17-24 Fcba Rockville, MD",
+        "amount": -800
+      },
+      {
+        "date": "04-22",
+        "description": "Cash Withdrawal",
+        "amount": -2825
+      },
+      {
+        "date": "04-22",
+        "description": "Check 151",
+        "amount": -4000
+      },
+      {
+        "date": "04-30",
+        "description": "Dividend",
+        "amount": 4.85
+      },
+      {
+        "date": "05-09",
+        "description": "ATM Withdrawal 05-08-24 Fcpp Rockville, MD",
+        "amount": -300
+      },
+      {
+        "date": "05-13",
+        "description": "ATM Fee - Withdrawal 05-11-24 Bank Of America Columbus OH",
+        "amount": -1
+      },
+      {
+        "date": "05-13",
+        "description": "ATM Withdrawal 05-11-24 Bank Of America Columbus OH",
+        "amount": -504
+      },
+      {
+        "date": "05-14",
+        "description": "ATM Withdrawal 05-14-24 Fcpp Rockville, MD",
+        "amount": -500
+      },
+      {
+        "date": "05-14",
+        "description": "ATM Rebate",
+        "amount": 5
+      },
+      {
+        "date": "04-15",
+        "description": "Beginning Balance"
+      },
+      {
+        "date": "04-30",
+        "description": "Dividend",
+        "amount": 0.11
+      }
+    ]
+  },
+  "pageMetadata": {
+    "filename": "NFCU Statement x9667 2024.01-2024.11.pdf",
+    "page": 11,
+    "classification": "NFCU Bank"
+  }
+}

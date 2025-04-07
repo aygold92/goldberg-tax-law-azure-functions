@@ -1,0 +1,26 @@
+{
+    "bankIdentifier": "NAVY FEDERAL Credit Union",
+    "date": "6/14/2024",
+    "pageNum": 1,
+    "totalPages": 3,
+    "summaryOfAccountsTable": {
+      "records": [
+        {
+          "accountNumber": "1663",
+          "beginningBalance": 111662.77,
+          "endingBalance": 108610.9
+        },
+        {
+          "accountNumber": "9667",
+          "beginningBalance": 560.31,
+          "endingBalance": 260.43
+        }
+      ]
+    },
+    "endingBalance": 108871.33,
+    "pageMetadata": {
+      "filename": "NFCU_2024_SamePage.pdf",
+      "page": 1,
+      "classification": "NFCU Bank"
+    }
+}

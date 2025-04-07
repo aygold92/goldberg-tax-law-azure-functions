@@ -14,11 +14,14 @@ private val acceptedDateFormats = listOf(
     "MMMM d yyyy", // April 7 2020
     "MMMM d yyyy", // April 07 2020
     "MMM d yyyy",  // Apr 7 2020
-    "MMM d yyyy",  // Apr 07 2020
+    "MMM dd yyyy", // Apr 07 2020
     "MM dd yyyy",  // 04 07 2020
     "M d yyyy",    // 4 7 2020
     "MM dd yy",    // 04 07 20
-    "M d yy"       // 4 7 20
+    "M d yy",      // 4 7 20
+    "yyyyMMdd",    // 20200407
+    "yyyy MMM d",  // 2020 Apr 7
+    "yyyy MMM dd", // 2020 Apr 07
 )
 
 private val TRANSACTION_DATE_FORMAT = SimpleDateFormat("M/d/yyyy")

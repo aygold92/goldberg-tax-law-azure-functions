@@ -1,0 +1,48 @@
+{
+  "docType": "CheckDataExtractor_V4",
+  "fields":
+  {
+    "AccountNumber":
+    {
+      "type": "string",
+      "value": "8558⑈5563",
+      "content": "8558⑈5563"
+    },
+    "CheckNumber":
+    {
+      "type": "integer",
+      "value": 5563,
+      "content": "5563"
+    },
+    "To":
+    {
+      "type": "string",
+      "value": "Cash",
+      "content": "Cash"
+    },
+    "Date":
+    {
+      "type": "string",
+      "value": "1/15/2022",
+      "content": "1/15/2022"
+    },
+    "Amount":
+    {
+      "type": "number",
+      "value": 2000,
+      "content": "$2,000.0"
+    },
+    "Check Entries":
+    {
+      "type": "array"
+    },
+    "Description":
+    {
+      "type": "string"
+    },
+    "BatesStamp":
+    {
+      "type": "string"
+    }
+  }
+}

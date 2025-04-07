@@ -1,0 +1,40 @@
+{
+  "bankIdentifier": "BANK OF AMERICA",
+  "date": "1/14/2022",
+  "pageNum": 3,
+  "totalPages": 10,
+  "batesStamp": "| 3647905",
+  "accountNumber": "8558",
+  "beginningBalance": 10772.23,
+  "endingBalance": 7468.33,
+  "transactionTableAmount": {
+    "records": [
+      {
+        "date": "12/22",
+        "description": "CHI Centers Inc. DES:PAYROLL ID:XXXXXXXXX INDN:Reeves Gregory CO ID:XXXXXXXXX PPD",
+        "amount": 2970
+      },
+      {
+        "date": "12/30",
+        "description": "41454 GRANULES P DES:DIR DEP ID:245 INDN:GREGORY B. REEVES CO ID:2364227403 PPD",
+        "amount": 4731.05
+      },
+      {
+        "date": "01/03",
+        "description": "Bank of America DES:CASHREWARD ID:REEVES INDN:0000000191207212000000 CO ID:2002290310 PPD",
+        "amount": 40.18
+      },
+      {
+        "date": "01/07",
+        "description": "CHI Centers Inc. DES:PAYROLL ID:XXXXXXXXX INDN:Reeves Gregory CO ID:XXXXXXXXX PPD",
+        "amount": 2980.84
+      }
+    ]
+  },
+  "feesCharged": 0,
+  "pageMetadata": {
+    "filename": "BOA Stmt x6350 x8558 2021.11-2022.01.pdf",
+    "page": 23,
+    "classification": "BofA"
+  }
+}

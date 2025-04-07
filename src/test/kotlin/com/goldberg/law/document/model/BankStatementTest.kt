@@ -199,7 +199,7 @@ class BankStatementTest {
         val suspiciousReasons = statement.getSuspiciousReasons()
         assertThat(statement.isSuspicious()).isTrue()
         assertThat(suspiciousReasons).hasSize(1)
-            .contains(BankStatement.SuspiciousReasons.BALANCE_DOES_NOT_ADD_UP.format(0.0, 70.0, 50.0, 50.0))
+            .contains(BankStatement.SuspiciousReasons.BALANCE_DOES_NOT_ADD_UP.format(0.0.asCurrency(), 70.0.asCurrency(), 50.0.asCurrency(), 50.0.asCurrency()))
     }
 
     @Test

@@ -18,7 +18,7 @@ data class TransactionTableCreditsRecord @JsonCreator constructor(
     override fun toTransactionHistoryRecord(statementDate: Date?, metadata: TransactionHistoryPageMetadata, documentType: DocumentType): TransactionHistoryRecord = TransactionHistoryRecord(
         date = fromWrittenDateStatementDateOverride(this.date, statementDate),
         description = this.description,
-        amount = additions,
+        amount = if (documentType == DocumentType.CREDIT_CARD) additions?.negate() else additions,
         pageMetadata = metadata
     )
 

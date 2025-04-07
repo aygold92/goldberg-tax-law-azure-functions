@@ -1,0 +1,26 @@
+{
+    "bankIdentifier": "NAVY FEDERAL Credit Union",
+    "date": "3/14/2022",
+    "pageNum": 2,
+    "totalPages": 3,
+    "accountNumber": "9667",
+    "transactionTableAmount": {
+      "records": [
+        {
+          "date": "02-28",
+          "description": "Dividend",
+          "amount": 0.44
+        },
+        {
+          "date": "03-03",
+          "description": "Deposit - ACH Paid From Chi Centers Inc. Payroll 01Afd5",
+          "amount": 2980.9
+        }
+      ]
+    },
+    "pageMetadata": {
+      "filename": "NFCU_2022_SingleAccount.pdf",
+      "page": 2,
+      "classification": "NFCU Bank"
+    }
+}

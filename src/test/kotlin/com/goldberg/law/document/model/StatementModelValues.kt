@@ -17,8 +17,40 @@ class StatementModelValues {
         const val EAGLE_BANK = "eaglebank"
         const val C1_VENTURE = "c1venture"
         const val CITI_EOY = "citiendofyear"
+        const val NFCU_BANK = "nfcubank"
     }
     companion object {
+        val STATEMENT_MODEL_NFCU_SAME = StatementDataModel(
+            bankIdentifier = "NAVY FEDERAL Credit Union",
+            date = normalizeDate("June 14, 2024"),
+            pageNum = 2,
+            totalPages = 3,
+            summaryOfAccountsTable = null,
+            transactionTableDepositWithdrawal = null,
+            batesStamp = null,
+            accountNumber = "1663",
+            beginningBalance = null,
+            endingBalance = null,
+            transactionTableAmount = TransactionTableAmount(listOf(
+                TransactionTableAmountRecord(date = "05-15", description = "Beginning Balance", amount = null),
+                TransactionTableAmountRecord(date = "05-15", description = "Check 152", amount = (-2500).asCurrency()),
+                TransactionTableAmountRecord(date = "05-28", description = "POS Debit- Debit Card 6752 05-25-24 Cali Pizza Kitc IN Gaithersburg MD", amount = -56.56.asCurrency()),
+                TransactionTableAmountRecord(date = "05-31", description = "Dividend", amount = 4.69.asCurrency()),
+                TransactionTableAmountRecord(date = "06-04", description = "ATM Fee - Withdrawal 06-03-24 Bank Of America Clarksville MD", (-1).asCurrency()),
+                TransactionTableAmountRecord(date = "06-04", description = "ATM Withdrawal 06-03-24 Bank Of America Clarksville MD", (-504).asCurrency()),
+                TransactionTableAmountRecord(date = "06-14", description = "ATM Rebate", amount = 5.asCurrency()),
+                TransactionTableAmountRecord(date = "05-15", description = "Beginning Balance", amount = null),
+                TransactionTableAmountRecord(date = "05-31", description = "Dividend", amount = 0.12.asCurrency()),
+                TransactionTableAmountRecord(date = "06-04", description = "Withdrawal by Cash 06-04-24 Fox9 Laurel Town Ctr, MD", amount = 300.asCurrency()),
+            )),
+            transactionTableCreditsCharges = null,
+            transactionTableDebits = null,
+            transactionTableCredits = null,
+            transactionTableChecks = null,
+            interestCharged = null,
+            feesCharged = null,
+            pageMetadata = PdfDocumentPageMetadata(FileNames.NFCU_BANK, 1, BankTypes.WF_BANK)
+        )
         val STATEMENT_MODEL_WF_BANK_0 = StatementDataModel(
             bankIdentifier = null,
             date = normalizeDate("February 7, 2022"),
@@ -409,9 +441,9 @@ class StatementModelValues {
             transactionTableCreditsCharges = null,
             transactionTableDebits = TransactionTableDebits(
                 listOf(
-                    TransactionTableAmountRecord(date = "04-24", description = "' Electronified Check CITICARD PAYMENT CHECK PYMT 190424 3171", amount = 1845.77.asCurrency()),
-                    TransactionTableAmountRecord(date = "05-01", description = "ATM Withdrawal CASH WITHDRAWAL TERMINAL SA1326 M&T 11325 SEVEN LO POTOMAC MD 05-01-19 9:17 AM XXXXXXXXXXXX6557", amount = 200.asCurrency()),
-                    TransactionTableAmountRecord(date = "05-01", description = "' ATM Surcharge SURCHARGE AMOUNT TERMINAL SA1326 M&T 11325 SEVEN LO POTOMAC MD 05-01-19 9:17 AM XXXXXXXXXXXX6557", amount = 3.50.asCurrency())
+                    TransactionTableDebitsRecord(date = "04-24", description = "' Electronified Check CITICARD PAYMENT CHECK PYMT 190424 3171", subtractions = 1845.77.asCurrency()),
+                    TransactionTableDebitsRecord(date = "05-01", description = "ATM Withdrawal CASH WITHDRAWAL TERMINAL SA1326 M&T 11325 SEVEN LO POTOMAC MD 05-01-19 9:17 AM XXXXXXXXXXXX6557", subtractions = 200.asCurrency()),
+                    TransactionTableDebitsRecord(date = "05-01", description = "' ATM Surcharge SURCHARGE AMOUNT TERMINAL SA1326 M&T 11325 SEVEN LO POTOMAC MD 05-01-19 9:17 AM XXXXXXXXXXXX6557", subtractions = 3.50.asCurrency())
                 )
             ),
             transactionTableCredits = null,
@@ -442,10 +474,10 @@ class StatementModelValues {
             transactionTableCreditsCharges = null,
             transactionTableDebits = TransactionTableDebits(
                 listOf(
-                    TransactionTableAmountRecord(date = "05-07", description = "' ATM Withdrawal CASH WITHDRAWAL TERMINAL P375574 2511 FIRE ROAD STE A12 EHT NJ 05-07-19 12:22 PM XXXXXXXXXXXX6557", amount = 200.asCurrency()),
-                    TransactionTableAmountRecord(date = "05-07", description = "' ATM Surcharge SURCHARGE AMOUNT TERMINAL P375574 2511 FIRE ROAD STE A12 EHT NJ 05-07-19 12:22 PM XXXXXXXXXXXX6557", amount = 3.95.asCurrency()),
-                    TransactionTableAmountRecord(date = "05-13", description = "' ATM Withdrawal CASH WITHDRAWAL TERMINAL P375574 2511 FIRE ROAD STE A12 EHT NJ 05-13-19 1:45 PM XXXXXXXXXXXX6557", amount = 300.asCurrency()),
-                    TransactionTableAmountRecord(date = "05-13", description = "' ATM Surcharge SURCHARGE AMOUNT TERMINAL P375574 2511 FIRE ROAD STE A12 EHT NJ 05-13-19 1:45 PM XXXXXXXXXXXX6557", amount = 3.95.asCurrency())
+                    TransactionTableDebitsRecord(date = "05-07", description = "' ATM Withdrawal CASH WITHDRAWAL TERMINAL P375574 2511 FIRE ROAD STE A12 EHT NJ 05-07-19 12:22 PM XXXXXXXXXXXX6557", subtractions = 200.asCurrency()),
+                    TransactionTableDebitsRecord(date = "05-07", description = "' ATM Surcharge SURCHARGE AMOUNT TERMINAL P375574 2511 FIRE ROAD STE A12 EHT NJ 05-07-19 12:22 PM XXXXXXXXXXXX6557", subtractions = 3.95.asCurrency()),
+                    TransactionTableDebitsRecord(date = "05-13", description = "' ATM Withdrawal CASH WITHDRAWAL TERMINAL P375574 2511 FIRE ROAD STE A12 EHT NJ 05-13-19 1:45 PM XXXXXXXXXXXX6557", subtractions = 300.asCurrency()),
+                    TransactionTableDebitsRecord(date = "05-13", description = "' ATM Surcharge SURCHARGE AMOUNT TERMINAL P375574 2511 FIRE ROAD STE A12 EHT NJ 05-13-19 1:45 PM XXXXXXXXXXXX6557", subtractions = 3.95.asCurrency())
                 )
             ),
             transactionTableCredits = TransactionTableCredits(
@@ -477,9 +509,9 @@ class StatementModelValues {
             transactionTableCreditsCharges = null,
             transactionTableDebits = TransactionTableDebits(
                 listOf(
-                    TransactionTableAmountRecord(date = "05-24", description = "' ATM Withdrawal CASH WITHDRAWAL TERMINAL T9752019 12505 PARK POTOMAC AVE POTOMAC MD 05-24-19 11:50 AM XXXXXXXXXXXX6557", amount = 200.asCurrency()),
-                    TransactionTableAmountRecord(date = "05-28", description = "ATM Withdrawal CASH WITHDRAWAL TERMINAL P406674 12200 ROCKVILLE PI", amount = 300.asCurrency()),
-                    TransactionTableAmountRecord(date = "05-28", description = "KUS ROCKVILLE MD 05-25-19 4:18 PM XXXXXXXXXXXX6557 ATM Surcharge SURCHARGE AMOUNT TERMINAL P406674 12200 ROCKVILLE PI KUS ROCKVILLE MD 05-25-19 4.18 PM XXXXXXXXXXXX6557", amount = 2.50.asCurrency())
+                    TransactionTableDebitsRecord(date = "05-24", description = "' ATM Withdrawal CASH WITHDRAWAL TERMINAL T9752019 12505 PARK POTOMAC AVE POTOMAC MD 05-24-19 11:50 AM XXXXXXXXXXXX6557", subtractions = 200.asCurrency()),
+                    TransactionTableDebitsRecord(date = "05-28", description = "ATM Withdrawal CASH WITHDRAWAL TERMINAL P406674 12200 ROCKVILLE PI", subtractions = 300.asCurrency()),
+                    TransactionTableDebitsRecord(date = "05-28", description = "KUS ROCKVILLE MD 05-25-19 4:18 PM XXXXXXXXXXXX6557 ATM Surcharge SURCHARGE AMOUNT TERMINAL P406674 12200 ROCKVILLE PI KUS ROCKVILLE MD 05-25-19 4.18 PM XXXXXXXXXXXX6557", subtractions = 2.50.asCurrency())
                 )
             ),
             transactionTableCredits = null,
@@ -511,9 +543,9 @@ class StatementModelValues {
             transactionTableCreditsCharges = null,
             transactionTableDebits = TransactionTableDebits(
                 listOf(
-                    TransactionTableAmountRecord(date = null, description = "' ATM Withdrawal CASH WITHDRAWAL TERMINAL T9752019 12505 PARK POTOMAC AVE POTOMAC MD 06-05-19 1:56 PM XXXXXXXXXXXX6557", amount = 300.asCurrency()),
-                    TransactionTableAmountRecord(date = "06-07", description = "'ATM Withdrawal CASH WITHDRAWAL TERMINAL P375574 2511 FIRE ROAD STE A12 EHT NJ 06-07-19 2:29 PM XXXXXXXXXXXX6557", amount = 200.asCurrency()),
-                    TransactionTableAmountRecord(date = "06-07", description = "' ATM Surcharge SURCHARGE AMOUNT TERMINAL P375574 2511 FIRE ROAD STE A12 EHT NJ 06-07-19 2:29 PM XXXXXXXXXXXX6557", amount = 3.95.asCurrency())
+                    TransactionTableDebitsRecord(date = null, description = "' ATM Withdrawal CASH WITHDRAWAL TERMINAL T9752019 12505 PARK POTOMAC AVE POTOMAC MD 06-05-19 1:56 PM XXXXXXXXXXXX6557", subtractions = 300.asCurrency()),
+                    TransactionTableDebitsRecord(date = "06-07", description = "'ATM Withdrawal CASH WITHDRAWAL TERMINAL P375574 2511 FIRE ROAD STE A12 EHT NJ 06-07-19 2:29 PM XXXXXXXXXXXX6557", subtractions = 200.asCurrency()),
+                    TransactionTableDebitsRecord(date = "06-07", description = "' ATM Surcharge SURCHARGE AMOUNT TERMINAL P375574 2511 FIRE ROAD STE A12 EHT NJ 06-07-19 2:29 PM XXXXXXXXXXXX6557", subtractions = 3.95.asCurrency())
                 )
             ),
             transactionTableCredits = TransactionTableCredits(

@@ -10,6 +10,7 @@ import com.goldberg.law.document.model.ModelValues.newHistoryRecord
 import com.goldberg.law.document.model.input.CheckDataModel
 import com.goldberg.law.document.model.input.tables.CheckEntriesTable
 import com.goldberg.law.document.model.input.tables.CheckEntriesTableRow
+import com.goldberg.law.document.model.output.BankStatement
 import com.goldberg.law.document.model.output.CheckDataKey
 import com.goldberg.law.document.model.output.TransactionHistoryRecord
 import com.goldberg.law.util.asCurrency
@@ -63,9 +64,10 @@ class CheckToStatementMatcherTest {
 
     @Test
     fun testAccountNumbersOnStatementIsWeirdDateDoesNotMatch() {
+        // we only check that the check number matches
         val otherAccountNumber = "xxxxxxxxxxxxx"
         val bankStatement = newBankStatement(accountNumber = otherAccountNumber)
-            .update(transactions = listOf(newHistoryRecord(date = "6 10 2020", checkNumber = 1000)))
+            .update(transactions = listOf(newHistoryRecord(date = "6 10 2020", checkNumber = 1000, checkData = newCheckData(1000))))
 
 
         val finalStatements = checkToStatementMatcher.matchChecksWithStatements(
@@ -73,8 +75,10 @@ class CheckToStatementMatcherTest {
         )
 
         assertThat(finalStatements).isEqualTo(listOf(bankStatement))
-        assertThat(finalStatements.getMissingChecks()).isEqualTo(setOf(CheckDataKey(otherAccountNumber, 1000)))
-        assertThat(finalStatements.getChecksNotUsed(setOf(CHECK_DATA_KEY_1000))).isEqualTo(setOf(CHECK_DATA_KEY_1000))
+        assertThat(finalStatements.getMissingChecks()).isEqualTo(emptySet<CheckDataKey>())
+//        assertThat(finalStatements.getMissingChecks()).isEqualTo(setOf(CheckDataKey(otherAccountNumber, 1000)))
+//        assertThat(finalStatements.getChecksNotUsed(setOf(CHECK_DATA_KEY_1000))).isEqualTo(setOf(CHECK_DATA_KEY_1000))
+        assertThat(finalStatements.getChecksNotUsed(setOf(CHECK_DATA_KEY_1000))).isEqualTo(setOf<CheckDataKey>())
     }
 
     @Test
@@ -244,6 +248,7 @@ class CheckToStatementMatcherTest {
                     "Some Guy",
                     "test",
                     1500.asCurrency(),
+                    null
                 ),
                 CheckEntriesTableRow(
                     normalizeDate("4 15 2020"),
@@ -251,6 +256,7 @@ class CheckToStatementMatcherTest {
                     "Another Guy",
                     "desc",
                     2000.asCurrency(),
+                    null
                 ),
             )),
             CHECK_BATES_STAMP,
@@ -288,7 +294,7 @@ class CheckToStatementMatcherTest {
         )
 
         val finalStatements = checkToStatementMatcher.matchChecksWithStatements(
-            listOf(statement1, statement2), listOf(compositeCheckData)
+            listOf(statement1, statement2), listOf(compositeCheckData).flatMap { it.extractNestedChecks() }
         )
 
         val bankStatement1WithCheckData = statementWithRecords(

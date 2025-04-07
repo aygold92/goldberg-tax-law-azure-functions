@@ -100,7 +100,7 @@ class DocumentDataModelContainerTest {
             transactionTableCreditsCharges = TransactionTableCreditsCharges(records = listOf(
                 TransactionTableCreditsChargesRecord("test", "test", 1.asCurrency(), 2.asCurrency())
             )),
-            transactionTableDebits = TransactionTableDebits(records = listOf(TransactionTableAmountRecord("test", "test", 1.asCurrency()))),
+            transactionTableDebits = TransactionTableDebits(records = listOf(TransactionTableDebitsRecord("test", "test", 1.asCurrency()))),
             transactionTableCredits = TransactionTableCredits(records = listOf(TransactionTableCreditsRecord("test", "test", 1.asCurrency()))),
             transactionTableChecks = TransactionTableChecks(records = listOf(TransactionTableChecksRecord("test", 1, 1.asCurrency()))),
             interestCharged = 3.asCurrency(),
@@ -134,6 +134,7 @@ class DocumentDataModelContainerTest {
                     description = "desc",
                     date = FIXED_STATEMENT_DATE,
                     amount = 65.60.asCurrency(),
+                    accountNumber = null
             )
             )),
             batesStamp = BATES_STAMP,

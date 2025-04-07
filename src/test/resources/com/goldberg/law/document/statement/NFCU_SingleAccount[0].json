@@ -1,0 +1,41 @@
+{
+    "bankIdentifier": "NAVY FEDERAL Credit Union",
+    "date": "3/14/2022",
+    "pageNum": 1,
+    "totalPages": 3,
+    "summaryOfAccountsTable": {
+      "records": [
+        {
+          "accountNumber": "9667",
+          "beginningBalance": 1059.92,
+          "endingBalance": 6822.15
+        }
+      ]
+    },
+    "accountNumber": "19667",
+    "beginningBalance": 1059.92,
+    "endingBalance": 6822.15,
+    "transactionTableAmount": {
+      "records": [
+        {
+          "date": "02-15",
+          "description": "Beginning Balance"
+        },
+        {
+          "date": "02-17",
+          "description": "Deposit - ACH Paid From Chi Centers Inc. Payroll 01Afd5",
+          "amount": 2980.89
+        },
+        {
+          "date": "02-22",
+          "description": "Withdrawal By Cash 02-20-22 Fcpp Rockville, MD",
+          "amount": -200
+        }
+      ]
+    },
+    "pageMetadata": {
+      "filename": "NFCU_2022_SingleAccount.pdf",
+      "page": 1,
+      "classification": "NFCU Bank"
+    }
+}

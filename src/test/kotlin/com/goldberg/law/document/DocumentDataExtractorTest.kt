@@ -10,16 +10,18 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.goldberg.law.document.model.ModelValues.CHECK_FILENAME
 import com.goldberg.law.document.model.ModelValues.newClassifiedPdfDocument
 import com.goldberg.law.document.model.StatementModelValues
+import com.goldberg.law.document.model.StatementModelValues.Companion.STATEMENT_MODEL_NFCU_SAME
 import com.goldberg.law.document.model.StatementModelValues.Companion.STATEMENT_MODEL_WF_BANK_0
 import com.goldberg.law.document.model.StatementModelValues.Companion.STATEMENT_MODEL_WF_BANK_1
 import com.goldberg.law.document.model.StatementModelValues.Companion.STATEMENT_MODEL_WF_BANK_2
 import com.goldberg.law.document.model.StatementModelValues.Companion.STATEMENT_MODEL_WF_BANK_3
 import com.goldberg.law.document.model.StatementModelValues.Companion.STATEMENT_MODEL_WF_BANK_4
 import com.goldberg.law.document.model.input.CheckDataModel
+import com.goldberg.law.document.model.input.tables.CheckEntriesTable
+import com.goldberg.law.document.model.input.tables.CheckEntriesTableRow
 import com.goldberg.law.document.model.pdf.DocumentType.CheckTypes
 import com.goldberg.law.document.model.pdf.PdfDocumentPageMetadata
 import com.goldberg.law.util.asCurrency
-import com.goldberg.law.util.fromWrittenDate
 import com.goldberg.law.util.normalizeDate
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
@@ -48,6 +50,22 @@ class DocumentDataExtractorTest {
         whenever(client.beginAnalyzeDocument(any(), any())).thenReturn(poller)
         whenever(poller.waitForCompletion()).thenReturn(operationResult)
         whenever(poller.finalResult).thenReturn(analyzeResult)
+    }
+
+    @Test
+    fun testNFCU() {
+        val page = readFileRelative("NFCU_Same.json")
+        whenever(analyzeResult.documents).thenReturn(listOf(OBJECT_MAPPER.readValue(page, AnalyzedDocument::class.java)))
+        val result = documentDataExtractor.extractStatementData(newClassifiedPdfDocument(filename = StatementModelValues.FileNames.NFCU_BANK))
+        assertThat(result).isEqualTo(STATEMENT_MODEL_NFCU_SAME)
+    }
+
+    @Test
+    fun testNFCU_EOY() {
+        val page = readFileRelative("NFCU_EOY_Date.json")
+        whenever(analyzeResult.documents).thenReturn(listOf(OBJECT_MAPPER.readValue(page, AnalyzedDocument::class.java)))
+        val result = documentDataExtractor.extractStatementData(newClassifiedPdfDocument(filename = StatementModelValues.FileNames.NFCU_BANK))
+        assertThat(result.date).isEqualTo("1/14/2024")
     }
 
     @Test
@@ -230,6 +248,57 @@ class DocumentDataExtractorTest {
             null,
             batesStamp = "MH-002017",
             pageMetadata = PdfDocumentPageMetadata(CHECK_FILENAME, 4, CheckTypes.EAGLE_BANK_CHECK),
+        ))
+    }
+
+    @Test
+    fun testCheckWithCheckEntries() {
+        val page1 = readFileRelative("CheckWithCheckEntries.json")
+
+        whenever(analyzeResult.documents).thenReturn(
+            listOf(OBJECT_MAPPER.readValue(page1, AnalyzedDocument::class.java)),
+        )
+
+        val result = documentDataExtractor.extractCheckData(newClassifiedPdfDocument(CHECK_FILENAME, 4, CheckTypes.NFCU_CHECK))
+
+        assertThat(result).isEqualTo(CheckDataModel(
+            accountNumber = null,
+            checkNumber = null,
+            to = null,
+            description = null,
+            date = null,
+            amount = null,
+            checkEntries = CheckEntriesTable(images = listOf(
+                CheckEntriesTableRow(accountNumber = "1663", description = null, amount = 20000.asCurrency(), to = "Bank of America", checkNumber = 1, date = "2/29/2024"),
+                CheckEntriesTableRow(accountNumber = "1663", description = null, amount = 10000.asCurrency(), to = "Citi BANK", checkNumber = 3, date = "3/5/2024"),
+                CheckEntriesTableRow(accountNumber = "1663", description = null, amount = 9550.asCurrency(), to = "Cinci R. Brandt Esq.", checkNumber = 2, date = "3/6/2024"),
+                CheckEntriesTableRow(accountNumber = "1663", description = null, amount = 10000.asCurrency(), to = "Citi BANK", checkNumber = 4, date = "3/29/2024"),
+            )),
+            batesStamp = null,
+            pageMetadata = PdfDocumentPageMetadata(CHECK_FILENAME, 4, CheckTypes.NFCU_CHECK),
+        ))
+    }
+
+    @Test
+    fun testCheckWithAccountNumberCheckNumberValue() {
+        val page1 = readFileRelative("Check_AccountNumberCheckNumber.json")
+
+        whenever(analyzeResult.documents).thenReturn(
+            listOf(OBJECT_MAPPER.readValue(page1, AnalyzedDocument::class.java)),
+        )
+
+        val result = documentDataExtractor.extractCheckData(newClassifiedPdfDocument(CHECK_FILENAME, 4, CheckTypes.MISC_CHECK))
+
+        assertThat(result).isEqualTo(CheckDataModel(
+            accountNumber = "8558",
+            checkNumber = 5563,
+            to = "Cash",
+            description = null,
+            date = normalizeDate("1 15 2022"),
+            amount = 2000.asCurrency(),
+            null,
+            batesStamp = null,
+            pageMetadata = PdfDocumentPageMetadata(CHECK_FILENAME, 4, CheckTypes.MISC_CHECK),
         ))
     }
 

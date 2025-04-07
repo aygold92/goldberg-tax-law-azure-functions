@@ -28,7 +28,7 @@ class PdfSplitterMain@Inject constructor(
             throw InvalidPdfException("Unable to load PDF ${req.inputFile}: $ex")
         }
 
-        val splitDocuments = pdfSplitter.splitPdf(req.inputFile, fullPdf, req.getDesiredPages())
+        val splitDocuments = pdfSplitter.splitPdf(req.inputFile, fullPdf, req.getDesiredPages(), req.isSeparate)
             .also { logger.debug { "Successfully loaded file ${req.inputFile}, pages ${req.getDesiredPages() ?: "[All]"}" } }
 
         // TODO: add ability to choose whether to process into one document or a single document with all selected pages

@@ -2,19 +2,23 @@ package com.goldberg.law.document.model.pdf
 
 import com.goldberg.law.document.model.pdf.DocumentType.BankTypes.B_OF_A
 import com.goldberg.law.document.model.pdf.DocumentType.BankTypes.EAGLE_BANK
+import com.goldberg.law.document.model.pdf.DocumentType.BankTypes.NFCU_BANK
 import com.goldberg.law.document.model.pdf.DocumentType.BankTypes.WF_BANK
 import com.goldberg.law.document.model.pdf.DocumentType.CheckTypes.B_OF_A_CHECK
 import com.goldberg.law.document.model.pdf.DocumentType.CheckTypes.EAGLE_BANK_CHECK
+import com.goldberg.law.document.model.pdf.DocumentType.CheckTypes.MISC_CHECK
+import com.goldberg.law.document.model.pdf.DocumentType.CheckTypes.NFCU_CHECK
 import com.goldberg.law.document.model.pdf.DocumentType.CreditCardTypes.AMEX_CC
+import com.goldberg.law.document.model.pdf.DocumentType.CreditCardTypes.B_OF_A_CC
 import com.goldberg.law.document.model.pdf.DocumentType.CreditCardTypes.C1_CC
 import com.goldberg.law.document.model.pdf.DocumentType.CreditCardTypes.CITI_CC
 import com.goldberg.law.document.model.pdf.DocumentType.CreditCardTypes.WF_CC
 import com.goldberg.law.document.model.pdf.DocumentType.IrrelevantTypes.EXTRA_PAGES
 
 enum class DocumentType(val docTypes: List<String> = listOf()) {
-    CREDIT_CARD(listOf(AMEX_CC, C1_CC, CITI_CC, WF_CC)),
-    BANK(listOf(EAGLE_BANK, WF_BANK, B_OF_A)),
-    CHECK(listOf(EAGLE_BANK_CHECK, B_OF_A_CHECK)),
+    CREDIT_CARD(listOf(AMEX_CC, C1_CC, CITI_CC, WF_CC, B_OF_A_CC)),
+    BANK(listOf(EAGLE_BANK, WF_BANK, B_OF_A, NFCU_BANK)),
+    CHECK(listOf(EAGLE_BANK_CHECK, B_OF_A_CHECK, MISC_CHECK, NFCU_CHECK)),
     IRRELEVANT(listOf(EXTRA_PAGES)),
     MIXED,
     UNKNOWN;

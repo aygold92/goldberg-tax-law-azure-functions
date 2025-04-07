@@ -4,6 +4,8 @@ import com.azure.ai.formrecognizer.documentanalysis.models.AnalyzedDocument
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.goldberg.law.document.model.ManualRecord
+import com.goldberg.law.document.model.ManualRecordTable
 import com.goldberg.law.document.model.pdf.PdfDocumentPageMetadata
 import com.goldberg.law.document.model.input.SummaryOfAccountsTable.Companion.getSummaryOfAccounts
 import com.goldberg.law.document.model.input.tables.*
@@ -38,12 +40,12 @@ data class StatementDataModel @JsonCreator constructor(
     @JsonProperty("transactionTableChecks") val transactionTableChecks: TransactionTableChecks?,
     @JsonProperty("interestCharged") val interestCharged: BigDecimal?,
     @JsonProperty("feesCharged") val feesCharged: BigDecimal?,
-    @JsonProperty("pageMetadata") override val pageMetadata: PdfDocumentPageMetadata
+    @JsonProperty("pageMetadata") override val pageMetadata: PdfDocumentPageMetadata,
 ): DocumentDataModel(pageMetadata) {
     @JsonIgnore @Transient
     val statementDate = fromWrittenDate(date)
     @JsonIgnore
-    fun getStatementType(): DocumentType? {
+    fun getInferredStatementType(): DocumentType? {
         val isBank = listOfNotNull(
             transactionTableDepositWithdrawal,
             transactionTableCredits,
@@ -51,7 +53,7 @@ data class StatementDataModel @JsonCreator constructor(
             summaryOfAccountsTable,
             transactionTableChecks
         ).isNotEmpty()
-        val isCreditCard = listOfNotNull(transactionTableCreditsCharges, transactionTableAmount).isNotEmpty()
+        val isCreditCard = listOfNotNull(interestCharged).isNotEmpty()
         return when {
             isBank && !isCreditCard -> DocumentType.BANK
             !isBank && isCreditCard -> DocumentType.CREDIT_CARD
@@ -122,7 +124,7 @@ data class StatementDataModel @JsonCreator constructor(
                 transactionTableCredits = this.getTransactionTableCredits(),
                 transactionTableDebits = this.getTransactionTableDebits(),
                 transactionTableChecks = this.getTransactionTableChecks(),
-                pageMetadata = classifiedPdfDocument.toDocumentMetadata()
+                pageMetadata = classifiedPdfDocument.toDocumentMetadata(),
             )
         }
         fun blankModel(classifiedPdfDocument: ClassifiedPdfDocumentPage) = StatementDataModel(

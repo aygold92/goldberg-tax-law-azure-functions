@@ -13,12 +13,13 @@ import java.util.*
 data class TransactionTableDebitsRecord @JsonCreator constructor(
     @JsonProperty("date") val date: String?,
     @JsonProperty("description") val description: String?,
-    @JsonProperty("additions") val additions: BigDecimal?,
+    @JsonProperty("subtractions") val subtractions: BigDecimal?,
 ): TransactionRecord() {
     override fun toTransactionHistoryRecord(statementDate: Date?, metadata: TransactionHistoryPageMetadata, documentType: DocumentType): TransactionHistoryRecord = TransactionHistoryRecord(
         date = fromWrittenDateStatementDateOverride(this.date, statementDate),
         description = this.description,
-        amount = additions,
+        // for bank, a debit is negative.  For CC, a statement debit is actually positive cash flow
+        amount = if (documentType == DocumentType.CREDIT_CARD) subtractions else subtractions?.negate(),
         pageMetadata = metadata
     )
 
@@ -30,10 +31,10 @@ data class TransactionTableDebitsRecord @JsonCreator constructor(
 
     companion object {
         fun DocumentField.toTransactionTableDebitsRecord() = this.getFieldMapHack().let { recordFields ->
-            TransactionTableAmountRecord(
+            TransactionTableDebitsRecord(
                 date = recordFields[Keys.DATE]?.valueAsString,
                 description = recordFields[Keys.DESCRIPTION]?.valueAsString,
-                amount = recordFields[Keys.SUBTRACTIONS]?.positiveCurrencyValue(),
+                subtractions = recordFields[Keys.SUBTRACTIONS]?.positiveCurrencyValue(),
             )
         }
     }

@@ -1,0 +1,86 @@
+{
+    "bankIdentifier": "NAVY FEDERAL Credit Union",
+    "date": "12/14/2024",
+    "pageNum": 2,
+    "totalPages": 3,
+    "accountNumber": "1663",
+    "transactionTableAmount": {
+      "records": [
+        {
+          "date": "11-21",
+          "description": "Deposit - ACH Paid From G And A Payroll Payroll 01Afd9",
+          "amount": 7124.06
+        },
+        {
+          "date": "11-29",
+          "description": "Deposit - ACH Paid From Virginia Ui Benefit 01Afd1",
+          "amount": 4158
+        },
+        {
+          "date": "11-29",
+          "description": "Deposit - ACH Paid From Virginia Ui Benefit 01Afd1",
+          "amount": 4158
+        },
+        {
+          "date": "11-29",
+          "description": "ATM Fee - Withdrawal 11-27-24 Chase Columbus OH",
+          "amount": -1
+        },
+        {
+          "date": "11-29",
+          "description": "ATM Withdrawal 11-27-24 Chase Columbus OH",
+          "amount": -603.5
+        },
+        {
+          "date": "11-29",
+          "description": "Dividend",
+          "amount": 0.92
+        },
+        {
+          "date": "12-02",
+          "description": "ATM Fee - Withdrawal 11-29-24 Chase Columbus OH",
+          "amount": -1
+        },
+        {
+          "date": "12-02",
+          "description": "ATM Withdrawal 11-29-24 Chase Columbus OH",
+          "amount": -903.5
+        },
+        {
+          "date": "12-03",
+          "description": "Paid To - Virginia Reversal 120324",
+          "amount": -4158
+        },
+        {
+          "date": "12-03",
+          "description": "Check 163",
+          "amount": -5097.95
+        },
+        {
+          "date": "12-05",
+          "description": "Deposit - ACH Paid From G And A Payroll Payroll 01Afd9",
+          "amount": 7124.07
+        },
+        {
+          "date": "12-09",
+          "description": "Cash Withdrawal",
+          "amount": -3000
+        },
+        {
+          "date": "12-09",
+          "description": "Check 164000001",
+          "amount": -2600
+        },
+        {
+          "date": "12-13",
+          "description": "ATM Rebate",
+          "amount": 9
+        }
+      ]
+    },
+    "pageMetadata": {
+      "filename": "NFCU_2024_Different_Page.pdf",
+      "page": 2,
+      "classification": "NFCU Bank"
+    }
+}

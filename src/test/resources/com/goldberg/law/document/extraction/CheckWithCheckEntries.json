@@ -1,0 +1,228 @@
+{
+  "fields":
+  {
+    "BatesStamp":
+    {
+      "type": "string",
+      "content": null,
+      "value": null
+    },
+    "Description":
+    {
+      "type": "string",
+      "content": null,
+      "value": null
+    },
+    "Amount":
+    {
+      "type": "number",
+      "content": null,
+      "value": null
+    },
+    "Check Entries":
+    {
+      "type": "array",
+      "content": null,
+      "value":
+      [
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Account Number":
+            {
+              "type": "string",
+              "content": "1663",
+              "value": "1663"
+            },
+            "Description":
+            {
+              "type": "string",
+              "content": null,
+              "value": null
+            },
+            "Amount":
+            {
+              "type": "number",
+              "content": "$20,000.00",
+              "value": 20000.0
+            },
+            "To":
+            {
+              "type": "string",
+              "content": "Bank of America",
+              "value": "Bank of America"
+            },
+            "CheckNumber":
+            {
+              "type": "number",
+              "content": "0001",
+              "value": 1.0
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "2024 Feb 29",
+              "value": "2024 Feb 29"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Account Number":
+            {
+              "type": "string",
+              "content": "1663",
+              "value": "1663"
+            },
+            "Description":
+            {
+              "type": "string",
+              "content": null,
+              "value": null
+            },
+            "Amount":
+            {
+              "type": "number",
+              "content": "$10,000.00",
+              "value": 10000.0
+            },
+            "To":
+            {
+              "type": "string",
+              "content": "Citi BANK",
+              "value": "Citi BANK"
+            },
+            "CheckNumber":
+            {
+              "type": "number",
+              "content": "0003",
+              "value": 3.0
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "2024 Mar 05",
+              "value": "2024 Mar 05"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Account Number":
+            {
+              "type": "string",
+              "content": "1663",
+              "value": "1663"
+            },
+            "Description":
+            {
+              "type": "string",
+              "content": null,
+              "value": null
+            },
+            "Amount":
+            {
+              "type": "number",
+              "content": "$9,550.00",
+              "value": 9550.0
+            },
+            "To":
+            {
+              "type": "string",
+              "content": "Cinci R. Brandt Esq.",
+              "value": "Cinci R. Brandt Esq."
+            },
+            "CheckNumber":
+            {
+              "type": "number",
+              "content": "0002",
+              "value": 2.0
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "2024 Mar 06",
+              "value": "2024 Mar 06"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Account Number":
+            {
+              "type": "string",
+              "content": "1663",
+              "value": "1663"
+            },
+            "Description":
+            {
+              "type": "string",
+              "content": null,
+              "value": null
+            },
+            "Amount":
+            {
+              "type": "number",
+              "content": "$10,000.00",
+              "value": 10000.0
+            },
+            "To":
+            {
+              "type": "string",
+              "content": "Citi BANK",
+              "value": "Citi BANK"
+            },
+            "CheckNumber":
+            {
+              "type": "number",
+              "content": "0004",
+              "value": 4.0
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "2024 Mar 29",
+              "value": "2024 Mar 29"
+            }
+          }
+        }
+      ]
+    },
+    "To":
+    {
+      "type": "string",
+      "content": null,
+      "value": null
+    },
+    "CheckNumber":
+    {
+      "type": "integer",
+      "content": null,
+      "value": null
+    },
+    "Date":
+    {
+      "type": "string",
+      "content": null,
+      "value": null
+    },
+    "AccountNumber":
+    {
+      "type": "string",
+      "content": null,
+      "value": null
+    }
+  },
+  "docType": "CheckDataExtractor_V4"
+}

@@ -56,7 +56,7 @@ class CsvCreatorTest {
                 4/3/2020,"test",-500.00,,"WF Bank - 1234567890","$BATES_STAMP",4/7/2020,2,"$FILENAME",1,,
                 ,,=SUM(C2:C3),,"WF Bank - 1234567890",,4/7/2020
                 
-                "[Beginning balance (500.000000) + net deposits (-550.000000) != ending balance (0.000000). Expected (-500.000000), Contains suspicious records, [4/3/2020] Record has a check number but the description does not say "check"]",,,,"WF Bank - 1234567890",,4/7/2020
+                "[Beginning balance (500.00) + net transactions (-550.00) != ending balance (0.00). Expected (-500.00), Contains suspicious records, [4/3/2020] Record has a check number but the description does not say "check"]",,,,"WF Bank - 1234567890",,4/7/2020
                 4/3/2020,"test",-500.00,,"WF Bank - 1234567890","AG-12345",4/7/2020,2,"test.pdf",1,,
                 4/3/2020,"test Check 1234: Some Guy - check desc",-50.00,,"WF Bank - 1234567890","$BATES_STAMP",4/7/2020,2,"$FILENAME",1,"$CHECK_BATES_STAMP","$CHECK_FILENAME",$CHECK_FILE_PAGE
                 ,,=SUM(C6:C8),,"WF Bank - 1234567890",,4/7/2020
@@ -88,12 +88,12 @@ class CsvCreatorTest {
                 4/3/2020,"test",-500.00,,"WF Bank - 1234567890","$BATES_STAMP",4/7/2020,2,"$FILENAME",1,,
                 ,,=SUM(C2:C3),,"WF Bank - 1234567890",,4/7/2020
                 
-                "[Beginning balance (500.000000) + net deposits (-550.000000) != ending balance (0.000000). Expected (-500.000000), Contains suspicious records, [4/3/2020] Record has a check number but the description does not say "check"]",,,,"WF Bank - 1234567890",,4/7/2020
+                "[Beginning balance (500.00) + net transactions (-550.00) != ending balance (0.00). Expected (-500.00), Contains suspicious records, [4/3/2020] Record has a check number but the description does not say "check"]",,,,"WF Bank - 1234567890",,4/7/2020
                 4/3/2020,"test",-500.00,,"WF Bank - 1234567890","AG-12345",4/7/2020,2,"test.pdf",1,,
                 4/3/2020,"test Check 1234: Some Guy - check desc",-50.00,,"WF Bank - 1234567890","$BATES_STAMP",4/7/2020,2,"$FILENAME",1,"$CHECK_BATES_STAMP","$CHECK_FILENAME",$CHECK_FILE_PAGE
                 ,,=SUM(C6:C8),,"WF Bank - 1234567890",,4/7/2020
                 
-                "[Beginning balance (500.000000) + net deposits (-550.000000) != ending balance (0.000000). Expected (-500.000000)]",,,,"WF Bank - 1234567890",,4/7/2020
+                "[Beginning balance (500.00) + net transactions (-550.00) != ending balance (0.00). Expected (-500.00)]",,,,"WF Bank - 1234567890",,4/7/2020
                 4/3/2020,"test",-500.00,,"WF Bank - 1234567890","AG-12345",4/7/2020,2,"test.pdf",1,,
                 4/3/2020,"test",-50.00,,"WF Bank - 1234567890","AG-12345",4/7/2020,2,"test.pdf",1,,
                 4/3/2020,"Check 1235: Some Guy - check desc",-50.00,,"WF Bank - 1234567890","$BATES_STAMP",4/7/2020,2,"$FILENAME",1,"$CHECK_BATES_STAMP","$CHECK_FILENAME",$CHECK_FILE_PAGE
@@ -110,7 +110,7 @@ class CsvCreatorTest {
                 
                 ,,=SUM(C24:C25),,"WF Bank - 1234567890",,4/7/2020
                 
-                "[Beginning balance (500.000000) + net deposits (-575.000000) != ending balance (0.000000). Expected (-500.000000)]",,,,"WF Bank - 1234567890",,4/7/2020
+                "[Beginning balance (500.00) + net transactions (-575.00) != ending balance (0.00). Expected (-500.00)]",,,,"WF Bank - 1234567890",,4/7/2020
                 4/3/2020,"test",-500.00,,"WF Bank - 1234567890","AG-12345",4/7/2020,2,"test.pdf",1,,
                 4/3/2020,"test",-50.00,,"WF Bank - 1234567890","$BATES_STAMP",4/7/2020,2,"$FILENAME",1,,
                 4/3/2020,"test",-25.00,,"WF Bank - 1234567890","AG-12345",4/7/2020,2,"test.pdf",1,,
