@@ -166,20 +166,18 @@ class DocumentStatementCreatorTest {
 
         assertThat(result.size).isEqualTo(3)
         val metadata1 = TransactionHistoryPageMetadata(
-            filename = StatementModelValues.FileNames.WF_BANK,
             filePageNumber = 1,
             batesStamp = "MH-000403",
-            date = firstStatementDate,
             statementPageNum = 1
         )
 
         val metadata2 = TransactionHistoryPageMetadata(
-            filename = StatementModelValues.FileNames.WF_BANK,
             filePageNumber = 2,
             batesStamp = "MH-000404",
-            date = firstStatementDate,
             statementPageNum = 2
         )
+
+        val records = models.flatMap { it.transactionTableDepositWithdrawal?.records ?: listOf() }
         assertThat(result[0]).isEqualTo(
             BankStatement(
                 filename = StatementModelValues.FileNames.WF_BANK,
@@ -191,33 +189,33 @@ class DocumentStatementCreatorTest {
                 beginningBalance = 10124.23.asCurrency(),
                 endingBalance = 6390.78.asCurrency(),
                 transactions = mutableListOf(
-                    TransactionHistoryRecord(checkNumber = 12058, date = "1/13/2022", description = "Check", amount = (-928.0).asCurrency(), pageMetadata = metadata2),
-                    TransactionHistoryRecord(checkNumber = null, date = "1/14/2022", description = "S C Herman & Ass Ppe220109 Herm01 Robert Herman", amount = 183.38.asCurrency(), pageMetadata = metadata2),
-                    TransactionHistoryRecord(checkNumber = null, date = "1/14/2022", description = "WT Fed#06710 Morgan Stanley and /Org=Robert B. Herman Sylvan C Herman Srf# D1020140041101 Trn#220114020140 Rfb#", amount = 20000.0.asCurrency(), pageMetadata = metadata2),
-                    TransactionHistoryRecord(checkNumber = null, date = "1/14/2022", description = "Wire Trans Svc Charge - Sequence: 220114020140 Srf# D1020140041101 Trn#220114020140 Rfb#", amount = -15.0.asCurrency(), pageMetadata = metadata2),
-                    TransactionHistoryRecord(checkNumber = 12055, date = "1/18/2022", description = "Check", amount = (-100.0).asCurrency(), pageMetadata = metadata2),
-                    TransactionHistoryRecord(checkNumber = 12054, date = "1/18/2022", description = "Check", amount = (-100.0).asCurrency(), pageMetadata = metadata2),
-                    TransactionHistoryRecord(checkNumber = null, date = "1/20/2022", description = "Comp of Maryland Dir Db Rad 012022 004822018026253 x", amount = -1173.34.asCurrency(), pageMetadata = metadata2),
-                    TransactionHistoryRecord(checkNumber = 12050, date = "1/21/2022", description = "Check", amount = (-400.0).asCurrency(), pageMetadata = metadata2),
-                    TransactionHistoryRecord(checkNumber = 12066, date = "1/21/2022", description = "Check", amount = (-930.1).asCurrency(), pageMetadata = metadata2),
-                    TransactionHistoryRecord(checkNumber = null, date = "1/24/2022", description = "ATM Withdrawal authorized on 01/24 5701 Connecticut Ave NW Washington DC 0004269 ATM ID 0085P Card 9899", amount = -200.0.asCurrency(), pageMetadata = metadata2),
-                    TransactionHistoryRecord(checkNumber = 12061, date = "1/24/2022", description = "Check", amount = (-303.64).asCurrency(), pageMetadata = metadata2),
-                    TransactionHistoryRecord(checkNumber = 12063, date = "1/25/2022", description = "Check", amount = (-10884.93).asCurrency(), pageMetadata = metadata2),
-                    TransactionHistoryRecord(checkNumber = 12064, date = "1/25/2022", description = "Check", amount = (-1253.67).asCurrency(), pageMetadata = metadata2),
-                    TransactionHistoryRecord(checkNumber = 12062, date = "1/25/2022", description = "Check", amount = (-5607.95).asCurrency(), pageMetadata = metadata2),
-                    TransactionHistoryRecord(checkNumber = null, date = "1/28/2022", description = "S C Herman & Ass Ppe220123 Herm01 Robert Herman", amount = 183.4.asCurrency(), pageMetadata = metadata2),
-                    TransactionHistoryRecord(checkNumber = 12060, date = "1/28/2022", description = "Check", amount = (-343.53).asCurrency(), pageMetadata = metadata2),
-                    TransactionHistoryRecord(checkNumber = 12067, date = "1/28/2022", description = "Check", amount = (-930.1).asCurrency(), pageMetadata = metadata2),
-                    TransactionHistoryRecord(checkNumber = 12070, date = "2/7/2022", description = "Check", amount = (-930.1).asCurrency(), pageMetadata = metadata2),
-                    TransactionHistoryRecord(checkNumber = null, date = "2/7/2022", description = "Interest Payment", amount = 0.13.asCurrency(), pageMetadata = metadata2),
+                    TransactionHistoryRecord(id = records[0].id, checkNumber = 12058, date = "1/13/2022", description = "Check", amount = (-928.0).asCurrency(), pageMetadata = metadata2),
+                    TransactionHistoryRecord(id = records[1].id, checkNumber = null, date = "1/14/2022", description = "S C Herman & Ass Ppe220109 Herm01 Robert Herman", amount = 183.38.asCurrency(), pageMetadata = metadata2),
+                    TransactionHistoryRecord(id = records[2].id, checkNumber = null, date = "1/14/2022", description = "WT Fed#06710 Morgan Stanley and /Org=Robert B. Herman Sylvan C Herman Srf# D1020140041101 Trn#220114020140 Rfb#", amount = 20000.0.asCurrency(), pageMetadata = metadata2),
+                    TransactionHistoryRecord(id = records[3].id, checkNumber = null, date = "1/14/2022", description = "Wire Trans Svc Charge - Sequence: 220114020140 Srf# D1020140041101 Trn#220114020140 Rfb#", amount = -15.0.asCurrency(), pageMetadata = metadata2),
+                    TransactionHistoryRecord(id = records[4].id, checkNumber = 12055, date = "1/18/2022", description = "Check", amount = (-100.0).asCurrency(), pageMetadata = metadata2),
+                    TransactionHistoryRecord(id = records[5].id, checkNumber = 12054, date = "1/18/2022", description = "Check", amount = (-100.0).asCurrency(), pageMetadata = metadata2),
+                    TransactionHistoryRecord(id = records[6].id, checkNumber = null, date = "1/20/2022", description = "Comp of Maryland Dir Db Rad 012022 004822018026253 x", amount = -1173.34.asCurrency(), pageMetadata = metadata2),
+                    TransactionHistoryRecord(id = records[7].id, checkNumber = 12050, date = "1/21/2022", description = "Check", amount = (-400.0).asCurrency(), pageMetadata = metadata2),
+                    TransactionHistoryRecord(id = records[8].id, checkNumber = 12066, date = "1/21/2022", description = "Check", amount = (-930.1).asCurrency(), pageMetadata = metadata2),
+                    TransactionHistoryRecord(id = records[9].id, checkNumber = null, date = "1/24/2022", description = "ATM Withdrawal authorized on 01/24 5701 Connecticut Ave NW Washington DC 0004269 ATM ID 0085P Card 9899", amount = -200.0.asCurrency(), pageMetadata = metadata2),
+                    TransactionHistoryRecord(id = records[10].id, checkNumber = 12061, date = "1/24/2022", description = "Check", amount = (-303.64).asCurrency(), pageMetadata = metadata2),
+                    TransactionHistoryRecord(id = records[11].id, checkNumber = 12063, date = "1/25/2022", description = "Check", amount = (-10884.93).asCurrency(), pageMetadata = metadata2),
+                    TransactionHistoryRecord(id = records[12].id, checkNumber = 12064, date = "1/25/2022", description = "Check", amount = (-1253.67).asCurrency(), pageMetadata = metadata2),
+                    TransactionHistoryRecord(id = records[13].id, checkNumber = 12062, date = "1/25/2022", description = "Check", amount = (-5607.95).asCurrency(), pageMetadata = metadata2),
+                    TransactionHistoryRecord(id = records[14].id, checkNumber = null, date = "1/28/2022", description = "S C Herman & Ass Ppe220123 Herm01 Robert Herman", amount = 183.4.asCurrency(), pageMetadata = metadata2),
+                    TransactionHistoryRecord(id = records[15].id, checkNumber = 12060, date = "1/28/2022", description = "Check", amount = (-343.53).asCurrency(), pageMetadata = metadata2),
+                    TransactionHistoryRecord(id = records[16].id, checkNumber = 12067, date = "1/28/2022", description = "Check", amount = (-930.1).asCurrency(), pageMetadata = metadata2),
+                    TransactionHistoryRecord(id = records[17].id, checkNumber = 12070, date = "2/7/2022", description = "Check", amount = (-930.1).asCurrency(), pageMetadata = metadata2),
+                    TransactionHistoryRecord(id = records[18].id, checkNumber = null, date = "2/7/2022", description = "Interest Payment", amount = 0.13.asCurrency(), pageMetadata = metadata2),
                 ),
                 pages = mutableSetOf(metadata1, metadata2)
             )
         )
 
         val secondStatementDate = normalizeDate("Apr 7, 2022")
-        val metadata3 = TransactionHistoryPageMetadata(filename = StatementModelValues.FileNames.WF_BANK, filePageNumber = 3, batesStamp = "MH-000414", date = secondStatementDate, statementPageNum = 2)
-        val metadata4 =  TransactionHistoryPageMetadata(filename = StatementModelValues.FileNames.WF_BANK, filePageNumber = 5, batesStamp = "MH-000415", date = secondStatementDate, statementPageNum = 3)
+        val metadata3 = TransactionHistoryPageMetadata(filePageNumber = 3, batesStamp = "MH-000414", statementPageNum = 2)
+        val metadata4 =  TransactionHistoryPageMetadata(filePageNumber = 5, batesStamp = "MH-000415", statementPageNum = 3)
         assertThat(result[1]).isEqualTo(
             BankStatement(
                 filename = StatementModelValues.FileNames.WF_BANK,
@@ -230,34 +228,34 @@ class DocumentStatementCreatorTest {
                 endingBalance = 11789.10.asCurrency(),
                 transactions = mutableListOf(
                     // 1st page
-                    TransactionHistoryRecord(description = "Check", checkNumber = 12087, date = normalizeDate("3/9 2022"), amount = (-930.0).asCurrency(), pageMetadata = metadata3),
-                    TransactionHistoryRecord(description = "Check", checkNumber = 12086, date = normalizeDate("3/9 2022"), amount = (-1457.0).asCurrency(), pageMetadata = metadata3),
-                    TransactionHistoryRecord(description = "Check", checkNumber = 12078, date = normalizeDate("3/10 2022"), amount = (-400.0).asCurrency(), pageMetadata = metadata3),
-                    TransactionHistoryRecord(description = "S C Herman & Ass Ppe220306 Herm01 Robert Herman", checkNumber = null, date = normalizeDate("3/11 2022"), amount = 183.38.asCurrency(), pageMetadata = metadata3),
-                    TransactionHistoryRecord(description = "WT Fed#05582 Morgan Stanley and /Org=Robert B. Herman Sylvan C Herman CO Srf# S06207715Ea601 Trn#220318022868 Rfb#", checkNumber = null, date = normalizeDate("3/18 2022"), amount = 20000.0.asCurrency(), pageMetadata = metadata3),
-                    TransactionHistoryRecord(description = "Wire Trans Svc Charge - Sequence: 220318022868 Srf# S06207715Ea601 Trn#220318022868 Rfb#", checkNumber = null, date = normalizeDate("3/18 2022"), amount = (-15.0).asCurrency(), pageMetadata = metadata3),
-                    TransactionHistoryRecord(description = "Check", checkNumber = 12088, date = normalizeDate("3/21 2022"), amount = (-930.0).asCurrency(), pageMetadata = metadata3),
-                    TransactionHistoryRecord(description = "Check", checkNumber = 12092, date = normalizeDate("3/22 2022"), amount = (-16275.43).asCurrency(), pageMetadata = metadata3),
-                    TransactionHistoryRecord(description = "Check", checkNumber = 12091, date = normalizeDate("3/22 2022"), amount = (-5414.72).asCurrency(), pageMetadata = metadata3),
-                    TransactionHistoryRecord(description = "Check", checkNumber = 12089, date = normalizeDate("3/24 2022"), amount = (-336.62).asCurrency(), pageMetadata = metadata3),
+                    TransactionHistoryRecord(id = records[19].id, description = "Check", checkNumber = 12087, date = normalizeDate("3/9 2022"), amount = (-930.0).asCurrency(), pageMetadata = metadata3),
+                    TransactionHistoryRecord(id = records[20].id, description = "Check", checkNumber = 12086, date = normalizeDate("3/9 2022"), amount = (-1457.0).asCurrency(), pageMetadata = metadata3),
+                    TransactionHistoryRecord(id = records[21].id, description = "Check", checkNumber = 12078, date = normalizeDate("3/10 2022"), amount = (-400.0).asCurrency(), pageMetadata = metadata3),
+                    TransactionHistoryRecord(id = records[22].id, description = "S C Herman & Ass Ppe220306 Herm01 Robert Herman", checkNumber = null, date = normalizeDate("3/11 2022"), amount = 183.38.asCurrency(), pageMetadata = metadata3),
+                    TransactionHistoryRecord(id = records[23].id, description = "WT Fed#05582 Morgan Stanley and /Org=Robert B. Herman Sylvan C Herman CO Srf# S06207715Ea601 Trn#220318022868 Rfb#", checkNumber = null, date = normalizeDate("3/18 2022"), amount = 20000.0.asCurrency(), pageMetadata = metadata3),
+                    TransactionHistoryRecord(id = records[24].id, description = "Wire Trans Svc Charge - Sequence: 220318022868 Srf# S06207715Ea601 Trn#220318022868 Rfb#", checkNumber = null, date = normalizeDate("3/18 2022"), amount = (-15.0).asCurrency(), pageMetadata = metadata3),
+                    TransactionHistoryRecord(id = records[25].id, description = "Check", checkNumber = 12088, date = normalizeDate("3/21 2022"), amount = (-930.0).asCurrency(), pageMetadata = metadata3),
+                    TransactionHistoryRecord(id = records[26].id, description = "Check", checkNumber = 12092, date = normalizeDate("3/22 2022"), amount = (-16275.43).asCurrency(), pageMetadata = metadata3),
+                    TransactionHistoryRecord(id = records[27].id, description = "Check", checkNumber = 12091, date = normalizeDate("3/22 2022"), amount = (-5414.72).asCurrency(), pageMetadata = metadata3),
+                    TransactionHistoryRecord(id = records[28].id, description = "Check", checkNumber = 12089, date = normalizeDate("3/24 2022"), amount = (-336.62).asCurrency(), pageMetadata = metadata3),
                     // 2nd page
-                    TransactionHistoryRecord(description = "Check",checkNumber = 12090, date = normalizeDate("3/24 2022"), amount = (-166.86).asCurrency(), pageMetadata = metadata4),
-                    TransactionHistoryRecord(description = "S C Herman & Ass Ppe220322 Herm01 Robert Herman",checkNumber = null, date = normalizeDate("3/25 2022"), amount = 183.4.asCurrency(), pageMetadata = metadata4),
-                    TransactionHistoryRecord(description = "ATM Withdrawal authorized on 03/25 3700 Calvert St NW Washington DC 0002802 ATM ID 0217F Card 9899",checkNumber = null, date = normalizeDate("3/25 2022"), amount = (-100.0).asCurrency(), pageMetadata = metadata4),
-                    TransactionHistoryRecord(description = "Check",checkNumber = 12095, date = normalizeDate("3/28 2022"), amount = (-435.0).asCurrency(), pageMetadata = metadata4),
-                    TransactionHistoryRecord(description = "Check",checkNumber = 12094, date = normalizeDate("3/28 2022"), amount = (-435.0).asCurrency(), pageMetadata = metadata4),
-                    TransactionHistoryRecord(description = "Check",checkNumber = 12097, date = normalizeDate("3/30 2022"), amount = (-930.1).asCurrency(), pageMetadata = metadata4),
-                    TransactionHistoryRecord(description = "ATM Withdrawal authorized on 04/01 3700 Calvert St NW Washington DC 0003127 ATM ID 0217F Card 9899",checkNumber = null, date = normalizeDate("4/1/ 022"), amount = (-100.0).asCurrency(), pageMetadata = metadata4),
-                    TransactionHistoryRecord(description = "ATM Withdrawal authorized on 04/04 2800 University Blvd W St Wheaton MD 0005362 ATM ID 02840 Card 9899",checkNumber = null, date = normalizeDate("4/4/ 022"), amount = (-20.0).asCurrency(), pageMetadata = metadata4),
-                    TransactionHistoryRecord(description = "Check",checkNumber = 12099, date = normalizeDate("4/4/ 2022"), amount = (-930.1).asCurrency(), pageMetadata = metadata4),
-                    TransactionHistoryRecord(description = "Check",checkNumber = 12096, date = normalizeDate("4/4/ 2022"), amount = (-400.0).asCurrency(), pageMetadata = metadata4),
-                    TransactionHistoryRecord(description = "Interest Payment",checkNumber = null, date = normalizeDate("4/7/ 2022"), amount = 0.15.asCurrency(), pageMetadata = metadata4),
+                    TransactionHistoryRecord(id = records[29].id, description = "Check",checkNumber = 12090, date = normalizeDate("3/24 2022"), amount = (-166.86).asCurrency(), pageMetadata = metadata4),
+                    TransactionHistoryRecord(id = records[30].id, description = "S C Herman & Ass Ppe220322 Herm01 Robert Herman",checkNumber = null, date = normalizeDate("3/25 2022"), amount = 183.4.asCurrency(), pageMetadata = metadata4),
+                    TransactionHistoryRecord(id = records[31].id, description = "ATM Withdrawal authorized on 03/25 3700 Calvert St NW Washington DC 0002802 ATM ID 0217F Card 9899",checkNumber = null, date = normalizeDate("3/25 2022"), amount = (-100.0).asCurrency(), pageMetadata = metadata4),
+                    TransactionHistoryRecord(id = records[32].id, description = "Check",checkNumber = 12095, date = normalizeDate("3/28 2022"), amount = (-435.0).asCurrency(), pageMetadata = metadata4),
+                    TransactionHistoryRecord(id = records[33].id, description = "Check",checkNumber = 12094, date = normalizeDate("3/28 2022"), amount = (-435.0).asCurrency(), pageMetadata = metadata4),
+                    TransactionHistoryRecord(id = records[34].id, description = "Check",checkNumber = 12097, date = normalizeDate("3/30 2022"), amount = (-930.1).asCurrency(), pageMetadata = metadata4),
+                    TransactionHistoryRecord(id = records[35].id, description = "ATM Withdrawal authorized on 04/01 3700 Calvert St NW Washington DC 0003127 ATM ID 0217F Card 9899",checkNumber = null, date = normalizeDate("4/1/ 022"), amount = (-100.0).asCurrency(), pageMetadata = metadata4),
+                    TransactionHistoryRecord(id = records[36].id, description = "ATM Withdrawal authorized on 04/04 2800 University Blvd W St Wheaton MD 0005362 ATM ID 02840 Card 9899",checkNumber = null, date = normalizeDate("4/4/ 022"), amount = (-20.0).asCurrency(), pageMetadata = metadata4),
+                    TransactionHistoryRecord(id = records[37].id, description = "Check",checkNumber = 12099, date = normalizeDate("4/4/ 2022"), amount = (-930.1).asCurrency(), pageMetadata = metadata4),
+                    TransactionHistoryRecord(id = records[38].id, description = "Check",checkNumber = 12096, date = normalizeDate("4/4/ 2022"), amount = (-400.0).asCurrency(), pageMetadata = metadata4),
+                    TransactionHistoryRecord(id = records[39].id, description = "Interest Payment",checkNumber = null, date = normalizeDate("4/7/ 2022"), amount = 0.15.asCurrency(), pageMetadata = metadata4),
                 ),
                 pages = mutableSetOf(metadata3, metadata4)
             )
         )
 
-        val metadata5 =  TransactionHistoryPageMetadata(filename = StatementModelValues.FileNames.WF_BANK, filePageNumber = 6, batesStamp = "MH-000417", date = secondStatementDate, statementPageNum = 5)
+        val metadata5 =  TransactionHistoryPageMetadata(filePageNumber = 6, batesStamp = "MH-000417", statementPageNum = 5)
         assertThat(result[2]).isEqualTo(
             BankStatement(
                 filename = StatementModelValues.FileNames.WF_BANK,
@@ -269,7 +267,7 @@ class DocumentStatementCreatorTest {
                 beginningBalance = 201684.13.asCurrency(),
                 endingBalance = 201684.52.asCurrency(),
                 transactions = mutableListOf(
-                    TransactionHistoryRecord(date = "4/7/2022", checkNumber = null, description = "0.39", amount = (-201684.52).asCurrency(), pageMetadata = metadata5)
+                    TransactionHistoryRecord(id = records[40].id, date = "4/7/2022", checkNumber = null, description = "0.39", amount = (-201684.52).asCurrency(), pageMetadata = metadata5)
                 ),
                 pages = mutableSetOf(metadata5)
             )
@@ -567,6 +565,43 @@ class DocumentStatementCreatorTest {
         assertThat(result[1].accountNumber).isEqualTo("9667")
         assertThat(result[1].transactions.size).isEqualTo(1)
         assertThat(result[1].isSuspicious()).isFalse()
+    }
+
+    @Test
+    fun testNFCUMany() {
+        val models = listOf(
+            readFileRelative("NFCU_Many[0].json"),
+            readFileRelative("NFCU_Many[1].json"),
+            readFileRelative("NFCU_Many[2].json"),
+            readFileRelative("NFCU_Many[3].json"),
+            readFileRelative("NFCU_Many[4].json"),
+            readFileRelative("NFCU_Many[5].json"),
+        ).map { OBJECT_MAPPER.readValue(it, StatementDataModel::class.java) }
+
+        val result = statementCreator.createBankStatements(models).toList()
+
+        assertThat(result).hasSize(4)
+
+        assertThat(result[0].accountNumber).isEqualTo("4737")
+        assertThat(result[0].pages).isEqualTo(setOf(
+            TransactionHistoryPageMetadata(2, "RC005625", 2),
+            TransactionHistoryPageMetadata(3, "RC005626", 3),
+            TransactionHistoryPageMetadata(4, "RC005627", 4),
+            TransactionHistoryPageMetadata(5, "RC005628", 5)
+        ))
+        assertThat(result[1].accountNumber).isEqualTo("3863")
+        assertThat(result[1].transactions).hasSize(4)
+        assertThat(result[1].pages).isEqualTo(setOf(
+            TransactionHistoryPageMetadata(6, "RC005629", 6),
+        ))
+        assertThat(result[2].accountNumber).isEqualTo("4307")
+        assertThat(result[2].transactions).hasSize(1)
+        assertThat(result[2].pages).isEqualTo(setOf(
+            TransactionHistoryPageMetadata(6, "RC005629", 6),
+        ))
+        assertThat(result[3].accountNumber).isEqualTo("5057")
+        assertThat(result[3].transactions).isEmpty()
+        assertThat(result[3].pages).isEmpty()
 
     }
 

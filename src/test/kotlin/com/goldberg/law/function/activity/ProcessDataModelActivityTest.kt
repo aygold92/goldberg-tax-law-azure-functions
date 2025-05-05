@@ -35,7 +35,7 @@ class ProcessDataModelActivityTest {
             ProcessDataModelActivityInput("1234", CLIENT_NAME, PdfPageData("newpage.pdf", 1), null), context)
         assertThat(output.isCheckModel()).isTrue()
         assertThat(output.getDocumentDataModel().pageMetadata).isEqualTo(PdfDocumentPageMetadata("newpage.pdf", 1, DocumentType.CheckTypes.EAGLE_BANK_CHECK))
-        assertThat(dataManager.saveModel(CLIENT_NAME, PdfPageData("newpage.pdf", 1), output.checkDataModel!!))
+        assertThat(dataManager.saveModel(CLIENT_NAME, output.checkDataModel!!))
     }
 
     @Test
@@ -45,7 +45,7 @@ class ProcessDataModelActivityTest {
             ProcessDataModelActivityInput("1234", CLIENT_NAME, PdfPageData("newpage.pdf", 2), null), context)
         assertThat(output.isStatementModel()).isTrue()
         assertThat(output.getDocumentDataModel().pageMetadata).isEqualTo(PdfDocumentPageMetadata("newpage.pdf", 2, DocumentType.BankTypes.WF_BANK))
-        assertThat(dataManager.saveModel(CLIENT_NAME, PdfPageData("newpage.pdf", 2), output.statementDataModel!!))
+        assertThat(dataManager.saveModel(CLIENT_NAME, output.statementDataModel!!))
     }
 
     @Test
@@ -55,6 +55,6 @@ class ProcessDataModelActivityTest {
             ProcessDataModelActivityInput("1234", CLIENT_NAME, PdfPageData("newpage.pdf", 6), null), context)
         assertThat(output.isExtraPageDataModel()).isTrue()
         assertThat(output.getDocumentDataModel().pageMetadata).isEqualTo(PdfDocumentPageMetadata("newpage.pdf", 6, DocumentType.IrrelevantTypes.EXTRA_PAGES))
-        assertThat(dataManager.saveModel(CLIENT_NAME, PdfPageData("newpage.pdf", 6), output.extraPageDataModel!!))
+        assertThat(dataManager.saveModel(CLIENT_NAME, output.extraPageDataModel!!))
     }
 }

@@ -16,9 +16,10 @@ data class TransactionTableCreditsRecord @JsonCreator constructor(
     @JsonProperty("additions") val additions: BigDecimal?,
 ): TransactionRecord() {
     override fun toTransactionHistoryRecord(statementDate: Date?, metadata: TransactionHistoryPageMetadata, documentType: DocumentType): TransactionHistoryRecord = TransactionHistoryRecord(
+        id = this.id,
         date = fromWrittenDateStatementDateOverride(this.date, statementDate),
         description = this.description,
-        amount = if (documentType == DocumentType.CREDIT_CARD) additions?.negate() else additions,
+        amount = additions,
         pageMetadata = metadata
     )
 

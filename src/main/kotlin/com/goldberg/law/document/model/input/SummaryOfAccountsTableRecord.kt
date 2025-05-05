@@ -24,11 +24,16 @@ data class SummaryOfAccountsTableRecord @JsonCreator constructor(
     companion object {
         fun DocumentField.getAccountSummaryRecord(): SummaryOfAccountsTableRecord = this.getFieldMapHack().let { accountFields ->
             SummaryOfAccountsTableRecord(
-                accountNumber = accountFields[Keys.ACCOUNT_NUMBER]?.valueAsString,
+                accountNumber = accountFields[Keys.ACCOUNT_NUMBER]?.valueAsString?.last4Digits(),
                 startPage = accountFields[Keys.START_PAGE]?.valueAsInt(),
                 beginningBalance = accountFields[Keys.BEGINNING_BALANCE]?.currencyValue(),
                 endingBalance = accountFields[Keys.ENDING_BALANCE]?.currencyValue(),
             )
         }
+
+        private fun String.last4Digits() = this.filter { str ->
+            str.isDigit() }.let {
+                if (it.length > 4) it.substring(it.length - 4) else it
+            }
     }
 }

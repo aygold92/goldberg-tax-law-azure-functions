@@ -1,0 +1,60 @@
+{
+  "bankIdentifier": "NAVY ® FEDERAL Credit Union",
+  "date": "12/26/2024",
+  "pageNum": 5,
+  "totalPages": 7,
+  "batesStamp": "RC005628",
+  "accountNumber": "4737",
+  "endingBalance": 26870.73,
+  "transactionTableAmount": {
+    "records": [
+      {
+        "date": "12-26",
+        "description": "POS Debit- Debit Card 0553 12-24-24 Starbucks Store 00 Sterling VA",
+        "amount": -8.69,
+        "id": "52ed89a7-a001-47a9-85eb-d19037adcbf5"
+      },
+      {
+        "date": "12-26",
+        "description": "POS Debit- Debit Card 0553 12-24-24 China Village Sterling VA",
+        "amount": -21.69,
+        "id": "535090a2-62a4-4f98-881b-2a7d60e7cdba"
+      },
+      {
+        "date": "12-26",
+        "description": "POS Debit - Debit Card 0553 Transaction 12-24-24 Giant 0132 10400 Old G Bethesda",
+        "amount": -29.71,
+        "id": "1dc4e10d-d57c-4975-809f-a8ab7d03d372"
+      },
+      {
+        "date": "12-26",
+        "description": "POS Debit- Debit Card 0553 12-23-24 Safeway 2797 Olney MD",
+        "amount": -31.4,
+        "id": "02f98f7c-ad01-4e53-a38c-150804ba1c61"
+      },
+      {
+        "date": "12-26",
+        "description": "POS Debit - Debit Card 0553 Transaction 12-24-24 Shell Service Station Sterling VA",
+        "amount": -50.95,
+        "id": "8f021ee4-bbd4-4dee-be00-d20385101a48"
+      },
+      {
+        "date": "12-26",
+        "description": "POS Debit - Debit Card 0553 Transaction 12-24-24 Dsw Georgetown S 10400 Bethesda MD",
+        "amount": -68.89,
+        "id": "73072faf-b6be-4689-8e55-e4ac08036069"
+      },
+      {
+        "date": "12-26",
+        "description": "Paid To - Paypal Inst Xfer Chk 9100001",
+        "amount": -5,
+        "id": "ec5c6e31-e63a-4a4a-9b0a-04cfbbaeec6e"
+      }
+    ]
+  },
+  "pageMetadata": {
+    "filename": "RPD 26 - 005624-005630 - NFCU x4737 x3863 x4307 x5057 (12.2024).pdf",
+    "page": 5,
+    "classification": "NFCU Bank"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "bankIdentifier": "NAVY ? FEDERAL Credit Union",
+  "date": "12/26/2024",
+  "pageNum": 1,
+  "totalPages": 7,
+  "summaryOfAccountsTable": {
+    "records": [
+      {
+        "accountNumber": "4737",
+        "beginningBalance": 11556.54,
+        "endingBalance": 26870.73
+      },
+      {
+        "accountNumber": "3863",
+        "beginningBalance": 1507.61,
+        "endingBalance": 10166.85
+      },
+      {
+        "accountNumber": "4307",
+        "beginningBalance": 1688.34,
+        "endingBalance": 1688.69
+      },
+      {
+        "accountNumber": "5057",
+        "beginningBalance": 0.58,
+        "endingBalance": 0.58
+      }
+    ]
+  },
+  "batesStamp": "RC005624",
+  "beginningBalance": 14753.07,
+  "endingBalance": 38726.85,
+  "pageMetadata": {
+    "filename": "RPD 26 - 005624-005630 - NFCU x4737 x3863 x4307 x5057 (12.2024).pdf",
+    "page": 1,
+    "classification": "NFCU Bank"
+  }
+}

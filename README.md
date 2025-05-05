@@ -96,6 +96,20 @@ This function will manually put a data model to a specific page, overriding the 
 curl -w "\n" http://localhost:7071/api/PutDocumentDataModel --data "{\"clientName\":\"test\",\"pdfPageData\":{\"fileName\":\"10_2024.pdf\",\"page\":5},\"model\":{\"statementDataModel\":{...}}"
 ```
 
+### DeleteInputDocument
+Will delete an input document including all the linked accompanying split pdfs, models, and statements
+```zsh
+curl -w "\n" http://localhost:7071/api/DeleteInputDocument --data "{\"clientName\":\"test\",\"filename\":\"test.pdf\"}"
+```
+
+### LoadTransactionsFromModel
+Retrieve all the transactions from a specific filename/page (Note: that page must have already been analyzed)
+```zsh
+curl -w "\n" http://localhost:7071/api/LoadTransactionsFromModel --data "{\"requestId\": \"commandlinerequest\", \"clientName\": \"test\", \"pdfPageData\":{\"fileName\": \"NFCU_2022_SingleAccount.pdf\", \"page\": 2}, \"statementDate\": \"3/14/2022\"}"
+```
+
+### UpdateStatementModels
+Not feasible to use without the accompanying UI.  With the provided data, this function will replace the saved models and create a new bank statement
 
 # Split PDF Tool
 Splits a PDF into multiple single pages.  This is useful for training the model.

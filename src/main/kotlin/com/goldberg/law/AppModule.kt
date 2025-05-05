@@ -140,4 +140,24 @@ class AppModule constructor(private val appEnvironmentSettings: AppEnvironmentSe
     fun loadAnalyzedModelsFunction(
         azureStorageDataManager: AzureStorageDataManager
     ) = LoadAnalyzedModelsActivity(azureStorageDataManager)
+
+    @Provides
+    @Singleton
+    fun updateStatementModelFunction(
+        azureStorageDataManager: AzureStorageDataManager,
+        processStatementsActivity: ProcessStatementsActivity
+    ) = UpdateStatementModelsFunction(azureStorageDataManager, processStatementsActivity)
+
+    @Provides
+    @Singleton
+    fun deleteDocumentFunction(
+        azureStorageDataManager: AzureStorageDataManager
+    ) = DeleteInputDocumentFunction(azureStorageDataManager)
+
+    @Provides
+    @Singleton
+    fun loadTransactionsFromModelFunction(
+        azureStorageDataManager: AzureStorageDataManager
+    ) = LoadTransactionsFromModelFunction(azureStorageDataManager)
+
 }

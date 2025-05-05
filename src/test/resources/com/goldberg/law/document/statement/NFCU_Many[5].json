@@ -1,0 +1,62 @@
+{
+  "bankIdentifier": "NAVY ? FEDERAL Credit Union",
+  "date": "12/26/2024",
+  "pageNum": 6,
+  "totalPages": 7,
+  "batesStamp": "RC005629",
+  "accountNumber": "3863",
+  "transactionTableAmount": {
+    "records": [
+      {
+        "date": "11-27",
+        "description": "Beginning Balance",
+        "id": "652aa98a-489a-4c88-8034-86295be9971e"
+      },
+      {
+        "date": "11-29",
+        "description": "Dividend",
+        "amount": 0.08,
+        "id": "e6923006-4983-4d54-9f0b-2a71ef6a22f7"
+      },
+      {
+        "date": "12-06",
+        "description": "Deposit - ACH Paid From C26459 Veracity Dir Dep 01Afd4",
+        "amount": 4142.08,
+        "id": "ac0ec020-2f37-484d-a619-10175e0a0c52"
+      },
+      {
+        "date": "12-17",
+        "description": "Deposit - ACH Paid From C26459 Veracity Dir Dep 01Afd4",
+        "amount": 375,
+        "id": "67df8f1e-4d14-410e-a162-0dee2147b726"
+      },
+      {
+        "date": "12-20",
+        "description": "Deposit - ACH Paid From C26459 Veracity Dir Dep 01Afd4",
+        "amount": 4142.08,
+        "id": "f432b1ac-34cb-4074-81ed-1b8b7940cd96"
+      },
+      {
+        "date": "11-27",
+        "description": "Beginning Balance",
+        "id": "04ec0e8e-b742-4a0e-8fed-8e3693d2a526"
+      },
+      {
+        "date": "11-29",
+        "description": "Dividend",
+        "amount": 0.35,
+        "id": "7b52517d-7d7c-4505-897f-ce3957c7aa77"
+      },
+      {
+        "date": "11-27",
+        "id": "611cffc0-8a62-477f-a19f-08a58575aa33",
+        "description": "Beginning Balance"
+      }
+    ]
+  },
+  "pageMetadata": {
+    "filename": "RPD 26 - 005624-005630 - NFCU x4737 x3863 x4307 x5057 (12.2024).pdf",
+    "page": 6,
+    "classification": "NFCU Bank"
+  }
+}

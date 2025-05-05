@@ -16,10 +16,10 @@ data class TransactionTableDebitsRecord @JsonCreator constructor(
     @JsonProperty("subtractions") val subtractions: BigDecimal?,
 ): TransactionRecord() {
     override fun toTransactionHistoryRecord(statementDate: Date?, metadata: TransactionHistoryPageMetadata, documentType: DocumentType): TransactionHistoryRecord = TransactionHistoryRecord(
+        id = this.id,
         date = fromWrittenDateStatementDateOverride(this.date, statementDate),
         description = this.description,
-        // for bank, a debit is negative.  For CC, a statement debit is actually positive cash flow
-        amount = if (documentType == DocumentType.CREDIT_CARD) subtractions else subtractions?.negate(),
+        amount = subtractions,
         pageMetadata = metadata
     )
 

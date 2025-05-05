@@ -14,6 +14,7 @@ import com.goldberg.law.document.model.input.DocumentDataModel
 import com.goldberg.law.document.model.input.ExtraPageDataModel
 import com.goldberg.law.document.model.input.StatementDataModel
 import com.goldberg.law.document.model.output.BankStatement
+import com.goldberg.law.document.model.output.BankStatementKey
 import com.goldberg.law.document.model.pdf.PdfDocumentMetadata
 import com.goldberg.law.document.model.pdf.PdfDocumentPage
 import com.goldberg.law.function.model.metadata.InputFileMetadata
@@ -65,10 +66,10 @@ class AzureStorageDataManager(private val serviceClient: BlobServiceClient) {
         saveFile(getContainerClient(clientName, BlobContainer.SPLIT_INPUT), document.splitPageFilePath(), document.toBinaryData(), overwrite)
     }
 
-    fun saveModel(clientName: String, pdfDocumentPage: PdfPageData, dataModel: DocumentDataModel) =
-        saveFile(getContainerClient(clientName, BlobContainer.MODELS), pdfDocumentPage.modelFileName(), dataModel.toStringDetailed(), true)
+    fun saveModel(clientName: String, dataModel: DocumentDataModel) =
+        saveFile(getContainerClient(clientName, BlobContainer.MODELS), dataModel.pageMetadata.toPdfPageData().modelFileName(), dataModel.toStringDetailed(), true)
 
-    fun saveBankStatement(clientName: String, bankStatement: BankStatement): String {
+    fun saveBankStatement(clientName: String, bankStatement: BankStatement, manuallyVerified: Boolean = false): String {
         val content = BinaryData.fromString(bankStatement.toStringDetailed())
 
         // TODO: build overwrite feature
@@ -76,18 +77,7 @@ class AzureStorageDataManager(private val serviceClient: BlobServiceClient) {
 //            "md5 = '${bankStatement.md5Hash()}",
 //            "NOT ($MANUALLY_VERIFIED_BLOB_KEY = 'true')",
 //        ).joinToString(" OR ")
-        val statementMetadata = StatementMetadata(
-            bankStatement.md5Hash(),
-            bankStatement.isSuspicious(),
-            bankStatement.getMissingChecks().isNotEmpty(),
-            false,
-            bankStatement.statementType,
-            bankStatement.getTotalSpending(),
-            bankStatement.getTotalIncomeCredits(),
-            bankStatement.transactions.size,
-            bankStatement.filename,
-            bankStatement.getPageRange()
-        )
+        val statementMetadata = bankStatement.getStatementMetadata(manuallyVerified)
         val containerClient = getContainerClient(clientName, BlobContainer.STATEMENTS)
         containerClient.getBlobClient(bankStatement.azureFileName()).uploadWithResponse(
             BlobParallelUploadOptions(content).apply {
@@ -177,12 +167,45 @@ class AzureStorageDataManager(private val serviceClient: BlobServiceClient) {
     }
 
     /**
+     * DELETION FUNCTIONS
+     */
+    private fun deleteFile(containerClient: BlobContainerClient, filename: String) {
+        try {
+            containerClient.getBlobClient(filename).delete()
+        } catch (ex: BlobStorageException) {
+            logger.info { "File does not exist" }
+        }
+        logger.debug { "Deleted ${containerClient.blobContainerName}/${filename}" }
+    }
+
+    fun deleteInputFile(clientName: String, filename: String) {
+        deleteFile(getContainerClient(clientName, BlobContainer.INPUT), filename)
+    }
+
+    fun deleteSplitFile(clientName: String, pdfPageData: PdfPageData) {
+        deleteFile(getContainerClient(clientName, BlobContainer.SPLIT_INPUT), pdfPageData.splitPageFilePath())
+    }
+
+    fun deleteModelFile(clientName: String, pdfPageData: PdfPageData) {
+        deleteFile(getContainerClient(clientName, BlobContainer.MODELS), pdfPageData.modelFileName())
+    }
+
+    fun deleteStatementFile(clientName: String, statementKey: String) {
+        deleteFile(getContainerClient(clientName, BlobContainer.STATEMENTS), statementKey)
+    }
+
+    /**
      * Additional functions such as interacting with metadata
      */
     fun updateInputPdfMetadata(clientName: String, fileName: String, metadata: InputFileMetadata) {
         getContainerClient(clientName, BlobContainer.INPUT).getBlobClient(fileName.withExtension(".pdf")).apply {
             setMetadata(metadata.toMap())
         }
+    }
+
+    fun loadInputMetadata(clientName: String, fileName: String): InputFileMetadata? {
+        val metadataMap = getContainerClient(clientName, BlobContainer.INPUT).getBlobClient(fileName.withExtension(".pdf")).properties.metadata
+        return if (metadataMap == null) null else METADATA_OBJECT_MAPPER.convertValue(metadataMap, InputFileMetadata::class.java)
     }
 
     companion object {
@@ -192,11 +215,5 @@ class AzureStorageDataManager(private val serviceClient: BlobServiceClient) {
             }
             registerModule(module)
         }
-
-        const val INPUT_CONTAINER_NAME = "input"
-        const val SPLIT_INPUT_CONTAINER_NAME = "splitinput"
-        const val MODELS_CONTAINER_NAME = "models"
-        const val STATEMENTS_CONTAINER_NAME = "statements"
-        const val OUTPUT_CONTAINER_NAME = "output"
     }
 }

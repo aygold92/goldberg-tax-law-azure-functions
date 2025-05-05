@@ -17,6 +17,7 @@ data class TransactionTableAmountRecord @JsonCreator constructor(
 ): TransactionRecord() {
     override fun toTransactionHistoryRecord(statementDate: Date?, metadata: TransactionHistoryPageMetadata, documentType: DocumentType): TransactionHistoryRecord {
         return TransactionHistoryRecord(
+            id = this.id,
             date = fromWrittenDateStatementDateOverride(this.date, statementDate),
             description = this.description,
             checkNumber = extractCheckNumber(this.description),

@@ -42,7 +42,7 @@ class ProcessDataModelActivity @Inject constructor(
 //         val dataModel = getStatementPage(input.pdfPageData)
 
         try {
-            dataManager.saveModel(input.clientName, pdfDocument.pdfPage(), dataModel)
+            dataManager.saveModel(input.clientName, dataModel)
         } catch (ex: Throwable) {
             logger.error(ex) { "Exception writing model for ${pdfDocument.nameWithPage()}: $ex" }
         }

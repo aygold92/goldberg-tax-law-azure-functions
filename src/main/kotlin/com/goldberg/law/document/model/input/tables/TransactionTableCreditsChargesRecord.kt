@@ -17,6 +17,7 @@ data class TransactionTableCreditsChargesRecord @JsonCreator constructor(
     @JsonProperty("charges") val charges: BigDecimal?
 ): TransactionRecord() {
     override fun toTransactionHistoryRecord(statementDate: Date?, metadata: TransactionHistoryPageMetadata, documentType: DocumentType): TransactionHistoryRecord = TransactionHistoryRecord(
+        id = this.id,
         date = fromWrittenDateStatementDateOverride(this.date, statementDate),
         description = this.description,
         // a credit represents a net increase in money, a charge is a decrease

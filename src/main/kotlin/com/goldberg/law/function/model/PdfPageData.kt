@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.goldberg.law.util.withoutExtension
 
 data class PdfPageData @JsonCreator constructor(
-    @JsonProperty("fileName") val fileName: String,
+    @JsonProperty("fileName") val fileName: String, // TODO: this should be changed to "filename"
     @JsonProperty("page") val page: Int,
 ) {
     private fun documentName() = fileName.withoutExtension()

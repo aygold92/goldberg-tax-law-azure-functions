@@ -10,9 +10,12 @@ import com.goldberg.law.util.addQuotes
 import com.goldberg.law.util.fromWrittenDate
 import com.goldberg.law.util.toCurrency
 import java.math.BigDecimal
+import java.util.UUID
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class TransactionHistoryRecord @JsonCreator constructor(
+    @JsonProperty("id")
+    val id: String,
     @JsonProperty("date")
     val date: String? = null,
     @JsonProperty("checkNumber")
@@ -33,12 +36,12 @@ data class TransactionHistoryRecord @JsonCreator constructor(
 ) {
     @JsonIgnore @Transient
     val transactionDate = fromWrittenDate(date)
-    fun toCsv(accountNumber: String?, classification: String) = listOf(
+    fun toCsv(accountNumber: String?, classification: String, statementDate: String?, filename: String) = listOf(
         date,
         getFinalDescription()?.addQuotes(),
         amount?.toCurrency(),
         "",
-        pageMetadata.toCsv(accountNumber, classification),
+        pageMetadata.toCsv(accountNumber, classification, statementDate, filename),
         checkDataModel?.batesStamp?.addQuotes(),
         checkDataModel?.pageMetadata?.toCsv()
     ).joinToString(",") { it ?: "" }
@@ -57,7 +60,7 @@ data class TransactionHistoryRecord @JsonCreator constructor(
     }
 
     fun withCheckInfo(checkDataModel: CheckDataModel?): TransactionHistoryRecord = if (checkNumber == null || checkDataModel == null) this else {
-        TransactionHistoryRecord(date, checkNumber, description, amount, pageMetadata, checkDataModel)
+        TransactionHistoryRecord(id, date, checkNumber, description, amount, pageMetadata, checkDataModel)
     }
 
     /**

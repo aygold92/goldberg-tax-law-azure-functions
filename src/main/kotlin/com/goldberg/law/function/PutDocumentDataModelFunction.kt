@@ -30,7 +30,7 @@ class PutDocumentDataModelFunction(
 
         val model = req.model.getDocumentDataModel()
         logger.info { "putting model model to ${req.pdfPageData.modelFileName()}" }
-        val filename = dataManager.saveModel(req.clientName, req.pdfPageData, model)
+        val filename = dataManager.saveModel(req.clientName, model)
 
         request!!.createResponseBuilder(HttpStatus.OK)
             .body(PutDocumentDataModelResponse(filename, model.toStringDetailed()))

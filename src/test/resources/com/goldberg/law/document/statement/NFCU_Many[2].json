@@ -1,0 +1,305 @@
+{
+  "bankIdentifier": "NAVY ? FEDERAL Credit Union",
+  "date": "12/26/2024",
+  "pageNum": 3,
+  "totalPages": 7,
+  "batesStamp": "RC005626",
+  "accountNumber": "4737",
+  "transactionTableAmount": {
+    "records": [
+      {
+        "date": "12-04",
+        "description": "POS Debit- Debit Card 0553 12-02-24 Cafe Rio 0041 Olne Olney MD",
+        "amount": -1.2,
+        "id": "434ff469-b857-4dee-b2de-cc51a30a0736"
+      },
+      {
+        "date": "12-04",
+        "description": "POS Debit- Debit Card 0553 12-03-24 Chipotle 1449 Olney MD",
+        "amount": -32.55,
+        "id": "74361ae8-f947-4018-8075-cb9a4fe7ff24"
+      },
+      {
+        "date": "12-04",
+        "description": "POS Debit - Debit Card 0553 Transaction 12-03-24 Giant #2317 18140 Vill Onley",
+        "amount": -40.29,
+        "id": "03906cf3-fedd-419a-a8d7-3eda6cdd0e40"
+      },
+      {
+        "date": "12-04",
+        "description": "POS Debit- Debit Card 0553 12-02-24 Cafe Rio 0041 Olne Olney MD",
+        "amount": -41.32,
+        "id": "2461f549-022e-4353-9492-f69f2b86c52f"
+      },
+      {
+        "date": "12-04",
+        "description": "POS Debit - Debit Card 0553 Transaction 12-03-24 World Market #363 Rockville",
+        "amount": -95.92,
+        "id": "f2ea96c0-01d2-460a-a3a2-d4c52c009367"
+      },
+      {
+        "date": "12-04",
+        "description": "Paid To - Paypal Inst Xfer Chk 9100001",
+        "amount": -30.06,
+        "id": "249348cc-6e35-4327-b659-0c713eebdaf2"
+      },
+      {
+        "date": "12-05",
+        "description": "Deposit - ACH Paid From Veracity Technol Sender 01Afds",
+        "amount": 20000,
+        "id": "ec201052-69fc-415d-9226-5c198dbdaef6"
+      },
+      {
+        "date": "12-05",
+        "description": "POS Debit - Debit Card 0553 Transaction 12-04-24 Giant #2317 18140 Vill Onley",
+        "amount": -6.36,
+        "id": "709a1a81-3366-4383-bd65-ab806e5d1b5d"
+      },
+      {
+        "date": "12-05",
+        "description": "POS Debit- Debit Card 0553 12-04-24 Hair Cuttery 3894 Olney MD",
+        "amount": -37.5,
+        "id": "43ef12a4-f191-434a-8271-07a574f649f9"
+      },
+      {
+        "date": "12-06",
+        "description": "POS Debit - Debit Card 0553 Transaction 12-05-24 7-Eleven Olney",
+        "amount": -8.25,
+        "id": "2e208d7c-f43d-4490-ad37-c89c464f38e1"
+      },
+      {
+        "date": "12-06",
+        "description": "POS Debit- Debit Card 0553 12-05-24 Tst* Matchbox Beth Bethesda MD",
+        "amount": -11.79,
+        "id": "1169f3a5-1674-4ff3-ab65-baab7c5bc8e0"
+      },
+      {
+        "date": "12-06",
+        "description": "POS Debit - Debit Card 0553 Transaction 12-06-24 CVS/Pharmacy #01 01431 Olney MD",
+        "amount": -33.3,
+        "id": "b5d1077a-a366-4cf8-b571-8c09491e89c8"
+      },
+      {
+        "date": "12-06",
+        "description": "POS Debit- Debit Card 0553 12-05-24 Tst* Matchbox Beth Bethesda MD",
+        "amount": 84.58,
+        "id": "0c75fbf0-466e-456a-a97b-6da6c957968b"
+      },
+      {
+        "date": "12-06",
+        "description": "POS Debit- Debit Card 0553 12-05-24 Vtg*pdc 301-8697505 MD",
+        "amount": -117.8,
+        "id": "c0e801c0-4729-4557-aaef-5cb83641b923"
+      },
+      {
+        "date": "12-06",
+        "description": "Check 155",
+        "amount": -3100,
+        "id": "5f803886-fc91-47e1-b212-87f84d644e6c"
+      },
+      {
+        "date": "12-09",
+        "description": "POS Debit - Debit Card 0553 Transaction 12-07-24 Tri-State Purcellville",
+        "amount": 3.32,
+        "id": "b6c97531-624e-4f68-a23f-775f6bb1ddb8"
+      },
+      {
+        "date": "12-09",
+        "description": "POS Debit- Debit Card 0553 12-06-24 Shell Oil 12525774 Gaithersburg MD",
+        "amount": -3.78,
+        "id": "5096ab32-011c-4aad-8103-af2142ad0e49"
+      },
+      {
+        "date": "12-09",
+        "description": "POS Debit- Debit Card 0553 12-07-24 The Coffeemill Bolivar WV",
+        "amount": -3.85,
+        "id": "3a97066c-2505-446c-9f00-dd3a16359abf"
+      },
+      {
+        "date": "12-09",
+        "description": "POS Debit- Debit Card 0553 12-06-24 Starbucks Store 07 Olney MD",
+        "amount": -4.13,
+        "id": "2680e230-bf0f-4e32-98af-924299ab598d"
+      },
+      {
+        "date": "12-09",
+        "description": "POS Debit - Debit Card 0553 Transaction 12-06-24 Weis Markets 11 Westminster",
+        "amount": -6.34,
+        "id": "926c37b9-48e7-4496-b29a-f5ce9de9a383"
+      },
+      {
+        "date": "12-09",
+        "description": "POS Debit - Debit Card 0553 Transaction 12-07-24 7-Eleven Olney",
+        "amount": -8.64,
+        "id": "75e86e16-5b53-472b-a742-4bfd3c800f09"
+      },
+      {
+        "date": "12-09",
+        "description": "POS Debit - Debit Card 0553 Transaction 12-07-24 Tri-State Purcellville",
+        "amount": -9.7,
+        "id": "fe010893-9869-4ffd-ac80-d71c96c27e77"
+      },
+      {
+        "date": "12-09",
+        "description": "POS Debit- Debit Card 0553 12-06-24 Chick-Fil-A #03440 Olney MD",
+        "amount": -10.91,
+        "id": "41b627c1-ef4e-4e22-8479-2c82d091a0a0"
+      },
+      {
+        "date": "12-09",
+        "description": "POS Debit- Debit Card 0553 12-07-24 DD/Br #335440 Q35 Silver Spring MD",
+        "amount": -12.96,
+        "id": "38ab59cd-d8c2-4238-8a9b-4814a7782182"
+      },
+      {
+        "date": "12-09",
+        "description": "POS Debit- Debit Card 0553 12-07-24 Harpers Ferry Nhp Harpers Ferry WV",
+        "amount": -20,
+        "id": "b487d211-b564-4984-bb00-0aecf3bdbf95"
+      },
+      {
+        "date": "12-09",
+        "description": "POS Debit- Debit Card 0553 12-06-24 Olney Beer And Win Olney MD",
+        "amount": -33.76,
+        "id": "eccfc140-9473-4cfb-868c-f83dd7af6246"
+      },
+      {
+        "date": "12-09",
+        "description": "POS Debit- Debit Card 0553 12-06-24 Uncle Julio's Gait Gaithersburg MD",
+        "amount": -45.13,
+        "id": "079a085b-ffe2-490f-b18b-5db59feea678"
+      },
+      {
+        "date": "12-09",
+        "description": "POS Debit- Debit Card 0553 12-08-24 Tst\" The Artemis Washington DC",
+        "amount": -45.96,
+        "id": "7d611d49-13ff-4760-ac49-0923ee10f6c1"
+      },
+      {
+        "date": "12-09",
+        "description": "POS Debit- Debit Card 0553 12-06-24 Shell Oil 57542185 Olney MD",
+        "amount": -51.58,
+        "id": "336a0d8d-cd2c-4490-bee8-7191a8bf03e2"
+      },
+      {
+        "date": "12-09",
+        "description": "POS Debit- Debit Card 0553 12-07-24 Webb Soypher McGra Bethesda MD",
+        "amount": -1100,
+        "id": "c76da537-07f4-4503-ab16-7f5cd9e279ec"
+      },
+      {
+        "date": "12-09",
+        "description": "Paid To - Paypal Inst Xfer Chk 9100001",
+        "amount": -31.79,
+        "id": "8d564047-52bd-458e-98da-33b1983d02e7"
+      },
+      {
+        "date": "12-09",
+        "description": "Paid To - Paypal Inst Xfer Chk 9100001",
+        "amount": -36,
+        "id": "4cc9c30a-3130-4a75-90f0-9611489fce95"
+      },
+      {
+        "date": "12-11",
+        "description": "POS Debit- Debit Card 0553 12-10-24 Royal Bagel Bakery Olney MD",
+        "amount": -10.73,
+        "id": "b55aaf29-6d83-4806-ab0c-63209486a0b2"
+      },
+      {
+        "date": "12-11",
+        "description": "POS Debit- Debit Card 0553 12-09-24 140 Torchys Rockvi Rockville MD",
+        "amount": -11.38,
+        "id": "ccf58be1-8a1d-4fbc-9f88-7490ba90d3fc"
+      },
+      {
+        "date": "12-11",
+        "description": "POS Debit - Debit Card 0553 Transaction 12-10-24 CVS/Pharm 01431 -- 18341 Olney",
+        "amount": -12.48,
+        "id": "90a79c20-cb50-4534-addd-0c6c0165da47"
+      },
+      {
+        "date": "12-11",
+        "description": "POS Debit- Debit Card 0553 12-09-24 Five Guys MD 0183 Rockville MD",
+        "amount": -17.78,
+        "id": "5878af42-27f8-4a5e-abd8-c520383cafd9"
+      },
+      {
+        "date": "12-11",
+        "description": "POS Debit- Debit Card 0553 12-10-24 Movement Columbia 154-13165747 CO",
+        "amount": -28,
+        "id": "36d3a8c2-16c0-4df2-927b-dcfa1a49ee26"
+      },
+      {
+        "date": "12-12",
+        "description": "POS Debit - Debit Card 0553 Transaction 12-12-24 7-Eleven Olney",
+        "amount": -2.64,
+        "id": "6abb643c-5626-47de-8a39-11487581b0c1"
+      },
+      {
+        "date": "12-12",
+        "description": "POS Debit - Debit Card 0553 Transaction 12-11-24 Giant #2317 18140 Vill Onley",
+        "amount": -84.31,
+        "id": "724c128d-bf8e-4e26-8b41-f2190a5c3a59"
+      },
+      {
+        "date": "12-13",
+        "description": "POS Debit- Debit Card 0553 12-12-24 Sky Zone Gaithersb Gaithersburg MD",
+        "amount": -5.29,
+        "id": "8a6e9bfa-6399-4ffa-8c69-aeabb5159ab6"
+      },
+      {
+        "date": "12-13",
+        "description": "POS Debit- Debit Card 0553 12-12-24 Sky Zone Gaithersb Gaithersburg MD",
+        "amount": -8.03,
+        "id": "cb61259b-1844-4804-a490-39fcd8a119a1"
+      },
+      {
+        "date": "12-13",
+        "description": "POS Debit - Debit Card 0553 Transaction 12-13-24 7-Eleven Olney",
+        "amount": -8.79,
+        "id": "8f000076-c0f6-44bc-a8df-80e2b432c936"
+      },
+      {
+        "date": "12-13",
+        "description": "POS Debit- Debit Card 0553 12-12-24 McDonald's M4539 O Olney MD",
+        "amount": -22.65,
+        "id": "e1a937bd-ae77-484a-be85-7913ffb02af0"
+      },
+      {
+        "date": "12-13",
+        "description": "POS Debit- Debit Card 0553 12-12-24 Exxon Dahwahrah En Olney MD",
+        "amount": -55.24,
+        "id": "def96505-933d-4dda-ad76-109f89cf17d5"
+      },
+      {
+        "date": "12-13",
+        "description": "POS Debit- Debit Card 0553 12-12-24 Sky Zone Gaithersb 120-2780351 MD",
+        "amount": -83.57,
+        "id": "ec870ae1-2d8c-49e3-b890-4cf9bd4dcdf9"
+      },
+      {
+        "date": "12-16",
+        "description": "POS Debit- Debit Card 0553 12-12-24 Tiburon Lockers IN Rockleigh NJ",
+        "amount": -5,
+        "id": "0619b4d7-7506-4202-ac01-f4b9c6896d52"
+      },
+      {
+        "date": "12-16",
+        "description": "POS Debit - Debit Card 0553 Transaction 12-15-24 7-Eleven Rockville",
+        "amount": -6.36,
+        "id": "0916a52a-f590-43ab-8335-a447cb55beac"
+      },
+      {
+        "date": "12-16",
+        "description": "POS Debit- Debit Card 0553 12-14-24 The Coffeemill Bolivar WV",
+        "amount": -6.97,
+        "id": "36fbac19-4b18-4b4f-8431-db50dc506585"
+      }
+    ]
+  },
+  "pageMetadata": {
+    "filename": "RPD 26 - 005624-005630 - NFCU x4737 x3863 x4307 x5057 (12.2024).pdf",
+    "page": 3,
+    "classification": "NFCU Bank"
+  }
+}

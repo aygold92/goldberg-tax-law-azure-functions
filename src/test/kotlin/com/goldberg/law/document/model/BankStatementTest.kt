@@ -8,6 +8,7 @@ import com.goldberg.law.document.model.ModelValues.BATES_STAMP
 import com.goldberg.law.document.model.ModelValues.FILENAME
 import com.goldberg.law.document.model.ModelValues.FIXED_STATEMENT_DATE
 import com.goldberg.law.document.model.ModelValues.FIXED_STATEMENT_DATE_DATE
+import com.goldberg.law.document.model.ModelValues.TEST_TRANSACTION_ID
 import com.goldberg.law.document.model.ModelValues.newBankStatement
 import com.goldberg.law.document.model.ModelValues.newBasicBankStatement
 import com.goldberg.law.document.model.ModelValues.newCheckData
@@ -17,6 +18,8 @@ import com.goldberg.law.document.model.input.StatementDataModel.Keys.ENDING_BALA
 import com.goldberg.law.document.model.output.*
 import com.goldberg.law.document.model.pdf.DocumentType
 import com.goldberg.law.document.model.pdf.DocumentType.BankTypes
+import com.goldberg.law.document.model.pdf.PdfDocumentPageMetadata
+import com.goldberg.law.function.model.PdfPageData
 import com.goldberg.law.util.*
 import com.nimbusds.jose.shaded.gson.Gson
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -308,14 +311,13 @@ class BankStatementTest {
                     feesCharged = null,
             transactions = mutableListOf(
                 TransactionHistoryRecord(
+                    id = TEST_TRANSACTION_ID,
                     date = normalizeDate("Jan 1, 2020"),
                     description ="' POS Purchase MERCHANT PURCHASE TERMINAL 55432869 SQ *SQ *PIXIELANE ERIN gosq.com MD 12-24-19 12:00 AM XXXXXXXXXXXX6557",
                     amount = (-2314.48).asCurrency(),
                     pageMetadata = TransactionHistoryPageMetadata(
-                        filename = "EagleBankx2492Stmt(2020)MH-000151-000190[1-3]",
                         filePageNumber = 1,
                         batesStamp = "MH100015NT",
-                        date = normalizeDate("Jan 15, 2020"),
                         statementPageNum = 1
                     )
                 )
@@ -378,7 +380,7 @@ class BankStatementTest {
 
     @Test
     fun testDeserializeJacksonAndGson() {
-        val statementString = "{\"filename\":\"CC - Rob - Wells Fargo Visa x2582 Stmt (2022.04.06) 001299-001302\",\"classification\":\"WF CC\",\"date\":\"4/6/2022\",\"accountNumber\":\"2582\",\"bankIdentifier\":null,\"startPage\":1,\"totalPages\":3,\"beginningBalance\":0.0,\"endingBalance\":0.0,\"interestCharged\":0.0,\"feesCharged\":0.0,\"transactions\":[],\"statementType\":\"CREDIT_CARD\",\"primaryKey\":{\"statementDate\":\"4/6/2022\",\"accountNumber\":\"2582\",\"complete\":true},\"netTransactions\":0.0,\"suspiciousReasons\":[\"No transactions recorded\"],\"suspicious\":true,\"transactionDatesOutsideOfStatement\":[],\"pages\":[{\"filename\":\"test.pdf\",\"filePageNumber\":1,\"batesStamp\":\"AG-12345\",\"statementPageNum\":1,\"date\":\"4/6/2022\"}]}"
+        val statementString = "{\"checks\":{},\"filename\":\"CC - Rob - Wells Fargo Visa x2582 Stmt (2022.04.06) 001299-001302\",\"classification\":\"WF CC\",\"date\":\"4/6/2022\",\"accountNumber\":\"2582\",\"bankIdentifier\":null,\"startPage\":1,\"totalPages\":3,\"beginningBalance\":0.0,\"endingBalance\":0.0,\"interestCharged\":0.0,\"feesCharged\":0.0,\"transactions\":[],\"statementType\":\"CREDIT_CARD\",\"primaryKey\":{\"statementDate\":\"4/6/2022\",\"accountNumber\":\"2582\",\"complete\":true},\"netTransactions\":0.0,\"suspiciousReasons\":[\"No transactions recorded\"],\"suspicious\":true,\"transactionDatesOutsideOfStatement\":[],\"pages\":[{\"filename\":\"test.pdf\",\"filePageNumber\":1,\"batesStamp\":\"AG-12345\",\"statementPageNum\":1,\"date\":\"4/6/2022\"}]}"
 
         val statementJackson = OBJECT_MAPPER.readValue(statementString, BankStatement::class.java)
 
@@ -400,7 +402,8 @@ class BankStatementTest {
                 interestCharged = BigDecimal(0.0).setScale(1),
                 feesCharged = BigDecimal(0.0).setScale(1),
                 transactions = mutableListOf(),
-                pages = mutableSetOf(newTransactionPage(1, statementDate = "4/6/2022"))
+                pages = mutableSetOf(newTransactionPage(1)),
+                checks = mutableMapOf()
             ))
 
         assertThat(statementJackson.getSuspiciousReasons()).contains(BankStatement.SuspiciousReasons.NO_TRANSACTIONS_FOUND)
@@ -409,6 +412,17 @@ class BankStatementTest {
     @Test
     fun testSerializeAndDeserializeJacksonAndGson() {
         val statement = newBankStatement()
+
+        val statementJackson = OBJECT_MAPPER.readValue(statement.toStringDetailed(), BankStatement::class.java)
+
+        val statementGson = Gson().fromJson(Gson().toJson(statement), BankStatement::class.java)
+
+        assertThat(statementJackson).isEqualTo(statementGson).isEqualTo(statement)
+    }
+
+    @Test
+    fun testSerializeAndDeserializeJacksonAndGsonWithChecks() {
+        val statement = newBankStatement().copy(checks = mutableMapOf(1 to PdfDocumentPageMetadata("test", 2, DocumentType.BankTypes.WF_BANK)))
 
         val statementJackson = OBJECT_MAPPER.readValue(statement.toStringDetailed(), BankStatement::class.java)
 

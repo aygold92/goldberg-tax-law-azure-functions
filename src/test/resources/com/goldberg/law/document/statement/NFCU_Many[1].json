@@ -1,0 +1,160 @@
+{
+  "bankIdentifier": "NAVY ? FEDERAL Credit Union",
+  "date": "12/26/2024",
+  "pageNum": 2,
+  "totalPages": 7,
+  "batesStamp": "RC005625",
+  "accountNumber": "4737",
+  "transactionTableAmount": {
+    "records": [
+      {
+        "date": "11-27",
+        "description": "Beginning Balance",
+        "id": "6d1a38a0-e3a2-46df-bb83-3b91dac0f078"
+      },
+      {
+        "date": "11-27",
+        "description": "POS Debit- Debit Card 0553 11-25-24 Pbc- Columbia MD33 Columbia MD",
+        "amount": -2,
+        "id": "3a8d6e77-37f9-4178-ae04-92a36b012e50"
+      },
+      {
+        "date": "11-27",
+        "description": "POS Debit - Debit Card 0553 Transaction 11-26-24 Homegoods 18250 Villag Olney",
+        "amount": -209.89,
+        "id": "5a9daa61-ca73-4a36-a3c9-f51e79762c70"
+      },
+      {
+        "date": "11-27",
+        "description": "Transfer To Credit Card Robert C Chadwick",
+        "amount": -2000,
+        "id": "0343406c-94d0-43f6-a264-07366c9fa5be"
+      },
+      {
+        "date": "11-29",
+        "description": "Deposit - ACH Paid From Lpl Credit 01Afd1",
+        "amount": 29000,
+        "id": "3fb9e6e7-30dd-4621-b14f-81faafc14bd7"
+      },
+      {
+        "date": "11-29",
+        "description": "POS Debit - Debit Card 0553 Transaction 11-28-24 Giant #2317 18140 Vill Onley",
+        "amount": -50.42,
+        "id": "0e045d6b-7584-4c71-909e-bd9af3a2220e"
+      },
+      {
+        "date": "11-29",
+        "description": "POS Debit- Debit Card 0553 11-27-24 Safeway 2797 Olney MD",
+        "amount": -117.9,
+        "id": "0e65abf0-08fd-4a1d-9d99-b531e162122d"
+      },
+      {
+        "date": "11-29",
+        "description": "Dividend",
+        "amount": 0.09,
+        "id": "649b5a24-bfa1-4c99-bade-34bc7f9c09e7"
+      },
+      {
+        "date": "12-02",
+        "description": "POS Debit - Debit Card 0553 Transaction 11-29-24 Homegoods 18250 Villag Olney",
+        "amount": -12.7,
+        "id": "96b2c376-76f4-44b5-8746-fa94bfe46525"
+      },
+      {
+        "date": "12-02",
+        "description": "POS Debit - Debit Card 0553 Transaction 11-29-24 Giant #2317 18140 Vill Onley",
+        "amount": -21.13,
+        "id": "0bf3ed6c-14c0-422c-8b3b-a12833d1fce6"
+      },
+      {
+        "date": "12-02",
+        "description": "POS Debit- Debit Card 0553 11-29-24 Shell Oil 57542185 Olney MD",
+        "amount": -27.76,
+        "id": "21b93e74-af99-4d95-a693-1983d50cb12e"
+      },
+      {
+        "date": "12-02",
+        "description": "POS Debit - Debit Card 0553 Transaction 11-30-24 Giant #2317 18140 Vill Onley",
+        "amount": -37.55,
+        "id": "9ade98a6-d60a-4923-b60f-40e9017a2570"
+      },
+      {
+        "date": "12-02",
+        "description": "POS Debit- Debit Card 0553 11-30-24 Joann Stores #2550 Sterling VA",
+        "amount": -72.14,
+        "id": "2f19b04d-9e61-4a97-b392-bf00eae48378"
+      },
+      {
+        "date": "12-02",
+        "description": "POS Debit - Debit Card 0553 Transaction 11-29-24 Homegoods 18250 Villag Olney",
+        "amount": -86.46,
+        "id": "f4e36d53-c75c-4f1d-85bf-ce14edbe89ab"
+      },
+      {
+        "date": "12-02",
+        "description": "POS Debit - Debit Card 0553 Transaction 11-29-24 Tj Maxx # 18329 Villag Olney",
+        "amount": -156.83,
+        "id": "ea6dfc67-26a9-42b7-a6b5-7b4ad73b5bcd"
+      },
+      {
+        "date": "12-02",
+        "description": "POS Debit- Debit Card 0553 12-01-24 Sportrock Rio Www.Sportrock MD",
+        "amount": -160,
+        "id": "f4264528-36b1-4307-8b25-baf5966b12a5"
+      },
+      {
+        "date": "12-02",
+        "description": "POS Debit - Debit Card 0553 Transaction 11-29-24 *christophers Garden C Sandy Spring",
+        "amount": -221.48,
+        "id": "dc6964b0-05bc-4223-9028-8ec1ad606ad1"
+      },
+      {
+        "date": "12-02",
+        "description": "POS Debit- Debit Card 0553 11-30-24 Zelle*sarah Pohle Visa Direct AZ",
+        "amount": -3000,
+        "id": "abd786a6-e1b4-45d3-81ae-4a0ffa19373b"
+      },
+      {
+        "date": "12-02",
+        "description": "Transfer To Credit Card",
+        "amount": -15730,
+        "id": "9da9a78d-8148-45e8-a1db-1c6fdac09d7a"
+      },
+      {
+        "date": "12-02",
+        "description": "Paid To - Paypal Inst Xfer Chk 2100002",
+        "amount": -87.07,
+        "id": "653a2ec3-64f7-44a5-b574-4b4f8d963a56"
+      },
+      {
+        "date": "12-03",
+        "description": "POS Debit - Debit Card 0553 Transaction 12-03-24 7-Eleven Olney",
+        "amount": -2.64,
+        "id": "4f09f584-b74a-40ed-b0b3-7e5cf1ff7994"
+      },
+      {
+        "date": "12-03",
+        "description": "Paid To - USAA.Com Pay Ext Life Chk 2100002",
+        "amount": -49.99,
+        "id": "337d4708-ec23-42b7-bdd2-a5edcde630e0"
+      },
+      {
+        "date": "12-03",
+        "description": "Paid To - Washington Gas Payment Chk 9100001",
+        "amount": -60.89,
+        "id": "d87d6be8-b86a-424a-8da1-00e2d531234e"
+      },
+      {
+        "date": "12-03",
+        "description": "Paid To - Pepco Paymentus Billpay Chk 9100001",
+        "amount": -111.36,
+        "id": "b90218a5-c3c4-4e47-b820-a169794f7646"
+      }
+    ]
+  },
+  "pageMetadata": {
+    "filename": "RPD 26 - 005624-005630 - NFCU x4737 x3863 x4307 x5057 (12.2024).pdf",
+    "page": 2,
+    "classification": "NFCU Bank"
+  }
+}

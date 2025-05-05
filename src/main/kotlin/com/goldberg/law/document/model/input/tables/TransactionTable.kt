@@ -15,12 +15,12 @@ abstract class TransactionTable(@JsonIgnore @Transient open val records: List<Tr
         it.toTransactionHistoryRecord(statementDate, metadata, documentType)
     }
 }
-abstract class TransactionRecord {
+abstract class TransactionRecord(open val id: String = UUID.randomUUID().toString()) {
+
     @JsonIgnore @Transient
     val logger = KotlinLogging.logger {}
     abstract fun toTransactionHistoryRecord(statementDate: Date?, metadata: TransactionHistoryPageMetadata, documentType: DocumentType): TransactionHistoryRecord
 
-    // TODO: need the full statement date to check if it's a january statement
     fun fromWrittenDateStatementDateOverride(monthDay: String?, statementDate: Date?): String? {
         val date = fromWrittenDate(monthDay, statementDate?.getYearSafe())
         return (if (date != null && date.getMonthInt() == 11 && statementDate?.getMonthInt() == 0 && date.getYearInt() != (statementDate.getYearInt() - 1)) {

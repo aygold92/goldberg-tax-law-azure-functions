@@ -62,7 +62,7 @@ class DocumentStatementCreator {
                 }
 
 
-                val accountNumber: String? = if (analyzedBankDocument.pageMetadata.classification == DocumentType.BankTypes.NFCU_BANK) {
+                val accountNumber: String? = if (analyzedBankDocument.pageMetadata.classification == DocumentType.BankTypes.NFCU_BANK && !analyzedBankDocument.isManuallyOverriden()) {
                     chooseAccountNumberForNFCUBank(statementDate, analyzedBankDocument, lastUsedStatement, lastJointStatementSummary)
                 } else {
                     chooseAccountNumber(statementDate, analyzedBankDocument, lastUsedStatement, lastJointStatementSummary)
@@ -73,9 +73,7 @@ class DocumentStatementCreator {
                 logger.info { "[Transaction History] Found $statementKey, page ${analyzedBankDocument.pageNum} (${analyzedBankDocument.batesStamp})" }
 
                 val metadata = TransactionHistoryPageMetadata(
-                    filename = analyzedBankDocument.pageMetadata.filename,
                     filePageNumber = analyzedBankDocument.pageMetadata.page,
-                    date = statementDate?.toTransactionDate(),
                     statementPageNum = analyzedBankDocument.pageNum,
                     batesStamp = analyzedBankDocument.batesStamp
                 )
@@ -122,9 +120,9 @@ class DocumentStatementCreator {
 
 
             // something has gone wrong if these are not equal
-            if (accountStatementKeys.size != statementEndings.size) {
-                return@forEach
-            }
+//            if (accountStatementKeys.size != statementEndings.size) {
+//                return@forEach
+//            }
 
             var lastIdx = 0
             accountStatementKeys.zip(statementEndings).forEach { (accKey, idxOfTransaction) ->
@@ -191,6 +189,6 @@ class DocumentStatementCreator {
         fun TransactionHistoryRecord.isBeginningBalanceRecord() =
             this.description == NFCU_BANK_BEGINNING_BALANCE_TRANSACTION_DESCRIPTION && this.amount == null
 
-        const val NFCU_BANK_BEGINNING_BALANCE_TRANSACTION_DESCRIPTION = "Beginning Balance"
+        private const val NFCU_BANK_BEGINNING_BALANCE_TRANSACTION_DESCRIPTION = "Beginning Balance"
     }
 }

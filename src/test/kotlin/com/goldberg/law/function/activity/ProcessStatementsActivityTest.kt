@@ -36,7 +36,6 @@ class ProcessStatementsActivityTest {
         whenever(accountNormalizer.normalizeAccounts(any(), any())).thenReturn(Pair(STATEMENT_DATA_MODELS, CHECK_DATA_MODELS))
         whenever(statementCreator.createBankStatements(any())).thenReturn(BANK_STATEMENTS)
         whenever(checkToStatementMatcher.matchChecksWithStatements(any(), any())).thenReturn(BANK_STATEMENTS)
-        whenever(dataManager.saveBankStatement(any(), any())).thenReturn(SAVED_FILE_1, SAVED_FILE_2, SAVED_FILE_3, SAVED_FILE_4)
     }
 
     @Test

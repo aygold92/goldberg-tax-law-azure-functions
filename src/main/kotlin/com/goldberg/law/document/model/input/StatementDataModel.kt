@@ -4,7 +4,6 @@ import com.azure.ai.formrecognizer.documentanalysis.models.AnalyzedDocument
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.goldberg.law.document.model.ManualRecord
 import com.goldberg.law.document.model.ManualRecordTable
 import com.goldberg.law.document.model.pdf.PdfDocumentPageMetadata
 import com.goldberg.law.document.model.input.SummaryOfAccountsTable.Companion.getSummaryOfAccounts
@@ -41,9 +40,20 @@ data class StatementDataModel @JsonCreator constructor(
     @JsonProperty("interestCharged") val interestCharged: BigDecimal?,
     @JsonProperty("feesCharged") val feesCharged: BigDecimal?,
     @JsonProperty("pageMetadata") override val pageMetadata: PdfDocumentPageMetadata,
+    @JsonProperty("manualRecordsTable") val manualRecordTable: ManualRecordTable? = null
 ): DocumentDataModel(pageMetadata) {
     @JsonIgnore @Transient
     val statementDate = fromWrittenDate(date)
+
+    constructor(date: String, pageNum: Int?, totalPages: Int?, batesStamp: String?, accountNumber: String,
+                beginningBalance: BigDecimal, endingBalance: BigDecimal, interestCharged: BigDecimal?, feesCharged: BigDecimal?,
+                pageMetadata: PdfDocumentPageMetadata, manualRecordTable: ManualRecordTable?
+    ): this(bankIdentifier = null, date = date, pageNum = pageNum, totalPages = totalPages, batesStamp = batesStamp,
+        accountNumber = accountNumber, beginningBalance = beginningBalance, endingBalance = endingBalance,
+        interestCharged = interestCharged, feesCharged = feesCharged, pageMetadata = pageMetadata,
+        summaryOfAccountsTable = null, transactionTableCreditsCharges = null, transactionTableChecks = null, transactionTableDebits = null,
+        transactionTableDepositWithdrawal = null, transactionTableAmount = null, transactionTableCredits = null, manualRecordTable = manualRecordTable
+        )
     @JsonIgnore
     fun getInferredStatementType(): DocumentType? {
         val isBank = listOfNotNull(
@@ -65,8 +75,11 @@ data class StatementDataModel @JsonCreator constructor(
     @JsonIgnore
     fun getTransactionRecords(statementDate: Date?, metadata: TransactionHistoryPageMetadata) = listOf(
         transactionTableDepositWithdrawal, transactionTableAmount, transactionTableCreditsCharges,
-        transactionTableDebits, transactionTableCredits, transactionTableChecks
+        transactionTableDebits, transactionTableCredits, transactionTableChecks, manualRecordTable
     ).flatMap { it?.createHistoryRecords(statementDate, metadata, pageMetadata.documentType) ?: listOf() }
+
+    @JsonIgnore
+    fun isManuallyOverriden() = this.manualRecordTable != null
 
     object Keys {
         const val BANK_IDENTIFIER = "BankIdentifier"

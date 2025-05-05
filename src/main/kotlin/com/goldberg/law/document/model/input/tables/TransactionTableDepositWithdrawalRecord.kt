@@ -2,6 +2,7 @@ package com.goldberg.law.document.model.input.tables
 
 import com.azure.ai.formrecognizer.documentanalysis.models.DocumentField
 import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.goldberg.law.document.model.output.TransactionHistoryPageMetadata
 import com.goldberg.law.document.model.output.TransactionHistoryRecord
@@ -15,9 +16,10 @@ data class TransactionTableDepositWithdrawalRecord @JsonCreator constructor(
     @JsonProperty("checkNumber") val checkNumber: Int?,
     @JsonProperty("description") val description: String?,
     @JsonProperty("depositAmount") val depositAmount: BigDecimal?,
-    @JsonProperty("withdrawalAmount") val withdrawalAmount: BigDecimal?
+    @JsonProperty("withdrawalAmount") val withdrawalAmount: BigDecimal?,
 ): TransactionRecord() {
     override fun toTransactionHistoryRecord(statementDate: Date?, metadata: TransactionHistoryPageMetadata, documentType: DocumentType): TransactionHistoryRecord = TransactionHistoryRecord(
+        id = this.id,
         date = fromWrittenDateStatementDateOverride(this.date, statementDate),
         checkNumber = this.checkNumber,
         description = this.description,

@@ -8,6 +8,8 @@ import com.goldberg.law.document.model.ModelValues.CHECK_BATES_STAMP
 import com.goldberg.law.document.model.ModelValues.CHECK_FILENAME
 import com.goldberg.law.document.model.ModelValues.CHECK_FILE_PAGE
 import com.goldberg.law.document.model.ModelValues.FILENAME
+import com.goldberg.law.document.model.ModelValues.FIXED_STATEMENT_DATE
+import com.goldberg.law.document.model.ModelValues.TEST_TRANSACTION_ID
 import com.goldberg.law.document.model.ModelValues.newCheckData
 import com.goldberg.law.document.model.ModelValues.newHistoryRecord
 import com.goldberg.law.document.model.output.TransactionHistoryRecord
@@ -25,7 +27,7 @@ class TransactionHistoryRecordTest {
 
     @Test
     fun testSuspiciousRecordsNullFields() {
-        assertThat(TransactionHistoryRecord(pageMetadata = BASIC_TH_PAGE_METADATA).isSuspicious()).isTrue()
+        assertThat(TransactionHistoryRecord(id = TEST_TRANSACTION_ID, pageMetadata = BASIC_TH_PAGE_METADATA).isSuspicious()).isTrue()
         assertThat(newHistoryRecord(date = null).isSuspicious()).isTrue()
         assertThat(newHistoryRecord(description = null).isSuspicious()).isTrue()
         assertThat(newHistoryRecord(amount = 0.0).isSuspicious()).isTrue()
@@ -62,7 +64,7 @@ class TransactionHistoryRecordTest {
 
     @Test
     fun testToCsvBasicRecord() {
-        assertThat(BASIC_TH_RECORD.toCsv(ACCOUNT_NUMBER, BankTypes.WF_BANK))
+        assertThat(BASIC_TH_RECORD.toCsv(ACCOUNT_NUMBER, BankTypes.WF_BANK, FIXED_STATEMENT_DATE, FILENAME))
             .isEqualTo("4/3/2020,\"test\",-500.00,,\"WF Bank - 1234567890\",\"$BATES_STAMP\",4/7/2020,2,\"$FILENAME\",1,,")
     }
 
@@ -70,7 +72,7 @@ class TransactionHistoryRecordTest {
     fun testToCsvWithCheck() {
         assertThat(
             newHistoryRecord(description = TransactionHistoryRecord.CHECK_DESCRIPTION, checkNumber = 1234)
-                .toCsv(ACCOUNT_NUMBER, BankTypes.WF_BANK)
+                .toCsv(ACCOUNT_NUMBER, BankTypes.WF_BANK, FIXED_STATEMENT_DATE, FILENAME)
         ).isEqualTo(
             "4/3/2020,\"Check 1234\",-500.00,,\"WF Bank - 1234567890\",\"$BATES_STAMP\",4/7/2020,2,\"$FILENAME\",1,,"
         )
@@ -79,7 +81,7 @@ class TransactionHistoryRecordTest {
     @Test
     fun testToCsvWithCheckAndDescription() {
         assertThat(
-            newHistoryRecord(checkNumber = 1234).toCsv(ACCOUNT_NUMBER, BankTypes.WF_BANK)
+            newHistoryRecord(checkNumber = 1234).toCsv(ACCOUNT_NUMBER, BankTypes.WF_BANK, FIXED_STATEMENT_DATE, FILENAME)
         ).isEqualTo(
             "4/3/2020,\"test Check 1234\",-500.00,,\"WF Bank - 1234567890\",\"$BATES_STAMP\",4/7/2020,2,\"$FILENAME\",1,,"
         )
@@ -95,7 +97,7 @@ class TransactionHistoryRecordTest {
     @Test
     fun testToCsvWithCheckAndDescriptionAndCheckData() {
         assertThat(
-            newHistoryRecord(checkNumber = 1234, checkData = newCheckData(1000)).toCsv(ACCOUNT_NUMBER, BankTypes.WF_BANK)
+            newHistoryRecord(checkNumber = 1234, checkData = newCheckData(1000)).toCsv(ACCOUNT_NUMBER, BankTypes.WF_BANK, FIXED_STATEMENT_DATE, FILENAME)
         ).isEqualTo(
             "4/3/2020,\"test Check 1234: Some Guy - check desc\",-500.00,,\"WF Bank - 1234567890\",\"$BATES_STAMP\",4/7/2020,2,\"$FILENAME\",1,\"$CHECK_BATES_STAMP\",\"$CHECK_FILENAME\",$CHECK_FILE_PAGE"
         )
@@ -104,7 +106,7 @@ class TransactionHistoryRecordTest {
     @Test
     fun testToCsvWithCheckAndCheckData() {
         assertThat(
-            newHistoryRecord(checkNumber = 1234, description = "Check", checkData = newCheckData(1000)).toCsv(ACCOUNT_NUMBER, BankTypes.WF_BANK)
+            newHistoryRecord(checkNumber = 1234, description = "Check", checkData = newCheckData(1000)).toCsv(ACCOUNT_NUMBER, BankTypes.WF_BANK, FIXED_STATEMENT_DATE, FILENAME)
         ).isEqualTo(
             "4/3/2020,\"Check 1234: Some Guy - check desc\",-500.00,,\"WF Bank - 1234567890\",\"$BATES_STAMP\",4/7/2020,2,\"$FILENAME\",1,\"$CHECK_BATES_STAMP\",\"$CHECK_FILENAME\",$CHECK_FILE_PAGE"
         )
@@ -113,7 +115,7 @@ class TransactionHistoryRecordTest {
     @Test
     fun testToCsvWithCheckNoDescriptionCheckData() {
         assertThat(
-            newHistoryRecord(checkNumber = 1234, description = null, checkData = newCheckData(1000)).toCsv(ACCOUNT_NUMBER, BankTypes.WF_BANK)
+            newHistoryRecord(checkNumber = 1234, description = null, checkData = newCheckData(1000)).toCsv(ACCOUNT_NUMBER, BankTypes.WF_BANK, FIXED_STATEMENT_DATE, FILENAME)
         ).isEqualTo(
             "4/3/2020,\"Check 1234: Some Guy - check desc\",-500.00,,\"WF Bank - 1234567890\",\"$BATES_STAMP\",4/7/2020,2,\"$FILENAME\",1,\"$CHECK_BATES_STAMP\",\"$CHECK_FILENAME\",$CHECK_FILE_PAGE"
         )

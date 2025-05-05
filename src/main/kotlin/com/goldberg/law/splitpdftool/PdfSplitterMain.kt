@@ -2,6 +2,7 @@ package com.goldberg.law.splitpdftool
 
 import com.goldberg.law.document.exception.FileNotFoundException
 import com.goldberg.law.document.exception.InvalidPdfException
+import com.goldberg.law.util.getDocumentName
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.pdfbox.Loader
 import java.io.File
@@ -28,14 +29,23 @@ class PdfSplitterMain@Inject constructor(
             throw InvalidPdfException("Unable to load PDF ${req.inputFile}: $ex")
         }
 
-        val splitDocuments = pdfSplitter.splitPdf(req.inputFile, fullPdf, req.getDesiredPages(), req.isSeparate)
-            .also { logger.debug { "Successfully loaded file ${req.inputFile}, pages ${req.getDesiredPages() ?: "[All]"}" } }
+        if (req.isSeparate) {
+            val splitDocuments = pdfSplitter.splitPdf(req.inputFile, fullPdf, req.getDesiredPages() ?: emptyList())
+                .also { logger.debug { "Successfully loaded file ${req.inputFile}, pages ${req.getDesiredPages() ?: "[All]"}" } }
 
-        // TODO: add ability to choose whether to process into one document or a single document with all selected pages
-        splitDocuments.forEach { document ->
-            val fileName = listOfNotNull(req.outputDirectory, document.splitPageFilePath()).joinToString("/")
+            // TODO: add ability to choose whether to process into one document or a single document with all selected pages
+            splitDocuments.forEach { document ->
+                val fileName = listOfNotNull(req.outputDirectory, document.splitPageFilePath()).joinToString("/")
+                Files.createDirectories(Paths.get(fileName.substringBeforeLast("/")))
+                document.saveToFile(fileName)
+                    .also { logger.info { "Saved to file $fileName" } }
+            }
+        } else {
+            val newDoc = pdfSplitter.splitPdfOneDocument(req.inputFile, fullPdf, req.getDesiredPages() ?: emptyList())
+            val fileWithPages = "${req.inputFile.getDocumentName()}[${req.getDesiredPages()?.first()}-${req.getDesiredPages()?.last()}].pdf"
+            val fileName = listOfNotNull(req.outputDirectory, req.inputFile.getDocumentName(), fileWithPages).joinToString("/")
             Files.createDirectories(Paths.get(fileName.substringBeforeLast("/")))
-            document.saveToFile(fileName)
+            newDoc.save(fileName)
                 .also { logger.info { "Saved to file $fileName" } }
         }
     }

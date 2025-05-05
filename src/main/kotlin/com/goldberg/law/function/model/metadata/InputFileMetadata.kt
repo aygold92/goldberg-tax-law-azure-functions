@@ -16,11 +16,18 @@ data class InputFileMetadata @Inject constructor(
     // azure blob tags cannot include brackets
     // https://learn.microsoft.com/en-us/dotnet/api/azure.storage.blobs.specialized.blobbaseclient.settags
     fun toMap(): Map<String, String?> = mapOf(
-        "split" to split.toString(),
-        "analyzed" to analyzed.toString(),
-        "totalpages" to totalpages?.toString(),
-        "statements" to statements?.toString()
+        SPLIT to split.toString(),
+        ANALYZED to analyzed.toString(),
+        TOTAL_PAGES to totalpages?.toString(),
+        STATEMENTS to statements?.toString()
             ?.replace("[", "")
             ?.replace("]", "")
     ).filter { it.value != null }
+
+    companion object {
+        const val SPLIT = "split"
+        const val ANALYZED = "analyzed"
+        const val TOTAL_PAGES = "totalpages"
+        const val STATEMENTS = "statements"
+    }
 }

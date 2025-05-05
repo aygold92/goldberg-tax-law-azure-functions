@@ -7,7 +7,9 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.goldberg.law.document.model.input.CheckDataModel
 import com.goldberg.law.document.model.input.SummaryOfAccountsTable
 import com.goldberg.law.document.model.pdf.DocumentType
+import com.goldberg.law.document.model.pdf.PdfDocumentPageMetadata
 import com.goldberg.law.function.model.PdfPageData
+import com.goldberg.law.function.model.metadata.StatementMetadata
 import com.goldberg.law.util.*
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.math.BigDecimal
@@ -43,6 +45,8 @@ data class BankStatement @JsonCreator constructor(
     val transactions: MutableList<TransactionHistoryRecord> = mutableListOf(),
     @JsonProperty("pages")
     val pages: MutableSet<TransactionHistoryPageMetadata> = mutableSetOf(),
+    @JsonProperty("checks")
+    val checks: MutableMap<Int, PdfDocumentPageMetadata> = mutableMapOf()
 ) {
     @JsonIgnore @Transient
     val statementDate = fromWrittenDate(date)
@@ -60,7 +64,7 @@ data class BankStatement @JsonCreator constructor(
             this(filename, classification, key.date, key.accountNumber, startPage = startPage)
 
     @JsonIgnore
-    fun azureFileName() = getFileName(accountNumber, date, classification, filename, pages.map { it.pageData })
+    fun azureFileName() = getFileName(accountNumber, date, classification, filename, pages.map { it.filePageNumber })
 
     fun update(documentType: DocumentType? = null,
                accountNumber: String? = null,
@@ -159,8 +163,21 @@ data class BankStatement @JsonCreator constructor(
     )
 
     fun toCsv(): String = transactions.sortedBy { it.transactionDate }.joinToString("\n") {
-        it.toCsv(accountNumber, classification)
+        it.toCsv(accountNumber, classification, date, filename)
     }
+
+    fun getStatementMetadata(manuallyVerified: Boolean) = StatementMetadata(
+        this.md5Hash(),
+        this.isSuspicious(),
+        this.getMissingChecks().isNotEmpty(),
+        manuallyVerified,
+        this.statementType,
+        this.getTotalSpending(),
+        this.getTotalIncomeCredits(),
+        this.transactions.size,
+        this.filename,
+        this.getPageRange()
+    )
 
     fun suspiciousReasonsToCsv(): String {
         // add suspicious reasons, and include the account and statementDate
@@ -296,12 +313,12 @@ data class BankStatement @JsonCreator constructor(
         )
 
         // TODO: filename on BankStatement is one value but in PDF Pages it's multiple values.  Technically a bank statement could come from multiple files although in practice probably not
-        fun getFileName(accountNumber: String?, date: String?, classification: String, filename: String, pages: Collection<PdfPageData>? = null): String {
+        fun getFileName(accountNumber: String?, date: String?, classification: String, filename: String, pages: Collection<Int>? = null): String {
             val name = "$accountNumber:$classification:${date?.replace("/", "_")}"
             if (accountNumber != null && date != null) {
                 return "$name.json"
             } else {
-                val fileNameSuffix = pages?.takeIf { it.isNotEmpty() }?.sortedBy { it.page }?.let { "${it.first().fileName}[${it.first().page}-${it.last().page}]" } ?: filename
+                val fileNameSuffix = pages?.takeIf { it.isNotEmpty() }?.sortedBy { it }?.let { "${filename}[${it.first()}-${it.last()}]" } ?: filename
                 return "$name:$fileNameSuffix.json"
             }
         }

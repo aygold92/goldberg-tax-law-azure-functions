@@ -70,13 +70,13 @@ class SplitDocumentRequest() {
         return this
     }
 
-    fun getDesiredPages(): List<Int> {
+    fun getDesiredPages(): List<Int>? {
         if (this.range == null && this.pages == null && !this.allPages) {
             throw IllegalArgumentException("You must specify at least one of range (-r), pages (-p), or all (-a)")
         }
 
         if (this.allPages) {
-            return emptyList()
+            return null
         }
         val range: List<Int> = this.range?.first?.rangeTo(this.range!!.second)?.toList()
             .let { it ?: Collections.emptyList() }

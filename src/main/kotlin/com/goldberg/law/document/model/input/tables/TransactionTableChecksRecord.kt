@@ -17,6 +17,7 @@ data class TransactionTableChecksRecord @JsonCreator constructor(
     @JsonProperty("amount") val amount: BigDecimal?,
 ): TransactionRecord() {
     override fun toTransactionHistoryRecord(statementDate: Date?, metadata: TransactionHistoryPageMetadata, documentType: DocumentType): TransactionHistoryRecord = TransactionHistoryRecord(
+        id = this.id,
         date = fromWrittenDateStatementDateOverride(this.date, statementDate),
         description = TransactionHistoryRecord.CHECK_DESCRIPTION,
         checkNumber = this.number,

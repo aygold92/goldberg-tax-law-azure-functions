@@ -53,12 +53,14 @@ class ProcessStatementsActivity @Inject constructor(
         // match filenames to statements
         val inputFileToStatement: MutableMap<String, MutableSet<String>> = mutableMapOf()
         finalStatements.forEach { statement ->
-            statement.pages.associate { it.filename to statement.azureFileName() }.onEach {
+            statement.pages.associate { statement.filename to statement.azureFileName() }.onEach {
                 inputFileToStatement[it.key] = inputFileToStatement.getOrDefault(it.key, mutableSetOf()).apply { add(it.value) }
             }
         }
         inputFileToStatement.mapAsync { filename, azureFileNames ->
-            dataManager.updateInputPdfMetadata(input.clientName, filename, input.metadataMap[filename]!!.copy(statements = azureFileNames))
+            val statements = (if (input.keepOriginalMetadata) input.metadataMap[filename]?.statements ?: setOf() else setOf())
+                .union(azureFileNames)
+            dataManager.updateInputPdfMetadata(input.clientName, filename, input.metadataMap[filename]!!.copy(statements = statements))
         }
 
         return ProcessStatementsActivityOutput(inputFileToStatement)

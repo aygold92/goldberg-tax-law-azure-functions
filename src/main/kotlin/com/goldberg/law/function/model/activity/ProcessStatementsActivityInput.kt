@@ -5,9 +5,13 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.goldberg.law.function.model.DocumentDataModelContainer
 import com.goldberg.law.function.model.metadata.InputFileMetadata
 
+/**
+ * keepOriginalMetadata: override the statements field of the input filename?
+ */
 data class ProcessStatementsActivityInput @JsonCreator constructor(
     @JsonProperty("requestId") val requestId: String,
     @JsonProperty("clientName") val clientName: String,
     @JsonProperty("documentDataModels") val documentDataModels: Set<DocumentDataModelContainer>,
-    @JsonProperty("metadataMap") val metadataMap: Map<String, InputFileMetadata>
+    @JsonProperty("metadataMap") val metadataMap: Map<String, InputFileMetadata>,
+    @JsonProperty("keepOriginalMetadata") val keepOriginalMetadata: Boolean = false,
 )
