@@ -47,7 +47,7 @@ data class CheckEntriesTableRow @JsonCreator constructor(
                 to = recordFields[Keys.TO]?.valueAsString,
                 description = recordFields[Keys.DESCRIPTION]?.valueAsString,
                 amount = recordFields[Keys.AMOUNT]?.currencyValue(),
-                accountNumber = recordFields[Keys.ACCOUNT_NUMBER]?.valueAsString,
+                accountNumber = recordFields[Keys.ACCOUNT_NUMBER]?.valueAsString?.last4Digits(),
             )
         }
     }

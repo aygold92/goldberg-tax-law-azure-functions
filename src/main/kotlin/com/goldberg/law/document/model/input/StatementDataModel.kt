@@ -109,6 +109,13 @@ data class StatementDataModel @JsonCreator constructor(
 
 
     companion object {
+        private fun extractPageAndTotal(value: String?): Pair<Int, Int>? {
+            return value?.removeNonDigitOrSlash()?.split("/")?.let {
+                if (it.size == 2 && it[0].toIntOrNull() != null && it[1].toIntOrNull() != null) Pair(it[0].toInt(), it[1].toInt())
+                else null
+            }
+        }
+
         fun AnalyzedDocument.toBankDocument(classifiedPdfDocument: ClassifiedPdfDocumentPage): StatementDataModel = this.fields.let { documentFields ->
             // for citi credit cards, the date field captures both the start and end
             val statementDate = normalizeDate(documentFields[Keys.STATEMENT_DATE]?.valueAsString?.let {
@@ -116,9 +123,13 @@ data class StatementDataModel @JsonCreator constructor(
                 else it
             })
 
-            val (page,totalPages) = documentFields[Keys.PAGE_AND_TOTAL]?.valueAsString?.split("/")
-                ?.let { if (it.size == 2 && it[0].toIntOrNull() != null && it[1].toIntOrNull() != null) Pair(it[0].toInt(), it[1].toInt()) else null }
-                ?: Pair(documentFields[Keys.PAGE_NUM]?.valueAsString?.toInt(), documentFields[Keys.TOTAL_PAGES]?.valueAsString?.toInt())
+            val (page,totalPages) = try {
+                extractPageAndTotal(documentFields[Keys.PAGE_AND_TOTAL]?.valueAsString)
+                    ?: extractPageAndTotal(documentFields[Keys.TOTAL_PAGES]?.valueAsString)
+                    ?: Pair(documentFields[Keys.PAGE_NUM]?.valueAsString?.toInt(), documentFields[Keys.TOTAL_PAGES]?.valueAsString?.toInt())
+            } catch (ex: Throwable) {
+                Pair(null, null)
+            }
             StatementDataModel(
                 bankIdentifier = documentFields[Keys.BANK_IDENTIFIER]?.valueAsString,
                 date = statementDate,
@@ -126,7 +137,7 @@ data class StatementDataModel @JsonCreator constructor(
                 totalPages = totalPages,
                 summaryOfAccountsTable = this.getSummaryOfAccounts(),
                 transactionTableDepositWithdrawal = this.getTransactionTableDepositWithdrawal(),
-                accountNumber = documentFields[Keys.ACCOUNT_NUMBER]?.valueAsString,
+                accountNumber = documentFields[Keys.ACCOUNT_NUMBER]?.valueAsString?.last4Digits(),
                 batesStamp = documentFields[Keys.BATES_STAMP]?.valueAsString,
                 beginningBalance = documentFields[Keys.BEGINNING_BALANCE]?.currencyValue(),
                 endingBalance = documentFields[Keys.ENDING_BALANCE]?.currencyValue(),

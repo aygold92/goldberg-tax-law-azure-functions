@@ -5,6 +5,8 @@ import com.azure.ai.formrecognizer.documentanalysis.DocumentAnalysisClientBuilde
 import com.azure.core.credential.AzureKeyCredential
 import com.azure.storage.blob.BlobServiceClient
 import com.azure.storage.blob.BlobServiceClientBuilder
+import com.goldberg.law.categorization.TransactionCategorizer
+import com.goldberg.law.categorization.chatgbt.ChatGBTClient
 import com.goldberg.law.datamanager.AzureStorageDataManager
 import com.goldberg.law.document.*
 import com.goldberg.law.function.*
@@ -51,6 +53,14 @@ class AppModule constructor(private val appEnvironmentSettings: AppEnvironmentSe
             appEnvironmentSettings.azureConfig.dataExtractorModel,
             appEnvironmentSettings.azureConfig.checkExtractorModel
         )
+
+    @Provides
+    @Singleton
+    fun chatGBTClient() = ChatGBTClient(System.getenv("ChatGBT.ApiKey"))
+
+    @Provides
+    @Singleton
+    fun transactionCategorizer(chatGBTClient: ChatGBTClient) = TransactionCategorizer(chatGBTClient)
 
     @Provides
     @Singleton
@@ -159,5 +169,11 @@ class AppModule constructor(private val appEnvironmentSettings: AppEnvironmentSe
     fun loadTransactionsFromModelFunction(
         azureStorageDataManager: AzureStorageDataManager
     ) = LoadTransactionsFromModelFunction(azureStorageDataManager)
+
+    @Provides
+    @Singleton
+    fun categorizeTransactionsFunction(
+        transactionCategorizer: TransactionCategorizer
+    ) = CategorizeTransactionsFunction(transactionCategorizer)
 
 }

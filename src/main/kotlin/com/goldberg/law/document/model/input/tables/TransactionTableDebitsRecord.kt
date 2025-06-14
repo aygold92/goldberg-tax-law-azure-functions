@@ -19,7 +19,7 @@ data class TransactionTableDebitsRecord @JsonCreator constructor(
         id = this.id,
         date = fromWrittenDateStatementDateOverride(this.date, statementDate),
         description = this.description,
-        amount = subtractions,
+        amount = subtractions?.abs()?.negate(),
         pageMetadata = metadata
     )
 

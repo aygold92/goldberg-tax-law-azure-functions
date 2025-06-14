@@ -73,7 +73,7 @@ class TransactionRecordTest {
 
         debitsRecord = TransactionTableDebitsRecord(FIXED_TRANSACTION_DATE, DESCRIPTION, AMOUNT)
         assertThat(debitsRecord.toTransactionHistoryRecord(STATEMENT_DATE_BEGINNING, BASIC_TH_PAGE_METADATA, DocumentType.CREDIT_CARD))
-            .isEqualTo(newHistoryRecord(amount = 500.0, id = debitsRecord.id))
+            .isEqualTo(newHistoryRecord(amount = -500.0, id = debitsRecord.id))
 
 
         var creditsRecord = TransactionTableCreditsRecord(FIXED_TRANSACTION_DATE, DESCRIPTION, AMOUNT)
@@ -82,7 +82,7 @@ class TransactionRecordTest {
 
         creditsRecord = TransactionTableCreditsRecord(FIXED_TRANSACTION_DATE, DESCRIPTION, AMOUNT)
         assertThat(creditsRecord.toTransactionHistoryRecord(STATEMENT_DATE_BEGINNING, BASIC_TH_PAGE_METADATA, DocumentType.CREDIT_CARD))
-            .isEqualTo(newHistoryRecord(amount = -500.0, id = creditsRecord.id))
+            .isEqualTo(newHistoryRecord(amount = 500.0, id = creditsRecord.id))
     }
 
 

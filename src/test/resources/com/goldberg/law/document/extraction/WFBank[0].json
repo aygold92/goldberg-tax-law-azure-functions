@@ -15,9 +15,9 @@
     },
     "AccountNumber":
     {
-      "value": "1010086913443",
+      "value": "3443",
       "type": "string",
-      "content": "1010086913443"
+      "content": "3443"
     },
     "TransactionTableDepositWithdrawal":
     {

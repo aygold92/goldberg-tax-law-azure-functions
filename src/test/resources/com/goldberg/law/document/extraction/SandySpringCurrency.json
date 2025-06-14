@@ -1,0 +1,287 @@
+{
+  "fields":
+  {
+    "TransactionTableCredits":
+    {
+      "type": "array",
+      "content": null,
+      "value": null
+    },
+    "EndingBalance":
+    {
+      "type": "number",
+      "content": "$1,532.36",
+      "value": null
+    },
+    "ChecksTable":
+    {
+      "type": "array",
+      "content": null,
+      "value": null
+    },
+    "Page":
+    {
+      "type": "string",
+      "content": "1",
+      "value": "1"
+    },
+    "TotalPages":
+    {
+      "type": "string",
+      "content": "4",
+      "value": "4"
+    },
+    "StatementDate":
+    {
+      "type": "string",
+      "content": "January 31, 2022",
+      "value": "January 31, 2022"
+    },
+    "TransactionTableDebits":
+    {
+      "type": "array",
+      "content": null,
+      "value":
+      [
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "Cash Mgmt Trsfr Dr REF 0042102L FUNDS TRANSFER TO DEP 8106 FROM",
+              "value": "Cash Mgmt Trsfr Dr REF 0042102L FUNDS TRANSFER TO DEP 8106 FROM"
+            },
+            "Subtractions":
+            {
+              "type": "number",
+              "content": "10,000.00",
+              "value": 10000.0
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "01-04",
+              "value": "01-04"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "'Cash Mgmt Trsfr Dr REF 0051846L FUNDS TRANSFER TO DEP 2503 FROM",
+              "value": "'Cash Mgmt Trsfr Dr REF 0051846L FUNDS TRANSFER TO DEP 2503 FROM"
+            },
+            "Subtractions":
+            {
+              "type": "number",
+              "content": "1,160.87",
+              "value": 1160.8699951171875
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "01-05",
+              "value": "01-05"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "Cash Mgmt Trsfr Dr REF 0072002L FUNDS TRANSFER TO DEP 2503 FROM",
+              "value": "Cash Mgmt Trsfr Dr REF 0072002L FUNDS TRANSFER TO DEP 2503 FROM"
+            },
+            "Subtractions":
+            {
+              "type": "number",
+              "content": "2,764.00",
+              "value": 2764.0
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "01-07",
+              "value": "01-07"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "Cash Mgmt Trsfr Dr REF 0132105L FUNDS TRANSFER TO DEP 2503 FROM",
+              "value": "Cash Mgmt Trsfr Dr REF 0132105L FUNDS TRANSFER TO DEP 2503 FROM"
+            },
+            "Subtractions":
+            {
+              "type": "number",
+              "content": "2,000.00",
+              "value": 2000.0
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "01-13",
+              "value": "01-13"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "Cash Mgmt Trsfr Dr REF 0132106L FUNDS TRANSFER TO DEP 8106 FROM",
+              "value": "Cash Mgmt Trsfr Dr REF 0132106L FUNDS TRANSFER TO DEP 8106 FROM"
+            },
+            "Subtractions":
+            {
+              "type": "number",
+              "content": "6,000.00",
+              "value": 6000.0
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "01-13",
+              "value": "01-13"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "Cash Mgmt Trsfr Dr REF 0190929L FUNDS TRANSFER TO DEP B106 FROM",
+              "value": "Cash Mgmt Trsfr Dr REF 0190929L FUNDS TRANSFER TO DEP B106 FROM"
+            },
+            "Subtractions":
+            {
+              "type": "number",
+              "content": "6,170.26",
+              "value": 6170.259765625
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "01-19",
+              "value": "01-19"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "Cash Mgmt Trsfr Dr REF 0221550L FUNDS TRANSFER TO DEP 2503 FROM",
+              "value": "Cash Mgmt Trsfr Dr REF 0221550L FUNDS TRANSFER TO DEP 2503 FROM"
+            },
+            "Subtractions":
+            {
+              "type": "number",
+              "content": "9,000.00",
+              "value": 9000.0
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "01-24",
+              "value": "01-24"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "ACH Withdrawal Potomac Insurance 4436924000 220124",
+              "value": "ACH Withdrawal Potomac Insurance 4436924000 220124"
+            },
+            "Subtractions":
+            {
+              "type": "number",
+              "content": "875.00",
+              "value": 875.0
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "01-24",
+              "value": "01-24"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Description":
+            {
+              "type": "string",
+              "content": "Cash Mgmt Trsfr Dr REF 0292025L FUNDS TRANSFER TO DEP B106 FROM",
+              "value": "Cash Mgmt Trsfr Dr REF 0292025L FUNDS TRANSFER TO DEP B106 FROM"
+            },
+            "Subtractions":
+            {
+              "type": "number",
+              "content": "1,100.00",
+              "value": 1100.0
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "01-31",
+              "value": "01-31"
+            }
+          }
+        }
+      ]
+    },
+    "AccountNumber":
+    {
+      "type": "string",
+      "content": "XX-XXXX25-01",
+      "value": "XX-XXXX25-01"
+    },
+    "BeginningBalance":
+    {
+      "type": "number",
+      "content": "$6,349.67",
+      "value": null
+    }
+  },
+  "docType": "SandySpringBankExtractor_Prod_V1"
+}

@@ -35,6 +35,11 @@ fun String.withExtension(ext: String) = removeSuffix(ext) + ext
 // without extension
 fun String.getDocumentName() = this.substringAfterLast("/").substringBeforeLast(".")
 
+fun String.last4Digits() = this.filter { str ->
+    str.isDigit() }.let {
+    if (it.length > 4) it.substring(it.length - 4) else it
+}
+
 fun BigDecimal.toCurrency(): String = "%.2f".format(this)
 
 fun Double.asCurrency(): BigDecimal = BigDecimal(this).setScale(2, RoundingMode.HALF_UP)
@@ -73,12 +78,17 @@ fun String.parseCurrency(): BigDecimal? = this.asCurrency()
         }
     }
 
+fun String.removeNonDigitOrSlash(): String {
+    return this.replace(Regex("[^0-9/]"), "")
+}
 
 fun DocumentField.currencyValue(): BigDecimal? = this.content?.parseCurrency()?.let { contentValue ->
         val doubleValue = try {
             this.valueAsDouble.asCurrency()
-        } catch (ex: ClassCastException) {
-            contentValue.also { logger.error { "value ${this.toStringDetailed()} cannot be processed as a double" } }
+        } catch (ex: Throwable) {
+            if (ex is ClassCastException || ex is NullPointerException)
+                contentValue.also { logger.error { "value ${this.toStringDetailed()} cannot be processed as a double" } }
+            else throw ex
         }
         // fixes bug where sometimes randomly the value becomes off by some very small amount -- in this case the content is accurate.
         // for example, content says "$534,446.46 and the double value randomly is 53446.4375

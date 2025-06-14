@@ -31,6 +31,20 @@ class KotlinExtensionsTest {
     }
 
     @Test
+    fun testParseCurrencyNullValue() {
+        val valueString = "{\"type\":\"number\",\"content\":\"$201,689.60\"}"
+        val field = OBJECT_MAPPER.readValue(valueString, DocumentField::class.java)
+
+        assertThat(field.currencyValue()).isEqualTo(201689.6.asCurrency())
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["3/12", " 3/ 12 ", "p.3/12", "pkmasdasdlk3asmd/alksmdsakl1aa2 asd"])
+    fun testRemoveNonDigitOrSlash(value: String) {
+        assertThat(value.removeNonDigitOrSlash()).isEqualTo("3/12")
+    }
+
+    @Test
     fun testGetFileName() {
         assertThat("./TestInput/nonexistent/12345.asdknalksdn/test.pdf".getDocumentName()).isEqualTo("test")
     }

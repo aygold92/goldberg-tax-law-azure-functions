@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.goldberg.law.document.model.input.tables.getFieldMapHack
 import com.goldberg.law.util.currencyValue
+import com.goldberg.law.util.last4Digits
 import com.goldberg.law.util.valueAsInt
 import java.math.BigDecimal
 
@@ -30,10 +31,5 @@ data class SummaryOfAccountsTableRecord @JsonCreator constructor(
                 endingBalance = accountFields[Keys.ENDING_BALANCE]?.currencyValue(),
             )
         }
-
-        private fun String.last4Digits() = this.filter { str ->
-            str.isDigit() }.let {
-                if (it.length > 4) it.substring(it.length - 4) else it
-            }
     }
 }

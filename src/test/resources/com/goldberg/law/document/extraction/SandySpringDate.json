@@ -1,0 +1,462 @@
+{
+  "fields":
+  {
+    "TransactionTableCredits":
+    {
+      "type": "array",
+      "content": null,
+      "value":
+      [
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Additions":
+            {
+              "type": "number",
+              "content": "4,295.93",
+              "value": 4295.93017578125
+            },
+            "Description":
+            {
+              "type": "string",
+              "content": "'Deposit",
+              "value": "'Deposit"
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "02-10",
+              "value": "02-10"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Additions":
+            {
+              "type": "number",
+              "content": "4,996.81",
+              "value": 4996.81005859375
+            },
+            "Description":
+            {
+              "type": "string",
+              "content": "ACH Credit EMPLOYEE BENEFIT ACH 220211 30762",
+              "value": "ACH Credit EMPLOYEE BENEFIT ACH 220211 30762"
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "02-11",
+              "value": "02-11"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Additions":
+            {
+              "type": "number",
+              "content": "3.67",
+              "value": 3.6700000762939453
+            },
+            "Description":
+            {
+              "type": "string",
+              "content": "ACH Credit AETNA LIFE INS. AETNA-PREM 220211",
+              "value": "ACH Credit AETNA LIFE INS. AETNA-PREM 220211"
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "02-14",
+              "value": "02-14"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Additions":
+            {
+              "type": "number",
+              "content": "26.87",
+              "value": 26.8700008392334
+            },
+            "Description":
+            {
+              "type": "string",
+              "content": "ACH Credit HClactive Pay HClactive 220215",
+              "value": "ACH Credit HClactive Pay HClactive 220215"
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "02-15",
+              "value": "02-15"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Additions":
+            {
+              "type": "number",
+              "content": "28.07",
+              "value": 28.06999969482422
+            },
+            "Description":
+            {
+              "type": "string",
+              "content": "ACH Credit UNUM LIFE INS CO COMM PAYMT 220215",
+              "value": "ACH Credit UNUM LIFE INS CO COMM PAYMT 220215"
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "02-15",
+              "value": "02-15"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Additions":
+            {
+              "type": "number",
+              "content": "8,895.24",
+              "value": 8895.240234375
+            },
+            "Description":
+            {
+              "type": "string",
+              "content": "ACH Credit BENEFIT DESIGN G ACH 220215 3039",
+              "value": "ACH Credit BENEFIT DESIGN G ACH 220215 3039"
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "02-15",
+              "value": "02-15"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Additions":
+            {
+              "type": "number",
+              "content": "36.80",
+              "value": 36.79999923706055
+            },
+            "Description":
+            {
+              "type": "string",
+              "content": "ACH Credit PETERSEN COM PAYMNT 220216",
+              "value": "ACH Credit PETERSEN COM PAYMNT 220216"
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "02-16",
+              "value": "02-16"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Additions":
+            {
+              "type": "number",
+              "content": "45.92",
+              "value": 45.91999816894531
+            },
+            "Description":
+            {
+              "type": "string",
+              "content": "ACH Credit THE HARTFORD GBDEZCOMAP HARTFORD LIFE GBD COMMISSIONS800 523 2233",
+              "value": "ACH Credit THE HARTFORD GBDEZCOMAP HARTFORD LIFE GBD COMMISSIONS800 523 2233"
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "02-16",
+              "value": "02-16"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Additions":
+            {
+              "type": "number",
+              "content": "583.30",
+              "value": 583.2999877929688
+            },
+            "Description":
+            {
+              "type": "string",
+              "content": "ACH Credit RISK PS PT NY CORP PAY 220216 A0049271",
+              "value": "ACH Credit RISK PS PT NY CORP PAY 220216 A0049271"
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "02-16",
+              "value": "02-16"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Additions":
+            {
+              "type": "number",
+              "content": "21.44",
+              "value": 21.440000534057617
+            },
+            "Description":
+            {
+              "type": "string",
+              "content": "ACH Credit Sun Life Assuran Payment 220216",
+              "value": "ACH Credit Sun Life Assuran Payment 220216"
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "02-17",
+              "value": "02-17"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Additions":
+            {
+              "type": "number",
+              "content": "97.14",
+              "value": 97.13999938964844
+            },
+            "Description":
+            {
+              "type": "string",
+              "content": "ACH Credit MASSACHUSETTS MU D&C AGT DI 220218 AZ9Y55GOS8",
+              "value": "ACH Credit MASSACHUSETTS MU D&C AGT DI 220218 AZ9Y55GOS8"
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "02-18",
+              "value": "02-18"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Additions":
+            {
+              "type": "number",
+              "content": "61.70",
+              "value": 61.70000076293945
+            },
+            "Description":
+            {
+              "type": "string",
+              "content": "ACH Credit GENWORTH LF-LTCD COMM-PMT 220222",
+              "value": "ACH Credit GENWORTH LF-LTCD COMM-PMT 220222"
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "02-22",
+              "value": "02-22"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Additions":
+            {
+              "type": "number",
+              "content": "225.55",
+              "value": 225.5500030517578
+            },
+            "Description":
+            {
+              "type": "string",
+              "content": "ACH Credit UNITED HEALTHCAR COMMISSION 220222",
+              "value": "ACH Credit UNITED HEALTHCAR COMMISSION 220222"
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "02-22",
+              "value": "02-22"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Additions":
+            {
+              "type": "number",
+              "content": "1,328.00",
+              "value": 1328.0
+            },
+            "Description":
+            {
+              "type": "string",
+              "content": "ACH Credit EMPLOYEE BENEFIT ACH 220224 31329",
+              "value": "ACH Credit EMPLOYEE BENEFIT ACH 220224 31329"
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "02-24",
+              "value": "02-24"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Additions":
+            {
+              "type": "number",
+              "content": "231.86",
+              "value": 231.86000061035156
+            },
+            "Description":
+            {
+              "type": "string",
+              "content": "ACH Credit RSLIAPS AGENTCOMM 220228",
+              "value": "ACH Credit RSLIAPS AGENTCOMM 220228"
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "02-28",
+              "value": "02-28"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "content": null,
+          "value":
+          {
+            "Additions":
+            {
+              "type": "number",
+              "content": "448.68",
+              "value": 448.67999267578125
+            },
+            "Description":
+            {
+              "type": "string",
+              "content": "'Deposit",
+              "value": "'Deposit"
+            },
+            "Date":
+            {
+              "type": "string",
+              "content": "02-28",
+              "value": "02-28"
+            }
+          }
+        }
+      ]
+    },
+    "ChecksTable":
+    {
+      "type": "array",
+      "content": null,
+      "value": null
+    },
+    "EndingBalance":
+    {
+      "type": "number",
+      "content": null,
+      "value": null
+    },
+    "Page":
+    {
+      "type": "string",
+      "content": "3",
+      "value": "3"
+    },
+    "TotalPages":
+    {
+      "type": "string",
+      "content": "3",
+      "value": "3"
+    },
+    "StatementDate":
+    {
+      "type": "string",
+      "content": "February 28, 2022",
+      "value": "February 28, 2022"
+    },
+    "TransactionTableDebits":
+    {
+      "type": "array",
+      "content": null,
+      "value": null
+    },
+    "AccountNumber":
+    {
+      "type": "string",
+      "content": "XX-XXXX25-01",
+      "value": "XX-XXXX25-01"
+    },
+    "BeginningBalance":
+    {
+      "type": "number",
+      "content": null,
+      "value": null
+    }
+  },
+  "docType": "SandySpringBankExtractor_Prod_V2"
+}

@@ -18,20 +18,31 @@ class PdfSplitterMain@Inject constructor(
 ) {
     private val logger = KotlinLogging.logger {}
 
+    private fun defaultInputFilePath(input: String): String {
+        return if (input.contains("/") || input.contains("\\")) {
+            // Path includes some kind of directory indicator — use as-is
+            input
+        } else {
+            // Plain filename — default to testInput/
+            Paths.get("testInput", input).toString()
+        }
+    }
+
     fun run(req: SplitDocumentRequest) {
-        val bytes = File(req.inputFile).let {
-            if (it.exists()) it.readBytes() else throw FileNotFoundException("File ${req.inputFile} not found")
+        val input = defaultInputFilePath(req.inputFile)
+        val bytes = File(input).let {
+            if (it.exists()) it.readBytes() else throw FileNotFoundException("File ${input} not found")
         }
 
         val fullPdf = try {
             Loader.loadPDF(bytes)
         } catch (ex: Exception) {
-            throw InvalidPdfException("Unable to load PDF ${req.inputFile}: $ex")
+            throw InvalidPdfException("Unable to load PDF ${input}: $ex")
         }
 
         if (req.isSeparate) {
-            val splitDocuments = pdfSplitter.splitPdf(req.inputFile, fullPdf, req.getDesiredPages() ?: emptyList())
-                .also { logger.debug { "Successfully loaded file ${req.inputFile}, pages ${req.getDesiredPages() ?: "[All]"}" } }
+            val splitDocuments = pdfSplitter.splitPdf(input, fullPdf, req.getDesiredPages() ?: emptyList())
+                .also { logger.debug { "Successfully loaded file ${input}, pages ${req.getDesiredPages() ?: "[All]"}" } }
 
             // TODO: add ability to choose whether to process into one document or a single document with all selected pages
             splitDocuments.forEach { document ->
@@ -41,9 +52,9 @@ class PdfSplitterMain@Inject constructor(
                     .also { logger.info { "Saved to file $fileName" } }
             }
         } else {
-            val newDoc = pdfSplitter.splitPdfOneDocument(req.inputFile, fullPdf, req.getDesiredPages() ?: emptyList())
-            val fileWithPages = "${req.inputFile.getDocumentName()}[${req.getDesiredPages()?.first()}-${req.getDesiredPages()?.last()}].pdf"
-            val fileName = listOfNotNull(req.outputDirectory, req.inputFile.getDocumentName(), fileWithPages).joinToString("/")
+            val newDoc = pdfSplitter.splitPdfOneDocument(input, fullPdf, req.getDesiredPages() ?: emptyList())
+            val fileWithPages = "${input.getDocumentName()}[${req.getDesiredPages()?.first()}-${req.getDesiredPages()?.last()}].pdf"
+            val fileName = listOfNotNull(req.outputDirectory, input.getDocumentName(), fileWithPages).joinToString("/")
             Files.createDirectories(Paths.get(fileName.substringBeforeLast("/")))
             newDoc.save(fileName)
                 .also { logger.info { "Saved to file $fileName" } }

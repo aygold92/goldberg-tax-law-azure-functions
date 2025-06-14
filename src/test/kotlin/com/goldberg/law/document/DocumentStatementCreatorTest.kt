@@ -183,7 +183,7 @@ class DocumentStatementCreatorTest {
                 filename = StatementModelValues.FileNames.WF_BANK,
                 classification = BankTypes.WF_BANK,
                 date = firstStatementDate,
-                accountNumber = "1010086913443",
+                accountNumber = "3443",
                 startPage = null,
                 totalPages = 4,
                 beginningBalance = 10124.23.asCurrency(),
@@ -221,7 +221,7 @@ class DocumentStatementCreatorTest {
                 filename = StatementModelValues.FileNames.WF_BANK,
                 classification = BankTypes.WF_BANK,
                 date = secondStatementDate,
-                accountNumber = "1010086913443",
+                accountNumber = "3443",
                 startPage = 2,
                 totalPages = 6,
                 beginningBalance = 20698.0.asCurrency(),
@@ -261,7 +261,7 @@ class DocumentStatementCreatorTest {
                 filename = StatementModelValues.FileNames.WF_BANK,
                 classification = BankTypes.WF_BANK,
                 date = secondStatementDate,
-                accountNumber = "9859884372",
+                accountNumber = "4372",
                 startPage = 5,
                 totalPages = 6,
                 beginningBalance = 201684.13.asCurrency(),
@@ -313,14 +313,14 @@ class DocumentStatementCreatorTest {
 
         val statement = result[0]
         assertThat(statement.statementDate).isEqualTo(fromWrittenDate("May 15, 2019"))
-        assertThat(statement.accountNumber).isEqualTo("0100002492")
+        assertThat(statement.accountNumber).isEqualTo("2492")
         println(statement.transactions)
         assertThat(statement.getNetTransactions()).isEqualTo(330.94.asCurrency())
         assertThat(statement.getSuspiciousReasons()).isEmpty()
 
         val statement2 = result[1]
         assertThat(statement2.statementDate).isEqualTo(fromWrittenDate("June 15, 2019"))
-        assertThat(statement2.accountNumber).isEqualTo("0100002492")
+        assertThat(statement2.accountNumber).isEqualTo("2492")
         assertThat(statement2.getNetTransactions()).isEqualTo(-867.1.asCurrency())
         assertThat(statement2.getSuspiciousReasons()).hasSize(2)  // one of the records is missing a date
     }

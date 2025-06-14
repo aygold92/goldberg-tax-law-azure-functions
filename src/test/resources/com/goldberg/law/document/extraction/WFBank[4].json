@@ -18,9 +18,9 @@
     },
     "AccountNumber":
     {
-      "value": "9859884372",
+      "value": "4372",
       "type": "string",
-      "content": "9859884372",
+      "content": "4372",
       "confidence": 0.952
     },
     "TransactionTableDepositWithdrawal":

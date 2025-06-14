@@ -229,6 +229,58 @@ class DocumentDataExtractorTest {
     }
 
     @Test
+    fun testExtractDouble() {
+        val page1 = readFileRelative("SandySpringCurrency.json")
+
+        whenever(analyzeResult.documents).thenReturn(
+            listOf(OBJECT_MAPPER.readValue(page1, AnalyzedDocument::class.java)),
+        )
+
+        val result = documentDataExtractor.extractStatementData(newClassifiedPdfDocument(filename = StatementModelValues.FileNames.EAGLE_BANK, page = 1))
+        assertThat(result.endingBalance).isEqualTo(1532.36.asCurrency())
+    }
+
+    @Test
+    fun testDateIsWeird() {
+        val page1 = readFileRelative("SandySpringDate.json")
+
+        whenever(analyzeResult.documents).thenReturn(
+            listOf(OBJECT_MAPPER.readValue(page1, AnalyzedDocument::class.java)),
+        )
+
+        val result = documentDataExtractor.extractStatementData(newClassifiedPdfDocument(filename = StatementModelValues.FileNames.EAGLE_BANK, page = 1))
+        assertThat(result.date).isEqualTo(normalizeDate("2 28 2022"))
+        assertThat(result.pageNum).isEqualTo(3)
+        assertThat(result.totalPages).isEqualTo(3)
+    }
+
+    @Test
+    fun testSlashInTotalPages() {
+        val page1 = readFileRelative("SlashInTotalPages.json")
+
+        whenever(analyzeResult.documents).thenReturn(
+            listOf(OBJECT_MAPPER.readValue(page1, AnalyzedDocument::class.java)),
+        )
+
+        val result = documentDataExtractor.extractStatementData(newClassifiedPdfDocument(filename = "amex", page = 1))
+        assertThat(result.pageNum).isEqualTo(3)
+        assertThat(result.totalPages).isEqualTo(12)
+    }
+
+    @Test
+    fun testSlashAndExtraInTotalPages() {
+        val page1 = readFileRelative("SlashAndExtraInTotalPages.json")
+
+        whenever(analyzeResult.documents).thenReturn(
+            listOf(OBJECT_MAPPER.readValue(page1, AnalyzedDocument::class.java)),
+        )
+
+        val result = documentDataExtractor.extractStatementData(newClassifiedPdfDocument(filename = "amex", page = 1))
+        assertThat(result.pageNum).isEqualTo(5)
+        assertThat(result.totalPages).isEqualTo(12)
+    }
+
+    @Test
     fun testCheck() {
         val page1 = readFileRelative("EagleCheck.json")
 
