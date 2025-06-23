@@ -5,8 +5,10 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.goldberg.law.function.model.metadata.InputFileMetadata
 
 data class DocumentOrchestrationStatus @JsonCreator constructor(
-    @JsonProperty("fileName") val fileName: String,
-    @JsonProperty("totalPages") val totalPages: Int?,
-    @JsonProperty("pagesCompleted") val pagesCompleted: Int?,
-    @JsonProperty("metadata") val metadata: InputFileMetadata?
-)
+    @JsonProperty("filename") val filename: String,
+    @JsonProperty("numStatements") var numStatements: Int?,
+    @JsonProperty("statementsCompleted") var statementsCompleted: Int?,
+    @JsonProperty("classified") var classified: Boolean?,
+) {
+    fun incrementStatementsCompleted() = this.also { statementsCompleted = statementsCompleted?.plus(1) }
+}

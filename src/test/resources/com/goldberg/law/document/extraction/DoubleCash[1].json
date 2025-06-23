@@ -37,19 +37,22 @@
             {
               "value": "ONLINE PAYMENT, THANK YOU",
               "type": "string",
-              "content": "ONLINE PAYMENT, THANK YOU"
+              "content": "ONLINE PAYMENT, THANK YOU",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": -1881.40,
               "type": "string",
-              "content": "-$1,881.40"
+              "content": "-$1,881.40",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/12",
               "type": "string",
-              "content": "10/12"
+              "content": "10/12",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -62,19 +65,22 @@
             {
               "value": "ONLINE PAYMENT, THANK YOU",
               "type": "string",
-              "content": "ONLINE PAYMENT, THANK YOU"
+              "content": "ONLINE PAYMENT, THANK YOU",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": -3928.60,
               "type": "string",
-              "content": "-$3,928.60"
+              "content": "-$3,928.60",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/14",
               "type": "string",
-              "content": "10/14"
+              "content": "10/14",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -87,19 +93,22 @@
             {
               "value": "ONLINE PAYMENT, THANK YOU",
               "type": "string",
-              "content": "ONLINE PAYMENT, THANK YOU"
+              "content": "ONLINE PAYMENT, THANK YOU",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 2993.32,
               "type": "string",
-              "content": "$2,993.32"
+              "content": "$2,993.32",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/28",
               "type": "string",
-              "content": "10/28"
+              "content": "10/28",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -112,19 +121,22 @@
             {
               "value": ".THE HOME DEPOT #2509 BETHESDA MD",
               "type": "string",
-              "content": ".THE HOME DEPOT #2509 BETHESDA MD"
+              "content": ".THE HOME DEPOT #2509 BETHESDA MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 44.49,
               "type": "string",
-              "content": "$44.49"
+              "content": "$44.49",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/05",
               "type": "string",
-              "content": "10/05"
+              "content": "10/05",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -137,19 +149,22 @@
             {
               "value": "THE HOME DEPOT #2509 BETHESDA MD",
               "type": "string",
-              "content": "THE HOME DEPOT #2509 BETHESDA MD"
+              "content": "THE HOME DEPOT #2509 BETHESDA MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": -55.63,
               "type": "string",
-              "content": "-$55.63"
+              "content": "-$55.63",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/05",
               "type": "string",
-              "content": "10/05"
+              "content": "10/05",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -162,19 +177,22 @@
             {
               "value": "THE HOME DEPOT 2509 BETHESDA MD",
               "type": "string",
-              "content": "THE HOME DEPOT 2509 BETHESDA MD"
+              "content": "THE HOME DEPOT 2509 BETHESDA MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": -210.94,
               "type": "string",
-              "content": "-$210.94"
+              "content": "-$210.94",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/06",
               "type": "string",
-              "content": "10/06"
+              "content": "10/06",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -187,19 +205,22 @@
             {
               "value": "THE HOME DEPOT #2509 BETHESDA MD.",
               "type": "string",
-              "content": "THE HOME DEPOT #2509 BETHESDA MD."
+              "content": "THE HOME DEPOT #2509 BETHESDA MD.",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 161.64,
               "type": "string",
-              "content": "$161.64"
+              "content": "$161.64",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/11",
               "type": "string",
-              "content": "10/11"
+              "content": "10/11",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -212,19 +233,22 @@
             {
               "value": "FLOOR AND DECOR 166 GAITHERSBURG MD",
               "type": "string",
-              "content": "FLOOR AND DECOR 166 GAITHERSBURG MD"
+              "content": "FLOOR AND DECOR 166 GAITHERSBURG MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": -47.61,
               "type": "string",
-              "content": "-$47.61"
+              "content": "-$47.61",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/12.",
               "type": "string",
-              "content": "10/12."
+              "content": "10/12.",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -237,19 +261,22 @@
             {
               "value": "WALMART.COM AA 800-966-6546 AR",
               "type": "string",
-              "content": "WALMART.COM AA 800-966-6546 AR"
+              "content": "WALMART.COM AA 800-966-6546 AR",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": -155.66,
               "type": "string",
-              "content": "-$155.66"
+              "content": "-$155.66",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": ".10/13",
               "type": "string",
-              "content": ".10/13"
+              "content": ".10/13",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -262,19 +289,22 @@
             {
               "value": "THE HOME DEPOT #2550 GAITHERSBURG MD",
               "type": "string",
-              "content": "THE HOME DEPOT #2550 GAITHERSBURG MD"
+              "content": "THE HOME DEPOT #2550 GAITHERSBURG MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 14.29,
               "type": "string",
-              "content": "$14.29"
+              "content": "$14.29",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": ".10/13",
               "type": "string",
-              "content": ".10/13"
+              "content": ".10/13",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -287,19 +317,22 @@
             {
               "value": "THE HOME DEPOT #2509 BETHESDA MD",
               "type": "string",
-              "content": "THE HOME DEPOT #2509 BETHESDA MD"
+              "content": "THE HOME DEPOT #2509 BETHESDA MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": -15.90,
               "type": "string",
-              "content": "-$15.90"
+              "content": "-$15.90",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/14",
               "type": "string",
-              "content": "10/14"
+              "content": "10/14",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -312,19 +345,22 @@
             {
               "value": "TW PERRY- SILVER SPRIN GAITHERSBURG MD",
               "type": "string",
-              "content": "TW PERRY- SILVER SPRIN GAITHERSBURG MD"
+              "content": "TW PERRY- SILVER SPRIN GAITHERSBURG MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": -116.79,
               "type": "string",
-              "content": "-$116.79"
+              "content": "-$116.79",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/19",
               "type": "string",
-              "content": "10/19"
+              "content": "10/19",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -337,19 +373,22 @@
             {
               "value": "THE HOME DEPOT 2550 GAITHERSBURG MD",
               "type": "string",
-              "content": "THE HOME DEPOT 2550 GAITHERSBURG MD"
+              "content": "THE HOME DEPOT 2550 GAITHERSBURG MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": -89.90,
               "type": "string",
-              "content": "-$89.90"
+              "content": "-$89.90",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/21",
               "type": "string",
-              "content": "10/21"
+              "content": "10/21",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -362,19 +401,22 @@
             {
               "value": "THE HOME DEPOT #2509 BETHESDA MD",
               "type": "string",
-              "content": "THE HOME DEPOT #2509 BETHESDA MD"
+              "content": "THE HOME DEPOT #2509 BETHESDA MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": -156.29,
               "type": "string",
-              "content": "-$156.29"
+              "content": "-$156.29",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/27",
               "type": "string",
-              "content": "10/27"
+              "content": "10/27",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -387,19 +429,22 @@
             {
               "value": "FLOOR AND DECOR 166 GAITHERSBURG MD",
               "type": "string",
-              "content": "FLOOR AND DECOR 166 GAITHERSBURG MD"
+              "content": "FLOOR AND DECOR 166 GAITHERSBURG MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 42.32,
               "type": "string",
-              "content": "$42.32"
+              "content": "$42.32",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/05",
               "type": "string",
-              "content": "10/05"
+              "content": "10/05",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -412,19 +457,22 @@
             {
               "value": "DC *GOV'T PAYMENT 202-442-4423 DC",
               "type": "string",
-              "content": "DC *GOV'T PAYMENT 202-442-4423 DC"
+              "content": "DC *GOV'T PAYMENT 202-442-4423 DC",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 451.55,
               "type": "string",
-              "content": "$451.55"
+              "content": "$451.55",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/05",
               "type": "string",
-              "content": "10/05"
+              "content": "10/05",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -437,19 +485,22 @@
             {
               "value": "WALMART.COM AA 800-966-6546 AR",
               "type": "string",
-              "content": "WALMART.COM AA 800-966-6546 AR"
+              "content": "WALMART.COM AA 800-966-6546 AR",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 155.66,
               "type": "string",
-              "content": "$155.66"
+              "content": "$155.66",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/05",
               "type": "string",
-              "content": "10/05"
+              "content": "10/05",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -462,19 +513,22 @@
             {
               "value": "THE HOME DEPOT #2550 GAITHERSBURG MD.",
               "type": "string",
-              "content": "THE HOME DEPOT #2550 GAITHERSBURG MD."
+              "content": "THE HOME DEPOT #2550 GAITHERSBURG MD.",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 55.63,
               "type": "string",
-              "content": "$55.63"
+              "content": "$55.63",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/05",
               "type": "string",
-              "content": "10/05"
+              "content": "10/05",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -487,19 +541,22 @@
             {
               "value": "THE HOME DEPOT #2509 BETHESDA MD",
               "type": "string",
-              "content": "THE HOME DEPOT #2509 BETHESDA MD"
+              "content": "THE HOME DEPOT #2509 BETHESDA MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 63.48,
               "type": "string",
-              "content": "$63.48"
+              "content": "$63.48",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/05",
               "type": "string",
-              "content": "10/05"
+              "content": "10/05",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -512,19 +569,22 @@
             {
               "value": "Subway 22679 Washington DC",
               "type": "string",
-              "content": "Subway 22679 Washington DC"
+              "content": "Subway 22679 Washington DC",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 9.67,
               "type": "string",
-              "content": "$9.67"
+              "content": "$9.67",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/06",
               "type": "string",
-              "content": "10/06"
+              "content": "10/06",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -537,19 +597,22 @@
             {
               "value": "FLOOR AND DECOR 166 GAITHERSBURG MD",
               "type": "string",
-              "content": "FLOOR AND DECOR 166 GAITHERSBURG MD"
+              "content": "FLOOR AND DECOR 166 GAITHERSBURG MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 26.45,
               "type": "string",
-              "content": "$26.45"
+              "content": "$26.45",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/06",
               "type": "string",
-              "content": "10/06"
+              "content": "10/06",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -562,19 +625,22 @@
             {
               "value": "FLOOR AND DECOR 166 GAITHERSBURG MD",
               "type": "string",
-              "content": "FLOOR AND DECOR 166 GAITHERSBURG MD"
+              "content": "FLOOR AND DECOR 166 GAITHERSBURG MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 31.63,
               "type": "string",
-              "content": "$31.63"
+              "content": "$31.63",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/07",
               "type": "string",
-              "content": "10/07"
+              "content": "10/07",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -587,19 +653,22 @@
             {
               "value": "STROSNIDERS HARDWARE KENSINGTON MD",
               "type": "string",
-              "content": "STROSNIDERS HARDWARE KENSINGTON MD"
+              "content": "STROSNIDERS HARDWARE KENSINGTON MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 4.27,
               "type": "string",
-              "content": "$4.27"
+              "content": "$4.27",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/08",
               "type": "string",
-              "content": "10/08"
+              "content": "10/08",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -612,19 +681,22 @@
             {
               "value": "SHELL OIL 10009244004 KENSINGTON MD",
               "type": "string",
-              "content": "SHELL OIL 10009244004 KENSINGTON MD"
+              "content": "SHELL OIL 10009244004 KENSINGTON MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 87.41,
               "type": "string",
-              "content": "$87.41"
+              "content": "$87.41",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/09",
               "type": "string",
-              "content": "10/09"
+              "content": "10/09",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -637,19 +709,22 @@
             {
               "value": "Subway 22679 Washington DC:",
               "type": "string",
-              "content": "Subway 22679 Washington DC:"
+              "content": "Subway 22679 Washington DC:",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 9.67,
               "type": "string",
-              "content": "$9.67"
+              "content": "$9.67",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/11",
               "type": "string",
-              "content": "10/11"
+              "content": "10/11",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -662,19 +737,22 @@
             {
               "value": "SP * IRONSUPPORTS.COM SHEBOYGAN WI",
               "type": "string",
-              "content": "SP * IRONSUPPORTS.COM SHEBOYGAN WI"
+              "content": "SP * IRONSUPPORTS.COM SHEBOYGAN WI",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 109.44,
               "type": "string",
-              "content": "$109.44"
+              "content": "$109.44",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/11",
               "type": "string",
-              "content": "10/11"
+              "content": "10/11",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -687,19 +765,22 @@
             {
               "value": "THE HOME DEPOT #2509 BETHESDA MD",
               "type": "string",
-              "content": "THE HOME DEPOT #2509 BETHESDA MD"
+              "content": "THE HOME DEPOT #2509 BETHESDA MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 3928.60,
               "type": "string",
-              "content": "$3,928.60"
+              "content": "$3,928.60",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/11",
               "type": "string",
-              "content": "10/11"
+              "content": "10/11",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -712,19 +793,22 @@
             {
               "value": "TW. PERRY - SILVER SPRIN GAITHERSBURG MD",
               "type": "string",
-              "content": "TW. PERRY - SILVER SPRIN GAITHERSBURG MD"
+              "content": "TW. PERRY - SILVER SPRIN GAITHERSBURG MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 116.79,
               "type": "string",
-              "content": "$116.79"
+              "content": "$116.79",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/12",
               "type": "string",
-              "content": "10/12"
+              "content": "10/12",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -737,19 +821,22 @@
             {
               "value": "THE HOME DEPOT #2558 ASPEN HILL MD",
               "type": "string",
-              "content": "THE HOME DEPOT #2558 ASPEN HILL MD"
+              "content": "THE HOME DEPOT #2558 ASPEN HILL MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 180.76,
               "type": "string",
-              "content": "$180.76"
+              "content": "$180.76",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/13",
               "type": "string",
-              "content": "10/13"
+              "content": "10/13",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -762,19 +849,22 @@
             {
               "value": "THE HOME DEPOT #2509 BETHESDA MD",
               "type": "string",
-              "content": "THE HOME DEPOT #2509 BETHESDA MD"
+              "content": "THE HOME DEPOT #2509 BETHESDA MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 196.84,
               "type": "string",
-              "content": "$196.84"
+              "content": "$196.84",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/14",
               "type": "string",
-              "content": "10/14"
+              "content": "10/14",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -787,19 +877,22 @@
             {
               "value": "IN *AAH CONSULTANTS LL 301-4291750 ·MD",
               "type": "string",
-              "content": "IN *AAH CONSULTANTS LL 301-4291750 ·MD"
+              "content": "IN *AAH CONSULTANTS LL 301-4291750 ·MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 900.00,
               "type": "string",
-              "content": "$900.00"
+              "content": "$900.00",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/15",
               "type": "string",
-              "content": "10/15"
+              "content": "10/15",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -812,19 +905,22 @@
             {
               "value": "THE HOME DEPOT 2509 BETHESDA MD",
               "type": "string",
-              "content": "THE HOME DEPOT 2509 BETHESDA MD"
+              "content": "THE HOME DEPOT 2509 BETHESDA MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 212.41,
               "type": "string",
-              "content": "$212.41"
+              "content": "$212.41",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/19",
               "type": "string",
-              "content": "10/19"
+              "content": "10/19",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -837,19 +933,22 @@
             {
               "value": "THE HOME DEPOT #2550 GAITHERSBURG MD",
               "type": "string",
-              "content": "THE HOME DEPOT #2550 GAITHERSBURG MD"
+              "content": "THE HOME DEPOT #2550 GAITHERSBURG MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 136.67,
               "type": "string",
-              "content": "$136.67"
+              "content": "$136.67",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/20",
               "type": "string",
-              "content": "10/20"
+              "content": "10/20",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -862,19 +961,22 @@
             {
               "value": "THE HOME DEPOT 2550 GAITHERSBURG MD",
               "type": "string",
-              "content": "THE HOME DEPOT 2550 GAITHERSBURG MD"
+              "content": "THE HOME DEPOT 2550 GAITHERSBURG MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 91.36,
               "type": "string",
-              "content": "$91.36"
+              "content": "$91.36",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/21",
               "type": "string",
-              "content": "10/21"
+              "content": "10/21",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -887,19 +989,22 @@
             {
               "value": "THE HOME DEPOT 2558 ASPEN HILL MD",
               "type": "string",
-              "content": "THE HOME DEPOT 2558 ASPEN HILL MD"
+              "content": "THE HOME DEPOT 2558 ASPEN HILL MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 223.43,
               "type": "string",
-              "content": "$223.43"
+              "content": "$223.43",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/21",
               "type": "string",
-              "content": "10/21"
+              "content": "10/21",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -912,19 +1017,22 @@
             {
               "value": "FERGUSON ENT #587 3015896662 MD",
               "type": "string",
-              "content": "FERGUSON ENT #587 3015896662 MD"
+              "content": "FERGUSON ENT #587 3015896662 MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 35.26,
               "type": "string",
-              "content": "$35.26"
+              "content": "$35.26",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/22",
               "type": "string",
-              "content": "10/22"
+              "content": "10/22",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -937,19 +1045,22 @@
             {
               "value": "THE HOME DEPOT 2509 BETHESDA MD",
               "type": "string",
-              "content": "THE HOME DEPOT 2509 BETHESDA MD"
+              "content": "THE HOME DEPOT 2509 BETHESDA MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 598.35,
               "type": "string",
-              "content": "$598.35"
+              "content": "$598.35",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/22",
               "type": "string",
-              "content": "10/22"
+              "content": "10/22",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -962,19 +1073,22 @@
             {
               "value": "THE HOME DEPOT #2550 GAITHERSBURG MD",
               "type": "string",
-              "content": "THE HOME DEPOT #2550 GAITHERSBURG MD"
+              "content": "THE HOME DEPOT #2550 GAITHERSBURG MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 52.56,
               "type": "string",
-              "content": "$52.56"
+              "content": "$52.56",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/25",
               "type": "string",
-              "content": "10/25"
+              "content": "10/25",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -987,19 +1101,22 @@
             {
               "value": "THE HOME DEPOT 2509 BETHESDA MD",
               "type": "string",
-              "content": "THE HOME DEPOT 2509 BETHESDA MD"
+              "content": "THE HOME DEPOT 2509 BETHESDA MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 95.44,
               "type": "string",
-              "content": "$95.44"
+              "content": "$95.44",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/25",
               "type": "string",
-              "content": "10/25"
+              "content": "10/25",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -1012,19 +1129,22 @@
             {
               "value": "FLOOR AND DECOR 177 ALEXANDRIA VA",
               "type": "string",
-              "content": "FLOOR AND DECOR 177 ALEXANDRIA VA"
+              "content": "FLOOR AND DECOR 177 ALEXANDRIA VA",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 19.12,
               "type": "string",
-              "content": "$19.12"
+              "content": "$19.12",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/26",
               "type": "string",
-              "content": "10/26"
+              "content": "10/26",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -1037,19 +1157,22 @@
             {
               "value": "TW PERRY- SILVER SPRIN GAITHERSBURG MD",
               "type": "string",
-              "content": "TW PERRY- SILVER SPRIN GAITHERSBURG MD"
+              "content": "TW PERRY- SILVER SPRIN GAITHERSBURG MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 266.36,
               "type": "string",
-              "content": "$266.36"
+              "content": "$266.36",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/27",
               "type": "string",
-              "content": "10/27"
+              "content": "10/27",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -1062,19 +1185,22 @@
             {
               "value": "THE HOME DEPOT #2550 GAITHERSBURG MD",
               "type": "string",
-              "content": "THE HOME DEPOT #2550 GAITHERSBURG MD"
+              "content": "THE HOME DEPOT #2550 GAITHERSBURG MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 58.27,
               "type": "string",
-              "content": "$58.27"
+              "content": "$58.27",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/27",
               "type": "string",
-              "content": "10/27"
+              "content": "10/27",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -1087,19 +1213,22 @@
             {
               "value": "MCG DEP TRANSFER STATI DERWOOD MD",
               "type": "string",
-              "content": "MCG DEP TRANSFER STATI DERWOOD MD"
+              "content": "MCG DEP TRANSFER STATI DERWOOD MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 21.28,
               "type": "string",
-              "content": "$21.28"
+              "content": "$21.28",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/28",
               "type": "string",
-              "content": "10/28"
+              "content": "10/28",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -1112,19 +1241,22 @@
             {
               "value": "THE HOME DEPOT #2550 GAITHERSBURG MD",
               "type": "string",
-              "content": "THE HOME DEPOT #2550 GAITHERSBURG MD"
+              "content": "THE HOME DEPOT #2550 GAITHERSBURG MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 1459.79,
               "type": "string",
-              "content": "$1,459.79"
+              "content": "$1,459.79",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "10/29",
               "type": "string",
-              "content": "10/29"
+              "content": "10/29",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",

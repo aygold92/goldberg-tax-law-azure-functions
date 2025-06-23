@@ -1,13 +1,13 @@
 package com.goldberg.law.document.model.input.tables
 
-import com.azure.ai.formrecognizer.documentanalysis.models.DocumentField
+import com.azure.ai.documentintelligence.models.DocumentField
 import com.fasterxml.jackson.annotation.JsonCreator
-import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.goldberg.law.document.model.output.TransactionHistoryPageMetadata
 import com.goldberg.law.document.model.output.TransactionHistoryRecord
-import com.goldberg.law.document.model.pdf.DocumentType
+import com.goldberg.law.document.model.pdf.ClassifiedPdfMetadata
+import com.goldberg.law.util.pageNumber
 import com.goldberg.law.util.positiveCurrencyValue
+import com.goldberg.law.util.valueAsInt
 import java.math.BigDecimal
 import java.util.*
 
@@ -17,15 +17,16 @@ data class TransactionTableDepositWithdrawalRecord @JsonCreator constructor(
     @JsonProperty("description") val description: String?,
     @JsonProperty("depositAmount") val depositAmount: BigDecimal?,
     @JsonProperty("withdrawalAmount") val withdrawalAmount: BigDecimal?,
+    @JsonProperty("page") override val page: Int,
 ): TransactionRecord() {
-    override fun toTransactionHistoryRecord(statementDate: Date?, metadata: TransactionHistoryPageMetadata, documentType: DocumentType): TransactionHistoryRecord = TransactionHistoryRecord(
+    override fun toTransactionHistoryRecord(statementDate: Date?, metadata: ClassifiedPdfMetadata): TransactionHistoryRecord = TransactionHistoryRecord(
         id = this.id,
         date = fromWrittenDateStatementDateOverride(this.date, statementDate),
         checkNumber = this.checkNumber,
         description = this.description,
         // TODO: can we do better for the case it has both?
         amount = this.depositAmount ?: this.withdrawalAmount?.negate(),
-        pageMetadata = metadata
+        filePageNumber = metadata.pagesOrdered[page - 1]
     )
 
     object Keys {
@@ -37,14 +38,15 @@ data class TransactionTableDepositWithdrawalRecord @JsonCreator constructor(
     }
 
     companion object {
-        fun DocumentField.toTransactionTableDepositWithdrawalRecord() = this.getFieldMapHack().let { recordFields ->
+        fun DocumentField.toTransactionTableDepositWithdrawalRecord() = this.valueMap.let { recordFields ->
             val (checkNumber, description) = getCheckNumberAndDescription(recordFields)
             TransactionTableDepositWithdrawalRecord(
-                date = recordFields[Keys.DATE]?.valueAsString,
+                date = recordFields[Keys.DATE]?.valueString,
                 checkNumber = checkNumber,
                 description = description,
                 depositAmount = recordFields[Keys.DEPOSITS_ADDITIONS]?.positiveCurrencyValue(),
-                withdrawalAmount = recordFields[Keys.WITHDRAWALS_SUBTRACTIONS]?.positiveCurrencyValue()
+                withdrawalAmount = recordFields[Keys.WITHDRAWALS_SUBTRACTIONS]?.positiveCurrencyValue(),
+                page = recordFields.pageNumber()
             )
         }
 
@@ -53,7 +55,7 @@ data class TransactionTableDepositWithdrawalRecord @JsonCreator constructor(
          */
         private fun getCheckNumberAndDescription(fieldMap: Map<String, DocumentField>): Pair<Int?, String?> {
             val checkContent = fieldMap[Keys.CHECK_NUMBER]?.content?.trim()
-            val descriptionValue = fieldMap[Keys.DESCRIPTION]?.valueAsString?.trim()
+            val descriptionValue = fieldMap[Keys.DESCRIPTION]?.valueString?.trim()
             return if (checkContent?.matches(NUMBER_CHECK_REGEX) == true) {
                 NUMBER_CHECK_REGEX.find(checkContent)!!.destructured.let {
                     Pair(it.component1().toInt(), it.component2())
@@ -63,7 +65,7 @@ data class TransactionTableDepositWithdrawalRecord @JsonCreator constructor(
                     Pair(it.component1().toInt(), it.component2())
                 }
             } else {
-                Pair((fieldMap[Keys.CHECK_NUMBER]?.value as Number?)?.toInt(), descriptionValue)
+                Pair(fieldMap[Keys.CHECK_NUMBER]?.valueAsInt(), descriptionValue)
             }
         }
 

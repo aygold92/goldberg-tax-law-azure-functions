@@ -17,7 +17,7 @@ class CheckDataTest {
     fun toCsv() {
         assertThat(newCheckData(1000).toCsv())
             .isEqualTo("""
-                "1234567890",1000,"check desc",4/3/2020,-500.00,"CH-12345","checkfile",7
+                "1234567890",1000,"check desc",4/3/2020,-500.00,"CH-12345","checkfile",[7]
             """.trimIndent())
     }
 
@@ -37,7 +37,8 @@ class CheckDataTest {
                     "Some Guy",
                     "test",
                     1500.asCurrency(),
-                    null
+                    null,
+                    page = 1
                 ),
                 CheckEntriesTableRow(
                     normalizeDate("4 15 2020"),
@@ -45,7 +46,8 @@ class CheckDataTest {
                     "Another Guy",
                     "desc",
                     2000.asCurrency(),
-                    null
+                    null,
+                    page = 1
                 ),
             )),
             CHECK_BATES_STAMP,
@@ -94,7 +96,8 @@ class CheckDataTest {
                     "Some Guy",
                     "test",
                     1500.asCurrency(),
-                    ACCOUNT_NUMBER
+                    ACCOUNT_NUMBER,
+                    page = 1
                 ),
                 CheckEntriesTableRow(
                     normalizeDate("4 15 2020"),
@@ -102,7 +105,8 @@ class CheckDataTest {
                     "Another Guy",
                     "desc",
                     2000.asCurrency(),
-                    otherAccountNumber
+                    otherAccountNumber,
+                    page = 1
                 ),
             )),
             CHECK_BATES_STAMP,

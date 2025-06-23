@@ -28,37 +28,41 @@
               "value": "Check",
               "type": "string",
               "content": "Check",
-              "confidence": 0.397
+              "confidence": 0.397,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Deposits/ Additions":
             {
               "value": null,
               "type": "number",
               "content": null,
-              "boundingRegions": null,
               "spans": null,
-              "confidence": 0.988
+              "confidence": 0.988,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Check Number":
             {
               "value": 12058,
               "type": "integer",
               "content": "12058",
-              "confidence": 0.959
+              "confidence": 0.959,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "1/13",
               "type": "string",
               "content": "1/13",
-              "confidence": 0.913
+              "confidence": 0.913,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Withdrawals/ Subtractions":
             {
               "value": 928.0,
               "type": "number",
               "content": "928.00",
-              "confidence": 0.961
+              "confidence": 0.961,
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -75,39 +79,42 @@
               "value": "S C Herman & Ass Ppe220109 Herm01 Robert Herman",
               "type": "string",
               "content": "S C Herman & Ass Ppe220109 Herm01 Robert Herman",
-              "confidence": 0.673
+              "confidence": 0.673,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Deposits/ Additions":
             {
               "value": 183.3800048828125,
               "type": "number",
               "content": "183.38",
-              "confidence": 0.977
+              "confidence": 0.977,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Check Number":
             {
               "value": null,
               "type": "integer",
               "content": null,
-              "boundingRegions": null,
               "spans": null,
-              "confidence": 0.984
+              "confidence": 0.984,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "1/14",
               "type": "string",
               "content": "1/14",
-              "confidence": 0.914
+              "confidence": 0.914,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Withdrawals/ Subtractions":
             {
               "value": null,
               "type": "number",
               "content": null,
-              "boundingRegions": null,
               "spans": null,
-              "confidence": 0.957
+              "confidence": 0.957,
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -124,39 +131,42 @@
               "value": "WT Fed#06710 Morgan Stanley and /Org=Robert B. Herman Sylvan C Herman Srf# D1020140041101 Trn#220114020140 Rfb#",
               "type": "string",
               "content": "WT Fed#06710 Morgan Stanley and /Org=Robert B. Herman\nSylvan C Herman Srf# D1020140041101 Trn#220114020140 Rfb#",
-              "confidence": 0.741
+              "confidence": 0.741,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Deposits/ Additions":
             {
               "value": 20000.0,
               "type": "number",
               "content": "20,000.00",
-              "confidence": 0.976
+              "confidence": 0.976,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Check Number":
             {
               "value": null,
               "type": "integer",
               "content": null,
-              "boundingRegions": null,
               "spans": null,
-              "confidence": 0.984
+              "confidence": 0.984,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "1/14",
               "type": "string",
               "content": "1/14",
-              "confidence": 0.94
+              "confidence": 0.94,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Withdrawals/ Subtractions":
             {
               "value": null,
               "type": "number",
               "content": null,
-              "boundingRegions": null,
               "spans": null,
-              "confidence": 0.957
+              "confidence": 0.957,
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -173,39 +183,42 @@
               "value": "Wire Trans Svc Charge - Sequence: 220114020140 Srf# D1020140041101 Trn#220114020140 Rfb#",
               "type": "string",
               "content": "Wire Trans Svc Charge - Sequence: 220114020140 Srf# D1020140041101 Trn#220114020140 Rfb#",
-              "confidence": 0.756
+              "confidence": 0.756,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Deposits/ Additions":
             {
               "value": null,
               "type": "number",
               "content": null,
-              "boundingRegions": null,
               "spans": null,
-              "confidence": 0.988
+              "confidence": 0.988,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Check Number":
             {
               "value": null,
               "type": "integer",
               "content": null,
-              "boundingRegions": null,
               "spans": null,
-              "confidence": 0.984
+              "confidence": 0.984,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "1/14",
               "type": "string",
               "content": "1/14",
-              "confidence": 0.951
+              "confidence": 0.951,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Withdrawals/ Subtractions":
             {
               "value": 15.0,
               "type": "number",
               "content": "15.00",
-              "confidence": 0.852
+              "confidence": 0.852,
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -222,37 +235,41 @@
               "value": "Check",
               "type": "string",
               "content": "Check",
-              "confidence": 0.498
+              "confidence": 0.498,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Deposits/ Additions":
             {
               "value": null,
               "type": "number",
               "content": null,
-              "boundingRegions": null,
               "spans": null,
-              "confidence": 0.988
+              "confidence": 0.988,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Check Number":
             {
               "value": 12055,
               "type": "integer",
               "content": "12055",
-              "confidence": 0.947
+              "confidence": 0.947,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "1/18",
               "type": "string",
               "content": "1/18",
-              "confidence": 0.946
+              "confidence": 0.946,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Withdrawals/ Subtractions":
             {
               "value": 100.0,
               "type": "number",
               "content": "100.00",
-              "confidence": 0.946
+              "confidence": 0.946,
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -269,37 +286,41 @@
               "value": "Check",
               "type": "string",
               "content": "Check",
-              "confidence": 0.42
+              "confidence": 0.42,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Deposits/ Additions":
             {
               "value": null,
               "type": "number",
               "content": null,
-              "boundingRegions": null,
               "spans": null,
-              "confidence": 0.988
+              "confidence": 0.988,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Check Number":
             {
               "value": 12054,
               "type": "integer",
               "content": "12054",
-              "confidence": 0.957
+              "confidence": 0.957,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "1/18",
               "type": "string",
               "content": "1/18",
-              "confidence": 0.948
+              "confidence": 0.948,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Withdrawals/ Subtractions":
             {
               "value": 100.0,
               "type": "number",
               "content": "100.00",
-              "confidence": 0.941
+              "confidence": 0.941,
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -316,39 +337,42 @@
               "value": "Comp of Maryland Dir Db Rad 012022 004822018026253 x",
               "type": "string",
               "content": "Comp of Maryland Dir Db Rad 012022 004822018026253 x",
-              "confidence": 0.733
+              "confidence": 0.733,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Deposits/ Additions":
             {
               "value": null,
               "type": "number",
               "content": null,
-              "boundingRegions": null,
               "spans": null,
-              "confidence": 0.988
+              "confidence": 0.988,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Check Number":
             {
               "value": null,
               "type": "integer",
               "content": null,
-              "boundingRegions": null,
               "spans": null,
-              "confidence": 0.984
+              "confidence": 0.984,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "1/20",
               "type": "string",
               "content": "1/20",
-              "confidence": 0.854
+              "confidence": 0.854,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Withdrawals/ Subtractions":
             {
               "value": 1173.3399658203125,
               "type": "number",
               "content": "1,173.34",
-              "confidence": 0.946
+              "confidence": 0.946,
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -365,37 +389,41 @@
               "value": "Check",
               "type": "string",
               "content": "Check",
-              "confidence": 0.46
+              "confidence": 0.46,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Deposits/ Additions":
             {
               "value": null,
               "type": "number",
               "content": null,
-              "boundingRegions": null,
               "spans": null,
-              "confidence": 0.988
+              "confidence": 0.988,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Check Number":
             {
               "value": 12050,
               "type": "integer",
               "content": "12050",
-              "confidence": 0.951
+              "confidence": 0.951,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "1/21",
               "type": "string",
               "content": "1/21",
-              "confidence": 0.907
+              "confidence": 0.907,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Withdrawals/ Subtractions":
             {
               "value": 400.0,
               "type": "number",
               "content": "400.00",
-              "confidence": 0.95
+              "confidence": 0.95,
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -412,37 +440,41 @@
               "value": "Check",
               "type": "string",
               "content": "Check",
-              "confidence": 0.575
+              "confidence": 0.575,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Deposits/ Additions":
             {
               "value": null,
               "type": "number",
               "content": null,
-              "boundingRegions": null,
               "spans": null,
-              "confidence": 0.988
+              "confidence": 0.988,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Check Number":
             {
               "value": 12066,
               "type": "integer",
               "content": "12066",
-              "confidence": 0.968
+              "confidence": 0.968,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "1/21",
               "type": "string",
               "content": "1/21",
-              "confidence": 0.949
+              "confidence": 0.949,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Withdrawals/ Subtractions":
             {
               "value": 930.0999755859375,
               "type": "number",
               "content": "930.10",
-              "confidence": 0.968
+              "confidence": 0.968,
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -459,39 +491,42 @@
               "value": "ATM Withdrawal authorized on 01/24 5701 Connecticut Ave NW Washington DC 0004269 ATM ID 0085P Card 9899",
               "type": "string",
               "content": "ATM Withdrawal authorized on 01/24 5701 Connecticut Ave NW Washington DC 0004269 ATM ID 0085P Card 9899",
-              "confidence": 0.74
+              "confidence": 0.74,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Deposits/ Additions":
             {
               "value": null,
               "type": "number",
               "content": null,
-              "boundingRegions": null,
               "spans": null,
-              "confidence": 0.988
+              "confidence": 0.988,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Check Number":
             {
               "value": null,
               "type": "integer",
               "content": null,
-              "boundingRegions": null,
               "spans": null,
-              "confidence": 0.984
+              "confidence": 0.984,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "1/24",
               "type": "string",
               "content": "1/24",
-              "confidence": 0.933
+              "confidence": 0.933,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Withdrawals/ Subtractions":
             {
               "value": 200.0,
               "type": "number",
               "content": "200.00",
-              "confidence": 0.961
+              "confidence": 0.961,
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -508,37 +543,41 @@
               "value": "Check",
               "type": "string",
               "content": "Check",
-              "confidence": 0.5
+              "confidence": 0.5,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Deposits/ Additions":
             {
               "value": null,
               "type": "number",
               "content": null,
-              "boundingRegions": null,
               "spans": null,
-              "confidence": 0.988
+              "confidence": 0.988,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Check Number":
             {
               "value": 12061,
               "type": "integer",
               "content": "12061",
-              "confidence": 0.969
+              "confidence": 0.969,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "1/24",
               "type": "string",
               "content": "1/24",
-              "confidence": 0.896
+              "confidence": 0.896,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Withdrawals/ Subtractions":
             {
               "value": 303.6400146484375,
               "type": "number",
               "content": "303.64",
-              "confidence": 0.946
+              "confidence": 0.946,
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -555,37 +594,41 @@
               "value": "Check",
               "type": "string",
               "content": "Check",
-              "confidence": 0.434
+              "confidence": 0.434,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Deposits/ Additions":
             {
               "value": null,
               "type": "number",
               "content": null,
-              "boundingRegions": null,
               "spans": null,
-              "confidence": 0.988
+              "confidence": 0.988,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Check Number":
             {
               "value": 12063,
               "type": "integer",
               "content": "12063",
-              "confidence": 0.968
+              "confidence": 0.968,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "1/25",
               "type": "string",
               "content": "1/25",
-              "confidence": 0.951
+              "confidence": 0.951,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Withdrawals/ Subtractions":
             {
               "value": 10884.9296875,
               "type": "number",
               "content": "10,884.93",
-              "confidence": 0.948
+              "confidence": 0.948,
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -602,37 +645,41 @@
               "value": "Check",
               "type": "string",
               "content": "Check",
-              "confidence": 0.536
+              "confidence": 0.536,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Deposits/ Additions":
             {
               "value": null,
               "type": "number",
               "content": null,
-              "boundingRegions": null,
               "spans": null,
-              "confidence": 0.988
+              "confidence": 0.988,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Check Number":
             {
               "value": 12064,
               "type": "integer",
               "content": "12064",
-              "confidence": 0.972
+              "confidence": 0.972,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "1/25",
               "type": "string",
               "content": "1/25",
-              "confidence": 0.949
+              "confidence": 0.949,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Withdrawals/ Subtractions":
             {
               "value": 1253.6700439453125,
               "type": "number",
               "content": "1,253.67",
-              "confidence": 0.961
+              "confidence": 0.961,
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -649,37 +696,41 @@
               "value": "Check",
               "type": "string",
               "content": "Check",
-              "confidence": 0.41
+              "confidence": 0.41,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Deposits/ Additions":
             {
               "value": null,
               "type": "number",
               "content": null,
-              "boundingRegions": null,
               "spans": null,
-              "confidence": 0.988
+              "confidence": 0.988,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Check Number":
             {
               "value": 12062,
               "type": "integer",
               "content": "12062",
-              "confidence": 0.963
+              "confidence": 0.963,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "1/25",
               "type": "string",
               "content": "1/25",
-              "confidence": 0.946
+              "confidence": 0.946,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Withdrawals/ Subtractions":
             {
               "value": 5607.9501953125,
               "type": "number",
               "content": "5,607.95",
-              "confidence": 0.961
+              "confidence": 0.961,
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -696,39 +747,42 @@
               "value": "S C Herman & Ass Ppe220123 Herm01 Robert Herman",
               "type": "string",
               "content": "S C Herman & Ass Ppe220123 Herm01 Robert Herman",
-              "confidence": 0.756
+              "confidence": 0.756,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Deposits/ Additions":
             {
               "value": 183.39999389648438,
               "type": "number",
               "content": "183.40",
-              "confidence": 0.98
+              "confidence": 0.98,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Check Number":
             {
               "value": null,
               "type": "integer",
               "content": null,
-              "boundingRegions": null,
               "spans": null,
-              "confidence": 0.984
+              "confidence": 0.984,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "1/28",
               "type": "string",
               "content": "1/28",
-              "confidence": 0.92
+              "confidence": 0.92,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Withdrawals/ Subtractions":
             {
               "value": null,
               "type": "number",
               "content": null,
-              "boundingRegions": null,
               "spans": null,
-              "confidence": 0.957
+              "confidence": 0.957,
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -745,37 +799,41 @@
               "value": "Check",
               "type": "string",
               "content": "Check",
-              "confidence": 0.651
+              "confidence": 0.651,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Deposits/ Additions":
             {
               "value": null,
               "type": "number",
               "content": null,
-              "boundingRegions": null,
               "spans": null,
-              "confidence": 0.988
+              "confidence": 0.988,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Check Number":
             {
               "value": 12060,
               "type": "integer",
               "content": "12060",
-              "confidence": 0.95
+              "confidence": 0.95,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "1/28",
               "type": "string",
               "content": "1/28",
-              "confidence": 0.896
+              "confidence": 0.896,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Withdrawals/ Subtractions":
             {
               "value": 343.5299987792969,
               "type": "number",
               "content": "343.53",
-              "confidence": 0.947
+              "confidence": 0.947,
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -792,37 +850,41 @@
               "value": "Check",
               "type": "string",
               "content": "Check",
-              "confidence": 0.395
+              "confidence": 0.395,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Deposits/ Additions":
             {
               "value": null,
               "type": "number",
               "content": null,
-              "boundingRegions": null,
               "spans": null,
-              "confidence": 0.988
+              "confidence": 0.988,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Check Number":
             {
               "value": 12067,
               "type": "integer",
               "content": "12067",
-              "confidence": 0.961
+              "confidence": 0.961,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "1/28",
               "type": "string",
               "content": "1/28",
-              "confidence": 0.941
+              "confidence": 0.941,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Withdrawals/ Subtractions":
             {
               "value": 930.0999755859375,
               "type": "number",
               "content": "930.10",
-              "confidence": 0.946
+              "confidence": 0.946,
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -839,37 +901,41 @@
               "value": "Check",
               "type": "string",
               "content": "Check",
-              "confidence": 0.388
+              "confidence": 0.388,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Deposits/ Additions":
             {
               "value": null,
               "type": "number",
               "content": null,
-              "boundingRegions": null,
               "spans": null,
-              "confidence": 0.988
+              "confidence": 0.988,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Check Number":
             {
               "value": 12070,
               "type": "integer",
               "content": "12070",
-              "confidence": 0.94
+              "confidence": 0.94,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "2/7",
               "type": "string",
               "content": "2/7",
-              "confidence": 0.896
+              "confidence": 0.896,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Withdrawals/ Subtractions":
             {
               "value": 930.0999755859375,
               "type": "number",
               "content": "930.10",
-              "confidence": 0.949
+              "confidence": 0.949,
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -886,39 +952,42 @@
               "value": "Interest Payment",
               "type": "string",
               "content": "Interest Payment",
-              "confidence": 0.818
+              "confidence": 0.818,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Deposits/ Additions":
             {
               "value": 0.12999999523162842,
               "type": "number",
               "content": "0.13",
-              "confidence": 0.981
+              "confidence": 0.981,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Check Number":
             {
               "value": null,
               "type": "integer",
               "content": null,
-              "boundingRegions": null,
               "spans": null,
-              "confidence": 0.984
+              "confidence": 0.984,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "2/7",
               "type": "string",
               "content": "2/7",
-              "confidence": 0.895
+              "confidence": 0.895,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Withdrawals/ Subtractions":
             {
               "value": null,
               "type": "number",
               "content": null,
-              "boundingRegions": null,
               "spans": null,
-              "confidence": 0.957
+              "confidence": 0.957,
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",

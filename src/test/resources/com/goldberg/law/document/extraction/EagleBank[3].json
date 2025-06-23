@@ -22,19 +22,22 @@
             {
               "value": 1000.0,
               "type": "number",
-              "content": "1,000.00"
+              "content": "1,000.00",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Description":
             {
               "value": "Deposit",
               "type": "string",
-              "content": "Deposit"
+              "content": "Deposit",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "05-23",
               "type": "string",
-              "content": "05-23"
+              "content": "05-23",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -50,19 +53,22 @@
             {
               "value": 2200.0,
               "type": "number",
-              "content": "2,200.00"
+              "content": "2,200.00",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Description":
             {
               "value": "Deposit",
               "type": "string",
-              "content": "Deposit"
+              "content": "Deposit",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "06-06",
               "type": "string",
-              "content": "06-06"
+              "content": "06-06",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -203,20 +209,22 @@
             {
               "value": "' ATM Withdrawal CASH WITHDRAWAL TERMINAL T9752019 12505 PARK POTOMAC AVE POTOMAC MD 06-05-19 1:56 PM XXXXXXXXXXXX6557",
               "type": "string",
-              "content": "' ATM Withdrawal CASH WITHDRAWAL TERMINAL T9752019 12505 PARK POTOMAC AVE POTOMAC MD 06-05-19 1:56 PM XXXXXXXXXXXX6557"
+              "content": "' ATM Withdrawal CASH WITHDRAWAL TERMINAL T9752019 12505 PARK POTOMAC AVE POTOMAC MD 06-05-19 1:56 PM XXXXXXXXXXXX6557",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Subtractions":
             {
               "value": 300.0,
               "type": "number",
-              "content": "300.00"
+              "content": "300.00",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": null,
               "type": "string",
               "content": null,
-              "boundingRegions": null,
+              "boundingRegions": [{"pageNumber": 1}],
               "spans": null,
               "confidence": 0.753
             }
@@ -234,19 +242,22 @@
             {
               "value": "'ATM Withdrawal CASH WITHDRAWAL TERMINAL P375574 2511 FIRE ROAD STE A12 EHT NJ 06-07-19 2:29 PM XXXXXXXXXXXX6557",
               "type": "string",
-              "content": "'ATM Withdrawal CASH WITHDRAWAL TERMINAL P375574 2511 FIRE ROAD STE A12 EHT NJ 06-07-19 2:29 PM XXXXXXXXXXXX6557"
+              "content": "'ATM Withdrawal CASH WITHDRAWAL TERMINAL P375574 2511 FIRE ROAD STE A12 EHT NJ 06-07-19 2:29 PM XXXXXXXXXXXX6557",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Subtractions":
             {
               "value": 200.0,
               "type": "number",
-              "content": "200.00"
+              "content": "200.00",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "06-07",
               "type": "string",
-              "content": "06-07"
+              "content": "06-07",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -262,19 +273,22 @@
             {
               "value": "' ATM Surcharge SURCHARGE AMOUNT TERMINAL P375574 2511 FIRE ROAD STE A12 EHT NJ 06-07-19 2:29 PM XXXXXXXXXXXX6557",
               "type": "string",
-              "content": "' ATM Surcharge SURCHARGE AMOUNT TERMINAL P375574 2511 FIRE ROAD STE A12 EHT NJ 06-07-19 2:29 PM XXXXXXXXXXXX6557"
+              "content": "' ATM Surcharge SURCHARGE AMOUNT TERMINAL P375574 2511 FIRE ROAD STE A12 EHT NJ 06-07-19 2:29 PM XXXXXXXXXXXX6557",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Subtractions":
             {
               "value": 3.950000047683716,
               "type": "number",
-              "content": "3.95"
+              "content": "3.95",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "06-07",
               "type": "string",
-              "content": "06-07"
+              "content": "06-07",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",

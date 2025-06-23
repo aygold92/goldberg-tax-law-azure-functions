@@ -1,13 +1,14 @@
 package com.goldberg.law.document
 
-import com.azure.ai.formrecognizer.documentanalysis.DocumentAnalysisClient
-import com.azure.ai.formrecognizer.documentanalysis.models.AnalyzedDocument
+import com.azure.ai.documentintelligence.DocumentIntelligenceClient
+import com.azure.ai.documentintelligence.models.AnalyzeDocumentOptions
+import com.azure.ai.documentintelligence.models.AnalyzedDocument
 import com.goldberg.law.document.model.input.CheckDataModel
 import com.goldberg.law.document.model.input.CheckDataModel.Companion.toCheckDataModel
 import com.goldberg.law.document.model.input.StatementDataModel
 import com.goldberg.law.document.model.input.StatementDataModel.Companion.toBankDocument
-import com.goldberg.law.document.model.pdf.ClassifiedPdfDocumentPage
-import com.goldberg.law.document.model.pdf.PdfDocumentPage
+import com.goldberg.law.document.model.pdf.ClassifiedPdfDocument
+import com.goldberg.law.document.model.pdf.PdfDocument
 import com.goldberg.law.util.isAzureThrottlingError
 import com.goldberg.law.util.retryWithBackoff
 import com.goldberg.law.util.toStringDetailed
@@ -15,13 +16,13 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import javax.inject.Inject
 
 class DocumentDataExtractor @Inject constructor(
-    @Inject private val client: DocumentAnalysisClient,
+    @Inject private val client: DocumentIntelligenceClient,
     private val statementExtractorModelId: String,
     private val checkExtractorModelId: String,
 ) {
     private val logger = KotlinLogging.logger {}
 
-    fun extractStatementData(classifiedDocument: ClassifiedPdfDocumentPage): StatementDataModel {
+    fun extractStatementData(classifiedDocument: ClassifiedPdfDocument): StatementDataModel {
         logger.info { "[Data Extractor] Processing $classifiedDocument" }
         return try {
             extractData(classifiedDocument, statementExtractorModelId).toBankDocument(classifiedDocument).also {
@@ -33,7 +34,7 @@ class DocumentDataExtractor @Inject constructor(
         }
     }
 
-    fun extractCheckData(classifiedDocument: ClassifiedPdfDocumentPage): CheckDataModel {
+    fun extractCheckData(classifiedDocument: ClassifiedPdfDocument): CheckDataModel {
         logger.info { "[Check Extractor] Processing file page $classifiedDocument" }
         return try {
             extractData(classifiedDocument, checkExtractorModelId).toCheckDataModel(classifiedDocument).also {
@@ -46,9 +47,10 @@ class DocumentDataExtractor @Inject constructor(
         }
     }
 
-    private fun extractData(pdfDocumentPage: PdfDocumentPage, modelId: String): AnalyzedDocument {
+    private fun extractData(pdfDocumentPage: PdfDocument, modelId: String): AnalyzedDocument {
+        val options = AnalyzeDocumentOptions(pdfDocumentPage.toBinaryData())
         val poller = retryWithBackoff(
-            { client.beginAnalyzeDocument(modelId, pdfDocumentPage.toBinaryData()) },
+            { client.beginAnalyzeDocument(modelId, options) },
             ::isAzureThrottlingError
         )
 
@@ -57,7 +59,7 @@ class DocumentDataExtractor @Inject constructor(
 
         val documents = poller.finalResult.documents
         if (documents.size != 1) {
-            logger.error { "${pdfDocumentPage.nameWithPage()} returned ${documents.size} analyzed pages" }
+            logger.error { "${pdfDocumentPage.nameWithPages()} returned ${documents.size} analyzed pages" }
         }
 
         return documents[0].also { logger.trace { it.toStringDetailed() } }

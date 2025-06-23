@@ -132,8 +132,13 @@ class AccountSummaryEntryCreatorTest {
     companion object {
         fun newBankStatementNotSus(
             statementDate: String? = FIXED_STATEMENT_DATE,
-        ) = newBankStatement(ACCOUNT_NUMBER, statementDate)
-            .update(beginningBalance = 500.asCurrency(), endingBalance = ZERO, transactions = listOf(newHistoryRecord(date = statementDate)))
+        ) = newBankStatement(
+            accountNumber = ACCOUNT_NUMBER,
+            statementDate = statementDate,
+            beginningBalance = 500.asCurrency(),
+            endingBalance = ZERO,
+            transactions = listOf(newHistoryRecord(date = statementDate))
+        )
 
     }
 }

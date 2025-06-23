@@ -72,7 +72,7 @@ dependencies {
 
     // Storage, FormRecognizer, and SQL
     implementation("com.azure:azure-storage-blob:12.18.0")
-    implementation("com.azure:azure-ai-formrecognizer:4.1.8")
+    implementation("com.azure:azure-ai-documentintelligence:1.0.2")
     implementation("com.azure:azure-identity:1.13.2")
     implementation("com.microsoft.azure.functions:azure-functions-java-library:3.1.0")
     implementation("com.microsoft.azure.functions:azure-functions-java-spi:1.0.0")

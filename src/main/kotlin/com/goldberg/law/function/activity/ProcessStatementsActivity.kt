@@ -31,16 +31,15 @@ class ProcessStatementsActivity @Inject constructor(
         context: ExecutionContext
     ): ProcessStatementsActivityOutput {
         logger.info { "[${input.requestId}][${context.invocationId}] processing ${input.documentDataModels.size} models" }
-        val statementModels = input.documentDataModels.mapNotNull { it.statementDataModel }
         val checkModels = input.documentDataModels.mapNotNull { it.checkDataModel }.flatMap { it.extractNestedChecks() }
-        val (statementModelsUpdatedAccounts, checksUpdatedAccounts) = accountNormalizer.normalizeAccounts(statementModels, checkModels)
 
-        val statementsWithoutChecks = statementCreator.createBankStatements(statementModelsUpdatedAccounts)
+        val statementsWithoutChecks = input.documentDataModels.mapNotNull { it.statementDataModel?.toBankStatement() }.flatten()
             .sortedBy { it.statementDate }
             .onEach { if (it.isSuspicious()) logger.error { "Statement ${it.primaryKey} is suspicious" } }
-        logger.debug { "=====Statements=====\n${statementsWithoutChecks.toStringDetailed()}" }
 
-        val finalStatements = checkToStatementMatcher.matchChecksWithStatements(statementsWithoutChecks, checksUpdatedAccounts)
+        val finalStatements = checkToStatementMatcher.matchChecksWithStatements(statementsWithoutChecks, checkModels)
+
+        logger.debug { "=====Statements=====\n${finalStatements.toStringDetailed()}" }
 
         finalStatements.mapAsync {
             try {
@@ -53,7 +52,7 @@ class ProcessStatementsActivity @Inject constructor(
         // match filenames to statements
         val inputFileToStatement: MutableMap<String, MutableSet<String>> = mutableMapOf()
         finalStatements.forEach { statement ->
-            statement.pages.associate { statement.filename to statement.azureFileName() }.onEach {
+            statement.pageMetadata.pages.associate { statement.pageMetadata.filename to statement.azureFileName() }.onEach {
                 inputFileToStatement[it.key] = inputFileToStatement.getOrDefault(it.key, mutableSetOf()).apply { add(it.value) }
             }
         }

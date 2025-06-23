@@ -1,25 +1,25 @@
 package com.goldberg.law.document.model.input.tables
 
-import com.azure.ai.formrecognizer.documentanalysis.models.DocumentField
+import com.azure.ai.documentintelligence.models.DocumentField
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.goldberg.law.document.model.output.TransactionHistoryPageMetadata
 import com.goldberg.law.document.model.output.TransactionHistoryRecord
-import com.goldberg.law.document.model.pdf.DocumentType
+import com.goldberg.law.document.model.pdf.ClassifiedPdfMetadata
 import com.goldberg.law.util.*
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.util.*
 import kotlin.collections.LinkedHashMap
 
 abstract class TransactionTable(@JsonIgnore @Transient open val records: List<TransactionRecord>) {
-    fun createHistoryRecords(statementDate: Date?, metadata: TransactionHistoryPageMetadata, documentType: DocumentType): List<TransactionHistoryRecord> = records.map {
-        it.toTransactionHistoryRecord(statementDate, metadata, documentType)
+    fun createHistoryRecords(date: String?, metadata: ClassifiedPdfMetadata): List<TransactionHistoryRecord> = fromWrittenDate(date).let { statementDate ->
+        records.map { it.toTransactionHistoryRecord(statementDate, metadata) }
     }
 }
 abstract class TransactionRecord(open val id: String = UUID.randomUUID().toString()) {
+    abstract val page: Int
 
     @JsonIgnore @Transient
     val logger = KotlinLogging.logger {}
-    abstract fun toTransactionHistoryRecord(statementDate: Date?, metadata: TransactionHistoryPageMetadata, documentType: DocumentType): TransactionHistoryRecord
+    abstract fun toTransactionHistoryRecord(statementDate: Date?, metadata: ClassifiedPdfMetadata): TransactionHistoryRecord
 
     fun fromWrittenDateStatementDateOverride(monthDay: String?, statementDate: Date?): String? {
         val date = fromWrittenDate(monthDay, statementDate?.getYearSafe())
@@ -43,19 +43,11 @@ abstract class TransactionRecord(open val id: String = UUID.randomUUID().toStrin
 }
 
 // hack for unit tests needed
-fun DocumentField.getFieldMapHack(): Map<String, DocumentField> = (this.value as Map<*, *>).let { recordMap ->
-    if (recordMap.values.first() is LinkedHashMap<*, *>) {
-        recordMap.map { entry ->
-            entry.key as String to entry.value!!.asDocumentField()
-        }.toMap()
-    } else {
-        recordMap as Map<String, DocumentField>
-    }
-}
+//fun DocumentField.getFieldMapHack(): Map<String, DocumentField> = this.valueMap
 
-// hack for unit tests
-fun Any.asDocumentField(): DocumentField =
-    if (this is LinkedHashMap<*,*>)
-        OBJECT_MAPPER.readValue(OBJECT_MAPPER.writeValueAsString(this), DocumentField::class.java)
-    else
-        this as DocumentField
+//// hack for unit tests
+//fun Any.asDocumentField(): DocumentField =
+//    if (this is LinkedHashMap<*,*>)
+//        OBJECT_MAPPER.readValue(OBJECT_MAPPER.writeValueAsString(this), DocumentField::class.java)
+//    else
+//        this as DocumentField

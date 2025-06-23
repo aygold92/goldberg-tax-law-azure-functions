@@ -31,19 +31,22 @@
             {
               "value": 3167,
               "type": "number",
-              "content": "3167"
+              "content": "3167",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 200.00,
               "type": "number",
-              "content": "200.00"
+              "content": "200.00",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "04-22",
               "type": "string",
-              "content": "04-22"
+              "content": "04-22",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -56,19 +59,22 @@
             {
               "value": 3174,
               "type": "number",
-              "content": "3174"
+              "content": "3174",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 1554.39,
               "type": "number",
-              "content": "1,554.39"
+              "content": "1,554.39",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "05-06",
               "type": "string",
-              "content": "05-06"
+              "content": "05-06",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -81,19 +87,22 @@
             {
               "value": 3172,
               "type": "number",
-              "content": "3172 *"
+              "content": "3172 *",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 875.00,
               "type": "number",
-              "content": "875.00"
+              "content": "875.00",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "04-23",
               "type": "string",
-              "content": "04-23"
+              "content": "04-23",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -106,19 +115,22 @@
             {
               "value": 3173,
               "type": "number",
-              "content": "3173"
+              "content": "3173",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 427.50,
               "type": "number",
-              "content": "427.50"
+              "content": "427.50",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "04-29",
               "type": "string",
-              "content": "04-29"
+              "content": "04-29",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -211,19 +223,22 @@
             {
               "value": "' Electronified Check CITICARD PAYMENT CHECK PYMT 190424 3171",
               "type": "string",
-              "content": "' Electronified Check CITICARD PAYMENT CHECK PYMT 190424 3171"
+              "content": "' Electronified Check CITICARD PAYMENT CHECK PYMT 190424 3171",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Subtractions":
             {
               "value": 1845.77001953125,
               "type": "number",
-              "content": "1,845.77"
+              "content": "1,845.77",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "04-24",
               "type": "string",
-              "content": "04-24"
+              "content": "04-24",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -236,19 +251,22 @@
             {
               "value": "ATM Withdrawal CASH WITHDRAWAL TERMINAL SA1326 M&T 11325 SEVEN LO POTOMAC MD 05-01-19 9:17 AM XXXXXXXXXXXX6557",
               "type": "string",
-              "content": "ATM Withdrawal CASH WITHDRAWAL TERMINAL SA1326 M&T 11325 SEVEN LO POTOMAC MD 05-01-19 9:17 AM XXXXXXXXXXXX6557"
+              "content": "ATM Withdrawal CASH WITHDRAWAL TERMINAL SA1326 M&T 11325 SEVEN LO POTOMAC MD 05-01-19 9:17 AM XXXXXXXXXXXX6557",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Subtractions":
             {
               "value": 200.0,
               "type": "number",
-              "content": "200.00"
+              "content": "200.00",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "05-01",
               "type": "string",
-              "content": "05-01"
+              "content": "05-01",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -261,19 +279,22 @@
             {
               "value": "' ATM Surcharge SURCHARGE AMOUNT TERMINAL SA1326 M&T 11325 SEVEN LO POTOMAC MD 05-01-19 9:17 AM XXXXXXXXXXXX6557",
               "type": "string",
-              "content": "' ATM Surcharge SURCHARGE AMOUNT TERMINAL SA1326 M&T 11325 SEVEN LO POTOMAC MD 05-01-19 9:17 AM XXXXXXXXXXXX6557"
+              "content": "' ATM Surcharge SURCHARGE AMOUNT TERMINAL SA1326 M&T 11325 SEVEN LO POTOMAC MD 05-01-19 9:17 AM XXXXXXXXXXXX6557",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Subtractions":
             {
               "value": 3.5,
               "type": "number",
-              "content": "3.50"
+              "content": "3.50",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "05-01",
               "type": "string",
-              "content": "05-01"
+              "content": "05-01",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",

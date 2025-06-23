@@ -52,19 +52,22 @@
             {
               "type": "string",
               "content": "Beginning Balance",
-              "value": "Beginning Balance"
+              "value": "Beginning Balance",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "type": "number",
               "content": null,
-              "value": null
+              "value": null,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "type": "string",
               "content": "05-15",
-              "value": "05-15"
+              "value": "05-15",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           }
         },
@@ -77,19 +80,22 @@
             {
               "type": "string",
               "content": "Check 152",
-              "value": "Check 152"
+              "value": "Check 152",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "type": "number",
               "content": "2,500.00-",
-              "value": -2500.0
+              "value": -2500.0,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "type": "string",
               "content": "05-15",
-              "value": "05-15"
+              "value": "05-15",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           }
         },
@@ -102,19 +108,22 @@
             {
               "type": "string",
               "content": "POS Debit- Debit Card 6752 05-25-24 Cali Pizza Kitc IN Gaithersburg MD",
-              "value": "POS Debit- Debit Card 6752 05-25-24 Cali Pizza Kitc IN Gaithersburg MD"
+              "value": "POS Debit- Debit Card 6752 05-25-24 Cali Pizza Kitc IN Gaithersburg MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "type": "number",
               "content": "56.56-",
-              "value": -56.560001373291016
+              "value": -56.560001373291016,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "type": "string",
               "content": "05-28",
-              "value": "05-28"
+              "value": "05-28",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           }
         },
@@ -127,19 +136,22 @@
             {
               "type": "string",
               "content": "Dividend",
-              "value": "Dividend"
+              "value": "Dividend",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "type": "number",
               "content": "4.69",
-              "value": 4.690000057220459
+              "value": 4.690000057220459,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "type": "string",
               "content": "05-31",
-              "value": "05-31"
+              "value": "05-31",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           }
         },
@@ -152,19 +164,22 @@
             {
               "type": "string",
               "content": "ATM Fee - Withdrawal 06-03-24 Bank Of America Clarksville MD",
-              "value": "ATM Fee - Withdrawal 06-03-24 Bank Of America Clarksville MD"
+              "value": "ATM Fee - Withdrawal 06-03-24 Bank Of America Clarksville MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "type": "number",
               "content": "1.00-",
-              "value": -1.0
+              "value": -1.0,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "type": "string",
               "content": "06-04",
-              "value": "06-04"
+              "value": "06-04",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           }
         },
@@ -177,19 +192,22 @@
             {
               "type": "string",
               "content": "ATM Withdrawal 06-03-24 Bank Of America Clarksville MD",
-              "value": "ATM Withdrawal 06-03-24 Bank Of America Clarksville MD"
+              "value": "ATM Withdrawal 06-03-24 Bank Of America Clarksville MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "type": "number",
               "content": "504.00-",
-              "value": -504.0
+              "value": -504.0,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "type": "string",
               "content": "06-04",
-              "value": "06-04"
+              "value": "06-04",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           }
         },
@@ -202,19 +220,22 @@
             {
               "type": "string",
               "content": "ATM Rebate",
-              "value": "ATM Rebate"
+              "value": "ATM Rebate",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "type": "number",
               "content": "5.00",
-              "value": 5.0
+              "value": 5.0,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "type": "string",
               "content": "06-14",
-              "value": "06-14"
+              "value": "06-14",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           }
         },
@@ -227,19 +248,22 @@
             {
               "type": "string",
               "content": "Beginning Balance",
-              "value": "Beginning Balance"
+              "value": "Beginning Balance",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "type": "number",
               "content": null,
-              "value": null
+              "value": null,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "type": "string",
               "content": "05-15",
-              "value": "05-15"
+              "value": "05-15",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           }
         },
@@ -252,19 +276,22 @@
             {
               "type": "string",
               "content": "Dividend",
-              "value": "Dividend"
+              "value": "Dividend",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "type": "number",
               "content": "0.12",
-              "value": 0.11999999731779099
+              "value": 0.11999999731779099,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "type": "string",
               "content": "05-31",
-              "value": "05-31"
+              "value": "05-31",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           }
         },
@@ -277,19 +304,22 @@
             {
               "type": "string",
               "content": "Withdrawal by Cash 06-04-24 Fox9 Laurel Town Ctr, MD",
-              "value": "Withdrawal by Cash 06-04-24 Fox9 Laurel Town Ctr, MD"
+              "value": "Withdrawal by Cash 06-04-24 Fox9 Laurel Town Ctr, MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "type": "number",
               "content": "300.00",
-              "value": 300.0
+              "value": 300.0,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "type": "string",
               "content": "06-04",
-              "value": "06-04"
+              "value": "06-04",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           }
         }

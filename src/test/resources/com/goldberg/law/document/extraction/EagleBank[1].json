@@ -19,19 +19,22 @@
             {
               "value": 1150.0,
               "type": "number",
-              "content": "1,150.00"
+              "content": "1,150.00",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Description":
             {
               "value": "Deposit",
               "type": "string",
-              "content": "Deposit"
+              "content": "Deposit",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "04-22",
               "type": "string",
-              "content": "04-22"
+              "content": "04-22",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -47,19 +50,22 @@
             {
               "value": 875.0,
               "type": "number",
-              "content": "875.00"
+              "content": "875.00",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Description":
             {
               "value": "Deposit",
               "type": "string",
-              "content": "Deposit"
+              "content": "Deposit",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "04-23",
               "type": "string",
-              "content": "04-23"
+              "content": "04-23",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -75,19 +81,22 @@
             {
               "value": 1200.0,
               "type": "number",
-              "content": "1,200.00"
+              "content": "1,200.00",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Description":
             {
               "value": "Deposit",
               "type": "string",
-              "content": "Deposit"
+              "content": "Deposit",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "04-29",
               "type": "string",
-              "content": "04-29"
+              "content": "04-29",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -103,19 +112,22 @@
             {
               "value": 2500.0,
               "type": "number",
-              "content": "2,500.00"
+              "content": "2,500.00",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Description":
             {
               "value": "Deposit",
               "type": "string",
-              "content": "Deposit"
+              "content": "Deposit",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "05-03",
               "type": "string",
-              "content": "05-03"
+              "content": "05-03",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -131,19 +143,22 @@
             {
               "value": 220.0,
               "type": "number",
-              "content": "220.00"
+              "content": "220.00",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Description":
             {
               "value": "Deposit",
               "type": "string",
-              "content": "Deposit"
+              "content": "Deposit",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "05-13",
               "type": "string",
-              "content": "05-13"
+              "content": "05-13",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -284,19 +299,22 @@
             {
               "value": "' ATM Withdrawal CASH WITHDRAWAL TERMINAL P375574 2511 FIRE ROAD STE A12 EHT NJ 05-07-19 12:22 PM XXXXXXXXXXXX6557",
               "type": "string",
-              "content": "' ATM Withdrawal CASH WITHDRAWAL TERMINAL P375574 2511 FIRE ROAD STE A12 EHT NJ 05-07-19 12:22 PM XXXXXXXXXXXX6557"
+              "content": "' ATM Withdrawal CASH WITHDRAWAL TERMINAL P375574 2511 FIRE ROAD STE A12 EHT NJ 05-07-19 12:22 PM XXXXXXXXXXXX6557",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Subtractions":
             {
               "value": 200.0,
               "type": "number",
-              "content": "200.00"
+              "content": "200.00",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "05-07",
               "type": "string",
-              "content": "05-07"
+              "content": "05-07",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -312,19 +330,22 @@
             {
               "value": "' ATM Surcharge SURCHARGE AMOUNT TERMINAL P375574 2511 FIRE ROAD STE A12 EHT NJ 05-07-19 12:22 PM XXXXXXXXXXXX6557",
               "type": "string",
-              "content": "' ATM Surcharge SURCHARGE AMOUNT TERMINAL P375574 2511 FIRE ROAD STE A12 EHT NJ 05-07-19 12:22 PM XXXXXXXXXXXX6557"
+              "content": "' ATM Surcharge SURCHARGE AMOUNT TERMINAL P375574 2511 FIRE ROAD STE A12 EHT NJ 05-07-19 12:22 PM XXXXXXXXXXXX6557",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Subtractions":
             {
               "value": 3.950000047683716,
               "type": "number",
-              "content": "3.95"
+              "content": "3.95",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "05-07",
               "type": "string",
-              "content": "05-07"
+              "content": "05-07",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -340,19 +361,22 @@
             {
               "value": "' ATM Withdrawal CASH WITHDRAWAL TERMINAL P375574 2511 FIRE ROAD STE A12 EHT NJ 05-13-19 1:45 PM XXXXXXXXXXXX6557",
               "type": "string",
-              "content": "' ATM Withdrawal CASH WITHDRAWAL TERMINAL P375574 2511 FIRE ROAD STE A12 EHT NJ 05-13-19 1:45 PM XXXXXXXXXXXX6557"
+              "content": "' ATM Withdrawal CASH WITHDRAWAL TERMINAL P375574 2511 FIRE ROAD STE A12 EHT NJ 05-13-19 1:45 PM XXXXXXXXXXXX6557",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Subtractions":
             {
               "value": 300.0,
               "type": "number",
-              "content": "300.00"
+              "content": "300.00",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "05-13",
               "type": "string",
-              "content": "05-13"
+              "content": "05-13",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -368,19 +392,22 @@
             {
               "value": "' ATM Surcharge SURCHARGE AMOUNT TERMINAL P375574 2511 FIRE ROAD STE A12 EHT NJ 05-13-19 1:45 PM XXXXXXXXXXXX6557",
               "type": "string",
-              "content": "' ATM Surcharge SURCHARGE AMOUNT TERMINAL P375574 2511 FIRE ROAD STE A12 EHT NJ 05-13-19 1:45 PM XXXXXXXXXXXX6557"
+              "content": "' ATM Surcharge SURCHARGE AMOUNT TERMINAL P375574 2511 FIRE ROAD STE A12 EHT NJ 05-13-19 1:45 PM XXXXXXXXXXXX6557",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Subtractions":
             {
               "value": 3.950000047683716,
               "type": "number",
-              "content": "3.95"
+              "content": "3.95",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "05-13",
               "type": "string",
-              "content": "05-13"
+              "content": "05-13",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",

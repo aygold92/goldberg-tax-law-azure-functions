@@ -1,94 +1,128 @@
 package com.goldberg.law.document.model.input
 
-import com.azure.ai.formrecognizer.documentanalysis.models.AnalyzedDocument
+import com.azure.ai.documentintelligence.models.AnalyzedDocument
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.goldberg.law.document.model.ManualRecordTable
-import com.goldberg.law.document.model.pdf.PdfDocumentPageMetadata
 import com.goldberg.law.document.model.input.SummaryOfAccountsTable.Companion.getSummaryOfAccounts
 import com.goldberg.law.document.model.input.tables.*
+import com.goldberg.law.document.model.input.tables.BatesStampTable.Companion.getBatesStampTable
 import com.goldberg.law.document.model.input.tables.TransactionTableCreditsCharges.Companion.getTransactionTableCreditsCharges
 import com.goldberg.law.document.model.input.tables.TransactionTableDepositWithdrawal.Companion.getTransactionTableDepositWithdrawal
 import com.goldberg.law.document.model.input.tables.TransactionTableAmount.Companion.getTransactionTableAmount
 import com.goldberg.law.document.model.input.tables.TransactionTableChecks.Companion.getTransactionTableChecks
 import com.goldberg.law.document.model.input.tables.TransactionTableCredits.Companion.getTransactionTableCredits
 import com.goldberg.law.document.model.input.tables.TransactionTableDebits.Companion.getTransactionTableDebits
-import com.goldberg.law.document.model.output.TransactionHistoryPageMetadata
-import com.goldberg.law.document.model.pdf.ClassifiedPdfDocumentPage
-import com.goldberg.law.document.model.pdf.DocumentType
+import com.goldberg.law.document.model.output.BankStatement
+import com.goldberg.law.document.model.output.TransactionHistoryRecord
+import com.goldberg.law.document.model.pdf.*
 import com.goldberg.law.util.*
 import java.math.BigDecimal
-import java.util.Date
 
 data class StatementDataModel @JsonCreator constructor(
-    @JsonProperty("bankIdentifier") val bankIdentifier: String?,
     @JsonProperty("date") val date: String?,
-    @JsonProperty("pageNum") val pageNum: Int?,
-    @JsonProperty("totalPages") val totalPages: Int?,
-    @JsonProperty("summaryOfAccountsTable") val summaryOfAccountsTable: SummaryOfAccountsTable?,
-    @JsonProperty("transactionTableDepositWithdrawal") val transactionTableDepositWithdrawal: TransactionTableDepositWithdrawal?,
-    @JsonProperty("batesStamp") val batesStamp: String?,
     @JsonProperty("accountNumber") val accountNumber: String?,
     @JsonProperty("beginningBalance") val beginningBalance: BigDecimal?,
     @JsonProperty("endingBalance") val endingBalance: BigDecimal?,
+    @JsonProperty("feesCharged") val feesCharged: BigDecimal?,
+    @JsonProperty("interestCharged") val interestCharged: BigDecimal?,
+    @JsonProperty("summaryOfAccountsTable") val summaryOfAccountsTable: SummaryOfAccountsTable?,
+    @JsonProperty("transactionTableDepositWithdrawal") val transactionTableDepositWithdrawal: TransactionTableDepositWithdrawal?,
     @JsonProperty("transactionTableAmount") val transactionTableAmount: TransactionTableAmount?,
     @JsonProperty("transactionTableCreditsCharges") val transactionTableCreditsCharges: TransactionTableCreditsCharges?,
     @JsonProperty("transactionTableDebits") val transactionTableDebits: TransactionTableDebits?,
     @JsonProperty("transactionTableCredits") val transactionTableCredits: TransactionTableCredits?,
     @JsonProperty("transactionTableChecks") val transactionTableChecks: TransactionTableChecks?,
-    @JsonProperty("interestCharged") val interestCharged: BigDecimal?,
-    @JsonProperty("feesCharged") val feesCharged: BigDecimal?,
-    @JsonProperty("pageMetadata") override val pageMetadata: PdfDocumentPageMetadata,
+    @JsonProperty("batesStamps") val batesStamps: BatesStampTable?,
+    @JsonProperty("pageMetadata") override val pageMetadata: ClassifiedPdfMetadata,
     @JsonProperty("manualRecordsTable") val manualRecordTable: ManualRecordTable? = null
 ): DocumentDataModel(pageMetadata) {
     @JsonIgnore @Transient
     val statementDate = fromWrittenDate(date)
 
-    constructor(date: String, pageNum: Int?, totalPages: Int?, batesStamp: String?, accountNumber: String,
+    constructor(date: String, accountNumber: String,
                 beginningBalance: BigDecimal, endingBalance: BigDecimal, interestCharged: BigDecimal?, feesCharged: BigDecimal?,
-                pageMetadata: PdfDocumentPageMetadata, manualRecordTable: ManualRecordTable?
-    ): this(bankIdentifier = null, date = date, pageNum = pageNum, totalPages = totalPages, batesStamp = batesStamp,
+                batesStamps: BatesStampTable?, pageMetadata: ClassifiedPdfMetadata, manualRecordTable: ManualRecordTable?
+    ): this(date = date,
         accountNumber = accountNumber, beginningBalance = beginningBalance, endingBalance = endingBalance,
-        interestCharged = interestCharged, feesCharged = feesCharged, pageMetadata = pageMetadata,
+        interestCharged = interestCharged, feesCharged = feesCharged, batesStamps = batesStamps,
+        pageMetadata = pageMetadata, manualRecordTable = manualRecordTable,
         summaryOfAccountsTable = null, transactionTableCreditsCharges = null, transactionTableChecks = null, transactionTableDebits = null,
-        transactionTableDepositWithdrawal = null, transactionTableAmount = null, transactionTableCredits = null, manualRecordTable = manualRecordTable
-        )
-    @JsonIgnore
-    fun getInferredStatementType(): DocumentType? {
-        val isBank = listOfNotNull(
-            transactionTableDepositWithdrawal,
-            transactionTableCredits,
-            transactionTableDebits,
-            summaryOfAccountsTable,
-            transactionTableChecks
-        ).isNotEmpty()
-        val isCreditCard = listOfNotNull(interestCharged).isNotEmpty()
-        return when {
-            isBank && !isCreditCard -> DocumentType.BANK
-            !isBank && isCreditCard -> DocumentType.CREDIT_CARD
-            isBank && isCreditCard -> DocumentType.MIXED // this should never happen
-            else -> null
-        }
-    }
+        transactionTableDepositWithdrawal = null, transactionTableAmount = null, transactionTableCredits = null,
+    )
 
     @JsonIgnore
-    fun getTransactionRecords(statementDate: Date?, metadata: TransactionHistoryPageMetadata) = listOf(
+    fun getTransactionRecords() = listOf(
         transactionTableDepositWithdrawal, transactionTableAmount, transactionTableCreditsCharges,
         transactionTableDebits, transactionTableCredits, transactionTableChecks, manualRecordTable
-    ).flatMap { it?.createHistoryRecords(statementDate, metadata, pageMetadata.documentType) ?: listOf() }
+    ).flatMap { it?.createHistoryRecords(date, pageMetadata) ?: listOf() }
+
+    @JsonIgnore
+    fun getBatesStampsMap(): Map<Int, String> = if (isManuallyOverriden()) {
+        // when manually overridden the page is directly in the bates stamp
+        batesStamps?.batesStamps?.associate {
+            it.page to it.`val`
+        } ?: mapOf()
+    } else {
+        batesStamps?.batesStamps?.associate {
+            pageMetadata.pagesOrdered[it.page - 1] to it.`val`
+        } ?: mapOf()
+    }
 
     @JsonIgnore
     fun isManuallyOverriden() = this.manualRecordTable != null
 
+    fun toBankStatement(): List<BankStatement> = if (pageMetadata.classification == DocumentType.BankTypes.NFCU_BANK && accountNumber == null) {
+        val records = getTransactionRecords()
+
+        val result: MutableList<MutableList<TransactionHistoryRecord>> = mutableListOf()
+        var currentGroup: MutableList<TransactionHistoryRecord>? = null
+
+        for (record in records) {
+            if (record.isBeginningBalanceRecord()) {
+                if (currentGroup != null) {
+                    result.add(currentGroup)
+                }
+                currentGroup = mutableListOf()
+            } else {
+                if (currentGroup == null) currentGroup = mutableListOf()
+                currentGroup.add(record)
+            }
+        }
+
+        if (currentGroup != null) result.add(currentGroup)
+
+        summaryOfAccountsTable!!.records.zip(result) { accountSummary, transactionRecords ->
+            BankStatement(
+                pageMetadata = pageMetadata,
+                date = date,
+                accountNumber = accountSummary.accountNumber,
+                beginningBalance = accountSummary.beginningBalance?.stripTrailingZeros(),
+                endingBalance = accountSummary.endingBalance?.stripTrailingZeros(),
+                interestCharged = interestCharged,
+                feesCharged = feesCharged,
+                transactions = transactionRecords,
+                batesStamps = getBatesStampsMap(),
+            )
+        }
+    } else {
+        listOf(BankStatement(
+            pageMetadata = pageMetadata,
+            date = date,
+            accountNumber = accountNumber,
+            beginningBalance = beginningBalance?.stripTrailingZeros(),
+            endingBalance = endingBalance?.stripTrailingZeros(),
+            interestCharged = interestCharged,
+            feesCharged = feesCharged,
+            transactions = getTransactionRecords(),
+            batesStamps = getBatesStampsMap(),
+        ))
+    }
+
     object Keys {
-        const val BANK_IDENTIFIER = "BankIdentifier"
         const val ACCOUNT_NUMBER = "AccountNumber"
         const val STATEMENT_DATE = "StatementDate"
-        const val PAGE_NUM = "Page"
-        const val TOTAL_PAGES = "TotalPages"
-        const val PAGE_AND_TOTAL = "Page/Total" // for Amex, it shows up as one value like "2/6"
-        const val BATES_STAMP = "BatesStamp"
         const val BEGINNING_BALANCE = "BeginningBalance"
         const val ENDING_BALANCE = "EndingBalance"
         const val INTEREST_CHARGED = "InterestCharged"
@@ -104,41 +138,25 @@ data class StatementDataModel @JsonCreator constructor(
         const val TRANSACTION_TABLE_AMOUNT = "TransactionTableAmount"
         // for WF credit card
         const val TRANSACTION_TABLE_CREDITS_CHARGES = "TransactionTableCreditsCharges"
+
+        const val BATES_STAMPS = "BatesStamps"
     }
 
 
 
     companion object {
-        private fun extractPageAndTotal(value: String?): Pair<Int, Int>? {
-            return value?.removeNonDigitOrSlash()?.split("/")?.let {
-                if (it.size == 2 && it[0].toIntOrNull() != null && it[1].toIntOrNull() != null) Pair(it[0].toInt(), it[1].toInt())
-                else null
-            }
-        }
-
-        fun AnalyzedDocument.toBankDocument(classifiedPdfDocument: ClassifiedPdfDocumentPage): StatementDataModel = this.fields.let { documentFields ->
+        fun AnalyzedDocument.toBankDocument(classifiedPdfDocument: ClassifiedPdfDocument): StatementDataModel = this.fields.let { documentFields ->
             // for citi credit cards, the date field captures both the start and end
-            val statementDate = normalizeDate(documentFields[Keys.STATEMENT_DATE]?.valueAsString?.let {
+            val statementDate = normalizeDate(documentFields[Keys.STATEMENT_DATE]?.valueString?.let {
                 if (it.contains("-")) it.substringAfter("-").trim()
                 else it
             })
 
-            val (page,totalPages) = try {
-                extractPageAndTotal(documentFields[Keys.PAGE_AND_TOTAL]?.valueAsString)
-                    ?: extractPageAndTotal(documentFields[Keys.TOTAL_PAGES]?.valueAsString)
-                    ?: Pair(documentFields[Keys.PAGE_NUM]?.valueAsString?.toInt(), documentFields[Keys.TOTAL_PAGES]?.valueAsString?.toInt())
-            } catch (ex: Throwable) {
-                Pair(null, null)
-            }
             StatementDataModel(
-                bankIdentifier = documentFields[Keys.BANK_IDENTIFIER]?.valueAsString,
                 date = statementDate,
-                pageNum = page,
-                totalPages = totalPages,
                 summaryOfAccountsTable = this.getSummaryOfAccounts(),
                 transactionTableDepositWithdrawal = this.getTransactionTableDepositWithdrawal(),
-                accountNumber = documentFields[Keys.ACCOUNT_NUMBER]?.valueAsString?.last4Digits(),
-                batesStamp = documentFields[Keys.BATES_STAMP]?.valueAsString,
+                accountNumber = documentFields[Keys.ACCOUNT_NUMBER]?.valueString?.last4Digits(),
                 beginningBalance = documentFields[Keys.BEGINNING_BALANCE]?.currencyValue(),
                 endingBalance = documentFields[Keys.ENDING_BALANCE]?.currencyValue(),
                 feesCharged = documentFields[Keys.FEES_CHARGED]?.positiveCurrencyValue(),
@@ -148,12 +166,18 @@ data class StatementDataModel @JsonCreator constructor(
                 transactionTableCredits = this.getTransactionTableCredits(),
                 transactionTableDebits = this.getTransactionTableDebits(),
                 transactionTableChecks = this.getTransactionTableChecks(),
+                batesStamps = this.getBatesStampTable(),
                 pageMetadata = classifiedPdfDocument.toDocumentMetadata(),
             )
         }
-        fun blankModel(classifiedPdfDocument: ClassifiedPdfDocumentPage) = StatementDataModel(
-            null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+        fun blankModel(classifiedPdfDocument: ClassifiedPdfDocument) = StatementDataModel(
+            null, null, null, null, null, null, null, null, null, null, null, null, null, null,
             classifiedPdfDocument.toDocumentMetadata()
         )
+
+        fun TransactionHistoryRecord.isBeginningBalanceRecord() =
+            this.description == NFCU_BANK_BEGINNING_BALANCE_TRANSACTION_DESCRIPTION && this.amount == null
+
+        const val NFCU_BANK_BEGINNING_BALANCE_TRANSACTION_DESCRIPTION = "Beginning Balance"
     }
 }

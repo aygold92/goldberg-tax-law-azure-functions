@@ -5,10 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.goldberg.law.document.model.input.CheckDataModel
-import com.goldberg.law.document.model.input.SummaryOfAccountsTable
+import com.goldberg.law.document.model.pdf.ClassifiedPdfMetadata
 import com.goldberg.law.document.model.pdf.DocumentType
-import com.goldberg.law.document.model.pdf.PdfDocumentPageMetadata
-import com.goldberg.law.function.model.PdfPageData
 import com.goldberg.law.function.model.metadata.StatementMetadata
 import com.goldberg.law.util.*
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -18,83 +16,39 @@ import com.goldberg.law.document.model.input.StatementDataModel.Keys as FieldKey
 
 @JsonIgnoreProperties(ignoreUnknown = true, value = ["netTransactions", "totalSpending", "totalIncomeCredits", "suspiciousReasons"], allowGetters = true)
 data class BankStatement @JsonCreator constructor(
-    @JsonProperty("filename")
-    val filename: String,
-    @JsonProperty("classification")
-    val classification: String,
+    @JsonProperty("pageMetadata")
+    val pageMetadata: ClassifiedPdfMetadata,
     @JsonProperty("date")
     val date: String?,
     @JsonProperty("accountNumber")
-    var accountNumber: String? = null,
-    @JsonProperty("bankIdentifier")
-    var bankIdentifier: String? = null,
-    @JsonProperty("startPage")
-    var startPage: Int? = null, // for combined statements
-    @JsonProperty("totalPages")
-    var totalPages: Int? = null,
+    val accountNumber: String? = null,
     @JsonProperty("beginningBalance")
-    var beginningBalance: BigDecimal? = null,
+    val beginningBalance: BigDecimal? = null,
     @JsonProperty("endingBalance")
-    var endingBalance: BigDecimal? = null,
+    val endingBalance: BigDecimal? = null,
     // sometimes interest and fees are included in transactions, other times not, so we include them here
     @JsonProperty("interestCharged")
-    var interestCharged: BigDecimal? = null,
+    val interestCharged: BigDecimal? = null,
     @JsonProperty("feesCharged")
-    var feesCharged: BigDecimal? = null,
+    val feesCharged: BigDecimal? = null,
     @JsonProperty("transactions")
-    val transactions: MutableList<TransactionHistoryRecord> = mutableListOf(),
-    @JsonProperty("pages")
-    val pages: MutableSet<TransactionHistoryPageMetadata> = mutableSetOf(),
+    val transactions: List<TransactionHistoryRecord>,
+    @JsonProperty("batesStamps")
+    val batesStamps: Map<Int, String>,
     @JsonProperty("checks")
-    val checks: MutableMap<Int, PdfDocumentPageMetadata> = mutableMapOf()
+    val checks: MutableMap<Int, ClassifiedPdfMetadata> = mutableMapOf()
 ) {
     @JsonIgnore @Transient
     val statementDate = fromWrittenDate(date)
     @JsonIgnore @Transient
-    var statementType: DocumentType? = DocumentType.getBankType(classification)
+    val statementType: DocumentType? = pageMetadata.documentType
     @JsonIgnore @Transient
     private val logger = KotlinLogging.logger {}
     @JsonIgnore @Transient
-    val primaryKey = BankStatementKey(date, accountNumber, classification)
-
-    @JsonIgnore @Transient
-    var summaryOfAccountsTable: SummaryOfAccountsTable? = null
-
-    constructor(filename: String, classification: String, key: BankStatementKey, startPage: Int? = null) :
-            this(filename, classification, key.date, key.accountNumber, startPage = startPage)
+    val primaryKey = BankStatementKey(date, accountNumber, pageMetadata.classification)
 
     @JsonIgnore
-    fun azureFileName() = getFileName(accountNumber, date, classification, filename, pages.map { it.filePageNumber })
-
-    fun update(documentType: DocumentType? = null,
-               accountNumber: String? = null,
-               bankIdentifier: String? = null,
-               totalPages: Int? = null,
-               beginningBalance: BigDecimal? = null,
-               endingBalance: BigDecimal? = null,
-               interestCharged: BigDecimal? = null,
-               feesCharged: BigDecimal? = null,
-               transactions: List<TransactionHistoryRecord>? = null,
-               pageMetadata: TransactionHistoryPageMetadata? = null
-    ): BankStatement {
-        this.statementType = chooseNewValue(this.statementType, documentType, "Statement Type", DocumentType.MIXED)
-        this.accountNumber = chooseNewValue(this.accountNumber, accountNumber, FieldKeys.ACCOUNT_NUMBER)
-        this.bankIdentifier = chooseNewValue(this.bankIdentifier, bankIdentifier, FieldKeys.BANK_IDENTIFIER)
-        this.totalPages = chooseNewValue(this.totalPages, totalPages, FieldKeys.TOTAL_PAGES)
-        this.beginningBalance = chooseNewValue(this.beginningBalance, beginningBalance, FieldKeys.BEGINNING_BALANCE)
-        this.endingBalance = chooseNewValue(this.endingBalance, endingBalance, FieldKeys.ENDING_BALANCE)
-        this.interestCharged = chooseNewValue(this.interestCharged, interestCharged, FieldKeys.INTEREST_CHARGED)
-        this.feesCharged = chooseNewValue(this.feesCharged, feesCharged, FieldKeys.FEES_CHARGED)
-
-        if (transactions != null) this.transactions.addAll(transactions)
-        if (pageMetadata != null) this.pages.add(pageMetadata)
-        return this
-    }
-
-    private fun <T> chooseNewValue(original: T?, new: T?, fieldName: String, valueIfDifferent: T? = null): T? =
-        if (original != null && new != null && original != new) {
-            valueIfDifferent ?: new.also { otherSuspiciousReasons.add(SuspiciousReasons.MULTIPLE_FIELD_VALUES.format(fieldName, original.toString(), new.toString())) }
-        } else new ?: original
+    fun azureFileName() = getFileName(accountNumber, date, pageMetadata.classification, pageMetadata.filename, pageMetadata.getPageRange())
 
     @JsonProperty("netTransactions")
     fun getNetTransactions(): BigDecimal = getTotalIncomeCredits() - getTotalSpending()
@@ -113,9 +67,6 @@ data class BankStatement @JsonCreator constructor(
         .filter { it > 0.asCurrency() }
         .takeIf { it.isNotEmpty() }
         ?.reduce {acc, amt -> (acc + amt) }?.abs() ?: 0.asCurrency()
-
-    @JsonIgnore
-    fun getPageRange(): Pair<Int, Int> = if (pages.isEmpty()) Pair(0,0) else pages.sortedBy { it.filePageNumber }.let { Pair(it.first().filePageNumber, it.last().filePageNumber) }
 
     // TODO
     fun addInterestAndFeesTransactionsIfNecessary() {
@@ -149,21 +100,21 @@ data class BankStatement @JsonCreator constructor(
 
     fun toStatementSummary() = StatementSummaryEntry(
         accountNumber,
-        classification,
+        pageMetadata.classification,
         statementDate,
         beginningBalance,
         endingBalance,
         getNetTransactions(),
         transactions.size,
-        pages.mapNotNull { it.batesStamp }.toSet(),
-        filename,
-        pages.map { it.filePageNumber }.toSet(),
+        batesStamps.values.toSet(),
+        pageMetadata.filename,
+        pageMetadata.pages,
         isSuspicious(),
         getSuspiciousReasons()
     )
 
     fun toCsv(): String = transactions.sortedBy { it.transactionDate }.joinToString("\n") {
-        it.toCsv(accountNumber, classification, date, filename)
+        it.toCsv(date, accountNumber, pageMetadata, batesStamps)
     }
 
     fun getStatementMetadata(manuallyVerified: Boolean) = StatementMetadata(
@@ -175,8 +126,8 @@ data class BankStatement @JsonCreator constructor(
         this.getTotalSpending(),
         this.getTotalIncomeCredits(),
         this.transactions.size,
-        this.filename,
-        this.getPageRange()
+        this.pageMetadata.filename,
+        this.pageMetadata.getPageRange()
     )
 
     fun suspiciousReasonsToCsv(): String {
@@ -188,11 +139,10 @@ data class BankStatement @JsonCreator constructor(
                 "",
                 "",
                 "",
-                TransactionHistoryPageMetadata.joinAccountNumber(accountNumber, classification),
+                joinAccountNumber(accountNumber, pageMetadata.classification),
                 "",
                 date
             ).joinToString(",")
-
     }
 
     fun sumOfTransactionsToCsv(startLine: Int): String {
@@ -202,7 +152,7 @@ data class BankStatement @JsonCreator constructor(
             "",
             "=SUM(C$startLine:C$endLine)",
             "",
-            TransactionHistoryPageMetadata.joinAccountNumber(accountNumber, classification),
+            joinAccountNumber(accountNumber, pageMetadata.classification),
             "",
             date
         ).joinToString(",")
@@ -247,23 +197,24 @@ data class BankStatement @JsonCreator constructor(
     @JsonIgnore
     fun hasRecordsWithIncorrectDates() = getTransactionDatesOutsideOfStatement().isNotEmpty()
 
-    // we've already ensured not null on beginningBalance/endingBalance when we call this function
-    private fun numbersAddUpBank(): Boolean = (beginningBalance!! + getNetTransactions()).stripTrailingZeros() == endingBalance?.stripTrailingZeros()
+    // for some reason when you do math on BigDecimal it might add trailing 0s, so we need to get rid of them
+    private fun numbersAddUpBank(beginningBalance: BigDecimal, endingBalance: BigDecimal): Boolean =
+        (beginningBalance + getNetTransactions()).stripTrailingZeros() == endingBalance.stripTrailingZeros()
 
     // net transactions are reversed on a credit card since spending (positive balance on the physical statement) is stored as a negative cash flow
     // for that reason we subtract the net transactions to get to endingBalance
     //
     // we then add in interest, fees, or both to see if they add up, because some statements include it in transactions and others don't
     // TODO: maybe some logic to check if it's already included?
-    private fun numbersAddUpCreditCard(): Boolean = getNetTransactions().negate().let { netTransactions ->
+    private fun numbersAddUpCreditCard(beginningBalance: BigDecimal, endingBalance: BigDecimal): Boolean = getNetTransactions().negate().let { netTransactions ->
         val interest = interestCharged ?: ZERO
         val fees = feesCharged ?: ZERO
-        val endBalance = endingBalance?.stripTrailingZeros()
+        val endBalance = endingBalance.stripTrailingZeros()
         // we've already ensured not null on beginningBalance/endingBalance when we call this function
-        (beginningBalance!! + netTransactions).stripTrailingZeros() == endBalance ||
-                (beginningBalance!! + netTransactions + interest).stripTrailingZeros() == endBalance ||
-                (beginningBalance!! + netTransactions + fees).stripTrailingZeros() == endBalance ||
-                (beginningBalance!! + netTransactions + interest + fees).stripTrailingZeros() == endBalance
+        (beginningBalance + netTransactions).stripTrailingZeros() == endBalance ||
+                (beginningBalance + netTransactions + interest).stripTrailingZeros() == endBalance ||
+                (beginningBalance + netTransactions + fees).stripTrailingZeros() == endBalance ||
+                (beginningBalance + netTransactions + interest + fees).stripTrailingZeros() == endBalance
     }
 
 
@@ -271,9 +222,9 @@ data class BankStatement @JsonCreator constructor(
         // the statement will be flagged as suspicious already for null values, we don't care about this here
         if (beginningBalance == null || endingBalance == null) return true
         return when (statementType) {
-            DocumentType.BANK -> numbersAddUpBank()
-            DocumentType.CREDIT_CARD -> numbersAddUpCreditCard()
-            else -> numbersAddUpBank() || numbersAddUpCreditCard()
+            DocumentType.BANK -> numbersAddUpBank(beginningBalance, endingBalance)
+            DocumentType.CREDIT_CARD -> numbersAddUpCreditCard(beginningBalance, endingBalance)
+            else -> numbersAddUpBank(beginningBalance, endingBalance) || numbersAddUpCreditCard(beginningBalance, endingBalance)
         }
     }
 
@@ -287,14 +238,13 @@ data class BankStatement @JsonCreator constructor(
     fun isCreditCard(): Boolean = statementType == DocumentType.CREDIT_CARD
 
     @JsonIgnore
-    fun isNFCUBank(): Boolean = classification == DocumentType.BankTypes.NFCU_BANK
+    fun isNFCUBank(): Boolean = pageMetadata.classification == DocumentType.BankTypes.NFCU_BANK
 
     object SuspiciousReasons {
         const val MISSING_FIELDS = "Missing fields: %s"
         const val BALANCE_DOES_NOT_ADD_UP = "Beginning balance (%s) + net transactions (%s) != ending balance (%s). Expected (%s)"
         const val NO_TRANSACTIONS_FOUND = "No transactions recorded"
         const val CONTAINS_SUSPICIOUS_RECORDS = "Contains suspicious records"
-        const val MULTIPLE_FIELD_VALUES = "Found multiple values for [%s]: [%s, %s]"
         const val INCORRECT_DATES = "Found transactions with dates outside of this statement: %s"
     }
 
@@ -303,8 +253,8 @@ data class BankStatement @JsonCreator constructor(
             Pair(BankStatement::hasMissingFields) { stmt -> SuspiciousReasons.MISSING_FIELDS.format(stmt.getMissingFields().toString()) },
             Pair(BankStatement::numbersDoNotAddUp) { stmt ->
                 val expected = if (stmt.beginningBalance == null || stmt.endingBalance == null) null
-                    else if (stmt.isCreditCard()) stmt.beginningBalance!!.asCurrency()!! - stmt.endingBalance!!.asCurrency()!!
-                    else stmt.endingBalance!! - stmt.beginningBalance!!
+                    else if (stmt.isCreditCard()) stmt.beginningBalance.asCurrency()!! - stmt.endingBalance.asCurrency()!!
+                    else stmt.endingBalance - stmt.beginningBalance
                 SuspiciousReasons.BALANCE_DOES_NOT_ADD_UP.format(stmt.beginningBalance?.toCurrency(), stmt.getNetTransactions().toCurrency(), stmt.endingBalance?.toCurrency(), expected?.toCurrency())
            },
             Pair(BankStatement::hasNoRecords) { _ -> SuspiciousReasons.NO_TRANSACTIONS_FOUND },
@@ -313,14 +263,19 @@ data class BankStatement @JsonCreator constructor(
         )
 
         // TODO: filename on BankStatement is one value but in PDF Pages it's multiple values.  Technically a bank statement could come from multiple files although in practice probably not
-        fun getFileName(accountNumber: String?, date: String?, classification: String, filename: String, pages: Collection<Int>? = null): String {
+        fun getFileName(accountNumber: String?, date: String?, classification: String, filename: String, pageRange: Pair<Int, Int>? = null): String {
             val name = "$accountNumber:$classification:${date?.replace("/", "_")}"
             if (accountNumber != null && date != null) {
                 return "$name.json"
             } else {
-                val fileNameSuffix = pages?.takeIf { it.isNotEmpty() }?.sortedBy { it }?.let { "${filename}[${it.first()}-${it.last()}]" } ?: filename
+                val fileNameSuffix = if (pageRange != null) "${filename}[${pageRange.first}-${pageRange.second}]" else filename
                 return "$name:$fileNameSuffix.json"
             }
         }
+
+        private const val UNKNOWN_ACCOUNT = "Unknown"
+
+        fun joinAccountNumber(accountNumber: String?, classification: String) =
+            "$classification - ${accountNumber ?: UNKNOWN_ACCOUNT}".addQuotes()
     }
 }

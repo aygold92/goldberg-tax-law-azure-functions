@@ -47,7 +47,7 @@ class AccountSummaryCreator {
 
             val suspiciousStatements = sortedStatements.filter { it.isSuspicious() }.map { it.statementDate!! }
 
-            AccountSummaryEntry(entry.key, sortedStatements.first().classification, first, last, nonExistingMonths, suspiciousStatements)
+            AccountSummaryEntry(entry.key, sortedStatements.first().pageMetadata.classification, first, last, nonExistingMonths, suspiciousStatements)
         }
 
     } catch (ex: Exception) {

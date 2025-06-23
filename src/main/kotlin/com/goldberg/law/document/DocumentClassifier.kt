@@ -1,8 +1,9 @@
 package com.goldberg.law.document
 
-import com.azure.ai.formrecognizer.documentanalysis.DocumentAnalysisClient
-import com.goldberg.law.document.model.pdf.ClassifiedPdfDocumentPage
-import com.goldberg.law.document.model.pdf.PdfDocumentPage
+import com.azure.ai.documentintelligence.DocumentIntelligenceClient
+import com.azure.ai.documentintelligence.models.ClassifyDocumentOptions
+import com.azure.ai.documentintelligence.models.SplitMode
+import com.goldberg.law.document.model.pdf.*
 import com.goldberg.law.util.isAzureThrottlingError
 import com.goldberg.law.util.retryWithBackoff
 import com.goldberg.law.util.toStringDetailed
@@ -12,14 +13,16 @@ import javax.inject.Named
 
 
 class DocumentClassifier @Inject constructor(
-    private val client: DocumentAnalysisClient,
+    private val client: DocumentIntelligenceClient,
     @Named("ClassifierModelId") private val modelId: String
 ) {
     private val logger = KotlinLogging.logger {}
 
-    fun classifyDocument(document: PdfDocumentPage): ClassifiedPdfDocumentPage {
+    fun classifyDocument(document: PdfDocument): List<ClassifiedPdfDocument> {
+        val options = ClassifyDocumentOptions(document.toBinaryData())
+            .setSplit(SplitMode.PER_PAGE)
         val poller = retryWithBackoff(
-            { client.beginClassifyDocument(modelId, document.toBinaryData()) },
+            { client.beginClassifyDocument(modelId, options) },
             ::isAzureThrottlingError
         )
 
@@ -27,17 +30,44 @@ class DocumentClassifier @Inject constructor(
         val result = retryWithBackoff(poller::waitForCompletion, ::isAzureThrottlingError)
         logger.debug { "Classify Operation Completed: ${result.toStringDetailed()}" }
 
-        if (poller.finalResult.documents.size != 1) {
-            logger.error { "${document.nameWithPage()} returned ${poller.finalResult.documents.size} classified pages" }
+        val pageClassifications = poller.finalResult.documents
+            .mapIndexed { idx, doc -> Triple(idx + 1, doc.documentType, DocumentType.getBankType(doc.documentType)) }
+            .filter { DocumentType.getBankType(it.second) != DocumentType.IRRELEVANT }
+
+        var currentClassification: String? = null
+        var currentPages = mutableSetOf<Int>()
+
+        val ret = mutableListOf<ClassifiedPdfDocument>()
+
+        pageClassifications.forEach {
+            if (it.third.isStatementPage()) {
+                if (currentPages.isNotEmpty() && currentClassification != null) {
+                    ret.add(document.docForPages(currentPages).asClassifiedDocument(currentClassification!!))
+                }
+                // reset
+                currentClassification = it.second
+                currentPages = mutableSetOf(it.first)
+            } else if (it.third.isTransactionPage() && currentClassification != null) {
+                currentPages.add(it.first)
+            } else if (it.third.isCheck()) {
+                if (currentPages.isNotEmpty() && currentClassification != null) {
+                    ret.add(document.docForPages(currentPages).asClassifiedDocument(currentClassification!!))
+                }
+                currentPages = mutableSetOf()
+                currentClassification = null
+
+                ret.add(document.docForPages(setOf( it.first)).asClassifiedDocument(it.second))
+            } else {
+                // skip
+                logger.error { "Not adding $it to any classified document" }
+            }
         }
 
-        // If I want multi page documents, I can get the pageNumber within the document using
-        // document.pages?.get(resultDocument.boundingRegions[0].pageNumber)
-        // however, need to check how it works/how many documents I get back if I send a multi-page document.
-        // There might be multiple bounding regions?
-        return document.withType(poller.finalResult.documents[0].docType).also {
-            logger.debug { it }
+        if (currentPages.isNotEmpty() && currentClassification != null) {
+            ret.add(document.docForPages(currentPages).asClassifiedDocument(currentClassification!!))
         }
+
+        return ret.also { logger.debug { it } }
     }
 }
 

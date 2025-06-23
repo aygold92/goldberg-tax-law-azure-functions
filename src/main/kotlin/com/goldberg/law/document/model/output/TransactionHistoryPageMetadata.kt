@@ -16,12 +16,10 @@ data class TransactionHistoryPageMetadata @JsonCreator constructor(
     val filePageNumber: Int,
     @JsonProperty("batesStamp")
     val batesStamp: String? = null, // ID number at the bottom of every submitted page, for tracking purposes
-    @JsonProperty("statementPageNum")
-    val statementPageNum: Int? = null,
 ) {
     fun toCsv(accountNumber: String?, classification: String, date: String?, filename: String) = listOf(
         joinAccountNumber(accountNumber, classification), batesStamp?.addQuotes(),
-        date, statementPageNum,
+        date,
         filename.addQuotes(), filePageNumber
     ).joinToString(",") { it?.toString() ?: "" }
 

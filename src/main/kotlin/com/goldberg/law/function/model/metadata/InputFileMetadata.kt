@@ -8,26 +8,26 @@ import javax.inject.Inject
  * key names depending on which API it is (SetMetadata lowercases but UploadBlob does not).
  */
 data class InputFileMetadata @Inject constructor(
-    @JsonProperty("split") val split: Boolean = false,
-    @JsonProperty("totalpages") val totalpages: Int? = null,
-    @JsonProperty("analyzed") val analyzed: Boolean = false,
-    @JsonProperty("statements") val statements: Set<String>? = null,
+    @JsonProperty(NUM_STATEMENTS) val numstatements: Int? = null,
+    @JsonProperty(CLASSIFIED) val classified: Boolean = false,
+    @JsonProperty(ANALYZED) val analyzed: Boolean = false,
+    @JsonProperty(STATEMENTS) val statements: Set<String>? = null,
 ) {
     // azure blob tags cannot include brackets
     // https://learn.microsoft.com/en-us/dotnet/api/azure.storage.blobs.specialized.blobbaseclient.settags
     fun toMap(): Map<String, String?> = mapOf(
-        SPLIT to split.toString(),
+        NUM_STATEMENTS to numstatements?.toString(),
+        CLASSIFIED to classified.toString(),
         ANALYZED to analyzed.toString(),
-        TOTAL_PAGES to totalpages?.toString(),
         STATEMENTS to statements?.toString()
             ?.replace("[", "")
             ?.replace("]", "")
     ).filter { it.value != null }
 
     companion object {
-        const val SPLIT = "split"
+        const val NUM_STATEMENTS = "numstatements"
+        const val CLASSIFIED = "classified"
         const val ANALYZED = "analyzed"
-        const val TOTAL_PAGES = "totalpages"
         const val STATEMENTS = "statements"
     }
 }

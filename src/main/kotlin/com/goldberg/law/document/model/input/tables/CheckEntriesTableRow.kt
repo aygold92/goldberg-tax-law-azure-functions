@@ -1,10 +1,10 @@
 package com.goldberg.law.document.model.input.tables
 
-import com.azure.ai.formrecognizer.documentanalysis.models.DocumentField
+import com.azure.ai.documentintelligence.models.DocumentField
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.goldberg.law.document.model.input.CheckDataModel
-import com.goldberg.law.document.model.pdf.PdfDocumentPageMetadata
+import com.goldberg.law.document.model.pdf.ClassifiedPdfMetadata
 import com.goldberg.law.util.*
 import java.math.BigDecimal
 
@@ -15,8 +15,9 @@ data class CheckEntriesTableRow @JsonCreator constructor(
     @JsonProperty("description") val description: String?,
     @JsonProperty("amount") val amount: BigDecimal?,
     @JsonProperty("accountNumber") val accountNumber: String?,
+    @JsonProperty("page") val page: Int,
 ) {
-    fun toCheckDataModel(accountNumber: String?, batesStamp: String?, metadata: PdfDocumentPageMetadata): CheckDataModel {
+    fun toCheckDataModel(accountNumber: String?, batesStamp: String?, metadata: ClassifiedPdfMetadata): CheckDataModel {
         return CheckDataModel(
             accountNumber = this.accountNumber ?: accountNumber,
             checkEntries = null,
@@ -40,14 +41,15 @@ data class CheckEntriesTableRow @JsonCreator constructor(
     }
 
     companion object {
-        fun DocumentField.toCheckEntriesTableRow() = this.getFieldMapHack().let { recordFields ->
+        fun DocumentField.toCheckEntriesTableRow() = this.valueMap.let { recordFields ->
             CheckEntriesTableRow(
-                date = normalizeDate(recordFields[Keys.DATE]?.valueAsString),
+                date = normalizeDate(recordFields[Keys.DATE]?.valueString),
                 checkNumber = recordFields[Keys.CHECK_NUMBER]?.content?.hackToNumber()?.toInt(), // TODO: fix in model
-                to = recordFields[Keys.TO]?.valueAsString,
-                description = recordFields[Keys.DESCRIPTION]?.valueAsString,
+                to = recordFields[Keys.TO]?.valueString,
+                description = recordFields[Keys.DESCRIPTION]?.valueString,
                 amount = recordFields[Keys.AMOUNT]?.currencyValue(),
-                accountNumber = recordFields[Keys.ACCOUNT_NUMBER]?.valueAsString?.last4Digits(),
+                accountNumber = recordFields[Keys.ACCOUNT_NUMBER]?.valueString?.last4Digits(),
+                page = recordFields.pageNumber()
             )
         }
     }

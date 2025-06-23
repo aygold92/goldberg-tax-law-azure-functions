@@ -3,7 +3,7 @@ package com.goldberg.law.document
 import com.goldberg.law.document.model.input.CheckDataModel
 import com.goldberg.law.document.model.output.BankStatement
 import com.goldberg.law.document.model.output.CheckDataKey
-import com.goldberg.law.document.model.pdf.PdfDocumentPageMetadata
+import com.goldberg.law.document.model.pdf.ClassifiedPdfMetadata
 import io.github.oshai.kotlinlogging.KotlinLogging
 
 class CheckToStatementMatcher {
@@ -13,7 +13,7 @@ class CheckToStatementMatcher {
         val allChecksMap = allChecks.associateBy { it.checkDataKey }
 
         val finalStatements = allStatements.sortedBy { it.statementDate }.map { originalStatement ->
-            val checks = mutableMapOf<Int, PdfDocumentPageMetadata>()
+            val checks = mutableMapOf<Int, ClassifiedPdfMetadata>()
             val transactions = originalStatement.transactions.map { record ->
                 if (record.checkNumber == null) record
                 else {

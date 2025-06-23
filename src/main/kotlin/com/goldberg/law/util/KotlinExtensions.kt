@@ -1,10 +1,22 @@
 package com.goldberg.law.util
 
-import com.azure.ai.formrecognizer.documentanalysis.models.AnalyzedDocument
-import com.azure.ai.formrecognizer.documentanalysis.models.DocumentField
+import com.azure.ai.documentintelligence.models.AnalyzedDocument
+import com.azure.ai.documentintelligence.models.DocumentField
+import com.azure.ai.documentintelligence.models.DocumentFieldType
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.module.SimpleModule
+import com.goldberg.law.function.activity.ProcessDataModelActivity
+import com.goldberg.law.function.activity.UpdateMetadataActivity
+import com.goldberg.law.function.model.DocumentDataModelContainer
+import com.goldberg.law.function.model.activity.ProcessDataModelActivityInput
+import com.goldberg.law.function.model.activity.UpdateMetadataActivityInput
+import com.goldberg.law.function.model.metadata.InputFileMetadata
+import com.goldberg.law.function.model.tracking.OrchestrationStage
+import com.goldberg.law.function.model.tracking.OrchestrationStatus
+import com.microsoft.durabletask.Task
+import com.microsoft.durabletask.TaskOrchestrationContext
+import com.nimbusds.jose.shaded.gson.GsonBuilder
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.*
 import org.apache.pdfbox.pdmodel.PDDocument
@@ -12,6 +24,7 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 import java.security.MessageDigest
 import java.text.NumberFormat
+import java.time.LocalDate
 import java.util.*
 
 val OBJECT_MAPPER = ObjectMapper().apply {
@@ -20,6 +33,13 @@ val OBJECT_MAPPER = ObjectMapper().apply {
     registerModule(SimpleModule().apply { addSerializer(AnalyzedDocument::class.java, AnalyzedDocumentSerializer()) })
 }
 
+val GSON = GsonBuilder()
+    .registerTypeAdapter(LocalDate::class.java, LocalDateAdapter())
+    .registerTypeAdapter(DocumentFieldType::class.java, DocumentFieldTypeAdaptor())
+    .create()
+
+fun <T> String.readJson(clazz: Class<T>): T = GSON.fromJson(this, clazz)
+
 private val logger = KotlinLogging.logger {}
 
 val ZERO: BigDecimal = 0.asCurrency()
@@ -27,6 +47,8 @@ val ZERO: BigDecimal = 0.asCurrency()
 fun Any.toStringDetailed(): String {
     return OBJECT_MAPPER.writeValueAsString(this)
 }
+
+fun DocumentField.toStringDetailed(): String = GSON.toJson(this)
 
 // TODO: if the file ends with ".json.pdf" it will remove both
 fun String.withoutExtension() = removeSuffix(".pdf").removeSuffix(".json").removeSuffix(".csv")
@@ -63,11 +85,7 @@ fun String.hackToNumber(): String = this.trim()
         }
     }
 
-fun DocumentField.valueAsInt(): Int? = try {
-    this.valueAsLong.toInt()
-} catch (ex: Exception) {
-    (this.value as? Number)?.toInt()
-}
+fun DocumentField.valueAsInt(): Int? = this.valueInteger?.toInt()
 
 fun String.parseCurrency(): BigDecimal? = this.asCurrency()
     ?: this.hackToNumber().let {
@@ -84,7 +102,8 @@ fun String.removeNonDigitOrSlash(): String {
 
 fun DocumentField.currencyValue(): BigDecimal? = this.content?.parseCurrency()?.let { contentValue ->
         val doubleValue = try {
-            this.valueAsDouble.asCurrency()
+            // TODO: how does this behave?
+            this.valueNumber?.asCurrency() ?: this.valueCurrency?.amount?.asCurrency() ?: throw NullPointerException("Cannot process ${this.toStringDetailed()} as double")
         } catch (ex: Throwable) {
             if (ex is ClassCastException || ex is NullPointerException)
                 contentValue.also { logger.error { "value ${this.toStringDetailed()} cannot be processed as a double" } }
@@ -105,6 +124,10 @@ fun DocumentField.currencyValue(): BigDecimal? = this.content?.parseCurrency()?.
 // some values are always positive (such as interest charged).  If a negative is read, it would be a mistake
 fun DocumentField.positiveCurrencyValue(): BigDecimal? = this.currencyValue()?.abs()
 
+fun DocumentField.pageNumber(): Int = this.boundingRegions[0]?.pageNumber!!
+
+fun Map<String, DocumentField>.pageNumber(): Int = this.values.first().pageNumber()
+
 fun String.addQuotes() = '"' + this + '"'
 
 fun <T> Collection<T>.breakIntoGroups(numGroups: Int): Map<Int, List<T>> {
@@ -113,6 +136,11 @@ fun <T> Collection<T>.breakIntoGroups(numGroups: Int): Map<Int, List<T>> {
 }
 
 fun PDDocument.docForPage(pageNum: Int) = PDDocument().apply { addPage(this@docForPage.getPage(pageNum - 1)) }
+fun PDDocument.docForPages(pages: Set<Int>) = PDDocument().apply {
+    pages.forEach {
+        addPage(this@docForPages.getPage(it - 1))
+    }
+}
 
 fun <T, R> Collection<T>.mapAsync(dispatcher: CoroutineDispatcher = Dispatchers.IO, block: (T) -> R): List<R> = runBlocking {
     this@mapAsync.map {
@@ -129,6 +157,9 @@ fun <K, V, R> Map<K, V>.mapAsync(dispatcher: CoroutineDispatcher = Dispatchers.I
         }
     }.awaitAll()
 }
+
+fun <K, V, NK, NV> Map<K, V>.associate(block: (key: K, value: V) -> Pair<NK, NV> ) = this.map { block(it.key, it.value) }
+    .associate { it.first to it.second }
 
 @OptIn(ExperimentalStdlibApi::class)
 fun Any.md5Hash(): String {

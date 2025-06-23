@@ -3,12 +3,12 @@ package com.goldberg.law.document.model.input
 import com.goldberg.law.document.model.ModelValues.CHECK_FILENAME
 import com.goldberg.law.document.model.ModelValues.FILENAME
 import com.goldberg.law.document.model.ModelValues.newClassifiedPdfDocument
-import com.goldberg.law.document.model.pdf.ClassifiedPdfDocumentPage
+import com.goldberg.law.document.model.pdf.ClassifiedPdfMetadata
 import com.goldberg.law.document.model.pdf.DocumentType
-import com.goldberg.law.document.model.pdf.PdfDocumentPageMetadata
 import com.goldberg.law.function.model.DocumentDataModelContainerTest.Companion.CHECK_DATA_MODEL
 import com.goldberg.law.function.model.DocumentDataModelContainerTest.Companion.EXTRA_PAGE_DATA_MODEL
 import com.goldberg.law.function.model.DocumentDataModelContainerTest.Companion.STATEMENT_DATA_MODEL
+import com.goldberg.law.util.GSON
 import com.goldberg.law.util.OBJECT_MAPPER
 import com.nimbusds.jose.shaded.gson.Gson
 import org.assertj.core.api.Assertions.assertThat
@@ -20,12 +20,12 @@ class DocumentDataModelTest {
         val documentModels: List<DocumentDataModel> = listOf(
             StatementDataModel.blankModel(newClassifiedPdfDocument()),
             CheckDataModel.blankModel(newClassifiedPdfDocument(filename = CHECK_FILENAME, classification = DocumentType.CheckTypes.EAGLE_BANK_CHECK)),
-            ExtraPageDataModel(newClassifiedPdfDocument(classification = ClassifiedPdfDocumentPage.IRRELEVANT_TYPE).toDocumentMetadata())
+            ExtraPageDataModel(newClassifiedPdfDocument(classification = DocumentType.IrrelevantTypes.EXTRA_PAGES).toDocumentMetadata())
         )
 
-        assertThat(documentModels[0].pageMetadata).isEqualTo(PdfDocumentPageMetadata(FILENAME, 1, DocumentType.BankTypes.WF_BANK))
-        assertThat(documentModels[1].pageMetadata).isEqualTo(PdfDocumentPageMetadata(CHECK_FILENAME, 1, DocumentType.CheckTypes.EAGLE_BANK_CHECK))
-        assertThat(documentModels[2].pageMetadata).isEqualTo(PdfDocumentPageMetadata(FILENAME, 1, ClassifiedPdfDocumentPage.IRRELEVANT_TYPE))
+        assertThat(documentModels[0].pageMetadata).isEqualTo(ClassifiedPdfMetadata(FILENAME, 1, DocumentType.BankTypes.WF_BANK))
+        assertThat(documentModels[1].pageMetadata).isEqualTo(ClassifiedPdfMetadata(CHECK_FILENAME, 1, DocumentType.CheckTypes.EAGLE_BANK_CHECK))
+        assertThat(documentModels[2].pageMetadata).isEqualTo(ClassifiedPdfMetadata(FILENAME, 1, DocumentType.IrrelevantTypes.EXTRA_PAGES))
     }
 
     @Test
@@ -68,9 +68,5 @@ class DocumentDataModelTest {
         val model = EXTRA_PAGE_DATA_MODEL
         val otherModel = GSON.fromJson(GSON.toJson(model), ExtraPageDataModel::class.java)
         assertThat(otherModel).isEqualTo(model)
-    }
-
-    companion object {
-        val GSON = Gson()
     }
 }

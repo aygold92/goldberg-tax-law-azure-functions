@@ -1,15 +1,12 @@
 package com.goldberg.law.function
 
 import com.goldberg.law.function.activity.*
-import com.goldberg.law.function.model.*
 import com.goldberg.law.function.model.activity.*
-import com.goldberg.law.function.model.metadata.InputFileMetadata
 import com.goldberg.law.function.model.request.AnalyzeDocumentResult
 import com.goldberg.law.function.model.request.AzureAnalyzeDocumentsRequest
-import com.goldberg.law.function.model.tracking.DocumentOrchestrationStatus
 import com.goldberg.law.function.model.tracking.OrchestrationStage
-import com.goldberg.law.function.model.tracking.OrchestrationStatus
-import com.goldberg.law.util.breakIntoGroups
+import com.goldberg.law.function.model.tracking.OrchestrationStatusFactory
+import com.goldberg.law.util.associate
 import com.goldberg.law.util.toStringDetailed
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.durabletask.CompositeTaskFailedException
@@ -21,7 +18,11 @@ import com.microsoft.durabletask.interruption.OrchestratorBlockedException
 import io.github.oshai.kotlinlogging.KotlinLogging
 import javax.inject.Inject
 
-class PdfDataExtractorOrchestratorFunction @Inject constructor(private val numWorkers: Int) {
+class PdfDataExtractorOrchestratorFunction @Inject constructor(
+    private val numWorkers: Int,
+    private val concurrentExecutionOrchestrator: ConcurrentExecutionOrchestrator,
+    private val orchestrationStatusFactory: OrchestrationStatusFactory,
+) {
     private val logger = KotlinLogging.logger {}
 
     /**
@@ -36,119 +37,86 @@ class PdfDataExtractorOrchestratorFunction @Inject constructor(private val numWo
 
         if (!ctx.isReplaying) logger.info { "[${ctx.instanceId}] processing ${request.toStringDetailed()}" }
 
-        ctx.setCustomStatus(OrchestrationStatus.ofAction(OrchestrationStage.VERIFYING_DOCUMENTS, request.documents))
-        // step 1: ensure the requested files have been uploaded, and return their metadata
+        /** step 1: ensure the requested files have been uploaded, and return their metadata */
+        val orchestrationStatus = orchestrationStatusFactory.new(ctx, OrchestrationStage.VERIFYING_DOCUMENTS, request.documents).save()
         val filesToProcess = ctx.callActivity(
             GetFilesToProcessActivity.FUNCTION_NAME,
             GetFilesToProcessActivityInput(ctx.instanceId, request),
             GetFilesToProcessActivityOutput::class.java
         ).await().filesWithMetadata
 
-        // step 2: determine based on metadata which files need to be split and analyzed (for idempotency)
-        val filesToSplit = filesToProcess.filter { !it.metadata.split }
-        val alreadySplitDocuments = filesToProcess.filter { it.metadata.split }.toSet()
-        val alreadyAnalyzedDocuments = filesToProcess.filter { it.metadata.analyzed }.toSet()
-        val alreadyAnalyzedNotProcessedToBankStatement = alreadyAnalyzedDocuments.filter { it.metadata.statements == null }
-        val alreadyCompletedDocuments = alreadyAnalyzedDocuments.filter { it.metadata.statements?.isNotEmpty() == true }
-        val alreadySplitNotAnalyzedDocuments = alreadySplitDocuments - alreadyAnalyzedDocuments
+        /** step 1.5: determine based on metadata which files need to be split and analyzed (for idempotency) */
+        val filesToClassify = filesToProcess.filter { !it.value.classified }
+        val alreadyClassifiedDocuments = filesToProcess.filter { it.value.classified }
+        val alreadyAnalyzedDocuments = filesToProcess.filter { it.value.analyzed }
+        val alreadyClassifiedNotAnalyzedDocuments = alreadyClassifiedDocuments.minus(alreadyAnalyzedDocuments.keys)
+        val alreadyAnalyzedNotProcessedToBankStatement = alreadyAnalyzedDocuments.filter { it.value.statements == null }
+        val alreadyCompletedDocuments = alreadyAnalyzedDocuments.filter { it.value.statements?.isNotEmpty() == true }
 
-        if (!ctx.isReplaying) logger.info { "[${ctx.instanceId}] Splitting files ${filesToSplit.map { it.filename }}\n" +
-                "Already split files ${alreadySplitDocuments.map { it.filename }}\n" +
-                "Already analyzed files ${alreadyAnalyzedDocuments.map { it.filename }}" }
+        if (!ctx.isReplaying) logger.info { "[${ctx.instanceId}] Classifying files ${filesToClassify.keys}\n" +
+                "Already classified files ${alreadyClassifiedDocuments.keys}\n" +
+                "Already analyzed files ${alreadyAnalyzedDocuments.keys}" }
 
-        // step 3: split the necessary PDFs
-        val splitDocumentTasks = filesToSplit.map { file ->
+        /** step 2: classify the PDFs */
+        filesToProcess.forEach { (filename, metadata) -> orchestrationStatus.updateDoc(filename) {
+            numStatements = metadata.numstatements
+            statementsCompleted = if (metadata.analyzed) metadata.numstatements else 0
+            classified = metadata.classified
+        } }
+        orchestrationStatus.updateStage(OrchestrationStage.CLASSIFYING_DOCUMENTS).save()
+
+        val newDocumentClassifications = concurrentExecutionOrchestrator.execClassifyDocuments(
+            ctx, filesToClassify.keys.toList(), orchestrationStatus, numWorkers, request.clientName
+        )
+
+        if (!ctx.isReplaying) logger.info { "[${ctx.instanceId}] Successfully classified pdfs: $filesToClassify" }
+
+        /** step 2.5: load the already classified but not analyzed docs */
+        val docsAlreadyClassifiedNotAnalyzed = if (alreadyClassifiedNotAnalyzedDocuments.isNotEmpty()) {
             ctx.callActivity(
-                SplitPdfActivity.FUNCTION_NAME,
-                SplitPdfActivityInput(ctx.instanceId, request.clientName, file.filename, request.overwrite),
-                SplitPdfActivityOutput::class.java
-            )
-        }
-        val allTasks: Task<List<SplitPdfActivityOutput>> = ctx.allOf(splitDocumentTasks)
-        val newlySplitDocumentsResults: List<SplitPdfActivityOutput> = allTasks.await()
-        if (!ctx.isReplaying) logger.info { "[${ctx.instanceId}] Successfully split pdfs: $filesToSplit" }
+                LoadDocumentClassificationsActivity.FUNCTION_NAME,
+                LoadDocumentClassificationsActivityInput(ctx.instanceId, request.clientName, alreadyClassifiedNotAnalyzedDocuments.keys),
+                LoadDocumentClassificationsActivityOutput::class.java
+            ).await().classifiedDocumentsMap
+        } else mapOf()
 
-        val pagesAlreadySplitNotAnalyzed: Set<PdfPageData> = alreadySplitNotAnalyzedDocuments.flatMap { pdfDocument ->
-            (1.. pdfDocument.metadata.totalpages!!).toList().map { PdfPageData(pdfDocument.filename, it) }
-        }.toSet()
+        /** step 3: the heavy lifting: extract the data from the necessary documents.  Break it into groups for throttling purposes */
+        orchestrationStatus.updateStage(OrchestrationStage.EXTRACTING_DATA).save()
 
-        val pagesToAnalyze: Set<PdfPageData> = pagesAlreadySplitNotAnalyzed + newlySplitDocumentsResults.flatMap { it.pdfPages }
-
-        // set status for all documents. The ones that have already been analyzed are already completed.
-        var documentsStatus: List<DocumentOrchestrationStatus> =
-            newlySplitDocumentsResults.map { DocumentOrchestrationStatus(it.pdfPages.first().fileName, it.pdfPages.size, 0, InputFileMetadata(true, it.pdfPages.size)) } +
-                alreadySplitNotAnalyzedDocuments.map { DocumentOrchestrationStatus(it.filename, it.metadata.totalpages, 0, it.metadata) } +
-                alreadyAnalyzedDocuments.map { DocumentOrchestrationStatus(it.filename, it.metadata.totalpages, it.metadata.totalpages, it.metadata) }
-
-        val dataModels = mutableSetOf<DocumentDataModelContainer>()
         val updateMetadataTasks: MutableList<Task<Void>> = mutableListOf()
-        var documentsCompleted = 0
-        val totalDocumentsToAnalyze = pagesToAnalyze.size
-        ctx.setCustomStatus(OrchestrationStatus(OrchestrationStage.EXTRACTING_DATA, documentsStatus, totalDocumentsToAnalyze, documentsCompleted))
-        // step 4: the heavy lifting: extract the data from the necessary documents.  Break it into groups for throttling purposes
-        val documentGroupsToAnalyze = pagesToAnalyze.breakIntoGroups(pagesToAnalyze.size / numWorkers)
-        documentGroupsToAnalyze.forEach { documentGroup ->
-            val documentDataModelTasks = documentGroup.value.map { pdfPage ->
-                ctx.callActivity(
-                    ProcessDataModelActivity.FUNCTION_NAME,
-                    ProcessDataModelActivityInput(ctx.instanceId, request.clientName, pdfPage, request.findClassifiedTypeOverride(pdfPage)),
-                    DocumentDataModelContainer::class.java
-                )
-            }
-            dataModels.addAll(ctx.allOf(documentDataModelTasks).await())
+        val docsToAnalyze = (newDocumentClassifications + docsAlreadyClassifiedNotAnalyzed).values.flatten()
 
-            documentsCompleted += documentGroup.value.size
-
-            val processedDocuments = documentGroup.value.groupBy { it.fileName }
-
-            documentsStatus = documentsStatus.map {
-                val newPagesCompleted = it.pagesCompleted!! + (processedDocuments[it.fileName]?.size ?: 0)
-                // Step 4.1: update the metadata when analysis is complete
-                if (newPagesCompleted == it.totalPages && !it.metadata!!.analyzed) {
-                    val newMetadata = it.metadata.copy(analyzed = true)
-                    updateMetadataTasks.add(ctx.callActivity(UpdateMetadataActivity.FUNCTION_NAME, UpdateMetadataActivityInput(request.clientName, it.fileName, newMetadata)))
-                    it.copy(pagesCompleted = newPagesCompleted, metadata = newMetadata)
-                } else {
-                    it.copy(pagesCompleted = newPagesCompleted)
-                }
-            }
-
-            ctx.setCustomStatus(OrchestrationStatus(OrchestrationStage.EXTRACTING_DATA, documentsStatus, totalDocumentsToAnalyze, documentsCompleted))
-
-            if (!ctx.isReplaying) logger.info { "[${ctx.instanceId}] Processed group ${documentGroup.key + 1}, now completed $documentsCompleted docs" }
-        }
+        val analyzedModels = concurrentExecutionOrchestrator.execProcessDataModels(
+            ctx, docsToAnalyze, orchestrationStatus, numWorkers, request.clientName, updateMetadataTasks
+        )
 
         if (!ctx.isReplaying) logger.info { "[${ctx.instanceId}] successfully processed all models" }
+
         ctx.allOf(updateMetadataTasks).await()
         if (!ctx.isReplaying) logger.info { "[${ctx.instanceId}] successfully updated all input file metadata" }
 
-        // step 4.2: load models for those files that are already analyzed but not processed to a bank statement (probably due to an error)
-        // TODO: what about files that don't contain any bank statements?
-        // TODO: if overwrite feature is on, should pass all data models including those already processed
-
-        val analyzedDocumentsToLoad = if (request.overwrite) alreadyAnalyzedDocuments else alreadyAnalyzedNotProcessedToBankStatement
-        if (analyzedDocumentsToLoad.isNotEmpty()) {
-            val analyzedPagesToLoad: Set<PdfPageData> = analyzedDocumentsToLoad.flatMap { pdfDocument ->
-                (1.. pdfDocument.metadata.totalpages!!).toList().map { PdfPageData(pdfDocument.filename, it) }
-            }.toSet()
-            val alreadyAnalyzedModels = ctx.callActivity(
+        /** step 3.5: load models for any files that have already */
+        orchestrationStatus.updateStage(OrchestrationStage.CREATING_BANK_STATEMENTS).save()
+        if (alreadyAnalyzedNotProcessedToBankStatement.isNotEmpty()) {
+            analyzedModels.addAll(ctx.callActivity(
                 LoadAnalyzedModelsActivity.FUNCTION_NAME,
-                LoadAnalyzedModelsActivityInput(ctx.instanceId, request.clientName, analyzedPagesToLoad),
+                LoadAnalyzedModelsActivityInput(ctx.instanceId, request.clientName, alreadyAnalyzedNotProcessedToBankStatement.keys),
                 LoadAnalyzedModelsActivityOutput::class.java
-            ).await().models
-            dataModels.addAll(alreadyAnalyzedModels)
+            ).await().models)
         }
 
-        // step 5: create bank statements using all the analyzed models
+        /** step 4: create bank statements using all the analyzed models */
+        // TODO: do I need to do this? or wil everything happen in ProcessDataModels now?
+        // TODO: In cases that require extra post processing (joint statements, NFCU), maybe I should do this here?  SO then I should do everything here?
         val finalResult = ctx.callActivity(
             ProcessStatementsActivity.FUNCTION_NAME,
-            ProcessStatementsActivityInput(ctx.instanceId, request.clientName, dataModels, documentsStatus.associateBy({ it.fileName }, { it.metadata!! })),
+            ProcessStatementsActivityInput(ctx.instanceId, request.clientName, analyzedModels, orchestrationStatus.documentMetadataMap().minus(alreadyCompletedDocuments.keys)),
             ProcessStatementsActivityOutput::class.java
         ).await()
             .also { logger.info { "[${ctx.instanceId}] Created new bank statements: ${it.filenameStatementMap}" } }
 
         // TODO: should probably handle the weird case where metadata is incorrect (and statements is null on an already analyzed document)
-        AnalyzeDocumentResult.success(finalResult.filenameStatementMap + alreadyCompletedDocuments.associate { it.filename to it.metadata.statements!! })
+        AnalyzeDocumentResult.success(finalResult.filenameStatementMap + alreadyCompletedDocuments.associate { filename, metadata -> filename to metadata.statements!! })
     } catch (ex: Throwable) {
         if (ex is OrchestratorBlockedException) {
             throw ex

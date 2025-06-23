@@ -88,31 +88,36 @@
             {
               "type": "string",
               "content": "Transfer IN Branch/Store - to Robert Bernard Herman DDA xxxxxx2578 8302 Woodmont Ave Bethesda MD",
-              "value": "Transfer IN Branch/Store - to Robert Bernard Herman DDA xxxxxx2578 8302 Woodmont Ave Bethesda MD"
+              "value": "Transfer IN Branch/Store - to Robert Bernard Herman DDA xxxxxx2578 8302 Woodmont Ave Bethesda MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Deposits/ Additions":
             {
               "type": "number",
               "content": null,
-              "value": null
+              "value": null,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Check Number":
             {
               "type": "integer",
               "content": null,
-              "value": null
+              "value": null,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "type": "string",
               "content": "7/11",
-              "value": "7/11"
+              "value": "7/11",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Withdrawals/ Subtractions":
             {
               "type": "number",
               "content": "1,088.00",
-              "value": 1088.0
+              "value": 1088.0,
+              "boundingRegions": [{"pageNumber": 1}]
             }
           }
         },
@@ -125,31 +130,36 @@
             {
               "type": "string",
               "content": "Transfer IN Branch/Store - to Robert Bernard Herman DDA xxxxxx3443 8302 Woodmont Ave Bethesda MD",
-              "value": "Transfer IN Branch/Store - to Robert Bernard Herman DDA xxxxxx3443 8302 Woodmont Ave Bethesda MD"
+              "value": "Transfer IN Branch/Store - to Robert Bernard Herman DDA xxxxxx3443 8302 Woodmont Ave Bethesda MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Deposits/ Additions":
             {
               "type": "number",
               "content": null,
-              "value": null
+              "value": null,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Check Number":
             {
               "type": "integer",
               "content": null,
-              "value": null
+              "value": null,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "type": "string",
               "content": "7/11",
-              "value": "7/11"
+              "value": "7/11",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Withdrawals/ Subtractions":
             {
               "type": "number",
               "content": "50,000.00",
-              "value": 50000.0
+              "value": 50000.0,
+              "boundingRegions": [{"pageNumber": 1}]
             }
           }
         },
@@ -162,31 +172,36 @@
             {
               "type": "string",
               "content": "Cash eWithdrawal in Branch/Store 07/11/2022 08:21 Am 8302 Woodmont Ave Bethesda MD 9899",
-              "value": "Cash eWithdrawal in Branch/Store 07/11/2022 08:21 Am 8302 Woodmont Ave Bethesda MD 9899"
+              "value": "Cash eWithdrawal in Branch/Store 07/11/2022 08:21 Am 8302 Woodmont Ave Bethesda MD 9899",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Deposits/ Additions":
             {
               "type": "number",
               "content": null,
-              "value": null
+              "value": null,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Check Number":
             {
               "type": "integer",
               "content": null,
-              "value": null
+              "value": null,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "type": "string",
               "content": "7/11",
-              "value": "7/11"
+              "value": "7/11",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Withdrawals/ Subtractions":
             {
               "type": "number",
               "content": "601.60",
-              "value": 601.5999755859375
+              "value": 601.5999755859375,
+              "boundingRegions": [{"pageNumber": 1}]
             }
           }
         },
@@ -199,31 +214,36 @@
             {
               "type": "string",
               "content": "Interest Payment",
-              "value": "Interest Payment"
+              "value": "Interest Payment",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Deposits/ Additions":
             {
               "type": "number",
               "content": "1.18",
-              "value": 1.1799999475479126
+              "value": 1.1799999475479126,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Check Number":
             {
               "type": "integer",
               "content": null,
-              "value": null
+              "value": null,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "type": "string",
               "content": "8/5",
-              "value": "8/5"
+              "value": "8/5",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Withdrawals/ Subtractions":
             {
               "type": "number",
               "content": null,
-              "value": null
+              "value": null,
+              "boundingRegions": [{"pageNumber": 1}]
             }
           }
         }

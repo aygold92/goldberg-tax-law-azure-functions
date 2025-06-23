@@ -1,6 +1,7 @@
 package com.goldberg.law.document
 
 import com.goldberg.law.document.model.ModelValues.ACCOUNT_NUMBER
+import com.goldberg.law.document.model.ModelValues.BASIC_TH_RECORD
 import com.goldberg.law.document.model.ModelValues.BATES_STAMP
 import com.goldberg.law.document.model.ModelValues.CHECK_BATES_STAMP
 import com.goldberg.law.document.model.ModelValues.CHECK_FILENAME
@@ -30,13 +31,13 @@ class CsvCreatorTest {
 
         assertThat(content).isEqualTo(
             """
-                "Transaction Date","Description","Amount","","Account","Bates Stamp","Statement Date","Statement Page #","Filename","File Page #","Check Bates Stamp","Check Filename","Check File Page #"
+                "Transaction Date","Description","Amount","","Account","Bates Stamp","Statement Date","Filename","File Page #","Check Bates Stamp","Check Filename","Check File Page #"
                 Verified,,,,"WF Bank - 1234567890",,4/7/2020
-                4/3/2020,"test",-500.00,,"WF Bank - 1234567890","$BATES_STAMP",4/7/2020,2,"$FILENAME",1,,
+                4/3/2020,"test",-500.00,,"WF Bank - 1234567890","$BATES_STAMP-2",4/7/2020,"$FILENAME",2,,
                 ,,=SUM(C2:C3),,"WF Bank - 1234567890",,4/7/2020
                 
                 Verified,,,,"WF Bank - 1234567890",,4/7/2020
-                4/3/2020,"Check 1234: Some Guy - check desc",-500.00,,"WF Bank - 1234567890","$BATES_STAMP",4/7/2020,2,"$FILENAME",1,"$CHECK_BATES_STAMP","$CHECK_FILENAME",$CHECK_FILE_PAGE
+                4/3/2020,"Check 1234: Some Guy - check desc",-500.00,,"WF Bank - 1234567890","$BATES_STAMP-2",4/7/2020,"$FILENAME",2,"$CHECK_BATES_STAMP","$CHECK_FILENAME",[$CHECK_FILE_PAGE]
                 ,,=SUM(C6:C7),,"WF Bank - 1234567890",,4/7/2020
             """.trimIndent()
         )
@@ -46,19 +47,19 @@ class CsvCreatorTest {
     fun testRecordContentWithSuspiciousReasons() {
         val content = csvCreator.recordsToCsv(listOf(
             newBasicBankStatement(),
-            newBasicBankStatement().update(transactions = mutableListOf(newHistoryRecord(checkNumber = 1234, amount = -50.0, checkData = newCheckData(1234))))
+            newBankStatement(transactions = mutableListOf(BASIC_TH_RECORD, newHistoryRecord(checkNumber = 1234, amount = -50.0, checkData = newCheckData(1234))))
         ))
 
         assertThat(content).isEqualTo(
             """
-                "Transaction Date","Description","Amount","","Account","Bates Stamp","Statement Date","Statement Page #","Filename","File Page #","Check Bates Stamp","Check Filename","Check File Page #"
+                "Transaction Date","Description","Amount","","Account","Bates Stamp","Statement Date","Filename","File Page #","Check Bates Stamp","Check Filename","Check File Page #"
                 Verified,,,,"WF Bank - 1234567890",,4/7/2020
-                4/3/2020,"test",-500.00,,"WF Bank - 1234567890","$BATES_STAMP",4/7/2020,2,"$FILENAME",1,,
+                4/3/2020,"test",-500.00,,"WF Bank - 1234567890","$BATES_STAMP-2",4/7/2020,"$FILENAME",2,,
                 ,,=SUM(C2:C3),,"WF Bank - 1234567890",,4/7/2020
                 
                 "[Beginning balance (500.00) + net transactions (-550.00) != ending balance (0.00). Expected (-500.00), Contains suspicious records, [4/3/2020] Record has a check number but the description does not say "check"]",,,,"WF Bank - 1234567890",,4/7/2020
-                4/3/2020,"test",-500.00,,"WF Bank - 1234567890","AG-12345",4/7/2020,2,"test.pdf",1,,
-                4/3/2020,"test Check 1234: Some Guy - check desc",-50.00,,"WF Bank - 1234567890","$BATES_STAMP",4/7/2020,2,"$FILENAME",1,"$CHECK_BATES_STAMP","$CHECK_FILENAME",$CHECK_FILE_PAGE
+                4/3/2020,"test",-500.00,,"WF Bank - 1234567890","AG-12345-2",4/7/2020,"test.pdf",2,,
+                4/3/2020,"test Check 1234: Some Guy - check desc",-50.00,,"WF Bank - 1234567890","$BATES_STAMP-2",4/7/2020,"$FILENAME",2,"$CHECK_BATES_STAMP","$CHECK_FILENAME",[$CHECK_FILE_PAGE]
                 ,,=SUM(C6:C8),,"WF Bank - 1234567890",,4/7/2020
             """.trimIndent()
         )
@@ -68,8 +69,8 @@ class CsvCreatorTest {
     fun testRecordContentWithSuspiciousReasonsManyRecordsAndStatements() {
         val content = csvCreator.recordsToCsv(listOf(
             newBasicBankStatement(),
-            newBasicBankStatement().update(transactions = mutableListOf(newHistoryRecord(checkNumber = 1234, amount = -50.0, checkData = newCheckData(1234)))),
-            newBasicBankStatement().update(transactions = mutableListOf(
+            newBankStatement(transactions = mutableListOf(BASIC_TH_RECORD, newHistoryRecord(checkNumber = 1234, amount = -50.0, checkData = newCheckData(1234)))),
+            newBankStatement(transactions = mutableListOf(BASIC_TH_RECORD,
                 newHistoryRecord(amount = -50.0),
                 newHistoryRecord(checkNumber = 1235, description = "Check", amount = -50.0, checkData = newCheckData(1234)),
                 newHistoryRecord(amount = -50.0),
@@ -77,33 +78,33 @@ class CsvCreatorTest {
                 newHistoryRecord(amount = 50.0),
             )),
             newBasicBankStatement(),
-            newBankStatement(),
-            newBasicBankStatement().update(transactions = mutableListOf(newHistoryRecord(amount = -50.0), newHistoryRecord(amount = -25.0))),
+            newBankStatement(beginningBalance = null, endingBalance = null, transactions = listOf()),
+            newBankStatement(transactions = mutableListOf(BASIC_TH_RECORD, newHistoryRecord(amount = -50.0), newHistoryRecord(amount = -25.0))),
         ))
 
         assertThat(content).isEqualTo(
             """
-                "Transaction Date","Description","Amount","","Account","Bates Stamp","Statement Date","Statement Page #","Filename","File Page #","Check Bates Stamp","Check Filename","Check File Page #"
+                "Transaction Date","Description","Amount","","Account","Bates Stamp","Statement Date","Filename","File Page #","Check Bates Stamp","Check Filename","Check File Page #"
                 Verified,,,,"WF Bank - 1234567890",,4/7/2020
-                4/3/2020,"test",-500.00,,"WF Bank - 1234567890","$BATES_STAMP",4/7/2020,2,"$FILENAME",1,,
+                4/3/2020,"test",-500.00,,"WF Bank - 1234567890","$BATES_STAMP-2",4/7/2020,"$FILENAME",2,,
                 ,,=SUM(C2:C3),,"WF Bank - 1234567890",,4/7/2020
                 
                 "[Beginning balance (500.00) + net transactions (-550.00) != ending balance (0.00). Expected (-500.00), Contains suspicious records, [4/3/2020] Record has a check number but the description does not say "check"]",,,,"WF Bank - 1234567890",,4/7/2020
-                4/3/2020,"test",-500.00,,"WF Bank - 1234567890","AG-12345",4/7/2020,2,"test.pdf",1,,
-                4/3/2020,"test Check 1234: Some Guy - check desc",-50.00,,"WF Bank - 1234567890","$BATES_STAMP",4/7/2020,2,"$FILENAME",1,"$CHECK_BATES_STAMP","$CHECK_FILENAME",$CHECK_FILE_PAGE
+                4/3/2020,"test",-500.00,,"WF Bank - 1234567890","AG-12345-2",4/7/2020,"test.pdf",2,,
+                4/3/2020,"test Check 1234: Some Guy - check desc",-50.00,,"WF Bank - 1234567890","$BATES_STAMP-2",4/7/2020,"$FILENAME",2,"$CHECK_BATES_STAMP","$CHECK_FILENAME",[$CHECK_FILE_PAGE]
                 ,,=SUM(C6:C8),,"WF Bank - 1234567890",,4/7/2020
                 
                 "[Beginning balance (500.00) + net transactions (-550.00) != ending balance (0.00). Expected (-500.00)]",,,,"WF Bank - 1234567890",,4/7/2020
-                4/3/2020,"test",-500.00,,"WF Bank - 1234567890","AG-12345",4/7/2020,2,"test.pdf",1,,
-                4/3/2020,"test",-50.00,,"WF Bank - 1234567890","AG-12345",4/7/2020,2,"test.pdf",1,,
-                4/3/2020,"Check 1235: Some Guy - check desc",-50.00,,"WF Bank - 1234567890","$BATES_STAMP",4/7/2020,2,"$FILENAME",1,"$CHECK_BATES_STAMP","$CHECK_FILENAME",$CHECK_FILE_PAGE
-                4/3/2020,"test",-50.00,,"WF Bank - 1234567890","AG-12345",4/7/2020,2,"test.pdf",1,,
-                4/3/2020,"test",50.00,,"WF Bank - 1234567890","AG-12345",4/7/2020,2,"test.pdf",1,,
-                4/3/2020,"test",50.00,,"WF Bank - 1234567890","AG-12345",4/7/2020,2,"test.pdf",1,,
+                4/3/2020,"test",-500.00,,"WF Bank - 1234567890","AG-12345-2",4/7/2020,"test.pdf",2,,
+                4/3/2020,"test",-50.00,,"WF Bank - 1234567890","AG-12345-2",4/7/2020,"test.pdf",2,,
+                4/3/2020,"Check 1235: Some Guy - check desc",-50.00,,"WF Bank - 1234567890","$BATES_STAMP-2",4/7/2020,"$FILENAME",2,"$CHECK_BATES_STAMP","$CHECK_FILENAME",[$CHECK_FILE_PAGE]
+                4/3/2020,"test",-50.00,,"WF Bank - 1234567890","AG-12345-2",4/7/2020,"test.pdf",2,,
+                4/3/2020,"test",50.00,,"WF Bank - 1234567890","AG-12345-2",4/7/2020,"test.pdf",2,,
+                4/3/2020,"test",50.00,,"WF Bank - 1234567890","AG-12345-2",4/7/2020,"test.pdf",2,,
                 ,,=SUM(C11:C17),,"WF Bank - 1234567890",,4/7/2020
                 
                 Verified,,,,"WF Bank - 1234567890",,4/7/2020
-                4/3/2020,"test",-500.00,,"WF Bank - 1234567890","$BATES_STAMP",4/7/2020,2,"$FILENAME",1,,
+                4/3/2020,"test",-500.00,,"WF Bank - 1234567890","$BATES_STAMP-2",4/7/2020,"$FILENAME",2,,
                 ,,=SUM(C20:C21),,"WF Bank - 1234567890",,4/7/2020
                 
                 "[Missing fields: [BeginningBalance, EndingBalance], No transactions recorded]",,,,"WF Bank - 1234567890",,4/7/2020
@@ -111,9 +112,9 @@ class CsvCreatorTest {
                 ,,=SUM(C24:C25),,"WF Bank - 1234567890",,4/7/2020
                 
                 "[Beginning balance (500.00) + net transactions (-575.00) != ending balance (0.00). Expected (-500.00)]",,,,"WF Bank - 1234567890",,4/7/2020
-                4/3/2020,"test",-500.00,,"WF Bank - 1234567890","AG-12345",4/7/2020,2,"test.pdf",1,,
-                4/3/2020,"test",-50.00,,"WF Bank - 1234567890","$BATES_STAMP",4/7/2020,2,"$FILENAME",1,,
-                4/3/2020,"test",-25.00,,"WF Bank - 1234567890","AG-12345",4/7/2020,2,"test.pdf",1,,
+                4/3/2020,"test",-500.00,,"WF Bank - 1234567890","AG-12345-2",4/7/2020,"test.pdf",2,,
+                4/3/2020,"test",-50.00,,"WF Bank - 1234567890","$BATES_STAMP-2",4/7/2020,"$FILENAME",2,,
+                4/3/2020,"test",-25.00,,"WF Bank - 1234567890","AG-12345-2",4/7/2020,"test.pdf",2,,
                 ,,=SUM(C28:C31),,"WF Bank - 1234567890",,4/7/2020
             """.trimIndent()
         )
@@ -199,8 +200,8 @@ class CsvCreatorTest {
                 "[]","[]"
                 
                 "Account","Check Number","Description","Date","Amount","Bates Stamp","Filename","File Page #"
-                "1234567890",1000,"check desc",4/3/2020,-500.00,"CH-12345","checkfile",7
-                "1234567890",1001,"check desc",4/3/2020,-500.00,"CH-12345","checkfile",7
+                "1234567890",1000,"check desc",4/3/2020,-500.00,"CH-12345","checkfile",[7]
+                "1234567890",1001,"check desc",4/3/2020,-500.00,"CH-12345","checkfile",[7]
             """.trimIndent()
         )
     }
@@ -221,8 +222,8 @@ class CsvCreatorTest {
                 "[1234567890 - 1000]","[1234567890 - 1001]"
                 
                 "Account","Check Number","Description","Date","Amount","Bates Stamp","Filename","File Page #"
-                "1234567890",1000,"check desc",4/3/2020,-500.00,"CH-12345","checkfile",7
-                "1234567890",1001,"check desc",4/3/2020,-500.00,"CH-12345","checkfile",7
+                "1234567890",1000,"check desc",4/3/2020,-500.00,"CH-12345","checkfile",[7]
+                "1234567890",1001,"check desc",4/3/2020,-500.00,"CH-12345","checkfile",[7]
             """.trimIndent()
         )
     }

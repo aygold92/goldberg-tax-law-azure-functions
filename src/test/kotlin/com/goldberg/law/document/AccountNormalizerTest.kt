@@ -3,10 +3,11 @@ package com.goldberg.law.document
 import com.goldberg.law.document.model.ModelValues.BATES_STAMP
 import com.goldberg.law.document.model.ModelValues.FILENAME
 import com.goldberg.law.document.model.ModelValues.FIXED_STATEMENT_DATE
+import com.goldberg.law.document.model.ModelValues.newBatesStampTable
 import com.goldberg.law.document.model.ModelValues.newCheckData
 import com.goldberg.law.document.model.input.StatementDataModel
+import com.goldberg.law.document.model.pdf.ClassifiedPdfMetadata
 import com.goldberg.law.document.model.pdf.DocumentType
-import com.goldberg.law.document.model.pdf.PdfDocumentPageMetadata
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -104,13 +105,10 @@ class AccountNormalizerTest {
     
     companion object {
         fun newStatementDataModel(accountNumber: String?) = StatementDataModel(
-            bankIdentifier = "String?",
             date = FIXED_STATEMENT_DATE,
-            pageNum = 1,
-            totalPages = 3,
             summaryOfAccountsTable = null,
             transactionTableDepositWithdrawal = null,
-            batesStamp = BATES_STAMP,
+            batesStamps = newBatesStampTable(1 to BATES_STAMP),
             accountNumber = accountNumber,
             beginningBalance = null,
             endingBalance = null,
@@ -121,7 +119,7 @@ class AccountNormalizerTest {
             transactionTableChecks = null,
             interestCharged = null,
             feesCharged = null,
-            pageMetadata = PdfDocumentPageMetadata(FILENAME, 2, DocumentType.BankTypes.WF_BANK)
+            pageMetadata = ClassifiedPdfMetadata(FILENAME, 2, DocumentType.BankTypes.WF_BANK)
         ) 
     }
 }

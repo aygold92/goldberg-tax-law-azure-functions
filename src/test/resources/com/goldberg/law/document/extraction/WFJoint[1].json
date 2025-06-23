@@ -88,31 +88,36 @@
             {
               "type": "string",
               "content": "Transfer IN Branch/Store - From Robert Bernard Herman DDA xxxxxx4372 8302 Woodmont Ave Bethesda MD",
-              "value": "Transfer IN Branch/Store - From Robert Bernard Herman DDA xxxxxx4372 8302 Woodmont Ave Bethesda MD"
+              "value": "Transfer IN Branch/Store - From Robert Bernard Herman DDA xxxxxx4372 8302 Woodmont Ave Bethesda MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Deposits/ Additions":
             {
               "type": "number",
               "content": "50,000.00",
-              "value": 50000.0
+              "value": 50000.0,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Check Number":
             {
               "type": "integer",
               "content": null,
-              "value": null
+              "value": null,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "type": "string",
               "content": "7/11",
-              "value": "7/11"
+              "value": "7/11",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Withdrawals/ Subtractions":
             {
               "type": "number",
               "content": null,
-              "value": null
+              "value": null,
+              "boundingRegions": [{"pageNumber": 1}]
             }
           }
         },
@@ -125,31 +130,36 @@
             {
               "type": "string",
               "content": "ATM Withdrawal authorized on 07/11 5701 Connecticut Ave NW Washington DC 0008622 ATM ID 0085P Card 9899",
-              "value": "ATM Withdrawal authorized on 07/11 5701 Connecticut Ave NW Washington DC 0008622 ATM ID 0085P Card 9899"
+              "value": "ATM Withdrawal authorized on 07/11 5701 Connecticut Ave NW Washington DC 0008622 ATM ID 0085P Card 9899",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Deposits/ Additions":
             {
               "type": "number",
               "content": null,
-              "value": null
+              "value": null,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Check Number":
             {
               "type": "integer",
               "content": null,
-              "value": null
+              "value": null,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "type": "string",
               "content": "7/11",
-              "value": "7/11"
+              "value": "7/11",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Withdrawals/ Subtractions":
             {
               "type": "number",
               "content": "300.00",
-              "value": 300.0
+              "value": 300.0,
+              "boundingRegions": [{"pageNumber": 1}]
             }
           }
         },
@@ -162,31 +172,36 @@
             {
               "type": "string",
               "content": "Check",
-              "value": "Check"
+              "value": "Check",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Deposits/ Additions":
             {
               "type": "number",
               "content": null,
-              "value": null
+              "value": null,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Check Number":
             {
               "type": "integer",
               "content": "12137",
-              "value": 12137
+              "value": 12137,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "type": "string",
               "content": "7/11",
-              "value": "7/11"
+              "value": "7/11",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Withdrawals/ Subtractions":
             {
               "type": "number",
               "content": "480.00",
-              "value": 480.0
+              "value": 480.0,
+              "boundingRegions": [{"pageNumber": 1}]
             }
           }
         },
@@ -199,31 +214,36 @@
             {
               "type": "string",
               "content": "ATM Withdrawal authorized on 07/13 5701 Connecticut Ave NW Washington DC 0008893 ATM ID 0085P Card 9899",
-              "value": "ATM Withdrawal authorized on 07/13 5701 Connecticut Ave NW Washington DC 0008893 ATM ID 0085P Card 9899"
+              "value": "ATM Withdrawal authorized on 07/13 5701 Connecticut Ave NW Washington DC 0008893 ATM ID 0085P Card 9899",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Deposits/ Additions":
             {
               "type": "number",
               "content": null,
-              "value": null
+              "value": null,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Check Number":
             {
               "type": "integer",
               "content": null,
-              "value": null
+              "value": null,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "type": "string",
               "content": "7/13",
-              "value": "7/13"
+              "value": "7/13",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Withdrawals/ Subtractions":
             {
               "type": "number",
               "content": "200.00",
-              "value": 200.0
+              "value": 200.0,
+              "boundingRegions": [{"pageNumber": 1}]
             }
           }
         },
@@ -236,31 +256,36 @@
             {
               "type": "string",
               "content": "Check",
-              "value": "Check"
+              "value": "Check",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Deposits/ Additions":
             {
               "type": "number",
               "content": null,
-              "value": null
+              "value": null,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Check Number":
             {
               "type": "integer",
               "content": "12138",
-              "value": 12138
+              "value": 12138,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "type": "string",
               "content": "7/13",
-              "value": "7/13"
+              "value": "7/13",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Withdrawals/ Subtractions":
             {
               "type": "number",
               "content": "250.00",
-              "value": 250.0
+              "value": 250.0,
+              "boundingRegions": [{"pageNumber": 1}]
             }
           }
         },
@@ -273,31 +298,36 @@
             {
               "type": "string",
               "content": "S C Herman & Ass Ppe220710 Herm01 Robert Herman",
-              "value": "S C Herman & Ass Ppe220710 Herm01 Robert Herman"
+              "value": "S C Herman & Ass Ppe220710 Herm01 Robert Herman",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Deposits/ Additions":
             {
               "type": "number",
               "content": "183.39",
-              "value": 183.38999938964844
+              "value": 183.38999938964844,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Check Number":
             {
               "type": "integer",
               "content": null,
-              "value": null
+              "value": null,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "type": "string",
               "content": "7/15",
-              "value": "7/15"
+              "value": "7/15",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Withdrawals/ Subtractions":
             {
               "type": "number",
               "content": null,
-              "value": null
+              "value": null,
+              "boundingRegions": [{"pageNumber": 1}]
             }
           }
         },
@@ -310,31 +340,36 @@
             {
               "type": "string",
               "content": "ATM Withdrawal authorized on 07/15 5701 Connecticut Ave NW Washington DC 0009152 ATM ID 0085P Card 9899",
-              "value": "ATM Withdrawal authorized on 07/15 5701 Connecticut Ave NW Washington DC 0009152 ATM ID 0085P Card 9899"
+              "value": "ATM Withdrawal authorized on 07/15 5701 Connecticut Ave NW Washington DC 0009152 ATM ID 0085P Card 9899",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Deposits/ Additions":
             {
               "type": "number",
               "content": null,
-              "value": null
+              "value": null,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Check Number":
             {
               "type": "integer",
               "content": null,
-              "value": null
+              "value": null,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "type": "string",
               "content": "7/15",
-              "value": "7/15"
+              "value": "7/15",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Withdrawals/ Subtractions":
             {
               "type": "number",
               "content": "200.00",
-              "value": 200.0
+              "value": 200.0,
+              "boundingRegions": [{"pageNumber": 1}]
             }
           }
         },
@@ -347,31 +382,36 @@
             {
               "type": "string",
               "content": "ATM Withdrawal authorized on 07/15 8302 Woodmont Avenue Bethesda MD 0001405 ATM ID 4737L Card 9899",
-              "value": "ATM Withdrawal authorized on 07/15 8302 Woodmont Avenue Bethesda MD 0001405 ATM ID 4737L Card 9899"
+              "value": "ATM Withdrawal authorized on 07/15 8302 Woodmont Avenue Bethesda MD 0001405 ATM ID 4737L Card 9899",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Deposits/ Additions":
             {
               "type": "number",
               "content": null,
-              "value": null
+              "value": null,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Check Number":
             {
               "type": "integer",
               "content": null,
-              "value": null
+              "value": null,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "type": "string",
               "content": "7/15",
-              "value": "7/15"
+              "value": "7/15",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Withdrawals/ Subtractions":
             {
               "type": "number",
               "content": "100.00",
-              "value": 100.0
+              "value": 100.0,
+              "boundingRegions": [{"pageNumber": 1}]
             }
           }
         }
@@ -398,31 +438,36 @@
             {
               "type": "number",
               "content": "48,262.17",
-              "value": 48262.171875
+              "value": 48262.171875,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Account":
             {
               "type": "string",
               "content": "Crown Banking",
-              "value": "Crown Banking"
+              "value": "Crown Banking",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Account Number":
             {
               "type": "string",
               "content": "3443",
-              "value": "3443"
+              "value": "3443",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Start Page":
             {
               "type": "integer",
               "content": "2",
-              "value": 2
+              "value": 2,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Beginning Balance":
             {
               "type": "number",
               "content": "0.07",
-              "value": 0.07000000029802322
+              "value": 0.07000000029802322,
+              "boundingRegions": [{"pageNumber": 1}]
             }
           }
         },
@@ -435,31 +480,36 @@
             {
               "type": "number",
               "content": "150,001.18",
-              "value": 150001.1875
+              "value": 150001.1875,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Account":
             {
               "type": "string",
               "content": "Wells Fargo Platinum Savings",
-              "value": "Wells Fargo Platinum Savings"
+              "value": "Wells Fargo Platinum Savings",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Account Number":
             {
               "type": "string",
               "content": "4372",
-              "value": "4372"
+              "value": "4372",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Start Page":
             {
               "type": "integer",
               "content": "5",
-              "value": 5
+              "value": 5,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Beginning Balance":
             {
               "type": "number",
               "content": "201,689.60",
-              "value": 201689.59375
+              "value": 201689.59375,
+              "boundingRegions": [{"pageNumber": 1}]
             }
           }
         }

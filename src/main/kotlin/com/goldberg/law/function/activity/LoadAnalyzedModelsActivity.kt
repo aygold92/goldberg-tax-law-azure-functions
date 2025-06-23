@@ -16,7 +16,12 @@ class LoadAnalyzedModelsActivity(private val dataManager: AzureStorageDataManage
     @FunctionName(FUNCTION_NAME)
     fun loadAnalyzedModels(@DurableActivityTrigger(name = "input") input: LoadAnalyzedModelsActivityInput, context: ExecutionContext): LoadAnalyzedModelsActivityOutput {
         logger.info { "[${input.requestId}][${context.invocationId}] processing ${input.toStringDetailed()}" }
-        val models = input.pdfPages.mapAsync { DocumentDataModelContainer(dataManager.loadModel(input.clientName, it)) }
+        val models = input.filenames.mapAsync { filename ->
+            val classifications = dataManager.loadDocumentClassification(input.clientName, filename)
+            classifications.mapAsync { DocumentDataModelContainer(dataManager.loadModel(input.clientName, it)) }
+        }.flatten()
+
+
         return LoadAnalyzedModelsActivityOutput(models).also {
             logger.info { "[${input.requestId}][${context.invocationId}] returning $it" }
         }

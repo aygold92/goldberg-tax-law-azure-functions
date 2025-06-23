@@ -1,8 +1,9 @@
 package com.goldberg.law.document.model.input
 
-import com.goldberg.law.document.model.ModelValues.BASIC_TH_PAGE_METADATA
+import com.goldberg.law.document.model.ModelValues.BASIC_PDF_METADATA
 import com.goldberg.law.document.model.ModelValues.FIXED_TRANSACTION_DATE
 import com.goldberg.law.document.model.ModelValues.newHistoryRecord
+import com.goldberg.law.document.model.ModelValues.newPdfMetadata
 import com.goldberg.law.document.model.input.tables.TransactionTableAmountRecord
 import com.goldberg.law.document.model.input.tables.TransactionTableCreditsRecord
 import com.goldberg.law.document.model.input.tables.TransactionTableDebitsRecord
@@ -16,72 +17,72 @@ import org.junit.jupiter.api.Test
 class TransactionRecordTest {
     @Test
     fun testStatementDateNormal() {
-        val statementRecord = TransactionTableAmountRecord("6/1", DESCRIPTION, AMOUNT)
-        assertThat(statementRecord.toTransactionHistoryRecord(STATEMENT_DATE_NORMAL, BASIC_TH_PAGE_METADATA, DocumentType.CREDIT_CARD))
+        val statementRecord = TransactionTableAmountRecord("6/1", DESCRIPTION, AMOUNT, 1)
+        assertThat(statementRecord.toTransactionHistoryRecord(STATEMENT_DATE_NORMAL, newPdfMetadata(classification = DocumentType.CreditCardTypes.C1_CC)))
             .isEqualTo(newHistoryRecord(date = normalizeDate("6 1 2020"), id = statementRecord.id))
     }
 
     @Test
     fun testStatementDateEnd() {
-        val statementRecord = TransactionTableAmountRecord("12/5", DESCRIPTION, AMOUNT)
-        assertThat(statementRecord.toTransactionHistoryRecord(STATEMENT_DATE_END, BASIC_TH_PAGE_METADATA, DocumentType.CREDIT_CARD))
+        val statementRecord = TransactionTableAmountRecord("12/5", DESCRIPTION, AMOUNT, 1)
+        assertThat(statementRecord.toTransactionHistoryRecord(STATEMENT_DATE_END, newPdfMetadata(classification = DocumentType.CreditCardTypes.C1_CC)))
             .isEqualTo(newHistoryRecord(date = normalizeDate("12 5 2020"), id = statementRecord.id))
     }
 
     @Test
     fun testStatementDateBeginningAdjusted() {
-        val statementRecord = TransactionTableAmountRecord("12/5", DESCRIPTION, AMOUNT)
-        assertThat(statementRecord.toTransactionHistoryRecord(STATEMENT_DATE_BEGINNING, BASIC_TH_PAGE_METADATA, DocumentType.CREDIT_CARD))
+        val statementRecord = TransactionTableAmountRecord("12/5", DESCRIPTION, AMOUNT, 1)
+        assertThat(statementRecord.toTransactionHistoryRecord(STATEMENT_DATE_BEGINNING, newPdfMetadata(classification = DocumentType.CreditCardTypes.C1_CC)))
             .isEqualTo(newHistoryRecord(date = normalizeDate("12 5 2019"), id = statementRecord.id))
     }
 
     @Test
     fun testStatementDateBeginningNotAdjusted() {
-        val statementRecord = TransactionTableAmountRecord("1/5", DESCRIPTION, AMOUNT)
-        assertThat(statementRecord.toTransactionHistoryRecord(STATEMENT_DATE_BEGINNING, BASIC_TH_PAGE_METADATA, DocumentType.CREDIT_CARD))
+        val statementRecord = TransactionTableAmountRecord("1/5", DESCRIPTION, AMOUNT, 1)
+        assertThat(statementRecord.toTransactionHistoryRecord(STATEMENT_DATE_BEGINNING, newPdfMetadata(classification = DocumentType.CreditCardTypes.C1_CC)))
             .isEqualTo(newHistoryRecord(date = normalizeDate("1 5 2020"), id = statementRecord.id))
     }
 
     @Test
     fun testAmountRecordIsPositiveForBank() {
-        val statementRecord = TransactionTableAmountRecord(FIXED_TRANSACTION_DATE, DESCRIPTION, AMOUNT)
-        assertThat(statementRecord.toTransactionHistoryRecord(STATEMENT_DATE_BEGINNING, BASIC_TH_PAGE_METADATA, DocumentType.BANK))
+        val statementRecord = TransactionTableAmountRecord(FIXED_TRANSACTION_DATE, DESCRIPTION, AMOUNT, 1)
+        assertThat(statementRecord.toTransactionHistoryRecord(STATEMENT_DATE_BEGINNING, BASIC_PDF_METADATA))
             .isEqualTo(newHistoryRecord(amount = 500.0, id = statementRecord.id))
     }
 
     @Test
     fun testCheckDescriptionBecomesCheckNumber() {
         val checkDescription = "Check 4892"
-        val statementRecord = TransactionTableAmountRecord(FIXED_TRANSACTION_DATE, checkDescription, AMOUNT)
-        assertThat(statementRecord.toTransactionHistoryRecord(STATEMENT_DATE_BEGINNING, BASIC_TH_PAGE_METADATA, DocumentType.CREDIT_CARD))
+        val statementRecord = TransactionTableAmountRecord(FIXED_TRANSACTION_DATE, checkDescription, AMOUNT, 1)
+        assertThat(statementRecord.toTransactionHistoryRecord(STATEMENT_DATE_BEGINNING, newPdfMetadata(classification = DocumentType.CreditCardTypes.C1_CC)))
             .isEqualTo(newHistoryRecord(checkNumber = 4892, description = checkDescription, id = statementRecord.id))
     }
 
     @Test
     fun testCheckDescriptionBecomesCheckNumberLeadingZeros() {
         val checkDescription = "Check 004892"
-        val statementRecord = TransactionTableAmountRecord(FIXED_TRANSACTION_DATE, checkDescription, AMOUNT)
-        assertThat(statementRecord.toTransactionHistoryRecord(STATEMENT_DATE_BEGINNING, BASIC_TH_PAGE_METADATA, DocumentType.CREDIT_CARD))
+        val statementRecord = TransactionTableAmountRecord(FIXED_TRANSACTION_DATE, checkDescription, AMOUNT, 1)
+        assertThat(statementRecord.toTransactionHistoryRecord(STATEMENT_DATE_BEGINNING, newPdfMetadata(classification = DocumentType.CreditCardTypes.C1_CC)))
             .isEqualTo(newHistoryRecord(checkNumber = 4892, description = checkDescription, id = statementRecord.id))
     }
 
     @Test
     fun testDebitsCreditsRecordsAreFlippedForCreditCard() {
-        var debitsRecord = TransactionTableDebitsRecord(FIXED_TRANSACTION_DATE, DESCRIPTION, AMOUNT)
-        assertThat(debitsRecord.toTransactionHistoryRecord(STATEMENT_DATE_BEGINNING, BASIC_TH_PAGE_METADATA, DocumentType.BANK))
+        var debitsRecord = TransactionTableDebitsRecord(FIXED_TRANSACTION_DATE, DESCRIPTION, AMOUNT, 1)
+        assertThat(debitsRecord.toTransactionHistoryRecord(STATEMENT_DATE_BEGINNING, BASIC_PDF_METADATA))
             .isEqualTo(newHistoryRecord(amount = -500.0, id = debitsRecord.id))
 
-        debitsRecord = TransactionTableDebitsRecord(FIXED_TRANSACTION_DATE, DESCRIPTION, AMOUNT)
-        assertThat(debitsRecord.toTransactionHistoryRecord(STATEMENT_DATE_BEGINNING, BASIC_TH_PAGE_METADATA, DocumentType.CREDIT_CARD))
+        debitsRecord = TransactionTableDebitsRecord(FIXED_TRANSACTION_DATE, DESCRIPTION, AMOUNT, 1)
+        assertThat(debitsRecord.toTransactionHistoryRecord(STATEMENT_DATE_BEGINNING, newPdfMetadata(classification = DocumentType.CreditCardTypes.C1_CC)))
             .isEqualTo(newHistoryRecord(amount = -500.0, id = debitsRecord.id))
 
 
-        var creditsRecord = TransactionTableCreditsRecord(FIXED_TRANSACTION_DATE, DESCRIPTION, AMOUNT)
-        assertThat(creditsRecord.toTransactionHistoryRecord(STATEMENT_DATE_BEGINNING, BASIC_TH_PAGE_METADATA, DocumentType.BANK))
+        var creditsRecord = TransactionTableCreditsRecord(FIXED_TRANSACTION_DATE, DESCRIPTION, AMOUNT, 1)
+        assertThat(creditsRecord.toTransactionHistoryRecord(STATEMENT_DATE_BEGINNING, BASIC_PDF_METADATA))
             .isEqualTo(newHistoryRecord(amount = 500.0, id = creditsRecord.id))
 
-        creditsRecord = TransactionTableCreditsRecord(FIXED_TRANSACTION_DATE, DESCRIPTION, AMOUNT)
-        assertThat(creditsRecord.toTransactionHistoryRecord(STATEMENT_DATE_BEGINNING, BASIC_TH_PAGE_METADATA, DocumentType.CREDIT_CARD))
+        creditsRecord = TransactionTableCreditsRecord(FIXED_TRANSACTION_DATE, DESCRIPTION, AMOUNT, 1)
+        assertThat(creditsRecord.toTransactionHistoryRecord(STATEMENT_DATE_BEGINNING, newPdfMetadata(classification = DocumentType.CreditCardTypes.C1_CC)))
             .isEqualTo(newHistoryRecord(amount = 500.0, id = creditsRecord.id))
     }
 

@@ -8,9 +8,8 @@ import com.goldberg.law.document.model.ModelValues
 import com.goldberg.law.document.model.ModelValues.CLIENT_NAME
 import com.goldberg.law.document.model.StatementModelValues
 import com.goldberg.law.document.model.input.ExtraPageDataModel
+import com.goldberg.law.document.model.pdf.ClassifiedPdfMetadata
 import com.goldberg.law.document.model.pdf.DocumentType
-import com.goldberg.law.document.model.pdf.PdfDocumentPageMetadata
-import com.goldberg.law.function.model.PdfPageData
 import com.goldberg.law.util.toStringDetailed
 import com.nhaarman.mockitokotlin2.*
 import org.assertj.core.api.Assertions.assertThat
@@ -30,6 +29,7 @@ class AzureStorageDataManagerTest {
     @BeforeEach
     fun setup() {
         whenever(serviceClient.getBlobContainerClient(any())).thenReturn(containerClient)
+        whenever(containerClient.getBlobClient(any())).thenReturn(blobClient)
     }
 
 //    @Test
@@ -43,13 +43,13 @@ class AzureStorageDataManagerTest {
     fun testLoadStatementModel() {
         val dataManager = AzureStorageDataManager(serviceClient)
         val blobName = "Test"
-        whenever(containerClient.getBlobClient("$blobName/$blobName[1]_Model.json")).thenReturn(blobClient)
         whenever(blobClient.downloadContent()).thenReturn(BinaryData.fromString(StatementModelValues.STATEMENT_MODEL_WF_BANK_0.toStringDetailed()))
-        val result = dataManager.loadModel(CLIENT_NAME, PdfPageData(blobName, 1))
+        val result = dataManager.loadModel(CLIENT_NAME, ClassifiedPdfMetadata(blobName, 1, DocumentType.BankTypes.WF_BANK))
 
         assertThat(result).isEqualTo(StatementModelValues.STATEMENT_MODEL_WF_BANK_0)
 
         verify(serviceClient).getBlobContainerClient(BlobContainer.MODELS.forClient(CLIENT_NAME))
+        verify(containerClient).getBlobClient("$blobName/$blobName[1-1]_Model.json")
         verifyNoMoreInteractions(serviceClient)
     }
 
@@ -57,14 +57,14 @@ class AzureStorageDataManagerTest {
     fun testLoadCheckModel() {
         val dataManager = AzureStorageDataManager(serviceClient)
         val blobName = "Test"
-        whenever(containerClient.getBlobClient("$blobName/$blobName[1]_Model.json")).thenReturn(blobClient)
 
         val model = ModelValues.newCheckData(1000)
         whenever(blobClient.downloadContent()).thenReturn(BinaryData.fromString(model.toStringDetailed()))
-        val result = dataManager.loadModel(CLIENT_NAME, PdfPageData(blobName, 1))
+        val result = dataManager.loadModel(CLIENT_NAME, ClassifiedPdfMetadata(blobName, 1, DocumentType.CheckTypes.MISC_CHECK))
 
         assertThat(result).isEqualTo(model)
         verify(serviceClient).getBlobContainerClient(BlobContainer.MODELS.forClient(CLIENT_NAME))
+        verify(containerClient).getBlobClient("$blobName/$blobName[1-1]_Model.json")
         verifyNoMoreInteractions(serviceClient)
     }
 
@@ -72,14 +72,14 @@ class AzureStorageDataManagerTest {
     fun testLoadExtraPageModel() {
         val dataManager = AzureStorageDataManager(serviceClient)
         val blobName = "Test"
-        whenever(containerClient.getBlobClient("$blobName/$blobName[1]_Model.json")).thenReturn(blobClient)
 
-        val model = ExtraPageDataModel(PdfDocumentPageMetadata(blobName, 1, DocumentType.IrrelevantTypes.EXTRA_PAGES))
+        val model = ExtraPageDataModel(ClassifiedPdfMetadata(blobName, 1, DocumentType.IrrelevantTypes.EXTRA_PAGES))
         whenever(blobClient.downloadContent()).thenReturn(BinaryData.fromString(model.toStringDetailed()))
-        val result = dataManager.loadModel(CLIENT_NAME, PdfPageData(blobName, 1))
+        val result = dataManager.loadModel(CLIENT_NAME, ClassifiedPdfMetadata(blobName, 1, DocumentType.IrrelevantTypes.EXTRA_PAGES))
 
         assertThat(result).isEqualTo(model)
         verify(serviceClient).getBlobContainerClient(BlobContainer.MODELS.forClient(CLIENT_NAME))
+        verify(containerClient).getBlobClient("$blobName/$blobName[1-1]_Model.json")
         verifyNoMoreInteractions(serviceClient)
     }
 }

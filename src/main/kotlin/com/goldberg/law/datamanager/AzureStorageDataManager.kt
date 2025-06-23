@@ -2,6 +2,7 @@ package com.goldberg.law.datamanager
 
 import com.azure.core.util.BinaryData
 import com.azure.core.util.Context
+import com.azure.core.util.serializer.TypeReference
 import com.azure.storage.blob.BlobContainerClient
 import com.azure.storage.blob.BlobServiceClient
 import com.azure.storage.blob.models.*
@@ -14,12 +15,8 @@ import com.goldberg.law.document.model.input.DocumentDataModel
 import com.goldberg.law.document.model.input.ExtraPageDataModel
 import com.goldberg.law.document.model.input.StatementDataModel
 import com.goldberg.law.document.model.output.BankStatement
-import com.goldberg.law.document.model.output.BankStatementKey
-import com.goldberg.law.document.model.pdf.PdfDocumentMetadata
-import com.goldberg.law.document.model.pdf.PdfDocumentPage
+import com.goldberg.law.document.model.pdf.*
 import com.goldberg.law.function.model.metadata.InputFileMetadata
-import com.goldberg.law.function.model.PdfPageData
-import com.goldberg.law.function.model.metadata.StatementMetadata
 import com.goldberg.law.util.*
 import com.google.common.collect.Sets
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -62,12 +59,17 @@ class AzureStorageDataManager(private val serviceClient: BlobServiceClient) {
         return fileName
     }
 
-    fun savePdfPage(clientName: String, document: PdfDocumentPage, overwrite: Boolean) {
-        saveFile(getContainerClient(clientName, BlobContainer.SPLIT_INPUT), document.splitPageFilePath(), document.toBinaryData(), overwrite)
+    fun saveClassificationData(clientName: String, filename: String, classifiedData: List<ClassifiedPdfMetadata>) {
+        saveFile(getContainerClient(clientName, BlobContainer.CLASSIFICATIONS), filename.getDocumentName(), classifiedData.toStringDetailed(), true)
+    }
+
+    fun saveSplitPdf(clientName: String, document: PdfDocument) {
+        // TODO: should I add the classification in metadata?
+        saveFile(getContainerClient(clientName, BlobContainer.SPLIT_INPUT), document.splitPageFilePath(), document.toBinaryData(), true)
     }
 
     fun saveModel(clientName: String, dataModel: DocumentDataModel) =
-        saveFile(getContainerClient(clientName, BlobContainer.MODELS), dataModel.pageMetadata.toPdfPageData().modelFileName(), dataModel.toStringDetailed(), true)
+        saveFile(getContainerClient(clientName, BlobContainer.MODELS), dataModel.pageMetadata.modelFileName(), dataModel.toStringDetailed(), true)
 
     fun saveBankStatement(clientName: String, bankStatement: BankStatement, manuallyVerified: Boolean = false): String {
         val content = BinaryData.fromString(bankStatement.toStringDetailed())
@@ -109,20 +111,21 @@ class AzureStorageDataManager(private val serviceClient: BlobServiceClient) {
         throw ex
     }
 
-    // loads a single PDF file into a collection of pages
-    fun loadInputPdfDocumentPages(clientName: String, fileName: String): Collection<PdfDocumentPage> = loadFile(getContainerClient(clientName, BlobContainer.INPUT), fileName).toBytes().let {
+    fun loadInputPdfDocument(clientName: String, fileName: String): PdfDocument = loadFile(getContainerClient(clientName, BlobContainer.INPUT), fileName).toBytes().let {
         val pdfDocument = loadPdfDocument(fileName, it)
-        pdfDocument.pages.mapIndexed { idx, _ ->
-            (idx + 1).let { pageNum -> PdfDocumentPage(fileName, pdfDocument.docForPage(pageNum), pageNum) }
-        }.also { logger.debug { "Successfully loaded file $fileName" } }
+        return PdfDocument(fileName, pdfDocument)
     }
 
+    fun loadDocumentClassification(clientName: String, filename: String): List<ClassifiedPdfMetadata> =
+        loadFile(getContainerClient(clientName, BlobContainer.CLASSIFICATIONS), filename.getDocumentName())
+            .toObject(object: TypeReference<List<ClassifiedPdfMetadata>>(){})
+
     // loads a PDF Page document that has already been stored in the filesystem according to convention
-    fun loadSplitPdfDocumentPage(clientName: String, pdfPageData: PdfPageData): PdfDocumentPage = loadFile(getContainerClient(clientName, BlobContainer.SPLIT_INPUT), pdfPageData.splitPageFilePath()).toBytes().let {
-        PdfDocumentPage(pdfPageData.fileName, loadPdfDocument(pdfPageData.fileName, it), pdfPageData.page).also {
-            logger.debug { "Successfully loaded file $pdfPageData" }
+    fun loadSplitPdfDocument(clientName: String, pdfMetadata: ClassifiedPdfMetadata): ClassifiedPdfDocument =
+        loadFile(getContainerClient(clientName, BlobContainer.SPLIT_INPUT), pdfMetadata.splitPageFilePath()).toBytes().let {
+            ClassifiedPdfDocument(pdfMetadata.filename, loadPdfDocument(pdfMetadata.filename, it), pdfMetadata.pages, pdfMetadata.classification)
+                .also { logger.debug { "Successfully loaded file $pdfMetadata" } }
         }
-    }
 
     private fun loadPdfDocument(fileName: String, bytes: ByteArray) = try {
         Loader.loadPDF(bytes)
@@ -130,8 +133,8 @@ class AzureStorageDataManager(private val serviceClient: BlobServiceClient) {
         throw InvalidPdfException("Unable to load PDF $fileName: $ex")
     }
 
-    fun loadModel(clientName: String, pdfPageData: PdfPageData): DocumentDataModel {
-        val modelBinaryData = loadFile(getContainerClient(clientName, BlobContainer.MODELS), pdfPageData.modelFileName())
+    fun loadModel(clientName: String, pdfMetadata: IPdfMetadata): DocumentDataModel {
+        val modelBinaryData = loadFile(getContainerClient(clientName, BlobContainer.MODELS), pdfMetadata.modelFileName())
         val tempModel = modelBinaryData.toObject(ExtraPageDataModel::class.java)
         return when {
             tempModel.isStatement() -> modelBinaryData.toObject(StatementDataModel::class.java)
@@ -149,7 +152,7 @@ class AzureStorageDataManager(private val serviceClient: BlobServiceClient) {
      * Functions to list files
      */
     // TODO: if there were 1000s of documents this would be very slow
-    fun fetchInputPdfDocuments(clientName: String, requestedFileNames: Set<String>): Set<PdfDocumentMetadata> {
+    fun fetchInputPdfDocuments(clientName: String, requestedFileNames: Set<String>): Map<String, InputFileMetadata> {
         val blobs = getContainerClient(clientName, BlobContainer.INPUT).listBlobs(ListBlobsOptions().apply {
             details = BlobListDetails().apply { retrieveMetadata = true }
         }, Duration.ofSeconds(5)).toSet()
@@ -159,11 +162,10 @@ class AzureStorageDataManager(private val serviceClient: BlobServiceClient) {
             throw IllegalArgumentException("The following files do not exist: ${Sets.difference(requestedFileNames, intersection)}")
         }
 
-        return blobs.filter { intersection.contains(it.name) }
-            .map {
-                val metadata = if (it.metadata != null) METADATA_OBJECT_MAPPER.convertValue(it.metadata, InputFileMetadata::class.java) else InputFileMetadata()
-                PdfDocumentMetadata(it.name, metadata)
-            }.toSet()
+        return blobs.filter { intersection.contains(it.name) }.associate {
+            val metadata = if (it.metadata != null) METADATA_OBJECT_MAPPER.convertValue(it.metadata, InputFileMetadata::class.java) else InputFileMetadata()
+            it.name to metadata
+        }
     }
 
     /**
@@ -182,12 +184,12 @@ class AzureStorageDataManager(private val serviceClient: BlobServiceClient) {
         deleteFile(getContainerClient(clientName, BlobContainer.INPUT), filename)
     }
 
-    fun deleteSplitFile(clientName: String, pdfPageData: PdfPageData) {
-        deleteFile(getContainerClient(clientName, BlobContainer.SPLIT_INPUT), pdfPageData.splitPageFilePath())
+    fun deleteSplitFile(clientName: String, pdfMetadata: ClassifiedPdfMetadata) {
+        deleteFile(getContainerClient(clientName, BlobContainer.SPLIT_INPUT), pdfMetadata.splitPageFilePath())
     }
 
-    fun deleteModelFile(clientName: String, pdfPageData: PdfPageData) {
-        deleteFile(getContainerClient(clientName, BlobContainer.MODELS), pdfPageData.modelFileName())
+    fun deleteModelFile(clientName: String, pdfMetadata: ClassifiedPdfMetadata) {
+        deleteFile(getContainerClient(clientName, BlobContainer.MODELS), pdfMetadata.modelFileName())
     }
 
     fun deleteStatementFile(clientName: String, statementKey: String) {

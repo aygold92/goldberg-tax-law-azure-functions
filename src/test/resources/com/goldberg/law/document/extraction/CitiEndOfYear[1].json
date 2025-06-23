@@ -58,19 +58,22 @@
             {
               "value": "EB 2020 BULL RUN FEST 8014137200 CA",
               "type": "string",
-              "content": "EB 2020 BULL RUN FEST 8014137200 CA"
+              "content": "EB 2020 BULL RUN FEST 8014137200 CA",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": -27.40999984741211,
               "type": "number",
-              "content": "-$27.41"
+              "content": "-$27.41",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "12/14",
               "type": "string",
-              "content": "12/14"
+              "content": "12/14",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -86,19 +89,22 @@
             {
               "value": "DOORDASH*MORTONS THE S SAN FRANCISCO CA",
               "type": "string",
-              "content": "DOORDASH*MORTONS THE S SAN FRANCISCO CA"
+              "content": "DOORDASH*MORTONS THE S SAN FRANCISCO CA",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": -208.52999877929688,
               "type": "number",
-              "content": "-$208.53"
+              "content": "-$208.53",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "12/29",
               "type": "string",
-              "content": "12/29"
+              "content": "12/29",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -114,19 +120,22 @@
             {
               "value": "AMZN Mktp US Amzn.com/bill WA",
               "type": "string",
-              "content": "AMZN Mktp US Amzn.com/bill WA"
+              "content": "AMZN Mktp US Amzn.com/bill WA",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": -21.850000381469727,
               "type": "number",
-              "content": "-$21.85"
+              "content": "-$21.85",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "01/06",
               "type": "string",
-              "content": "01/06"
+              "content": "01/06",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -142,19 +151,22 @@
             {
               "value": "VTG*Growing Minds LLC ROCKVILLE . MD",
               "type": "string",
-              "content": "VTG*Growing Minds LLC ROCKVILLE . MD"
+              "content": "VTG*Growing Minds LLC ROCKVILLE . MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 196.0,
               "type": "number",
-              "content": "$196.00"
+              "content": "$196.00",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "12/08",
               "type": "string",
-              "content": "12/08"
+              "content": "12/08",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -170,19 +182,22 @@
             {
               "value": "EXXONMOBIL 97436182 KENSINGTON MD",
               "type": "string",
-              "content": "EXXONMOBIL 97436182 KENSINGTON MD"
+              "content": "EXXONMOBIL 97436182 KENSINGTON MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 48.79999923706055,
               "type": "number",
-              "content": "$48.80"
+              "content": "$48.80",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "12/08",
               "type": "string",
-              "content": "12/08"
+              "content": "12/08",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -198,19 +213,22 @@
             {
               "value": "THE PEDIATRIC CARE CEN 301-564-5880 MD",
               "type": "string",
-              "content": "THE PEDIATRIC CARE CEN 301-564-5880 MD"
+              "content": "THE PEDIATRIC CARE CEN 301-564-5880 MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 393.0,
               "type": "number",
-              "content": "$393.00"
+              "content": "$393.00",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "12/10",
               "type": "string",
-              "content": "12/10"
+              "content": "12/10",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -226,19 +244,22 @@
             {
               "value": "APPLE.COM/BILL 866-712-7753 CA",
               "type": "string",
-              "content": "APPLE.COM/BILL 866-712-7753 CA"
+              "content": "APPLE.COM/BILL 866-712-7753 CA",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 9.989999771118164,
               "type": "number",
-              "content": "$9.99"
+              "content": "$9.99",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "12/11",
               "type": "string",
-              "content": "12/11"
+              "content": "12/11",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -254,22 +275,22 @@
             {
               "value": "TARGET.COM *",
               "type": "string",
-              "content": "TARGET.COM *"
+              "content": "TARGET.COM *",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": null,
               "type": "number",
               "content": null,
-              "boundingRegions": null,
-              "spans": null,
-              "confidence": 0.588
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "12/11",
               "type": "string",
-              "content": "12/11"
+              "content": "12/11",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -285,22 +306,22 @@
             {
               "value": "800-591-3869 MN",
               "type": "string",
-              "content": "800-591-3869 MN"
+              "content": "800-591-3869 MN",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 84.2699966430664,
               "type": "number",
-              "content": "$84.27"
+              "content": "$84.27",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": null,
               "type": "string",
               "content": null,
-              "boundingRegions": null,
-              "spans": null,
-              "confidence": 0.594
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -316,19 +337,22 @@
             {
               "value": "APPLE.COM/BILL 866-712-7753 CA",
               "type": "string",
-              "content": "APPLE.COM/BILL 866-712-7753 CA"
+              "content": "APPLE.COM/BILL 866-712-7753 CA",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 9.989999771118164,
               "type": "number",
-              "content": "$9.99"
+              "content": "$9.99",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "2/12",
               "type": "string",
-              "content": "2/12"
+              "content": "2/12",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -344,19 +368,22 @@
             {
               "value": "AMZN Mktp US*2B8SG1SL2 Amzn.com/bill WA",
               "type": "string",
-              "content": "AMZN Mktp US*2B8SG1SL2 Amzn.com/bill WA"
+              "content": "AMZN Mktp US*2B8SG1SL2 Amzn.com/bill WA",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 8.859999656677246,
               "type": "number",
-              "content": "$8.86"
+              "content": "$8.86",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "12/14",
               "type": "string",
-              "content": "12/14"
+              "content": "12/14",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -372,19 +399,22 @@
             {
               "value": "AMZN MKTP US*OK39N8RE3 AMZN.COM/BILL WA",
               "type": "string",
-              "content": "AMZN MKTP US*OK39N8RE3 AMZN.COM/BILL WA"
+              "content": "AMZN MKTP US*OK39N8RE3 AMZN.COM/BILL WA",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 17.969999313354492,
               "type": "number",
-              "content": "$17.97"
+              "content": "$17.97",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "12/14",
               "type": "string",
-              "content": "12/14"
+              "content": "12/14",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -400,19 +430,22 @@
             {
               "value": "EB 2020 BULL RUN FEST 8014137200 CA",
               "type": "string",
-              "content": "EB 2020 BULL RUN FEST 8014137200 CA"
+              "content": "EB 2020 BULL RUN FEST 8014137200 CA",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 32.79999923706055,
               "type": "number",
-              "content": "$32.80"
+              "content": "$32.80",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": ".12/14",
               "type": "string",
-              "content": ".12/14"
+              "content": ".12/14",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -428,19 +461,22 @@
             {
               "value": "VTG*Growing Minds LLC ROCKVILLE MD",
               "type": "string",
-              "content": "VTG*Growing Minds LLC ROCKVILLE MD"
+              "content": "VTG*Growing Minds LLC ROCKVILLE MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 196.0,
               "type": "number",
-              "content": "$196.00"
+              "content": "$196.00",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "12/14:",
               "type": "string",
-              "content": "12/14:"
+              "content": "12/14:",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -456,19 +492,22 @@
             {
               "value": "AMZN Mktp US*IE2BZOWM3 Amzn.com/bill WA",
               "type": "string",
-              "content": "AMZN Mktp US*IE2BZOWM3 Amzn.com/bill WA"
+              "content": "AMZN Mktp US*IE2BZOWM3 Amzn.com/bill WA",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 11.449999809265137,
               "type": "number",
-              "content": "$11.45"
+              "content": "$11.45",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "12/15",
               "type": "string",
-              "content": "12/15"
+              "content": "12/15",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -484,19 +523,22 @@
             {
               "value": "LIBERTY FALLS VETERINA 3017622070. MD",
               "type": "string",
-              "content": "LIBERTY FALLS VETERINA 3017622070. MD"
+              "content": "LIBERTY FALLS VETERINA 3017622070. MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 179.7100067138672,
               "type": "number",
-              "content": "$179.71"
+              "content": "$179.71",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "12/15",
               "type": "string",
-              "content": "12/15"
+              "content": "12/15",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -512,19 +554,22 @@
             {
               "value": "AMZN MKTP US*QS8TO3AZ3 AMZN.COM/BILL WA",
               "type": "string",
-              "content": "AMZN MKTP US*QS8TO3AZ3 AMZN.COM/BILL WA"
+              "content": "AMZN MKTP US*QS8TO3AZ3 AMZN.COM/BILL WA",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 19.06999969482422,
               "type": "number",
-              "content": "$19.07"
+              "content": "$19.07",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "12/16",
               "type": "string",
-              "content": "12/16"
+              "content": "12/16",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -540,19 +585,22 @@
             {
               "value": "AMZN Mktp US*A62Y31F53 Amzn.com/bill WA",
               "type": "string",
-              "content": "AMZN Mktp US*A62Y31F53 Amzn.com/bill WA"
+              "content": "AMZN Mktp US*A62Y31F53 Amzn.com/bill WA",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 41.68000030517578,
               "type": "number",
-              "content": "$41.68"
+              "content": "$41.68",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "12/16",
               "type": "string",
-              "content": "12/16"
+              "content": "12/16",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -568,19 +616,22 @@
             {
               "value": "AMZN Mktp.US*SI3ZOOHX3 Amzn.com/bill. WA",
               "type": "string",
-              "content": "AMZN Mktp.US*SI3ZOOHX3 Amzn.com/bill. WA"
+              "content": "AMZN Mktp.US*SI3ZOOHX3 Amzn.com/bill. WA",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 21.850000381469727,
               "type": "number",
-              "content": "$21.85"
+              "content": "$21.85",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "12/17:",
               "type": "string",
-              "content": "12/17:"
+              "content": "12/17:",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -596,19 +647,22 @@
             {
               "value": "AMAZON.COM*QX6GP6703 A AMZN.COM/BILL WA",
               "type": "string",
-              "content": "AMAZON.COM*QX6GP6703 A AMZN.COM/BILL WA"
+              "content": "AMAZON.COM*QX6GP6703 A AMZN.COM/BILL WA",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 49.54999923706055,
               "type": "number",
-              "content": "$49.55"
+              "content": "$49.55",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": ".12/17:",
               "type": "string",
-              "content": ".12/17:"
+              "content": ".12/17:",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -624,19 +678,22 @@
             {
               "value": "AMAZON.COM*B475P5S73 A AMZN.COM/BILL WA",
               "type": "string",
-              "content": "AMAZON.COM*B475P5S73 A AMZN.COM/BILL WA"
+              "content": "AMAZON.COM*B475P5S73 A AMZN.COM/BILL WA",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 296.5,
               "type": "number",
-              "content": "$296.50"
+              "content": "$296.50",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "12/17",
               "type": "string",
-              "content": "12/17"
+              "content": "12/17",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -652,19 +709,22 @@
             {
               "value": "CARD MY YARD: 5129311269 TX",
               "type": "string",
-              "content": "CARD MY YARD: 5129311269 TX"
+              "content": "CARD MY YARD: 5129311269 TX",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 270.29998779296875,
               "type": "number",
-              "content": "$270.30"
+              "content": "$270.30",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "12/18",
               "type": "string",
-              "content": "12/18"
+              "content": "12/18",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -680,19 +740,22 @@
             {
               "value": "HONEYBAKED HAM #0099 678-966-3100 GA",
               "type": "string",
-              "content": "HONEYBAKED HAM #0099 678-966-3100 GA"
+              "content": "HONEYBAKED HAM #0099 678-966-3100 GA",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 160.85000610351562,
               "type": "number",
-              "content": "$160.85"
+              "content": "$160.85",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": ":12/18",
               "type": "string",
-              "content": ":12/18"
+              "content": ":12/18",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -708,19 +771,22 @@
             {
               "value": "AMZN MKTPUS*UV8DQ3V53 AMZN.COM/BILL WA",
               "type": "string",
-              "content": "AMZN MKTPUS*UV8DQ3V53 AMZN.COM/BILL WA"
+              "content": "AMZN MKTPUS*UV8DQ3V53 AMZN.COM/BILL WA",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 10.579999923706055,
               "type": "number",
-              "content": "$10.58"
+              "content": "$10.58",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": ":12/19",
               "type": "string",
-              "content": ":12/19"
+              "content": ":12/19",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -736,19 +802,22 @@
             {
               "value": "Gregorio's Trattoria P Potomac MD",
               "type": "string",
-              "content": "Gregorio's Trattoria P Potomac MD"
+              "content": "Gregorio's Trattoria P Potomac MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 96.72000122070312,
               "type": "number",
-              "content": "$96.72"
+              "content": "$96.72",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "12/19",
               "type": "string",
-              "content": "12/19"
+              "content": "12/19",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -764,19 +833,22 @@
             {
               "value": "VTG*Growing Minds LLC ROCKVILLE MD",
               "type": "string",
-              "content": "VTG*Growing Minds LLC ROCKVILLE MD"
+              "content": "VTG*Growing Minds LLC ROCKVILLE MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 196.0,
               "type": "number",
-              "content": "$196.00."
+              "content": "$196.00.",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "12/21",
               "type": "string",
-              "content": "12/21"
+              "content": "12/21",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -792,19 +864,22 @@
             {
               "value": "GFM*GoFindMe* Baby Magg Redwood City CA",
               "type": "string",
-              "content": "GFM*GoFindMe* Baby Magg Redwood City CA"
+              "content": "GFM*GoFindMe* Baby Magg Redwood City CA",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 110.0,
               "type": "number",
-              "content": "$110.00"
+              "content": "$110.00",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "12/22",
               "type": "string",
-              "content": "12/22"
+              "content": "12/22",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -820,19 +895,22 @@
             {
               "value": "DUNKIN #339788 Q35 KENSINGTON MD",
               "type": "string",
-              "content": "DUNKIN #339788 Q35 KENSINGTON MD"
+              "content": "DUNKIN #339788 Q35 KENSINGTON MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 7.409999847412109,
               "type": "number",
-              "content": "$7.41"
+              "content": "$7.41",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "12/23",
               "type": "string",
-              "content": "12/23"
+              "content": "12/23",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -848,19 +926,22 @@
             {
               "value": "EB 2020 BULL RUN FEST: 8014137200 CA",
               "type": "string",
-              "content": "EB 2020 BULL RUN FEST: 8014137200 CA"
+              "content": "EB 2020 BULL RUN FEST: 8014137200 CA",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 32.79999923706055,
               "type": "number",
-              "content": "$32.80"
+              "content": "$32.80",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "12/23",
               "type": "string",
-              "content": "12/23"
+              "content": "12/23",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -876,19 +957,22 @@
             {
               "value": "EXXONMOBIL 97436182 KENSINGTON MD",
               "type": "string",
-              "content": "EXXONMOBIL 97436182 KENSINGTON MD"
+              "content": "EXXONMOBIL 97436182 KENSINGTON MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 13.729999542236328,
               "type": "number",
-              "content": "$13.73"
+              "content": "$13.73",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "12/23",
               "type": "string",
-              "content": "12/23"
+              "content": "12/23",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -904,19 +988,22 @@
             {
               "value": "TST* O DONNELL S MARKE ROCKVILLE MD",
               "type": "string",
-              "content": "TST* O DONNELL S MARKE ROCKVILLE MD"
+              "content": "TST* O DONNELL S MARKE ROCKVILLE MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 246.36000061035156,
               "type": "number",
-              "content": "$246.36"
+              "content": "$246.36",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "12/24",
               "type": "string",
-              "content": "12/24"
+              "content": "12/24",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -932,19 +1019,22 @@
             {
               "value": "AT&T*BILL PAYMENT 8003310500 TX",
               "type": "string",
-              "content": "AT&T*BILL PAYMENT 8003310500 TX"
+              "content": "AT&T*BILL PAYMENT 8003310500 TX",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 253.6199951171875,
               "type": "number",
-              "content": "$253.62"
+              "content": "$253.62",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "12/24",
               "type": "string",
-              "content": "12/24"
+              "content": "12/24",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -960,19 +1050,22 @@
             {
               "value": "EB 2020 BULL RUN FEST 8014137200 CA",
               "type": "string",
-              "content": "EB 2020 BULL RUN FEST 8014137200 CA"
+              "content": "EB 2020 BULL RUN FEST 8014137200 CA",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 32.79999923706055,
               "type": "number",
-              "content": "$32.80"
+              "content": "$32.80",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "12/26.",
               "type": "string",
-              "content": "12/26."
+              "content": "12/26.",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -988,19 +1081,22 @@
             {
               "value": "· DOORDASH*MORTONS THE S SAN FRANCISCO CA",
               "type": "string",
-              "content": "· DOORDASH*MORTONS THE S SAN FRANCISCO CA"
+              "content": "· DOORDASH*MORTONS THE S SAN FRANCISCO CA",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 208.52999877929688,
               "type": "number",
-              "content": "$208.53"
+              "content": "$208.53",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "12/29",
               "type": "string",
-              "content": "12/29"
+              "content": "12/29",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -1016,19 +1112,22 @@
             {
               "value": "SUNFLOWER BAKERY 240-361-3698 MD",
               "type": "string",
-              "content": "SUNFLOWER BAKERY 240-361-3698 MD"
+              "content": "SUNFLOWER BAKERY 240-361-3698 MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 27.0,
               "type": "number",
-              "content": "$27.00"
+              "content": "$27.00",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "12/29",
               "type": "string",
-              "content": "12/29"
+              "content": "12/29",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -1044,19 +1143,22 @@
             {
               "value": "Center for Assessment CHEVY CHASE MD",
               "type": "string",
-              "content": "Center for Assessment CHEVY CHASE MD"
+              "content": "Center for Assessment CHEVY CHASE MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 162.5,
               "type": "number",
-              "content": "$162.50"
+              "content": "$162.50",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "12/29",
               "type": "string",
-              "content": "12/29"
+              "content": "12/29",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -1072,19 +1174,22 @@
             {
               "value": "Center for Assessment CHEVY CHASE MD",
               "type": "string",
-              "content": "Center for Assessment CHEVY CHASE MD"
+              "content": "Center for Assessment CHEVY CHASE MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 975.0,
               "type": "number",
-              "content": "$975.00"
+              "content": "$975.00",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "12/29",
               "type": "string",
-              "content": "12/29"
+              "content": "12/29",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -1100,19 +1205,22 @@
             {
               "value": "STARBUCKS STORE 19853 KENSINGTON MD",
               "type": "string",
-              "content": "STARBUCKS STORE 19853 KENSINGTON MD"
+              "content": "STARBUCKS STORE 19853 KENSINGTON MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 84.48999786376953,
               "type": "number",
-              "content": "$84.49"
+              "content": "$84.49",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "12/31",
               "type": "string",
-              "content": "12/31"
+              "content": "12/31",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -1128,19 +1236,22 @@
             {
               "value": "TST* O DONNELL S MARKE ROCKVILLE MD.",
               "type": "string",
-              "content": "TST* O DONNELL S MARKE ROCKVILLE MD."
+              "content": "TST* O DONNELL S MARKE ROCKVILLE MD.",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 165.86000061035156,
               "type": "number",
-              "content": "$165.86"
+              "content": "$165.86",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "12/31",
               "type": "string",
-              "content": "12/31"
+              "content": "12/31",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -1156,19 +1267,22 @@
             {
               "value": "JSSA ONLINE 3018813700 MD",
               "type": "string",
-              "content": "JSSA ONLINE 3018813700 MD"
+              "content": "JSSA ONLINE 3018813700 MD",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 100.0,
               "type": "number",
-              "content": "$100.00"
+              "content": "$100.00",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "01/06",
               "type": "string",
-              "content": "01/06"
+              "content": "01/06",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
@@ -1184,19 +1298,22 @@
             {
               "value": "LATE FEE - DEC PAYMENT PAST DUE",
               "type": "string",
-              "content": "LATE FEE - DEC PAYMENT PAST DUE"
+              "content": "LATE FEE - DEC PAYMENT PAST DUE",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 29.0,
               "type": "number",
-              "content": "$29.00"
+              "content": "$29.00",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "01/07",
               "type": "string",
-              "content": "01/07"
+              "content": "01/07",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",

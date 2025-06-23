@@ -1,8 +1,10 @@
 package com.goldberg.law
 
-import com.azure.ai.formrecognizer.documentanalysis.DocumentAnalysisClient
-import com.azure.ai.formrecognizer.documentanalysis.DocumentAnalysisClientBuilder
+import com.azure.ai.documentintelligence.DocumentIntelligenceClient
+import com.azure.ai.documentintelligence.DocumentIntelligenceClientBuilder
 import com.azure.core.credential.AzureKeyCredential
+import com.azure.core.http.HttpClient
+import com.azure.core.http.netty.NettyAsyncHttpClientBuilder
 import com.azure.storage.blob.BlobServiceClient
 import com.azure.storage.blob.BlobServiceClientBuilder
 import com.goldberg.law.categorization.TransactionCategorizer
@@ -11,8 +13,11 @@ import com.goldberg.law.datamanager.AzureStorageDataManager
 import com.goldberg.law.document.*
 import com.goldberg.law.function.*
 import com.goldberg.law.function.activity.*
+import com.goldberg.law.function.api.*
+import com.goldberg.law.function.model.tracking.OrchestrationStatusFactory
 import com.google.inject.AbstractModule
 import com.google.inject.Provides
+import java.time.Duration
 import javax.inject.Singleton
 
 class AppModule constructor(private val appEnvironmentSettings: AppEnvironmentSettings) : AbstractModule() {
@@ -22,9 +27,10 @@ class AppModule constructor(private val appEnvironmentSettings: AppEnvironmentSe
 
     @Provides
     @Singleton
-    fun documentAnalysisClient(): DocumentAnalysisClient = DocumentAnalysisClientBuilder()
+    fun documentIntelligenceClient(): DocumentIntelligenceClient = DocumentIntelligenceClientBuilder()
         .endpoint(appEnvironmentSettings.azureConfig.apiEndpoint)
         .credential(AzureKeyCredential(appEnvironmentSettings.azureConfig.apiKey))
+        .httpClient(NettyAsyncHttpClientBuilder().responseTimeout(Duration.ofSeconds(180)).build())
         .buildClient()
 
     @Provides
@@ -42,14 +48,14 @@ class AppModule constructor(private val appEnvironmentSettings: AppEnvironmentSe
     /** these should not have to instantiated here, I have no idea why guice can't find the @Inject constructor **/
     @Provides
     @Singleton
-    fun documentClassifier(documentAnalysisClient: DocumentAnalysisClient): DocumentClassifier =
-        DocumentClassifier(documentAnalysisClient, appEnvironmentSettings.azureConfig.classifierModel)
+    fun documentClassifier(documentIntelligenceClient: DocumentIntelligenceClient): DocumentClassifier =
+        DocumentClassifier(documentIntelligenceClient, appEnvironmentSettings.azureConfig.classifierModel)
 
     @Provides
     @Singleton
-    fun documentDataExtractor(documentAnalysisClient: DocumentAnalysisClient): DocumentDataExtractor =
+    fun documentDataExtractor(documentIntelligenceClient: DocumentIntelligenceClient): DocumentDataExtractor =
         DocumentDataExtractor(
-            documentAnalysisClient,
+            documentIntelligenceClient,
             appEnvironmentSettings.azureConfig.dataExtractorModel,
             appEnvironmentSettings.azureConfig.checkExtractorModel
         )
@@ -64,27 +70,37 @@ class AppModule constructor(private val appEnvironmentSettings: AppEnvironmentSe
 
     @Provides
     @Singleton
-    fun pdfDataExtractorOrchestratorFunction() = PdfDataExtractorOrchestratorFunction(appEnvironmentSettings.azureConfig.numWorkers)
-
-    @Provides
-    @Singleton
-    fun splitPdfFunction(
-        azureStorageDataManager: AzureStorageDataManager,
-    ) = SplitPdfActivity(azureStorageDataManager)
+    fun pdfDataExtractorOrchestratorFunction() = PdfDataExtractorOrchestratorFunction(
+        appEnvironmentSettings.azureConfig.numWorkers,
+        ConcurrentExecutionOrchestrator(),
+        OrchestrationStatusFactory(),
+    )
 
     @Provides
     @Singleton
     fun processDataModelFunction(
-        classifier: DocumentClassifier,
         dataExtractor: DocumentDataExtractor,
         azureStorageDataManager: AzureStorageDataManager
-    ) = ProcessDataModelActivity(classifier, dataExtractor, azureStorageDataManager)
+    ) = ProcessDataModelActivity(dataExtractor, azureStorageDataManager)
 
     @Provides
     @Singleton
     fun getRelevantFilesActivity(
         azureStorageDataManager: AzureStorageDataManager
     ) = GetFilesToProcessActivity(azureStorageDataManager)
+
+    @Provides
+    @Singleton
+    fun getClassifyDocumentActivity(
+        azureStorageDataManager: AzureStorageDataManager,
+        documentClassifier: DocumentClassifier
+    ) = ClassifyDocumentActivity(azureStorageDataManager, documentClassifier)
+
+    @Provides
+    @Singleton
+    fun loadDocumentClassificationsActivity(
+        azureStorageDataManager: AzureStorageDataManager,
+    ) = LoadDocumentClassificationsActivity(azureStorageDataManager)
 
     @Provides
     @Singleton
@@ -155,8 +171,9 @@ class AppModule constructor(private val appEnvironmentSettings: AppEnvironmentSe
     @Singleton
     fun updateStatementModelFunction(
         azureStorageDataManager: AzureStorageDataManager,
-        processStatementsActivity: ProcessStatementsActivity
-    ) = UpdateStatementModelsFunction(azureStorageDataManager, processStatementsActivity)
+        processStatementsActivity: ProcessStatementsActivity,
+        putDocumentClassificationFunction: PutDocumentClassificationFunction
+    ) = UpdateStatementModelFunction(azureStorageDataManager, processStatementsActivity, putDocumentClassificationFunction)
 
     @Provides
     @Singleton
@@ -175,5 +192,13 @@ class AppModule constructor(private val appEnvironmentSettings: AppEnvironmentSe
     fun categorizeTransactionsFunction(
         transactionCategorizer: TransactionCategorizer
     ) = CategorizeTransactionsFunction(transactionCategorizer)
+
+    @Provides
+    @Singleton
+    fun putDocumentClassificationFunction(dataManager: AzureStorageDataManager) = PutDocumentClassificationFunction(dataManager)
+
+    @Provides
+    @Singleton
+    fun getDocumentClassificationFunction(dataManager: AzureStorageDataManager) = GetDocumentClassificationFunction(dataManager)
 
 }

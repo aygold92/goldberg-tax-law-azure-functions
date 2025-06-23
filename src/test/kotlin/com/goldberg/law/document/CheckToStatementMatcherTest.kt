@@ -67,8 +67,8 @@ class CheckToStatementMatcherTest {
     fun testAccountNumbersOnStatementIsWeirdDateDoesNotMatch() {
         // we only check that the check number matches
         val otherAccountNumber = "xxxxxxxxxxxxx"
-        val bankStatement = newBankStatement(accountNumber = otherAccountNumber)
-            .update(transactions = listOf(newHistoryRecord(date = "6 10 2020", checkNumber = 1000, checkData = newCheckData(1000))))
+        val bankStatement = newBankStatement(accountNumber = otherAccountNumber,
+            transactions = listOf(newHistoryRecord(date = "6 10 2020", checkNumber = 1000, checkData = newCheckData(1000))))
             .copy(checks = mutableMapOf(1000 to BASIC_CHECK_PAGE_METADATA))
 
 
@@ -86,8 +86,8 @@ class CheckToStatementMatcherTest {
     @Test
     fun testAccountNumbersOnStatementIsWeirdAmountDoesNotMatch() {
         val otherAccountNumber = "xxxxxxxxxxxxx"
-        val bankStatement = newBankStatement(accountNumber = otherAccountNumber)
-            .update(transactions = listOf(newHistoryRecord(amount = 1500.0, checkNumber = 1000)))
+        val bankStatement = newBankStatement(accountNumber = otherAccountNumber,
+            transactions = listOf(newHistoryRecord(amount = 1500.0, checkNumber = 1000)))
 
 
         val finalStatements = checkToStatementMatcher.matchChecksWithStatements(
@@ -102,16 +102,14 @@ class CheckToStatementMatcherTest {
     @Test
     fun testAccountNumbersMatchButOtherStuffDoesNot() {
         // this should match because it's most likely that the record wasn't read the record correctly
-        val bankStatement = newBankStatement()
-            .update(transactions = listOf(newHistoryRecord(amount = 1500.0, checkNumber = 1000)))
+        val bankStatement = newBankStatement(transactions = listOf(newHistoryRecord(amount = 1500.0, checkNumber = 1000)))
 
 
         val finalStatements = checkToStatementMatcher.matchChecksWithStatements(
             listOf(bankStatement), listOf(newCheckData(1000))
         )
 
-        val bankStatementWithCheckData = newBankStatement()
-            .update(transactions = listOf(newHistoryRecord(amount = 1500.0, checkNumber = 1000, checkData = newCheckData(1000))))
+        val bankStatementWithCheckData = newBankStatement(transactions = listOf(newHistoryRecord(amount = 1500.0, checkNumber = 1000, checkData = newCheckData(1000))))
             .copy(checks = mutableMapOf(1000 to BASIC_CHECK_PAGE_METADATA))
 
         assertThat(finalStatements).isEqualTo(listOf(bankStatementWithCheckData))
@@ -134,8 +132,7 @@ class CheckToStatementMatcherTest {
             listOf(statement), listOf(checkData1, checkData2)
         )
 
-        val bankStatementWithCheckData = newBankStatement()
-            .update(transactions = listOf(newHistoryRecord(checkNumber = 1000, checkData = newCheckData(checkNumber = 1000, accountNumber = otherAccountNumber))))
+        val bankStatementWithCheckData = newBankStatement(transactions = listOf(newHistoryRecord(checkNumber = 1000, checkData = newCheckData(checkNumber = 1000, accountNumber = otherAccountNumber))))
             .copy(accountNumber = statementAccountNumber, checks = mutableMapOf(1000 to BASIC_CHECK_PAGE_METADATA))
 
         assertThat(finalStatements).isEqualTo(listOf(bankStatementWithCheckData))
@@ -157,8 +154,7 @@ class CheckToStatementMatcherTest {
             listOf(statement), listOf(checkData1, checkData2)
         )
 
-        val bankStatementWithCheckData = newBankStatement()
-            .update(transactions = listOf(newHistoryRecord(checkNumber = 1000, checkData = newCheckData(checkNumber = 1000, accountNumber = otherAccountNumber))))
+        val bankStatementWithCheckData = newBankStatement(transactions = listOf(newHistoryRecord(checkNumber = 1000, checkData = newCheckData(checkNumber = 1000, accountNumber = otherAccountNumber))))
             .copy(accountNumber = statementAccountNumber, checks = mutableMapOf(1000 to BASIC_CHECK_PAGE_METADATA))
 
         assertThat(finalStatements).isEqualTo(listOf(bankStatementWithCheckData))
@@ -186,11 +182,9 @@ class CheckToStatementMatcherTest {
             listOf(statement1, statement2), listOf(checkData1, checkData2)
         )
 
-        val bankStatement1WithCheckData = newBankStatement()
-            .update(transactions = listOf(newHistoryRecord(checkNumber = 1000, checkData = newCheckData(checkNumber = 1000, accountNumber = otherAccountNumber))))
+        val bankStatement1WithCheckData = newBankStatement(transactions = listOf(newHistoryRecord(checkNumber = 1000, checkData = newCheckData(checkNumber = 1000, accountNumber = otherAccountNumber))))
             .copy(checks = mutableMapOf(1000 to BASIC_CHECK_PAGE_METADATA))
-        val bankStatement2WithCheckData = newBankStatement()
-            .update(transactions = listOf(newHistoryRecord(checkNumber = 1000, checkData = newCheckData(checkNumber = 1000, accountNumber = otherAccountNumber))))
+        val bankStatement2WithCheckData = newBankStatement(transactions = listOf(newHistoryRecord(checkNumber = 1000, checkData = newCheckData(checkNumber = 1000, accountNumber = otherAccountNumber))))
             .copy(accountNumber = statementAccountNumber, checks = mutableMapOf(1000 to BASIC_CHECK_PAGE_METADATA))
 
         assertThat(finalStatements).isEqualTo(listOf(bankStatement1WithCheckData, bankStatement2WithCheckData))
@@ -227,8 +221,7 @@ class CheckToStatementMatcherTest {
             listOf(statement1, statement2), listOf(checkData1, checkData2)
         )
 
-        val bankStatement2WithCheckData = newBankStatement()
-            .update(transactions = listOf(newHistoryRecord(amount = 1500.0, date = "4 10 2020", checkNumber = 1000, checkData = checkData1)))
+        val bankStatement2WithCheckData = newBankStatement(transactions = listOf(newHistoryRecord(amount = 1500.0, date = "4 10 2020", checkNumber = 1000, checkData = checkData1)))
             .copy(accountNumber = statementAccountNumber, checks = mutableMapOf(1000 to BASIC_CHECK_PAGE_METADATA))
 
         assertThat(finalStatements).isEqualTo(listOf(statement1, bankStatement2WithCheckData))
@@ -252,7 +245,8 @@ class CheckToStatementMatcherTest {
                     "Some Guy",
                     "test",
                     1500.asCurrency(),
-                    null
+                    null,
+                    page = 1
                 ),
                 CheckEntriesTableRow(
                     normalizeDate("4 15 2020"),
@@ -260,7 +254,8 @@ class CheckToStatementMatcherTest {
                     "Another Guy",
                     "desc",
                     2000.asCurrency(),
-                    null
+                    null,
+                    page = 1
                 ),
             )),
             CHECK_BATES_STAMP,
@@ -341,8 +336,7 @@ class CheckToStatementMatcherTest {
         val ALL_CHECKS_LIST = listOf(newCheckData(1000), newCheckData(1001))
         val ALL_CHECK_KEYS = ALL_CHECKS_LIST.map { it.checkDataKey }.toSet()
 
-        fun statementWithRecords(vararg records: TransactionHistoryRecord) = newBankStatement()
-            .update(transactions = records.toList())
+        fun statementWithRecords(vararg records: TransactionHistoryRecord) = newBankStatement(transactions = records.toList())
 
         fun historyRecordWithCheckData(checkNumber: Int?) = newHistoryRecord(checkNumber = checkNumber, checkData = newCheckData(checkNumber))
     }

@@ -5,12 +5,11 @@ import com.goldberg.law.document.model.ModelValues.BATES_STAMP
 import com.goldberg.law.document.model.ModelValues.FILENAME
 import com.goldberg.law.document.model.ModelValues.FIXED_STATEMENT_DATE
 import com.goldberg.law.document.model.input.*
-import com.goldberg.law.document.model.input.DocumentDataModelTest.Companion.GSON
 import com.goldberg.law.document.model.input.tables.*
-import com.goldberg.law.document.model.pdf.ClassifiedPdfDocumentPage
+import com.goldberg.law.document.model.pdf.ClassifiedPdfMetadata
 import com.goldberg.law.document.model.pdf.DocumentType
-import com.goldberg.law.document.model.pdf.PdfDocumentPageMetadata
 import com.goldberg.law.function.model.activity.ProcessStatementsActivityOutput
+import com.goldberg.law.util.GSON
 import com.goldberg.law.util.OBJECT_MAPPER
 import com.goldberg.law.util.asCurrency
 import org.assertj.core.api.Assertions.assertThat
@@ -86,26 +85,23 @@ class DocumentDataModelContainerTest {
 
     companion object {
         val STATEMENT_DATA_MODEL = StatementDataModel(
-            bankIdentifier = "",
             date = FIXED_STATEMENT_DATE,
-            pageNum = 1,
-            totalPages = 3,
-            summaryOfAccountsTable = SummaryOfAccountsTable(listOf(SummaryOfAccountsTableRecord("", 3, 4.asCurrency(), 5.asCurrency()))),
+            summaryOfAccountsTable = SummaryOfAccountsTable(listOf(SummaryOfAccountsTableRecord("", 4.asCurrency(), 5.asCurrency()))),
             transactionTableDepositWithdrawal = null,
-            batesStamp = BATES_STAMP,
+            batesStamps = BatesStampTable(listOf(BatesStampTableRow(BATES_STAMP, 1))),
             accountNumber = "",
             beginningBalance = null,
             endingBalance = null,
-            transactionTableAmount = TransactionTableAmount(records = listOf(TransactionTableAmountRecord("test", "test", 1.asCurrency()))),
+            transactionTableAmount = TransactionTableAmount(records = listOf(TransactionTableAmountRecord("test", "test", 1.asCurrency(), page = 1))),
             transactionTableCreditsCharges = TransactionTableCreditsCharges(records = listOf(
-                TransactionTableCreditsChargesRecord("test", "test", 1.asCurrency(), 2.asCurrency())
+                TransactionTableCreditsChargesRecord("test", "test", 1.asCurrency(), 2.asCurrency(), page = 1)
             )),
-            transactionTableDebits = TransactionTableDebits(records = listOf(TransactionTableDebitsRecord("test", "test", 1.asCurrency()))),
-            transactionTableCredits = TransactionTableCredits(records = listOf(TransactionTableCreditsRecord("test", "test", 1.asCurrency()))),
-            transactionTableChecks = TransactionTableChecks(records = listOf(TransactionTableChecksRecord("test", 1, 1.asCurrency()))),
+            transactionTableDebits = TransactionTableDebits(records = listOf(TransactionTableDebitsRecord("test", "test", 1.asCurrency(), page = 1))),
+            transactionTableCredits = TransactionTableCredits(records = listOf(TransactionTableCreditsRecord("test", "test", 1.asCurrency(), page = 1))),
+            transactionTableChecks = TransactionTableChecks(records = listOf(TransactionTableChecksRecord("test", 1, 1.asCurrency(), page = 1))),
             interestCharged = 3.asCurrency(),
             feesCharged = 4.asCurrency(),
-            pageMetadata = PdfDocumentPageMetadata(FILENAME, 1, DocumentType.BankTypes.WF_BANK)
+            pageMetadata = ClassifiedPdfMetadata(FILENAME, 1, DocumentType.BankTypes.WF_BANK)
         )
 
         val CHECK_DATA_MODEL = CheckDataModel(
@@ -117,7 +113,7 @@ class DocumentDataModelContainerTest {
             amount = null,
             checkEntries = null,
             batesStamp = BATES_STAMP,
-            pageMetadata = PdfDocumentPageMetadata(FILENAME, 1, DocumentType.BankTypes.WF_BANK)
+            pageMetadata = ClassifiedPdfMetadata(FILENAME, 1, DocumentType.BankTypes.WF_BANK)
         )
 
         val CHECK_DATA_MODEL_CHECK_ENTRIES = CheckDataModel(
@@ -134,15 +130,16 @@ class DocumentDataModelContainerTest {
                     description = "desc",
                     date = FIXED_STATEMENT_DATE,
                     amount = 65.60.asCurrency(),
-                    accountNumber = null
+                    accountNumber = null,
+                    page = 1
             )
             )),
             batesStamp = BATES_STAMP,
-            pageMetadata = PdfDocumentPageMetadata(FILENAME, 1, DocumentType.CheckTypes.B_OF_A_CHECK)
+            pageMetadata = ClassifiedPdfMetadata(FILENAME, 1, DocumentType.CheckTypes.B_OF_A_CHECK)
         )
 
         val EXTRA_PAGE_DATA_MODEL = ExtraPageDataModel(
-            pageMetadata = PdfDocumentPageMetadata(FILENAME, 1, ClassifiedPdfDocumentPage.IRRELEVANT_TYPE)
+            pageMetadata = ClassifiedPdfMetadata(FILENAME, 1, DocumentType.IrrelevantTypes.EXTRA_PAGES)
         )
     }
 }

@@ -1,18 +1,16 @@
 package com.goldberg.law.function.activity
 
 import com.goldberg.law.datamanager.AzureStorageDataManager
-import com.goldberg.law.document.DocumentClassifier
 import com.goldberg.law.document.DocumentDataExtractor
 import com.goldberg.law.document.model.input.CheckDataModel
-import com.goldberg.law.document.model.input.DocumentDataModel
 import com.goldberg.law.document.model.input.ExtraPageDataModel
 import com.goldberg.law.document.model.input.StatementDataModel
+import com.goldberg.law.document.model.input.tables.BatesStampTable
+import com.goldberg.law.document.model.input.tables.BatesStampTableRow
+import com.goldberg.law.document.model.pdf.ClassifiedPdfMetadata
 import com.goldberg.law.document.model.pdf.DocumentType
-import com.goldberg.law.document.model.pdf.DocumentType.BankTypes
-import com.goldberg.law.document.model.pdf.PdfDocumentPage
-import com.goldberg.law.document.model.pdf.PdfDocumentPageMetadata
+import com.goldberg.law.document.model.pdf.DocumentType.*
 import com.goldberg.law.function.model.DocumentDataModelContainer
-import com.goldberg.law.function.model.PdfPageData
 import com.goldberg.law.function.model.activity.ProcessDataModelActivityInput
 import com.goldberg.law.util.asCurrency
 import com.goldberg.law.util.normalizeDate
@@ -24,7 +22,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import javax.inject.Inject
 
 class ProcessDataModelActivity @Inject constructor(
-    private val classifier: DocumentClassifier,
     private val dataExtractor: DocumentDataExtractor,
     private val dataManager: AzureStorageDataManager,
 ) {
@@ -35,34 +32,34 @@ class ProcessDataModelActivity @Inject constructor(
     @FunctionName(FUNCTION_NAME)
     fun processDataModel(@DurableActivityTrigger(name = "name") input: ProcessDataModelActivityInput, context: ExecutionContext): DocumentDataModelContainer {
 
-        logger.info { "[${input.requestId}][${context.invocationId}] processing ${input.pdfPageData}" }
-        val pdfDocument = dataManager.loadSplitPdfDocumentPage(input.clientName, input.pdfPageData)
-        val dataModel = processDocument(pdfDocument, input.overrideTypeClassification)
+        logger.info { "[${input.requestId}][${context.invocationId}] processing ${input.classifiedPdfMetadata}" }
+        val pdfDocument = if (!input.useOriginalFile) {
+            dataManager.loadSplitPdfDocument(input.clientName, input.classifiedPdfMetadata)
+        } else {
+            dataManager.loadInputPdfDocument(input.clientName, input.classifiedPdfMetadata.filename)
+                .docForPages(input.classifiedPdfMetadata.pages)
+                .asClassifiedDocument(input.classifiedPdfMetadata.classification)
+        }
+
+        val dataModel = when (input.classifiedPdfMetadata.documentType){
+            BANK, CREDIT_CARD -> dataExtractor.extractStatementData(pdfDocument);
+            CHECK -> dataExtractor.extractCheckData(pdfDocument)
+            else -> ExtraPageDataModel(pdfDocument.toDocumentMetadata()).also {
+                logger.error { "Unable to process statement ${input.classifiedPdfMetadata} as it is not a bank, CC, or check" }
+            }
+        }
 
 //         val dataModel = getStatementPage(input.pdfPageData)
 
         try {
             dataManager.saveModel(input.clientName, dataModel)
         } catch (ex: Throwable) {
-            logger.error(ex) { "Exception writing model for ${pdfDocument.nameWithPage()}: $ex" }
+            logger.error(ex) { "Exception writing model for ${pdfDocument.nameWithPages()}: $ex" }
         }
+
+
         return DocumentDataModelContainer(dataModel).also {
             logger.info { "[${input.requestId}][${context.invocationId}] returning model ${it.toStringDetailed()}" }
-        }
-    }
-
-    private fun processDocument(inputDocument: PdfDocumentPage, classifiedTypeOverride: String?): DocumentDataModel {
-        val classifiedDocument = if (classifiedTypeOverride != null) {
-            logger.info { "Overriding classification as $classifiedTypeOverride as requested..." }
-            inputDocument.withType(classifiedTypeOverride)
-        } else {
-            classifier.classifyDocument(inputDocument)
-        }
-
-        return when {
-            classifiedDocument.isStatementDocument() -> dataExtractor.extractStatementData(classifiedDocument);
-            classifiedDocument.isRelevant() -> dataExtractor.extractCheckData(classifiedDocument)
-            else -> ExtraPageDataModel(classifiedDocument.toDocumentMetadata())
         }
     }
 
@@ -72,16 +69,16 @@ class ProcessDataModelActivity @Inject constructor(
         /**
          * The following are test statements for quick testing that doesn't require contacting the document intelligence service
          */
-        fun getStatementPage(pdfPageData: PdfPageData): DocumentDataModel {
-            val statement = statements[pdfPageData.page - 1]
-            return if (statement.isStatement()) {
-                (statement as StatementDataModel).copy(pageMetadata = statement.pageMetadata.copy(filename = pdfPageData.fileName, page = pdfPageData.page))
-            } else if (statement.isCheck()) {
-                (statement as CheckDataModel).copy(pageMetadata = statement.pageMetadata.copy(filename = pdfPageData.fileName, page = pdfPageData.page))
-            } else {
-                (statement as ExtraPageDataModel).copy(pageMetadata = statement.pageMetadata.copy(filename = pdfPageData.fileName, page = pdfPageData.page))
-            }
-        }
+//        fun getStatementPage(pdfPageData: PdfPageData): DocumentDataModel {
+//            val statement = statements[pdfPageData.page - 1]
+//            return if (statement.isStatement()) {
+//                (statement as StatementDataModel).copy(pageMetadata = statement.pageMetadata.copy(filename = pdfPageData.fileName, page = pdfPageData.page))
+//            } else if (statement.isCheck()) {
+//                (statement as CheckDataModel).copy(pageMetadata = statement.pageMetadata.copy(filename = pdfPageData.fileName, page = pdfPageData.page))
+//            } else {
+//                (statement as ExtraPageDataModel).copy(pageMetadata = statement.pageMetadata.copy(filename = pdfPageData.fileName, page = pdfPageData.page))
+//            }
+//        }
 
         const val FILENAME = "test.pdf"
 
@@ -95,16 +92,13 @@ class ProcessDataModelActivity @Inject constructor(
                 date = normalizeDate("6 2 2022"),
                 description = "test",
                 checkEntries = null,
-                pageMetadata = PdfDocumentPageMetadata(FILENAME, 1, DocumentType.CheckTypes.EAGLE_BANK_CHECK)
+                pageMetadata = ClassifiedPdfMetadata(FILENAME, 1, CheckTypes.EAGLE_BANK_CHECK)
             ),
             StatementDataModel(
-                bankIdentifier = "WELLS FARGO",
                 date = normalizeDate("6 2 2022"),
-                pageNum = 2,
-                totalPages = 7,
                 summaryOfAccountsTable = null,
                 transactionTableDepositWithdrawal = null,
-                batesStamp = "HERMAN-R-000630",
+                batesStamps = BatesStampTable(listOf(BatesStampTableRow(`val` = "HERMAN-R-000630", page = 1))),
                 accountNumber = "3443",
                 beginningBalance = 0.07.asCurrency(),
                 endingBalance = 48262.17.asCurrency(),
@@ -115,12 +109,12 @@ class ProcessDataModelActivity @Inject constructor(
                 transactionTableChecks = null,
                 interestCharged = null,
                 feesCharged = null,
-                pageMetadata = PdfDocumentPageMetadata(FILENAME, 1, BankTypes.WF_BANK)
+                pageMetadata = ClassifiedPdfMetadata(FILENAME, 2, BankTypes.WF_BANK)
             ),
-            ExtraPageDataModel(PdfDocumentPageMetadata(FILENAME, 1, DocumentType.IrrelevantTypes.EXTRA_PAGES)),
-            ExtraPageDataModel(PdfDocumentPageMetadata(FILENAME, 2, DocumentType.IrrelevantTypes.EXTRA_PAGES)),
-            ExtraPageDataModel(PdfDocumentPageMetadata(FILENAME, 3, DocumentType.IrrelevantTypes.EXTRA_PAGES)),
-            ExtraPageDataModel(PdfDocumentPageMetadata(FILENAME, 4, DocumentType.IrrelevantTypes.EXTRA_PAGES)),
+            ExtraPageDataModel(ClassifiedPdfMetadata(FILENAME, 3, DocumentType.IrrelevantTypes.EXTRA_PAGES)),
+            ExtraPageDataModel(ClassifiedPdfMetadata(FILENAME, 4, DocumentType.IrrelevantTypes.EXTRA_PAGES)),
+            ExtraPageDataModel(ClassifiedPdfMetadata(FILENAME, 5, DocumentType.IrrelevantTypes.EXTRA_PAGES)),
+            ExtraPageDataModel(ClassifiedPdfMetadata(FILENAME, 6, DocumentType.IrrelevantTypes.EXTRA_PAGES)),
         )
     }
 }

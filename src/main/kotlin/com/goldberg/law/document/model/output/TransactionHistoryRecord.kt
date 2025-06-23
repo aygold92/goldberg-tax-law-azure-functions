@@ -5,12 +5,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.goldberg.law.document.model.input.CheckDataModel
+import com.goldberg.law.document.model.output.TransactionHistoryPageMetadata.Companion.joinAccountNumber
+import com.goldberg.law.document.model.pdf.ClassifiedPdfMetadata
 import com.goldberg.law.util.ZERO
 import com.goldberg.law.util.addQuotes
 import com.goldberg.law.util.fromWrittenDate
 import com.goldberg.law.util.toCurrency
 import java.math.BigDecimal
-import java.util.UUID
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class TransactionHistoryRecord @JsonCreator constructor(
@@ -29,22 +30,26 @@ data class TransactionHistoryRecord @JsonCreator constructor(
     // as just the individual transactions
     @JsonProperty("amount")
     val amount: BigDecimal? = null,
-    @JsonProperty("pageMetadata")
-    val pageMetadata: TransactionHistoryPageMetadata,
+    @JsonProperty("filePageNumber")
+    val filePageNumber: Int,
     @JsonProperty("checkDataModel")
     val checkDataModel: CheckDataModel? = null
 ) {
     @JsonIgnore @Transient
     val transactionDate = fromWrittenDate(date)
-    fun toCsv(accountNumber: String?, classification: String, statementDate: String?, filename: String) = listOf(
+    fun toCsv(statementDate: String?, accountNumber: String?, metadata: ClassifiedPdfMetadata, batesStamps: Map<Int, String>) = listOf(
         date,
         getFinalDescription()?.addQuotes(),
         amount?.toCurrency(),
         "",
-        pageMetadata.toCsv(accountNumber, classification, statementDate, filename),
+        joinAccountNumber(accountNumber, metadata.classification),
+        batesStamps[filePageNumber]?.addQuotes(),
+        statementDate,
+        metadata.filename.addQuotes(),
+        filePageNumber,
         checkDataModel?.batesStamp?.addQuotes(),
         checkDataModel?.pageMetadata?.toCsv()
-    ).joinToString(",") { it ?: "" }
+    ).joinToString(",") { it?.toString() ?: "" }
 
     private fun getFinalDescription(): String? {
         val descriptionFromRecord = if (checkNumber != null && (!hasNumberWithoutCheck() || description == null))
@@ -60,7 +65,7 @@ data class TransactionHistoryRecord @JsonCreator constructor(
     }
 
     fun withCheckInfo(checkDataModel: CheckDataModel?): TransactionHistoryRecord = if (checkNumber == null || checkDataModel == null) this else {
-        TransactionHistoryRecord(id, date, checkNumber, description, amount, pageMetadata, checkDataModel)
+        this.copy(checkDataModel = checkDataModel)
     }
 
     /**
@@ -108,7 +113,6 @@ data class TransactionHistoryRecord @JsonCreator constructor(
         )
 
         /** NOTE: BE VERY CAREFUL AS THIS NEEDS TO LINE UP PERFECTLY WITH WHAT IS OUTPUT IN THE .toCsv() METHOD of
-         * [com.goldberg.law.document.model.output.TransactionHistoryPageMetadata] and
          * [com.goldberg.law.document.model.output.TransactionHistoryRecord]
          * */
         val CSV_FIELD_HEADERS = listOf(
@@ -119,7 +123,6 @@ data class TransactionHistoryRecord @JsonCreator constructor(
             "Account",
             "Bates Stamp",
             "Statement Date",
-            "Statement Page #",
             "Filename",
             "File Page #",
             "Check Bates Stamp",

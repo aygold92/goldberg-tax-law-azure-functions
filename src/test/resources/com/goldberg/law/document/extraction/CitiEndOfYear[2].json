@@ -58,19 +58,22 @@
             {
               "value": "INTEREST CHARGED TO STANDARD PURCH",
               "type": "string",
-              "content": "INTEREST CHARGED TO STANDARD PURCH"
+              "content": "INTEREST CHARGED TO STANDARD PURCH",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 84.9000015258789,
               "type": "number",
-              "content": "$84.90"
+              "content": "$84.90",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "01/07",
               "type": "string",
-              "content": "01/07"
+              "content": "01/07",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",

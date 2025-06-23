@@ -4,6 +4,7 @@ import com.goldberg.law.document.model.pdf.DocumentType.BankTypes.B_OF_A
 import com.goldberg.law.document.model.pdf.DocumentType.BankTypes.EAGLE_BANK
 import com.goldberg.law.document.model.pdf.DocumentType.BankTypes.NFCU_BANK
 import com.goldberg.law.document.model.pdf.DocumentType.BankTypes.WF_BANK
+import com.goldberg.law.document.model.pdf.DocumentType.BankTypes.WF_BANK_JOINT
 import com.goldberg.law.document.model.pdf.DocumentType.CheckTypes.B_OF_A_CHECK
 import com.goldberg.law.document.model.pdf.DocumentType.CheckTypes.EAGLE_BANK_CHECK
 import com.goldberg.law.document.model.pdf.DocumentType.CheckTypes.MISC_CHECK
@@ -18,15 +19,18 @@ import com.goldberg.law.document.model.pdf.DocumentType.IrrelevantTypes.EXTRA_PA
 
 enum class DocumentType(val docTypes: List<String> = listOf()) {
     CREDIT_CARD(listOf(AMEX_CC, C1_CC, CITI_CC, WF_CC, B_OF_A_CC, NFCU_CC)),
-    BANK(listOf(EAGLE_BANK, WF_BANK, B_OF_A, NFCU_BANK)),
+    BANK(listOf(EAGLE_BANK, WF_BANK, WF_BANK_JOINT, B_OF_A, NFCU_BANK)),
     CHECK(listOf(EAGLE_BANK_CHECK, B_OF_A_CHECK, MISC_CHECK, NFCU_CHECK)),
     IRRELEVANT(listOf(EXTRA_PAGES)),
-    MIXED,
+    TRANSACTIONS(listOf(TransactionTypes.TRANSACTIONS_TYPE)),
     UNKNOWN;
 
     fun isCheck() = this == CHECK
     fun isRelevant() = this != IRRELEVANT
     fun isStatement() = !isCheck() && isRelevant()
+
+    fun isStatementPage() = this == CREDIT_CARD || this == BANK
+    fun isTransactionPage() = this == TRANSACTIONS
 
     object CreditCardTypes {
         const val AMEX_CC = "AMEX CC"
@@ -40,6 +44,7 @@ enum class DocumentType(val docTypes: List<String> = listOf()) {
     object BankTypes {
         const val EAGLE_BANK = "Eagle Bank"
         const val WF_BANK = "WF Bank"
+        const val WF_BANK_JOINT = "WF Bank Joint"
         const val B_OF_A = "BofA"
         const val NFCU_BANK = "NFCU Bank"
     }
@@ -49,6 +54,10 @@ enum class DocumentType(val docTypes: List<String> = listOf()) {
         const val B_OF_A_CHECK = "BofA Check"
         const val MISC_CHECK = "Misc Check"
         const val NFCU_CHECK = "NFCU Check"
+    }
+
+    object TransactionTypes {
+        const val TRANSACTIONS_TYPE = "Transactions"
     }
 
     object IrrelevantTypes {

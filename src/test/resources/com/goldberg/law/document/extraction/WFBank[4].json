@@ -35,37 +35,41 @@
               "value": "0.39",
               "type": "string",
               "content": "0.39",
-              "confidence": 0.84
+              "confidence": 0.84,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Deposits/ Additions":
             {
               "value": null,
               "type": "number",
               "content": null,
-              "boundingRegions": null,
               "spans": null,
-              "confidence": 0.984
+              "confidence": 0.984,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Check Number":
             {
               "value": null,
               "type": "integer",
               "content": "Interest Payment",
-              "confidence": 0.606
+              "confidence": 0.606,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "4/7",
               "type": "string",
               "content": "4/7",
-              "confidence": 0.977
+              "confidence": 0.977,
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Withdrawals/ Subtractions":
             {
               "value": 201684.515625,
               "type": "number",
               "content": "201,684.52",
-              "confidence": 0.94
+              "confidence": 0.94,
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",

@@ -49,19 +49,22 @@
             {
               "value": "CAPITAL ONE MEMBER FEE",
               "type": "string",
-              "content": "CAPITAL ONE MEMBER FEE"
+              "content": "CAPITAL ONE MEMBER FEE",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Amount":
             {
               "value": 59.00,
               "type": "number",
-              "content": "$59.00"
+              "content": "$59.00",
+              "boundingRegions": [{"pageNumber": 1}]
             },
             "Date":
             {
               "value": "Jun 9",
               "type": "string",
-              "content": "Jun 9"
+              "content": "Jun 9",
+              "boundingRegions": [{"pageNumber": 1}]
             }
           },
           "type": "object",
