@@ -37,6 +37,9 @@ obj/
 # Ignore Gradle project-specific cache directory
 .gradle
 
+# VS Code
+.vscode
+
 # Ignore Gradle build output directory
 build
 

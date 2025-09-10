@@ -109,11 +109,11 @@ java {
 
 // Function to read local.settings.json using Jackson and set environment variables
 fun setEnvironmentVariablesFromJson(): Map<String, String> {
-    val filePath = Paths.get("local.settings.json")
-    if (!Files.exists(filePath)) { throw IllegalStateException("local.settings.json not found!") }
+    val filePath = project.file("local.settings.json")
+    if (!filePath.exists()) { throw IllegalStateException("local.settings.json not found!") }
 
     val mapper = ObjectMapper().apply { enable(JsonParser.Feature.ALLOW_COMMENTS); }
-    return mapper.readTree(Files.newBufferedReader(filePath)).get("Values").let { valuesNode ->
+    return mapper.readTree(filePath).get("Values").let { valuesNode ->
         valuesNode.fieldNames().asSequence().associateWith { valuesNode.get(it).asText() }
     }.ifEmpty { throw IllegalStateException("No environment variables found in local.settings.json!") }
 }
@@ -136,8 +136,16 @@ tasks.register<JavaExec>("splitPdf") {
     classpath = sourceSets["main"].runtimeClasspath
     mainClass = "com.goldberg.law.splitpdftool.PdfSplitterMain"
 
-    val properties =  mutableListOf("-if", project.findProperty("filename")?.toString())
-    properties.addAll(project.findProperty("args")?.toString()?.split(" ") ?: listOf())
+    val properties = mutableListOf<String>()
+    
+    project.findProperty("filename")?.toString()?.let { filename ->
+        properties.addAll(listOf("-if", filename))
+    }
+    
+    project.findProperty("args")?.toString()?.let { argsProperty ->
+        properties.addAll(argsProperty.split(" "))
+    }
+    
     args = properties
     jvmArgs = listOf(
         "-agentlib:jdwp=transport=dt_socket,server=y,suspend=$suspend,address=5050"

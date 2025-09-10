@@ -27,8 +27,8 @@ data class CheckDataModel @JsonCreator constructor(
     @JsonIgnore @Transient
     val transactionDate = fromWrittenDate(date)
 
-    @JsonIgnore @Transient
-    val checkDataKey = CheckDataKey(accountNumber, checkNumber)
+    @JsonIgnore
+    fun checkDataKey() = CheckDataKey(accountNumber, checkNumber)
 
     @JsonIgnore
     fun getFinalDescription() = if (this.to != null && this.description != null) "${this.to} - ${this.description}"

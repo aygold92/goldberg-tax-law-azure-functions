@@ -15,8 +15,14 @@ class GetFilesToProcessActivity(private val dataManager: AzureStorageDataManager
     @FunctionName(FUNCTION_NAME)
     fun getFilesToProcess(@DurableActivityTrigger(name = "input") input: GetFilesToProcessActivityInput, context: ExecutionContext): GetFilesToProcessActivityOutput {
         logger.info { "[${input.requestId}][${context.invocationId}] processing ${input.toStringDetailed()}" }
-        val filesRequested = dataManager.fetchInputPdfDocuments(input.request.clientName, input.request.documents)
-
+        val allFiles = dataManager.listInputPdfDocuments(input.request.clientName)
+        val requestedFileNames = input.request.documents
+        val existingFiles = allFiles.keys
+        val intersection = existingFiles.intersect(requestedFileNames)
+        if (!intersection.containsAll(requestedFileNames)) {
+            throw IllegalArgumentException("The following files do not exist: ${requestedFileNames.subtract(intersection)}")
+        }
+        val filesRequested = allFiles.filter { intersection.contains(it.key) }
         return GetFilesToProcessActivityOutput(filesRequested).also {
             logger.info { "[${input.requestId}][${context.invocationId}] returning $it" }
         }

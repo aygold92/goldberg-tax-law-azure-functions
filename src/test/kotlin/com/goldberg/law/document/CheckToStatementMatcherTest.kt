@@ -137,7 +137,7 @@ class CheckToStatementMatcherTest {
 
         assertThat(finalStatements).isEqualTo(listOf(bankStatementWithCheckData))
         assertThat(finalStatements.getMissingChecks()).isEmpty()
-        assertThat(finalStatements.getChecksNotUsed(setOf(checkData1.checkDataKey, checkData2.checkDataKey))).isEqualTo(setOf(CHECK_DATA_KEY_1001))
+        assertThat(finalStatements.getChecksNotUsed(setOf(checkData1.checkDataKey(), checkData2.checkDataKey()))).isEqualTo(setOf(CHECK_DATA_KEY_1001))
     }
 
     @Test
@@ -159,7 +159,7 @@ class CheckToStatementMatcherTest {
 
         assertThat(finalStatements).isEqualTo(listOf(bankStatementWithCheckData))
         assertThat(finalStatements.getMissingChecks()).isEmpty()
-        assertThat(finalStatements.getChecksNotUsed(setOf(checkData1.checkDataKey, checkData2.checkDataKey))).isEqualTo(setOf(CHECK_DATA_KEY_1001))
+        assertThat(finalStatements.getChecksNotUsed(setOf(checkData1.checkDataKey(), checkData2.checkDataKey()))).isEqualTo(setOf(CHECK_DATA_KEY_1001))
     }
 
     @Test
@@ -189,7 +189,7 @@ class CheckToStatementMatcherTest {
 
         assertThat(finalStatements).isEqualTo(listOf(bankStatement1WithCheckData, bankStatement2WithCheckData))
         assertThat(finalStatements.getMissingChecks()).isEmpty()
-        assertThat(finalStatements.getChecksNotUsed(setOf(checkData1.checkDataKey, checkData2.checkDataKey))).isEqualTo(setOf(CHECK_DATA_KEY_1001))
+        assertThat(finalStatements.getChecksNotUsed(setOf(checkData1.checkDataKey(), checkData2.checkDataKey()))).isEqualTo(setOf(CHECK_DATA_KEY_1001))
     }
 
     @Test
@@ -226,7 +226,7 @@ class CheckToStatementMatcherTest {
 
         assertThat(finalStatements).isEqualTo(listOf(statement1, bankStatement2WithCheckData))
         assertThat(finalStatements.getMissingChecks()).isEqualTo(setOf(CHECK_DATA_KEY_1000))
-        assertThat(finalStatements.getChecksNotUsed(setOf(checkData1.checkDataKey, checkData2.checkDataKey))).isEqualTo(setOf(CHECK_DATA_KEY_1001))
+        assertThat(finalStatements.getChecksNotUsed(setOf(checkData1.checkDataKey(), checkData2.checkDataKey()))).isEqualTo(setOf(CHECK_DATA_KEY_1001))
     }
 
     @Test
@@ -306,7 +306,7 @@ class CheckToStatementMatcherTest {
 
         assertThat(finalStatements).isEqualTo(listOf(bankStatement1WithCheckData, bankStatement2WithCheckData))
         assertThat(finalStatements.getMissingChecks()).isEqualTo(emptySet<CheckDataModel>())
-        assertThat(finalStatements.getChecksNotUsed(setOf(checkData1.checkDataKey, checkData2.checkDataKey))).isEqualTo(emptySet<CheckDataModel>())
+        assertThat(finalStatements.getChecksNotUsed(setOf(checkData1.checkDataKey(), checkData2.checkDataKey()))).isEqualTo(emptySet<CheckDataModel>())
     }
 
     @Test
@@ -334,7 +334,7 @@ class CheckToStatementMatcherTest {
         val CHECK_DATA_KEY_1000 = CheckDataKey(ACCOUNT_NUMBER, 1000)
         val CHECK_DATA_KEY_1001 = CheckDataKey(ACCOUNT_NUMBER, 1001)
         val ALL_CHECKS_LIST = listOf(newCheckData(1000), newCheckData(1001))
-        val ALL_CHECK_KEYS = ALL_CHECKS_LIST.map { it.checkDataKey }.toSet()
+        val ALL_CHECK_KEYS = ALL_CHECKS_LIST.map { it.checkDataKey() }.toSet()
 
         fun statementWithRecords(vararg records: TransactionHistoryRecord) = newBankStatement(transactions = records.toList())
 

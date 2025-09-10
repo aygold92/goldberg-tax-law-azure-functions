@@ -14,6 +14,7 @@ import com.goldberg.law.document.*
 import com.goldberg.law.function.*
 import com.goldberg.law.function.activity.*
 import com.goldberg.law.function.api.*
+import com.goldberg.law.function.api.LoadBankStatementFunction
 import com.goldberg.law.function.model.tracking.OrchestrationStatusFactory
 import com.google.inject.AbstractModule
 import com.google.inject.Provides
@@ -200,5 +201,19 @@ class AppModule constructor(private val appEnvironmentSettings: AppEnvironmentSe
     @Provides
     @Singleton
     fun getDocumentClassificationFunction(dataManager: AzureStorageDataManager) = GetDocumentClassificationFunction(dataManager)
+
+    @Provides
+    @Singleton
+    fun listStatementsFunction(dataManager: AzureStorageDataManager) = ListStatementsFunction(dataManager)
+
+    @Provides
+    @Singleton
+    fun listInputDocumentsFunction(dataManager: AzureStorageDataManager) = ListInputDocumentsFunction(dataManager)
+
+    @Provides
+    @Singleton
+    fun loadBankStatementFunction(
+        azureStorageDataManager: AzureStorageDataManager
+    ) = LoadBankStatementFunction(azureStorageDataManager)
 
 }

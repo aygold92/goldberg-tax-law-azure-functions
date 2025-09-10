@@ -11,12 +11,12 @@ import java.util.IllegalFormatException
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class BankStatementKey @JsonCreator constructor(
-    @JsonProperty("statementDate")
-    val date: String?,
     @JsonProperty("accountNumber")
     val accountNumber: String?,
     @JsonProperty("classification")
     val classification: String,
+    @JsonProperty("date")
+    val date: String?,
 ) {
     @JsonIgnore @Transient
     val statementDate = fromWrittenDate(date)
@@ -30,7 +30,7 @@ data class BankStatementKey @JsonCreator constructor(
             if (it.size != 3) {
                 throw IllegalArgumentException("Invalid statementKey string: $key")
             }
-            BankStatementKey(it[2], it[1], it[0])
+            BankStatementKey(it[0], it[1], it[2].replace("_", "/"))
         }
     }
 }

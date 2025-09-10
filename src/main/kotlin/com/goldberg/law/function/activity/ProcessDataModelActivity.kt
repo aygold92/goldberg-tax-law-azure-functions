@@ -98,7 +98,7 @@ class ProcessDataModelActivity @Inject constructor(
                 date = normalizeDate("6 2 2022"),
                 summaryOfAccountsTable = null,
                 transactionTableDepositWithdrawal = null,
-                batesStamps = BatesStampTable(listOf(BatesStampTableRow(`val` = "HERMAN-R-000630", page = 1))),
+                batesStampsTable = BatesStampTable(listOf(BatesStampTableRow(`val` = "HERMAN-R-000630", page = 1))),
                 accountNumber = "3443",
                 beginningBalance = 0.07.asCurrency(),
                 endingBalance = 48262.17.asCurrency(),

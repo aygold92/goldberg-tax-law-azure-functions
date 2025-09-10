@@ -26,7 +26,7 @@ class StatementDataModelTest {
             TransactionTableAmountRecord(FIXED_TRANSACTION_DATE, "test2", 50.asCurrency(), 1),
             TransactionTableAmountRecord(FIXED_TRANSACTION_DATE, "test2", 50.asCurrency(), 1),
         )
-        val model = StatementModelValues.newStatementModel(pageMetadata = newPdfMetadata(classification = DocumentType.BankTypes.NFCU_BANK)).copy(summaryOfAccountsTable = SummaryOfAccountsTable(records = listOf(
+        val model = StatementModelValues.newStatementModel(pageMetadata = newPdfMetadata(classification = DocumentType.BankTypes.NFCU_BANK)).copy(accountNumber = null, summaryOfAccountsTable = SummaryOfAccountsTable(records = listOf(
             SummaryOfAccountsTableRecord(ACCOUNT_NUMBER, 100.asCurrency(), 200.asCurrency()),
             SummaryOfAccountsTableRecord(OTHER_ACCOUNT_NUMBER, 0.asCurrency(), 100.asCurrency()),
         )), transactionTableAmount = TransactionTableAmount(records))

@@ -88,7 +88,7 @@ class DocumentDataModelContainerTest {
             date = FIXED_STATEMENT_DATE,
             summaryOfAccountsTable = SummaryOfAccountsTable(listOf(SummaryOfAccountsTableRecord("", 4.asCurrency(), 5.asCurrency()))),
             transactionTableDepositWithdrawal = null,
-            batesStamps = BatesStampTable(listOf(BatesStampTableRow(BATES_STAMP, 1))),
+            batesStampsTable = BatesStampTable(listOf(BatesStampTableRow(BATES_STAMP, 1))),
             accountNumber = "",
             beginningBalance = null,
             endingBalance = null,

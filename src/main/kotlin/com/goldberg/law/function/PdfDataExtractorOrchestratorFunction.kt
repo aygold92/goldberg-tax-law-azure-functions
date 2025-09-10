@@ -1,6 +1,9 @@
 package com.goldberg.law.function
 
+import com.goldberg.law.document.model.input.DocumentDataModel
+import com.goldberg.law.document.model.pdf.ClassifiedPdfMetadata
 import com.goldberg.law.function.activity.*
+import com.goldberg.law.function.model.DocumentDataModelContainer
 import com.goldberg.law.function.model.activity.*
 import com.goldberg.law.function.model.request.AnalyzeDocumentResult
 import com.goldberg.law.function.model.request.AzureAnalyzeDocumentsRequest

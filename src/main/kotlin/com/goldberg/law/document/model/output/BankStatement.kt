@@ -45,7 +45,7 @@ data class BankStatement @JsonCreator constructor(
     @JsonIgnore @Transient
     private val logger = KotlinLogging.logger {}
     @JsonIgnore @Transient
-    val primaryKey = BankStatementKey(date, accountNumber, pageMetadata.classification)
+    val primaryKey = BankStatementKey(accountNumber, pageMetadata.classification, date)
 
     @JsonIgnore
     fun azureFileName() = getFileName(accountNumber, date, pageMetadata.classification, pageMetadata.filename, pageMetadata.getPageRange())
@@ -94,7 +94,7 @@ data class BankStatement @JsonCreator constructor(
         .map { CheckDataKey(accountNumber, it.checkNumber) }
 
     @JsonIgnore
-    fun getCheckKeysUsed(): List<CheckDataKey> = transactions.mapNotNull { it.checkDataModel?.checkDataKey }
+    fun getCheckKeysUsed(): List<CheckDataKey> = transactions.mapNotNull { it.checkDataModel?.checkDataKey() }
     @JsonIgnore
     fun getCheckModelsUsed(): List<CheckDataModel> = transactions.mapNotNull { it.checkDataModel }
 

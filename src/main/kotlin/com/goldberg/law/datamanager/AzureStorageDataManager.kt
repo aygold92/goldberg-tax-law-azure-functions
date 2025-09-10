@@ -17,6 +17,8 @@ import com.goldberg.law.document.model.input.StatementDataModel
 import com.goldberg.law.document.model.output.BankStatement
 import com.goldberg.law.document.model.pdf.*
 import com.goldberg.law.function.model.metadata.InputFileMetadata
+import com.goldberg.law.function.model.metadata.StatementMetadata
+import com.goldberg.law.document.model.pdf.DocumentType
 import com.goldberg.law.util.*
 import com.google.common.collect.Sets
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -151,21 +153,40 @@ class AzureStorageDataManager(private val serviceClient: BlobServiceClient) {
     /**
      * Functions to list files
      */
-    // TODO: if there were 1000s of documents this would be very slow
-    fun fetchInputPdfDocuments(clientName: String, requestedFileNames: Set<String>): Map<String, InputFileMetadata> {
-        val blobs = getContainerClient(clientName, BlobContainer.INPUT).listBlobs(ListBlobsOptions().apply {
-            details = BlobListDetails().apply { retrieveMetadata = true }
-        }, Duration.ofSeconds(5)).toSet()
-        val existingFiles = blobs.map { it.name }.toSet()
-        val intersection = Sets.intersection(existingFiles, requestedFileNames)
-        if (!intersection.containsAll(requestedFileNames)) {
-            throw IllegalArgumentException("The following files do not exist: ${Sets.difference(requestedFileNames, intersection)}")
-        }
-
-        return blobs.filter { intersection.contains(it.name) }.associate {
+    /**
+     * List all input PDF documents for a client and return a map from filename to InputFileMetadata.
+     */
+    fun listInputPdfDocuments(clientName: String): Map<String, InputFileMetadata> {
+        val blobs = getContainerClient(clientName, BlobContainer.INPUT).listBlobs(
+            ListBlobsOptions().apply { details = BlobListDetails().apply { retrieveMetadata = true } },
+            Duration.ofSeconds(5)
+        ).toSet()
+        return blobs.associate {
             val metadata = if (it.metadata != null) METADATA_OBJECT_MAPPER.convertValue(it.metadata, InputFileMetadata::class.java) else InputFileMetadata()
             it.name to metadata
         }
+    }
+
+    /**
+     * List all statement files for a client and return a map from filename to StatementMetadata.
+     */
+    fun listStatementsWithMetadata(clientName: String): Map<String, StatementMetadata> {
+        val containerClient = getContainerClient(clientName, BlobContainer.STATEMENTS)
+        val blobs = containerClient.listBlobs(
+            ListBlobsOptions().apply { details = BlobListDetails().apply { retrieveMetadata = true } },
+            Duration.ofSeconds(5)
+        )
+        val result = mutableMapOf<String, StatementMetadata>()
+        for (blob in blobs) {
+            val metadataMap = blob.metadata?.mapKeys { it.key.lowercase() } ?: continue
+            try {
+                val statementMetadata = StatementMetadata.fromMetadataMap(metadataMap, blob.name)
+                result[blob.name] = statementMetadata
+            } catch (ex: Exception) {
+                logger.warn { "Failed to parse StatementMetadata for ${blob.name}: $ex" }
+            }
+        }
+        return result
     }
 
     /**

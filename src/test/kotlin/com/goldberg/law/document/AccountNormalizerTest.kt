@@ -108,7 +108,7 @@ class AccountNormalizerTest {
             date = FIXED_STATEMENT_DATE,
             summaryOfAccountsTable = null,
             transactionTableDepositWithdrawal = null,
-            batesStamps = newBatesStampTable(1 to BATES_STAMP),
+            batesStampsTable = newBatesStampTable(1 to BATES_STAMP),
             accountNumber = accountNumber,
             beginningBalance = null,
             endingBalance = null,

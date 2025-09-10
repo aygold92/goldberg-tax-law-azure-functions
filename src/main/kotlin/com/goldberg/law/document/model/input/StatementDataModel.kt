@@ -34,7 +34,7 @@ data class StatementDataModel @JsonCreator constructor(
     @JsonProperty("transactionTableDebits") val transactionTableDebits: TransactionTableDebits?,
     @JsonProperty("transactionTableCredits") val transactionTableCredits: TransactionTableCredits?,
     @JsonProperty("transactionTableChecks") val transactionTableChecks: TransactionTableChecks?,
-    @JsonProperty("batesStamps") val batesStamps: BatesStampTable?,
+    @JsonProperty("batesStamps") val batesStampsTable: BatesStampTable?,
     @JsonProperty("pageMetadata") override val pageMetadata: ClassifiedPdfMetadata,
     @JsonProperty("manualRecordsTable") val manualRecordTable: ManualRecordTable? = null
 ): DocumentDataModel(pageMetadata) {
@@ -46,7 +46,7 @@ data class StatementDataModel @JsonCreator constructor(
                 batesStamps: BatesStampTable?, pageMetadata: ClassifiedPdfMetadata, manualRecordTable: ManualRecordTable?
     ): this(date = date,
         accountNumber = accountNumber, beginningBalance = beginningBalance, endingBalance = endingBalance,
-        interestCharged = interestCharged, feesCharged = feesCharged, batesStamps = batesStamps,
+        interestCharged = interestCharged, feesCharged = feesCharged, batesStampsTable = batesStamps,
         pageMetadata = pageMetadata, manualRecordTable = manualRecordTable,
         summaryOfAccountsTable = null, transactionTableCreditsCharges = null, transactionTableChecks = null, transactionTableDebits = null,
         transactionTableDepositWithdrawal = null, transactionTableAmount = null, transactionTableCredits = null,
@@ -61,11 +61,11 @@ data class StatementDataModel @JsonCreator constructor(
     @JsonIgnore
     fun getBatesStampsMap(): Map<Int, String> = if (isManuallyOverriden()) {
         // when manually overridden the page is directly in the bates stamp
-        batesStamps?.batesStamps?.associate {
+        batesStampsTable?.batesStamps?.associate {
             it.page to it.`val`
         } ?: mapOf()
     } else {
-        batesStamps?.batesStamps?.associate {
+        batesStampsTable?.batesStamps?.associate {
             pageMetadata.pagesOrdered[it.page - 1] to it.`val`
         } ?: mapOf()
     }
@@ -166,7 +166,7 @@ data class StatementDataModel @JsonCreator constructor(
                 transactionTableCredits = this.getTransactionTableCredits(),
                 transactionTableDebits = this.getTransactionTableDebits(),
                 transactionTableChecks = this.getTransactionTableChecks(),
-                batesStamps = this.getBatesStampTable(),
+                batesStampsTable = this.getBatesStampTable(),
                 pageMetadata = classifiedPdfDocument.toDocumentMetadata(),
             )
         }

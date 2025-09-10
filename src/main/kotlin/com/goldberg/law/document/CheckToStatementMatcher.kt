@@ -10,7 +10,7 @@ class CheckToStatementMatcher {
     private val logger = KotlinLogging.logger {}
 
     fun matchChecksWithStatements(allStatements: List<BankStatement>, allChecks: List<CheckDataModel>): List<BankStatement> {
-        val allChecksMap = allChecks.associateBy { it.checkDataKey }
+        val allChecksMap = allChecks.associateBy { it.checkDataKey() }
 
         val finalStatements = allStatements.sortedBy { it.statementDate }.map { originalStatement ->
             val checks = mutableMapOf<Int, ClassifiedPdfMetadata>()
@@ -34,7 +34,7 @@ class CheckToStatementMatcher {
         }
         return finalStatements.also {
             logger.debug { "Missing Check Images: ${it.getMissingChecks()}" }
-            logger.debug { "Checks without matching transactions: ${it.getChecksNotUsed(allChecks.map { it.checkDataKey }.toSet())}" }
+            logger.debug { "Checks without matching transactions: ${it.getChecksNotUsed(allChecks.map { it.checkDataKey() }.toSet())}" }
         }
     }
 }

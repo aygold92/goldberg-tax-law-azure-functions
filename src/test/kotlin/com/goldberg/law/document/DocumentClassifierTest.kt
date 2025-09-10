@@ -11,6 +11,10 @@ import com.goldberg.law.document.model.pdf.ClassifiedPdfDocument
 import com.goldberg.law.document.model.pdf.DocumentType.BankTypes.B_OF_A
 import com.goldberg.law.document.model.pdf.DocumentType.BankTypes.WF_BANK
 import com.goldberg.law.document.model.pdf.DocumentType.CheckTypes.B_OF_A_CHECK
+import com.goldberg.law.document.model.pdf.DocumentType.CheckTypes.CHECKS
+import com.goldberg.law.document.model.pdf.DocumentType.CheckTypes.EAGLE_BANK_CHECK
+import com.goldberg.law.document.model.pdf.DocumentType.CheckTypes.MISC_CHECK
+import com.goldberg.law.document.model.pdf.DocumentType.CheckTypes.NFCU_CHECK
 import com.goldberg.law.document.model.pdf.DocumentType.CreditCardTypes.B_OF_A_CC
 import com.goldberg.law.document.model.pdf.DocumentType.IrrelevantTypes.EXTRA_PAGES
 import com.goldberg.law.document.model.pdf.DocumentType.TransactionTypes.TRANSACTIONS_TYPE
@@ -111,19 +115,21 @@ class DocumentClassifierTest {
 
     @Test
     fun testChecks() {
-        val document = newPdfDocumentMulti(pages = (1..4).toSet())
+        val document = newPdfDocumentMulti(pages = (1..5).toSet())
         whenever(analyzeResult.documents).thenReturn(newAnalyzedDocs(
             B_OF_A_CHECK,
-            B_OF_A_CHECK,
-            B_OF_A_CHECK,
-            B_OF_A_CHECK,
+            CHECKS,
+            MISC_CHECK,
+            NFCU_CHECK,
+            EAGLE_BANK_CHECK,
         ))
         val result = classifier.classifyDocument(document)
         assertThat(result).isEqualTo(listOf(
             document.docForPages(setOf(1)).asClassifiedDocument(B_OF_A_CHECK),
-            document.docForPages(setOf(2)).asClassifiedDocument(B_OF_A_CHECK),
-            document.docForPages(setOf(3)).asClassifiedDocument(B_OF_A_CHECK),
-            document.docForPages(setOf(4)).asClassifiedDocument(B_OF_A_CHECK),
+            document.docForPages(setOf(2)).asClassifiedDocument(CHECKS),
+            document.docForPages(setOf(3)).asClassifiedDocument(MISC_CHECK),
+            document.docForPages(setOf(4)).asClassifiedDocument(NFCU_CHECK),
+            document.docForPages(setOf(5)).asClassifiedDocument(EAGLE_BANK_CHECK),
         ))
     }
 

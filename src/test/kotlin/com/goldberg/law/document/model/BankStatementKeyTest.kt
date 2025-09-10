@@ -11,9 +11,9 @@ class BankStatementKeyTest {
     fun testIsComplete() {
         val date = normalizeDate("4/3 2020")
         val account = "01234560"
-        assertThat(BankStatementKey(date, null, "Type").isComplete()).isFalse()
-        assertThat(BankStatementKey(null, null, "Type").isComplete()).isFalse()
-        assertThat(BankStatementKey(null, account, "Type").isComplete()).isFalse()
-        assertThat(BankStatementKey(date, account, "Type").isComplete()).isTrue()
+        assertThat(BankStatementKey(null, "Type", date).isComplete()).isFalse()
+        assertThat(BankStatementKey(null, "Type", null).isComplete()).isFalse()
+        assertThat(BankStatementKey(account, "Type", null).isComplete()).isFalse()
+        assertThat(BankStatementKey(account, "Type", date).isComplete()).isTrue()
     }
 }
