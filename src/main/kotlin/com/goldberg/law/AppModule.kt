@@ -223,4 +223,16 @@ class AppModule constructor(private val appEnvironmentSettings: AppEnvironmentSe
         azureStorageDataManager: AzureStorageDataManager
     ) = DeleteStatementFunction(azureStorageDataManager)
 
+    @Provides
+    @Singleton
+    fun updateInputFileMetadataFunction(
+        azureStorageDataManager: AzureStorageDataManager
+    ) = UpdateInputFileMetadataFunction(azureStorageDataManager)
+
+    @Provides
+    @Singleton
+    fun getInputFileMetadataFunction(
+        azureStorageDataManager: AzureStorageDataManager
+    ) = GetInputFileMetadataFunction(azureStorageDataManager)
+
 }
