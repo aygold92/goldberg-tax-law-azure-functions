@@ -67,7 +67,7 @@ class UpdateStatementModelFunction(
         putDocumentClassificationFunction.overwriteClassificationIndividual(req.clientName, listOf(pdfMetadata))
 
         // load the checks
-        val checkModels = req.modelDetails.transactions.filter { it.checkPdfMetadata != null }.distinct().mapAsync {
+        val checkModels = req.modelDetails.transactions.filter { it.checkPdfMetadata != null && it.checkPdfMetadata.filename.length > 0 }.distinct().mapAsync {
             dataManager.loadModel(req.clientName, it.checkPdfMetadata!!)
         }
 

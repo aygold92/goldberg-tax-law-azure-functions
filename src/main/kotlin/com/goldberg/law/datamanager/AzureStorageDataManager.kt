@@ -196,7 +196,7 @@ class AzureStorageDataManager(private val serviceClient: BlobServiceClient) {
         try {
             containerClient.getBlobClient(filename).delete()
         } catch (ex: BlobStorageException) {
-            logger.info { "File does not exist" }
+            logger.info { "File $filename does not exist" }
         }
         logger.debug { "Deleted ${containerClient.blobContainerName}/${filename}" }
     }
@@ -213,8 +213,10 @@ class AzureStorageDataManager(private val serviceClient: BlobServiceClient) {
         deleteFile(getContainerClient(clientName, BlobContainer.MODELS), pdfMetadata.modelFileName())
     }
 
-    fun deleteStatementFile(clientName: String, statementKey: String) {
-        deleteFile(getContainerClient(clientName, BlobContainer.STATEMENTS), statementKey)
+    fun deleteBankStatement(clientName: String, statementKey: String) {
+        // ensure statementKey ends with .json, if not, add it
+        val finalStatementKey = if (statementKey.endsWith(".json")) statementKey else "${statementKey}.json"
+        deleteFile(getContainerClient(clientName, BlobContainer.STATEMENTS), finalStatementKey)
     }
 
     /**

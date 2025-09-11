@@ -15,6 +15,7 @@ import com.goldberg.law.function.*
 import com.goldberg.law.function.activity.*
 import com.goldberg.law.function.api.*
 import com.goldberg.law.function.api.LoadBankStatementFunction
+import com.goldberg.law.function.api.DeleteStatementFunction
 import com.goldberg.law.function.model.tracking.OrchestrationStatusFactory
 import com.google.inject.AbstractModule
 import com.google.inject.Provides
@@ -215,5 +216,11 @@ class AppModule constructor(private val appEnvironmentSettings: AppEnvironmentSe
     fun loadBankStatementFunction(
         azureStorageDataManager: AzureStorageDataManager
     ) = LoadBankStatementFunction(azureStorageDataManager)
+
+    @Provides
+    @Singleton
+    fun deleteStatementFunction(
+        azureStorageDataManager: AzureStorageDataManager
+    ) = DeleteStatementFunction(azureStorageDataManager)
 
 }

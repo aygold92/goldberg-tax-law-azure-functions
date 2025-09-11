@@ -1,9 +1,8 @@
 package com.goldberg.law.function.api
 
 import com.goldberg.law.datamanager.AzureStorageDataManager
-import com.goldberg.law.document.model.output.BankStatement
 import com.goldberg.law.document.model.output.BankStatementKey
-import com.goldberg.law.function.model.request.LoadBankStatementRequest
+import com.goldberg.law.function.model.request.DeleteStatementRequest
 import com.goldberg.law.util.OBJECT_MAPPER
 import com.microsoft.azure.functions.*
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
@@ -12,7 +11,7 @@ import com.microsoft.azure.functions.annotation.HttpTrigger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.util.*
 
-class LoadBankStatementFunction(
+class DeleteStatementFunction(
     private val dataManager: AzureStorageDataManager,
 ) {
     private val logger = KotlinLogging.logger {}
@@ -24,23 +23,25 @@ class LoadBankStatementFunction(
         ctx: ExecutionContext
     ): HttpResponseMessage = try {
         logger.info { "[${ctx.invocationId}] processing ${request?.body?.orElseThrow()}" }
-        val req = OBJECT_MAPPER.readValue(request?.body?.orElseThrow(), LoadBankStatementRequest::class.java)
+        val req = OBJECT_MAPPER.readValue(request?.body?.orElseThrow(), DeleteStatementRequest::class.java)
 
         val key = BankStatementKey(req.accountNumber, req.classification, req.date?.replace("/", "_")).toString()
         val finalKey = if (req.filenameWithPages != null) "${key}:${req.filenameWithPages}" else key
-        val statement: BankStatement = dataManager.loadBankStatement(req.clientName, finalKey)
+        dataManager.deleteBankStatement(req.clientName, finalKey)
+
+        logger.info { "Deleted statement file ${finalKey} for client ${req.clientName}" }
 
         request!!.createResponseBuilder(HttpStatus.OK)
-            .body(statement)
+            .body(mapOf("message" to "Statement deleted successfully"))
             .build()
     } catch (ex: Exception) {
-        logger.error(ex) { "Error loading bank statement for $request" }
+        logger.error(ex) { "Error deleting statement for $request" }
         request!!.createResponseBuilder(HttpStatus.BAD_REQUEST)
             .body(mapOf("error" to ex.message))
             .build()
     }
 
     companion object {
-        const val FUNCTION_NAME = "LoadBankStatement"
+        const val FUNCTION_NAME = "DeleteStatement"
     }
-} 
+}

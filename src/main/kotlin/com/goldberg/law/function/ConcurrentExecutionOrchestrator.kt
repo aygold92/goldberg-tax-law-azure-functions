@@ -29,7 +29,7 @@ class ConcurrentExecutionOrchestrator {
         ClassifyDocumentActivity.FUNCTION_NAME,
         { filename -> ClassifyDocumentActivityInput(ctx.instanceId, clientName, filename) },
         ClassifyDocumentActivityOutput::class.java,
-        { output -> orchestrationStatus.updateDoc(output.filename) { classified = true }.save() }
+        { output -> orchestrationStatus.updateDoc(output.filename) { numStatements = output.classifiedDocuments.size; classified = true }.save() }
     ).associate { it.filename to it.classifiedDocuments }
 
     fun execProcessDataModels(

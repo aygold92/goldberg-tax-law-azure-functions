@@ -27,10 +27,12 @@ data class BankStatementKey @JsonCreator constructor(
 
     companion object {
         fun fromString(key: String) = key.split(":").let {
-            if (it.size != 3) {
+            if (it.size == 3 || it.size == 4) {
+                BankStatementKey(it[0], it[1], it[2].replace("_", "/"))
+            } else {
                 throw IllegalArgumentException("Invalid statementKey string: $key")
             }
-            BankStatementKey(it[0], it[1], it[2].replace("_", "/"))
+            
         }
     }
 }

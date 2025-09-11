@@ -49,12 +49,12 @@ class ListStatementsFunction(
         const val FUNCTION_NAME = "ListStatements"
     }
 
-    private fun parseBankStatementKey(filename: String): BankStatementKey? {
+    private fun parseBankStatementKey(filename: String): BankStatementKey {
         val base = filename.removeSuffix(".json")
         return try {
             BankStatementKey.fromString(base)
         } catch (e: Exception) {
-            null
+            BankStatementKey(null, "", null)
         }
     }
 } 

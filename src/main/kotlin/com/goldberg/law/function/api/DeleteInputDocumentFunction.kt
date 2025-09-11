@@ -49,7 +49,7 @@ class DeleteInputDocumentFunction(
 
         if (metadata.statements != null) {
             metadata.statements.mapAsync {
-                dataManager.deleteStatementFile(req.clientName, it)
+                dataManager.deleteBankStatement(req.clientName, it)
             }
         }
 
