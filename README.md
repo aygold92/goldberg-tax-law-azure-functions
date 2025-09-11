@@ -25,7 +25,7 @@ You need to have a `local.settings.json` file similar to
   "IsEncrypted": false,
   "Values": {
     // Azure storage connection string to store state of durable function.  Fill in *AccountName*
-    "AzureWebJobsStorage": "DefaultEndpointsProtocol=https;AccountName=<>;AccountKey=[REDACTED];EndpointSuffix=core.windows.net",
+    "AzureWebJobsStorage": "",
 
     "AzureConfigurationStage": "TEST",
 

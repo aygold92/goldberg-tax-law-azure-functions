@@ -144,7 +144,7 @@ class TransactionCategorizerTest {
 
     @Test
     fun test() {
-        val chatGBTClient = ChatGBTClient("[REDACTED]",)
+        val chatGBTClient = ChatGBTClient("",)
 
         val transactionCategorizer = TransactionCategorizer(chatGBTClient)
 

@@ -11,7 +11,7 @@ class ChatGBTClientTest {
     @Test
     @Ignore
     fun test() {
-        val chatGBTClient = ChatGBTClient("[REDACTED]",)
+        val chatGBTClient = ChatGBTClient("",)
 
         val transactionCategorizer = TransactionCategorizer(chatGBTClient)
 
@@ -24,7 +24,7 @@ class ChatGBTClientTest {
     @Test
     @Ignore
     fun testVendors() {
-        val chatGBTClient = ChatGBTClient("[REDACTED]",)
+        val chatGBTClient = ChatGBTClient("",)
 
         val transactionCategorizer = TransactionCategorizer(chatGBTClient)
 
