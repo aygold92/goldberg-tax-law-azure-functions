@@ -42,9 +42,13 @@ data class CheckEntriesTableRow @JsonCreator constructor(
 
     companion object {
         fun DocumentField.toCheckEntriesTableRow() = this.valueMap.let { recordFields ->
+            // in case we forget to label the check field as an int
+            val checkNumber = recordFields[Keys.CHECK_NUMBER]?.valueInteger?.toInt()
+                ?: recordFields[Keys.CHECK_NUMBER]?.valueNumber?.toInt()
+                ?: recordFields[Keys.CHECK_NUMBER]?.content?.hackToNumber()?.toInt()
             CheckEntriesTableRow(
                 date = normalizeDate(recordFields[Keys.DATE]?.valueString),
-                checkNumber = recordFields[Keys.CHECK_NUMBER]?.valueInteger?.toInt(), // TODO: fix in model
+                checkNumber = checkNumber,
                 to = recordFields[Keys.TO]?.valueString,
                 description = recordFields[Keys.DESCRIPTION]?.valueString,
                 amount = recordFields[Keys.AMOUNT]?.currencyValue(),
