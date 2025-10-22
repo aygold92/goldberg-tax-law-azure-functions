@@ -145,6 +145,9 @@ class AzureStorageDataManager(private val serviceClient: BlobServiceClient) {
         }
     }
 
+    fun loadOutputFile(clientName: String, fileName: String): String =
+        loadFile(getContainerClient(clientName, BlobContainer.OUTPUT), fileName).toString()
+
     fun loadBankStatement(clientName: String, bankStatementKey: String): BankStatement {
         val fileName = "${bankStatementKey}.json"
         return loadFile(getContainerClient(clientName, BlobContainer.STATEMENTS), fileName).toObject(BankStatement::class.java)

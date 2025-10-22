@@ -14,6 +14,7 @@ import com.goldberg.law.document.model.ModelValues.TEST_TRANSACTION_ID
 import com.goldberg.law.document.model.ModelValues.batesStampsMap
 import com.goldberg.law.document.model.ModelValues.newCheckData
 import com.goldberg.law.document.model.ModelValues.newHistoryRecord
+import com.goldberg.law.document.model.input.tables.TransactionTableAmountRecord
 import com.goldberg.law.document.model.output.TransactionHistoryRecord
 import com.goldberg.law.document.model.output.TransactionHistoryRecord.SuspiciousReasons
 import com.goldberg.law.document.model.pdf.DocumentType.BankTypes
@@ -25,6 +26,12 @@ class TransactionHistoryRecordTest {
     fun testNonSuspiciousRecords() {
         assertThat(BASIC_TH_RECORD.isSuspicious()).isFalse()
         assertThat(newHistoryRecord(amount = 500.00).isSuspicious()).isFalse()
+    }
+
+    @Test
+    fun testAmountWithInterestRateChange() {
+        val record = newHistoryRecord(description = "Interest Rate Change from 0.598% to 0.698%", amount = null)
+        assertThat(record.isSuspicious()).isFalse()
     }
 
     @Test

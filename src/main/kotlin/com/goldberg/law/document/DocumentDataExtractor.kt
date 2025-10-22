@@ -55,13 +55,12 @@ class DocumentDataExtractor @Inject constructor(
         )
 
         val result = retryWithBackoff(poller::waitForCompletion, ::isAzureThrottlingError)
-        logger.debug { result.toStringDetailed() }
 
         val documents = poller.finalResult.documents
         if (documents.size != 1) {
-            logger.error { "${pdfDocumentPage.nameWithPages()} returned ${documents.size} analyzed pages" }
+            logger.error { "${pdfDocumentPage.nameWithPages()} returned ${documents.size} analyzed documents" }
         }
 
-        return documents[0].also { logger.trace { it.toStringDetailed() } }
+        return documents[0].also { logger.trace { "Analyze API result: ${it.toStringDetailed()}" } }
     }
 }

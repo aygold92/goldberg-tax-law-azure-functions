@@ -21,28 +21,26 @@ class DocumentFieldSerializer @JvmOverloads constructor(t: Class<DocumentField?>
         jgen.writeStartObject()
         provider?.defaultSerializeField("type", value?.type.toString(), jgen)
         provider?.defaultSerializeField("content", value?.content, jgen)
-        provider?.defaultSerializeField("boundingRegions", value?.boundingRegions, jgen)
-//        if (value?.valueNumber)
-//        when(val workingValue = value?.value) {
-//            is Map<*,*> -> {
-//                jgen.writeFieldName("value")
-//                jgen.writeStartObject()
-//                workingValue.keys.forEach {
-//                    jgen.writeFieldName(it.toString())
-//                    serialize(workingValue[it]?.asDocumentField(), jgen, provider)
-//                }
-//                jgen.writeEndObject()
-//            }
-//            is Collection<*> -> {
-//                jgen.writeArrayFieldStart("value")
-//                workingValue.forEach {
-//                    serialize(it?.asDocumentField(), jgen, provider)
-//                }
-//                jgen.writeEndArray()
-//            }
-//            is Double -> jgen.writeNumberField("value", value.valueAsDouble)
-//            else -> provider?.defaultSerializeField("value", value?.value, jgen)
-//        }
+        if (value?.boundingRegions != null) {
+            provider?.defaultSerializeField("pageNumber", value.boundingRegions[0].pageNumber, jgen)
+        }
+        
+        // Serialize all possible value types
+        value?.valueString?.let { provider?.defaultSerializeField("valueString", it, jgen) }
+        value?.valueNumber?.let { provider?.defaultSerializeField("valueNumber", it, jgen) }
+        value?.valueInteger?.let { provider?.defaultSerializeField("valueInteger", it, jgen) }
+        value?.isValueBoolean?.let { provider?.defaultSerializeField("valueBoolean", it, jgen) }
+        value?.valueDate?.let { provider?.defaultSerializeField("valueDate", it, jgen) }
+        value?.valueTime?.let { provider?.defaultSerializeField("valueTime", it, jgen) }
+        value?.valuePhoneNumber?.let { provider?.defaultSerializeField("valuePhoneNumber", it, jgen) }
+        value?.valueSelectionMark?.let { provider?.defaultSerializeField("valueSelectionMark", it, jgen) }
+        value?.valueSignature?.let { provider?.defaultSerializeField("valueSignature", it, jgen) }
+        value?.valueCountryRegion?.let { provider?.defaultSerializeField("valueCountryRegion", it, jgen) }
+        value?.valueCurrency?.let { provider?.defaultSerializeField("valueCurrency", it, jgen) }
+        value?.valueAddress?.let { provider?.defaultSerializeField("valueAddress", it, jgen) }
+        value?.valueList?.let { provider?.defaultSerializeField("valueList", it, jgen) }
+        value?.valueMap?.let { provider?.defaultSerializeField("valueMap", it, jgen) }
+
         jgen.writeEndObject()
     }
 }

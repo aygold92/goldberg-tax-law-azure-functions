@@ -81,7 +81,7 @@ data class TransactionHistoryRecord @JsonCreator constructor(
     @JsonIgnore
     fun isDescriptionEmpty() = description == null
     @JsonIgnore
-    fun isAmountInvalid() =  amount == null || amount == ZERO
+    fun isAmountInvalid() =  (amount == null || amount == ZERO) && description?.lowercase()?.startsWith("interest rate change from") != true
     @JsonIgnore
     fun hasCheckWithoutNumber() = hasCheckDescription() && checkNumber == null
     @JsonIgnore

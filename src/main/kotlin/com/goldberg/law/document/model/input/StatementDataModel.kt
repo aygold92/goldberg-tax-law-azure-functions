@@ -18,7 +18,10 @@ import com.goldberg.law.document.model.output.BankStatement
 import com.goldberg.law.document.model.output.TransactionHistoryRecord
 import com.goldberg.law.document.model.pdf.*
 import com.goldberg.law.util.*
+import io.github.oshai.kotlinlogging.KotlinLogging
 import java.math.BigDecimal
+
+private val logger = KotlinLogging.logger {}
 
 data class StatementDataModel @JsonCreator constructor(
     @JsonProperty("date") val date: String?,
@@ -73,7 +76,7 @@ data class StatementDataModel @JsonCreator constructor(
     @JsonIgnore
     fun isManuallyOverriden() = this.manualRecordTable != null
 
-    fun toBankStatement(): List<BankStatement> = if (pageMetadata.classification == DocumentType.BankTypes.NFCU_BANK && accountNumber == null) {
+    fun toBankStatement(): List<BankStatement> = if (DocumentType.hasMultipleStatements(pageMetadata.classification) && !isManuallyOverriden()) {
         val records = getTransactionRecords()
 
         val result: MutableList<MutableList<TransactionHistoryRecord>> = mutableListOf()
@@ -92,19 +95,28 @@ data class StatementDataModel @JsonCreator constructor(
         }
 
         if (currentGroup != null) result.add(currentGroup)
-
-        summaryOfAccountsTable!!.records.zip(result) { accountSummary, transactionRecords ->
-            BankStatement(
+        try {
+            summaryOfAccountsTable!!.records.zip(result) { accountSummary, transactionRecords ->
+                BankStatement(
+                    pageMetadata = pageMetadata,
+                    date = date,
+                    accountNumber = accountSummary.accountNumber,
+                    beginningBalance = accountSummary.beginningBalance?.stripTrailingZeros(),
+                    endingBalance = accountSummary.endingBalance?.stripTrailingZeros(),
+                    interestCharged = interestCharged,
+                    feesCharged = feesCharged,
+                    transactions = transactionRecords,
+                    batesStamps = getBatesStampsMap(),
+                )
+            }
+        } catch (ex: Exception) {
+            logger.error { "Exception processing $this: $ex" }
+            listOf(BankStatement(
                 pageMetadata = pageMetadata,
-                date = date,
-                accountNumber = accountSummary.accountNumber,
-                beginningBalance = accountSummary.beginningBalance?.stripTrailingZeros(),
-                endingBalance = accountSummary.endingBalance?.stripTrailingZeros(),
-                interestCharged = interestCharged,
-                feesCharged = feesCharged,
-                transactions = transactionRecords,
+                date = null,
                 batesStamps = getBatesStampsMap(),
-            )
+                transactions = records
+            ))
         }
     } else {
         listOf(BankStatement(
@@ -175,9 +187,10 @@ data class StatementDataModel @JsonCreator constructor(
             classifiedPdfDocument.toDocumentMetadata()
         )
 
-        fun TransactionHistoryRecord.isBeginningBalanceRecord() =
-            this.description == NFCU_BANK_BEGINNING_BALANCE_TRANSACTION_DESCRIPTION && this.amount == null
-
+        fun TransactionHistoryRecord.isBeginningBalanceRecord() = (this.description in beginningBalanceTransactionDescriptions) && this.amount == null
+        
         const val NFCU_BANK_BEGINNING_BALANCE_TRANSACTION_DESCRIPTION = "Beginning Balance"
+        const val CAPITAL_ONE_JOINT_BEGINNING_BALANCE_TRANSACTION_DESCRIPTION = "Opening Balance"
+        val beginningBalanceTransactionDescriptions = listOf(NFCU_BANK_BEGINNING_BALANCE_TRANSACTION_DESCRIPTION, CAPITAL_ONE_JOINT_BEGINNING_BALANCE_TRANSACTION_DESCRIPTION)
     }
 }

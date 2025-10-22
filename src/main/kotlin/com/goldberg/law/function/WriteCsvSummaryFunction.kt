@@ -5,6 +5,7 @@ import com.goldberg.law.document.AccountSummaryCreator
 import com.goldberg.law.document.CsvCreator
 import com.goldberg.law.document.getChecksUsed
 import com.goldberg.law.document.getMissingChecks
+import com.goldberg.law.document.model.output.BankStatementKey
 import com.goldberg.law.function.model.request.AnalyzeDocumentResult
 import com.goldberg.law.function.model.request.WriteCsvSummaryRequest
 import com.goldberg.law.function.model.request.WriteCsvSummaryResponse
@@ -35,7 +36,11 @@ class WriteCsvSummaryFunction @Inject constructor(
         logger.info { "[${ctx.invocationId}] processing ${request.body.orElseThrow()}" }
         val req = OBJECT_MAPPER.readValue(request.body.orElseThrow(), WriteCsvSummaryRequest::class.java)
 
-        val statements = req.statementKeys.mapAsync { dataManager.loadBankStatement(req.clientName, it.getDocumentName()) }
+        val statements = req.statementKeys.mapAsync { statementRequest ->
+            val key = BankStatementKey(statementRequest.accountNumber, statementRequest.classification, statementRequest.date?.replace("/", "_")).toString()
+            val finalKey = if (statementRequest.filenameWithPages != null) "${key}:${statementRequest.filenameWithPages}" else key
+            dataManager.loadBankStatement(req.clientName, finalKey)
+        }
         val summary = accountSummaryCreator.createSummary(statements).also { logger.debug { it } }
 
         val outputFile = req.outputFile ?: ctx.invocationId

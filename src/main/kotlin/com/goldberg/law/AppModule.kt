@@ -142,8 +142,10 @@ class AppModule constructor(private val appEnvironmentSettings: AppEnvironmentSe
     @Provides
     @Singleton
     fun testAnalyzePageFunction(
-        processDataModelActivity: ProcessDataModelActivity
-    ) = AnalyzePageFunction(processDataModelActivity)
+        azureStorageDataManager: AzureStorageDataManager,
+        processDataModelActivity: ProcessDataModelActivity,
+        processStatementsActivity: ProcessStatementsActivity
+    ) = AnalyzePageFunction(azureStorageDataManager, processDataModelActivity, processStatementsActivity)
 
     @Provides
     @Singleton
@@ -234,5 +236,11 @@ class AppModule constructor(private val appEnvironmentSettings: AppEnvironmentSe
     fun getInputFileMetadataFunction(
         azureStorageDataManager: AzureStorageDataManager
     ) = GetInputFileMetadataFunction(azureStorageDataManager)
+
+    @Provides
+    @Singleton
+    fun retrieveOutputFileFunction(
+        azureStorageDataManager: AzureStorageDataManager
+    ) = RetrieveOutputFileFunction(azureStorageDataManager)
 
 }

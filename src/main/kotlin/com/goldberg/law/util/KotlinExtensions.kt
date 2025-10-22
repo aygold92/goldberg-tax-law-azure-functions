@@ -6,16 +6,7 @@ import com.azure.ai.documentintelligence.models.DocumentFieldType
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.module.SimpleModule
-import com.goldberg.law.function.activity.ProcessDataModelActivity
-import com.goldberg.law.function.activity.UpdateMetadataActivity
-import com.goldberg.law.function.model.DocumentDataModelContainer
-import com.goldberg.law.function.model.activity.ProcessDataModelActivityInput
-import com.goldberg.law.function.model.activity.UpdateMetadataActivityInput
-import com.goldberg.law.function.model.metadata.InputFileMetadata
-import com.goldberg.law.function.model.tracking.OrchestrationStage
-import com.goldberg.law.function.model.tracking.OrchestrationStatus
-import com.microsoft.durabletask.Task
-import com.microsoft.durabletask.TaskOrchestrationContext
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.nimbusds.jose.shaded.gson.GsonBuilder
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.*
@@ -31,6 +22,8 @@ val OBJECT_MAPPER = ObjectMapper().apply {
     enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
     registerModule(SimpleModule().apply { addSerializer(DocumentField::class.java, DocumentFieldSerializer()) })
     registerModule(SimpleModule().apply { addSerializer(AnalyzedDocument::class.java, AnalyzedDocumentSerializer()) })
+    registerModule(JavaTimeModule())
+
 }
 
 val GSON = GsonBuilder()
@@ -137,7 +130,7 @@ fun <T> Collection<T>.breakIntoGroups(numGroups: Int): Map<Int, List<T>> {
 
 fun PDDocument.docForPage(pageNum: Int) = PDDocument().apply { addPage(this@docForPage.getPage(pageNum - 1)) }
 fun PDDocument.docForPages(pages: Set<Int>) = PDDocument().apply {
-    pages.forEach {
+    pages.sorted().forEach {
         addPage(this@docForPages.getPage(it - 1))
     }
 }

@@ -13,6 +13,7 @@ import com.goldberg.law.function.model.DocumentDataModelContainer
 import com.goldberg.law.function.model.activity.ProcessStatementsActivityInput
 import com.goldberg.law.function.model.request.AnalyzeDocumentResult
 import com.goldberg.law.function.model.request.UpdateStatementModelRequest
+import com.goldberg.law.document.model.pdf.DocumentType
 import com.goldberg.law.util.OBJECT_MAPPER
 import com.goldberg.law.util.mapAsync
 import com.microsoft.azure.functions.*
@@ -62,7 +63,8 @@ class UpdateStatementModelFunction(
             batesStamps = BatesStampTable(req.modelDetails.pages.mapNotNull { if (it.batesStamp != null) BatesStampTableRow(it.batesStamp, it.filePageNumber) else null })
         )
 
-        dataManager.saveModel(req.clientName, model)
+        if (!DocumentType.hasMultipleStatements(pdfMetadata.classification)) 
+            dataManager.saveModel(req.clientName, model)
 
         putDocumentClassificationFunction.overwriteClassificationIndividual(req.clientName, listOf(pdfMetadata))
 

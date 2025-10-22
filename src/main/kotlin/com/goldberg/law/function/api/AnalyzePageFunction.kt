@@ -1,6 +1,10 @@
 package com.goldberg.law.function.api
 
+import com.goldberg.law.datamanager.AzureStorageDataManager
+import com.goldberg.law.document.exception.FileNotFoundException
 import com.goldberg.law.function.activity.ProcessDataModelActivity
+import com.goldberg.law.function.activity.ProcessStatementsActivity
+import com.goldberg.law.function.model.activity.ProcessStatementsActivityInput
 import com.goldberg.law.function.model.request.AnalyzeDocumentResult
 import com.goldberg.law.function.model.request.AnalyzePagesRequest
 import com.goldberg.law.util.OBJECT_MAPPER
@@ -13,7 +17,9 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import java.util.*
 
 class AnalyzePageFunction(
+    private val dataManager: AzureStorageDataManager,
     private val processDataModelActivity: ProcessDataModelActivity,
+    private val processStatementsActivity: ProcessStatementsActivity
 ) {
     private val logger = KotlinLogging.logger {}
 
@@ -30,6 +36,17 @@ class AnalyzePageFunction(
         val models = req.pageRequests.mapAsync {
             val input = it.copy(requestId = "${it.requestId} - ${it.classifiedPdfMetadata}", useOriginalFile = true)
             processDataModelActivity.processDataModel(input, ctx)
+        }
+
+        models.zip(req.pageRequests).forEach { (model, req) ->
+            val filename = req.classifiedPdfMetadata.filename
+            val metadata = dataManager.loadInputMetadata(req.clientName, filename)
+                ?: throw FileNotFoundException("file ${req.clientName}/$filename does not exist")
+
+            processStatementsActivity.processStatementsAndChecks(
+                ProcessStatementsActivityInput(
+                    ctx.invocationId!!, req.clientName, setOf(model), mapOf(filename to metadata), true
+                ), ctx)
         }
 
         request!!.createResponseBuilder(HttpStatus.OK)
