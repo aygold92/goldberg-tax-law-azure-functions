@@ -24,6 +24,7 @@ import java.math.BigDecimal
 private val logger = KotlinLogging.logger {}
 
 data class StatementDataModel @JsonCreator constructor(
+    @JsonProperty("documentType") val documentType: String?,
     @JsonProperty("date") val date: String?,
     @JsonProperty("accountNumber") val accountNumber: String?,
     @JsonProperty("beginningBalance") val beginningBalance: BigDecimal?,
@@ -44,10 +45,10 @@ data class StatementDataModel @JsonCreator constructor(
     @JsonIgnore @Transient
     val statementDate = fromWrittenDate(date)
 
-    constructor(date: String, accountNumber: String,
+    constructor(documentType: String?, date: String, accountNumber: String,
                 beginningBalance: BigDecimal, endingBalance: BigDecimal, interestCharged: BigDecimal?, feesCharged: BigDecimal?,
                 batesStamps: BatesStampTable?, pageMetadata: ClassifiedPdfMetadata, manualRecordTable: ManualRecordTable?
-    ): this(date = date,
+    ): this(documentType = documentType, date = date,
         accountNumber = accountNumber, beginningBalance = beginningBalance, endingBalance = endingBalance,
         interestCharged = interestCharged, feesCharged = feesCharged, batesStampsTable = batesStamps,
         pageMetadata = pageMetadata, manualRecordTable = manualRecordTable,
@@ -165,6 +166,7 @@ data class StatementDataModel @JsonCreator constructor(
             })
 
             StatementDataModel(
+                documentType = this.documentType,
                 date = statementDate,
                 summaryOfAccountsTable = this.getSummaryOfAccounts(),
                 transactionTableDepositWithdrawal = this.getTransactionTableDepositWithdrawal(),
@@ -183,7 +185,7 @@ data class StatementDataModel @JsonCreator constructor(
             )
         }
         fun blankModel(classifiedPdfDocument: ClassifiedPdfDocument) = StatementDataModel(
-            null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+            null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
             classifiedPdfDocument.toDocumentMetadata()
         )
 

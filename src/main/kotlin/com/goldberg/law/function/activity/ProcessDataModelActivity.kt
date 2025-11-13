@@ -95,6 +95,7 @@ class ProcessDataModelActivity @Inject constructor(
                 pageMetadata = ClassifiedPdfMetadata(FILENAME, 1, CheckTypes.EAGLE_BANK_CHECK)
             ),
             StatementDataModel(
+                documentType = "Test",
                 date = normalizeDate("6 2 2022"),
                 summaryOfAccountsTable = null,
                 transactionTableDepositWithdrawal = null,

@@ -105,6 +105,7 @@ class AccountNormalizerTest {
     
     companion object {
         fun newStatementDataModel(accountNumber: String?) = StatementDataModel(
+            documentType = "Test",
             date = FIXED_STATEMENT_DATE,
             summaryOfAccountsTable = null,
             transactionTableDepositWithdrawal = null,

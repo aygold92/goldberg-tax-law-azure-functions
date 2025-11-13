@@ -49,6 +49,7 @@ class UpdateStatementModelFunction(
         val pdfMetadata = ClassifiedPdfMetadata(details.filename, pages, details.classification)
 
         val model = StatementDataModel(
+            documentType = pdfMetadata.classification,
             date = details.statementDate,
             accountNumber = details.accountNumber,
             beginningBalance = details.beginningBalance,

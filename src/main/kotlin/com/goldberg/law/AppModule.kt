@@ -243,4 +243,11 @@ class AppModule constructor(private val appEnvironmentSettings: AppEnvironmentSe
         azureStorageDataManager: AzureStorageDataManager
     ) = RetrieveOutputFileFunction(azureStorageDataManager)
 
+    @Provides
+    @Singleton
+    fun matchStatementsWithChecksFunction(
+        azureStorageDataManager: AzureStorageDataManager,
+        processStatementsActivity: ProcessStatementsActivity
+    ) = MatchStatementsWithChecksFunction(azureStorageDataManager, processStatementsActivity)
+
 }

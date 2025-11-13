@@ -37,6 +37,7 @@ class StatementModelValues {
         val STATEMENT_MODEL_4 = newStatementModel(METADATA_4)
         val STATEMENT_MODEL_5 = newStatementModel(METADATA_5)
         fun newStatementModel(pageMetadata: ClassifiedPdfMetadata = BASIC_PDF_METADATA) = StatementDataModel(
+            documentType = "Test",
             pageMetadata = pageMetadata,
             date = FIXED_STATEMENT_DATE,
             accountNumber = ACCOUNT_NUMBER,
@@ -48,6 +49,7 @@ class StatementModelValues {
             manualRecordTable = null,
         )
         val STATEMENT_MODEL_NFCU_SAME = StatementDataModel(
+            documentType = "Test",
             date = normalizeDate("June 14, 2024"),
             summaryOfAccountsTable = null,
             transactionTableDepositWithdrawal = null,
@@ -76,6 +78,7 @@ class StatementModelValues {
             pageMetadata = ClassifiedPdfMetadata(FileNames.NFCU_BANK, 1, BankTypes.WF_BANK)
         )
         val STATEMENT_MODEL_WF_BANK_0 = StatementDataModel(
+            documentType = "Test",
             date = normalizeDate("February 7, 2022"),
             summaryOfAccountsTable = null,
             transactionTableDepositWithdrawal = null,
@@ -94,6 +97,7 @@ class StatementModelValues {
         )
 
         val STATEMENT_MODEL_WF_BANK_1 = StatementDataModel(
+            documentType = "Test",
             date = normalizeDate("February 7, 2022"),
             summaryOfAccountsTable = null,
             transactionTableDepositWithdrawal = TransactionTableDepositWithdrawal(listOf(
@@ -132,6 +136,7 @@ class StatementModelValues {
         )
 
         val STATEMENT_MODEL_WF_BANK_2 = StatementDataModel(
+            documentType = "Test",
             date = normalizeDate("April 7, 2022"),
             summaryOfAccountsTable = SummaryOfAccountsTable(listOf(
                 SummaryOfAccountsTableRecord(endingBalance = 11789.1.asCurrency(), accountNumber = "3443", beginningBalance = 20698.asCurrency(),),
@@ -164,6 +169,7 @@ class StatementModelValues {
         )
 
         val STATEMENT_MODEL_WF_BANK_3 = StatementDataModel(
+            documentType = "Test",
             date = normalizeDate("April 7, 2022"),
             summaryOfAccountsTable = null,
             transactionTableDepositWithdrawal = TransactionTableDepositWithdrawal(listOf(
@@ -194,6 +200,7 @@ class StatementModelValues {
         )
 
         val STATEMENT_MODEL_WF_BANK_4 = StatementDataModel(
+            documentType = "Test",
             date = normalizeDate("April 7, 2022"),
             summaryOfAccountsTable = null,
             transactionTableDepositWithdrawal = TransactionTableDepositWithdrawal(listOf(
@@ -214,6 +221,7 @@ class StatementModelValues {
         )
 
         val DOUBLE_CASH_0 = StatementDataModel(
+            documentType = "Test",
             date = normalizeDate("11/02/21"),
             summaryOfAccountsTable = null,
             transactionTableDepositWithdrawal = null,
@@ -232,6 +240,7 @@ class StatementModelValues {
         )
 
         val DOUBLE_CASH_1 = StatementDataModel(
+            documentType = "Test",
             date = null,
             summaryOfAccountsTable = null,
             transactionTableDepositWithdrawal = null,
@@ -294,6 +303,7 @@ class StatementModelValues {
             pageMetadata = ClassifiedPdfMetadata(filename = "test.pdf", page = 2, classification = "WF Bank"))
 
         val WF_JOINT_0 = StatementDataModel(
+            documentType = "Test",
             date = normalizeDate("August 5, 2022"),
             summaryOfAccountsTable = null,
             transactionTableDepositWithdrawal = null,
@@ -312,6 +322,7 @@ class StatementModelValues {
         )
 
         val WF_JOINT_1 = StatementDataModel(
+            documentType = "Test",
             date = normalizeDate("August 5, 2022"),
             summaryOfAccountsTable = SummaryOfAccountsTable(
                 listOf(
@@ -346,6 +357,7 @@ class StatementModelValues {
         )
 
         val WF_JOINT_2 = StatementDataModel(
+            documentType = "Test",
             date = normalizeDate("August 5, 2022"),
             summaryOfAccountsTable = null,
             transactionTableDepositWithdrawal = TransactionTableDepositWithdrawal(
@@ -391,6 +403,7 @@ class StatementModelValues {
         )
 
         val WF_JOINT_3 = StatementDataModel(
+            documentType = "Test",
             date = normalizeDate("August 5, 2022"),
             summaryOfAccountsTable = null,
             transactionTableDepositWithdrawal = TransactionTableDepositWithdrawal(
@@ -417,6 +430,7 @@ class StatementModelValues {
 
 
         val EAGLE_BANK_0 = StatementDataModel(
+            documentType = "Test",
             date = normalizeDate("May 15, 2019"),
             summaryOfAccountsTable = null,
             transactionTableDepositWithdrawal = null,
@@ -447,6 +461,7 @@ class StatementModelValues {
             pageMetadata = ClassifiedPdfMetadata(FileNames.EAGLE_BANK, 6, BankTypes.WF_BANK)
         )
         val EAGLE_BANK_1 = StatementDataModel(
+            documentType = "Test",
             date = normalizeDate("May 15, 2019"),
             summaryOfAccountsTable = null,
             transactionTableDepositWithdrawal = null,
@@ -479,6 +494,7 @@ class StatementModelValues {
             pageMetadata = ClassifiedPdfMetadata(FileNames.EAGLE_BANK, 7, BankTypes.WF_BANK)
         )
         val EAGLE_BANK_2 = StatementDataModel(
+            documentType = "Test",
             date = normalizeDate("June 15, 2019"),
             summaryOfAccountsTable = null,
             transactionTableDepositWithdrawal = null,
@@ -510,6 +526,7 @@ class StatementModelValues {
             pageMetadata = ClassifiedPdfMetadata(FileNames.EAGLE_BANK, 8, BankTypes.WF_BANK)
         )
         val EAGLE_BANK_3 = StatementDataModel(
+            documentType = "Test",
             date = normalizeDate("June 15, 2019"),
             summaryOfAccountsTable = null,
             transactionTableDepositWithdrawal = null,
@@ -540,6 +557,7 @@ class StatementModelValues {
 
 
         val C1_VENTURE_0 = StatementDataModel(
+            documentType = "Test",
             date = normalizeDate("Jun 09 2021"),
             summaryOfAccountsTable = null,
             transactionTableDepositWithdrawal = null,
@@ -558,6 +576,7 @@ class StatementModelValues {
         )
 
         val C1_VENTURE_1 = StatementDataModel(
+            documentType = "Test",
             date = normalizeDate("Jun 09 2021"),
             summaryOfAccountsTable = null,
             transactionTableDepositWithdrawal = null,
@@ -581,6 +600,7 @@ class StatementModelValues {
 
 
         val CITI_END_OF_YEAR_0 = StatementDataModel(
+            documentType = "Test",
             date = normalizeDate("Jan 07 2021"),
             summaryOfAccountsTable = null,
             transactionTableDepositWithdrawal = null,
@@ -598,6 +618,7 @@ class StatementModelValues {
             pageMetadata = ClassifiedPdfMetadata(FileNames.CITI_EOY, 1, BankTypes.WF_BANK)
         )
         val CITI_END_OF_YEAR_1 = StatementDataModel(
+            documentType = "Test",
             date = null,
             summaryOfAccountsTable = null,
             transactionTableDepositWithdrawal = null,
@@ -660,6 +681,7 @@ class StatementModelValues {
         )
 
         val CITI_END_OF_YEAR_2 = StatementDataModel(
+            documentType = "Test",
             date = null,
             summaryOfAccountsTable = null,
             transactionTableDepositWithdrawal = null,

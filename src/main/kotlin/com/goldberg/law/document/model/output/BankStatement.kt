@@ -161,7 +161,7 @@ data class BankStatement @JsonCreator constructor(
     /**
      * CALCULATING SUSPICIOUS REASONS
      */
-    @JsonIgnore
+    @JsonIgnore @Transient
     private val otherSuspiciousReasons = mutableListOf<String>()
 
     @JsonIgnore

@@ -4,6 +4,7 @@ import com.goldberg.law.datamanager.AzureStorageDataManager
 import com.goldberg.law.document.model.output.BankStatement
 import com.goldberg.law.document.model.output.BankStatementKey
 import com.goldberg.law.function.model.request.LoadBankStatementRequest
+import com.goldberg.law.function.model.response.LoadBankStatementResponse
 import com.goldberg.law.util.OBJECT_MAPPER
 import com.microsoft.azure.functions.*
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
@@ -29,9 +30,13 @@ class LoadBankStatementFunction(
         val key = BankStatementKey(req.accountNumber, req.classification, req.date?.replace("/", "_")).toString()
         val finalKey = if (req.filenameWithPages != null) "${key}:${req.filenameWithPages}" else key
         val statement: BankStatement = dataManager.loadBankStatement(req.clientName, finalKey)
+        val response = LoadBankStatementResponse(
+            statement = statement,
+            suspiciousReasons = statement.getSuspiciousReasons(),
+        )
 
         request!!.createResponseBuilder(HttpStatus.OK)
-            .body(statement)
+            .body(response)
             .build()
     } catch (ex: Exception) {
         logger.error(ex) { "Error loading bank statement for $request" }

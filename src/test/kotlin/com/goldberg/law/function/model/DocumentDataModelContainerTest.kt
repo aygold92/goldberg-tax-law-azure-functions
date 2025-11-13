@@ -85,6 +85,7 @@ class DocumentDataModelContainerTest {
 
     companion object {
         val STATEMENT_DATA_MODEL = StatementDataModel(
+            documentType = "Test",
             date = FIXED_STATEMENT_DATE,
             summaryOfAccountsTable = SummaryOfAccountsTable(listOf(SummaryOfAccountsTableRecord("", 4.asCurrency(), 5.asCurrency()))),
             transactionTableDepositWithdrawal = null,

@@ -49,4 +49,7 @@ testOutput
 Training Data
 realInput
 analyzeOutput
-prod
+prodB
+
+# used for git cleaning
+replacements.txt

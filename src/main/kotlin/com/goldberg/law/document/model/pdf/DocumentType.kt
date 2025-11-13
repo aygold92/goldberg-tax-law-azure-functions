@@ -14,6 +14,7 @@ import com.goldberg.law.document.model.pdf.DocumentType.CheckTypes.NFCU_CHECK
 import com.goldberg.law.document.model.pdf.DocumentType.CheckTypes.CHECKS
 import com.goldberg.law.document.model.pdf.DocumentType.CreditCardTypes.AMEX_CC
 import com.goldberg.law.document.model.pdf.DocumentType.CreditCardTypes.B_OF_A_CC
+import com.goldberg.law.document.model.pdf.DocumentType.CreditCardTypes.B_OF_A_CC_BUSINESS
 import com.goldberg.law.document.model.pdf.DocumentType.CreditCardTypes.C1_CC
 import com.goldberg.law.document.model.pdf.DocumentType.CreditCardTypes.CITI_CC
 import com.goldberg.law.document.model.pdf.DocumentType.CreditCardTypes.NFCU_CC
@@ -21,7 +22,7 @@ import com.goldberg.law.document.model.pdf.DocumentType.CreditCardTypes.WF_CC
 import com.goldberg.law.document.model.pdf.DocumentType.IrrelevantTypes.EXTRA_PAGES
 
 enum class DocumentType(val docTypes: List<String> = listOf()) {
-    CREDIT_CARD(listOf(AMEX_CC, C1_CC, CITI_CC, WF_CC, B_OF_A_CC, NFCU_CC)),
+    CREDIT_CARD(listOf(AMEX_CC, C1_CC, CITI_CC, WF_CC, B_OF_A_CC, B_OF_A_CC_BUSINESS, NFCU_CC)),
     BANK(listOf(EAGLE_BANK, WF_BANK, WF_BANK_JOINT, B_OF_A, NFCU_BANK, TRUIST, CAPITAL_ONE_JOINT)),
     CHECK(listOf(EAGLE_BANK_CHECK, B_OF_A_CHECK, MISC_CHECK, NFCU_CHECK, CHECKS)),
     IRRELEVANT(listOf(EXTRA_PAGES)),
@@ -41,6 +42,7 @@ enum class DocumentType(val docTypes: List<String> = listOf()) {
         const val CITI_CC = "CITI CC"
         const val WF_CC = "WF CC"
         const val B_OF_A_CC = "BofA CC"
+        const val B_OF_A_CC_BUSINESS = "BofA CC Business"
         const val NFCU_CC = "NFCU CC"
     }
 

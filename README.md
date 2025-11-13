@@ -133,3 +133,17 @@ From googling, it appears to be a weird issue on mac. Just download the file fro
 ```bash
 ln -s ~/Downloads/libgrpc_csharp_ext.arm64.dylib ~/.azure-functions-core-tools/Functions/ExtensionBundles/Microsoft.Azure.Functions.ExtensionBundle/4.21.0/bin/libgrpc_csharp_ext.arm64.dylib
 ```
+
+### Slanted PDFs
+Use [ocrmypdf](https://github.com/ocrmypdf/OCRmyPDF) `--deskew`.  By default it assumes you're deskewing because it is an image based PDF, but if there is a mixture of image/text, you might need to use `--force-ocr` as it won't override by default
+
+```bash
+ocrmypdf --deskew --force-ocr ~/Downloads/CC\ -\ Greenlight\ x1322\ 5.2025-9.2025.pdf "/Users/andrewgoldberg/Downloads/CC - Greenlight x1322 5.2025-9.2025[FIXED].pdf"
+```
+
+### Bad Quality PDFs
+use [imagemagick](https://github.com/ImageMagick/ImageMagick) to convert the PDF to a high quality image then back to a higher quality PDF
+```bash
+magick -density 300 input.pdf output.pdf
+```
+
