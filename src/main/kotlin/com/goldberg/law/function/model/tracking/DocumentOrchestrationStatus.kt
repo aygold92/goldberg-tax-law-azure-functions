@@ -1,14 +1,22 @@
 package com.goldberg.law.function.model.tracking
 
-import com.fasterxml.jackson.annotation.JsonCreator
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.goldberg.law.function.model.metadata.InputFileMetadata
+import java.util.*
 
-data class DocumentOrchestrationStatus @JsonCreator constructor(
-    @JsonProperty("filename") val filename: String,
-    @JsonProperty("numStatements") var numStatements: Int?,
-    @JsonProperty("statementsCompleted") var statementsCompleted: Int?,
-    @JsonProperty("classified") var classified: Boolean?,
+data class DocumentOrchestrationStatus(
+    val fileId: UUID,
+    var numStatementPages: Int?,
+    var numCheckPages: Int?,
+    var docsAnalyzed: Int?,
+    var classified: Boolean,
 ) {
-    fun incrementStatementsCompleted() = this.also { statementsCompleted = statementsCompleted?.plus(1) }
+    val numDocsTotal: Int?
+        get() = Pair(numStatementPages, numCheckPages).let { (nS, nC) ->
+            if (nS == null && nC == null) null
+            else if (nS == null) nC
+            else if (nC == null) nS
+            else nS + nC
+        }
+    fun incrementDocumentsAnalyzed() = this.also {
+        docsAnalyzed = docsAnalyzed?.plus(1)
+    }
 }

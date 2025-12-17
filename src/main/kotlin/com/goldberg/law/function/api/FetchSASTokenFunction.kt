@@ -3,9 +3,9 @@ package com.goldberg.law.function.api
 import com.azure.storage.blob.BlobServiceClient
 import com.azure.storage.blob.sas.BlobContainerSasPermission
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues
-import com.goldberg.law.function.model.request.AnalyzeDocumentResult
-import com.goldberg.law.function.model.request.SASTokenRequest
-import com.goldberg.law.function.model.request.SASTokenResponse
+import com.goldberg.law.function.api.model.AnalyzeDocumentResult
+import com.goldberg.law.function.api.model.SASTokenRequest
+import com.goldberg.law.function.api.model.SASTokenResponse
 import com.goldberg.law.util.OBJECT_MAPPER
 import com.goldberg.law.util.toStringDetailed
 import com.microsoft.azure.functions.*
@@ -32,13 +32,13 @@ class FetchSASTokenFunction @Inject constructor(
         val req = OBJECT_MAPPER.convertValue(request.queryParameters, SASTokenRequest::class.java)
 
         val permission = BlobContainerSasPermission()
-            .setListPermission(true)
-            .setReadPermission(true)
+//            .setListPermission(true)
+//            .setReadPermission(true)
             .setWritePermission(true)
-            .setTagsPermission(true)
-            .setDeletePermission(true)
+//            .setTagsPermission(true)
+//            .setDeletePermission(true)
 
-        val token = blobServiceClient.getBlobContainerClient(req.action.forClient(req.clientName))
+        val token = blobServiceClient.getBlobContainerClient(req.clientId)
             .generateSas(BlobServiceSasSignatureValues(OffsetDateTime.now().plusMinutes(15), permission))
 
         request.createResponseBuilder(HttpStatus.OK)

@@ -1,15 +1,15 @@
 package com.goldberg.law.document.model.input
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.goldberg.law.document.model.pdf.ClassifiedPdfMetadata
+import com.goldberg.law.entity.Classification
 
 open class DocumentDataModel(
-    @JsonIgnore @Transient open val pageMetadata: ClassifiedPdfMetadata
+    @JsonIgnore @Transient open val classification: Classification
 ) {
     @JsonIgnore
-    fun isStatement() = pageMetadata.documentType.isStatement()
+    fun isStatement() = classification.documentType.isStatement()
     @JsonIgnore
-    fun isCheck() = pageMetadata.documentType.isCheck()
+    fun isCheck() = classification.documentType.isCheck()
     @JsonIgnore
-    fun isExtraPage() = !pageMetadata.documentType.isRelevant()
+    fun isExtraPage() = !classification.documentType.isRelevant()
 }

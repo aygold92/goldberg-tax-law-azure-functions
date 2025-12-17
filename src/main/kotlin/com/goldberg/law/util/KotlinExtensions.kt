@@ -3,10 +3,24 @@ package com.goldberg.law.util
 import com.azure.ai.documentintelligence.models.AnalyzedDocument
 import com.azure.ai.documentintelligence.models.DocumentField
 import com.azure.ai.documentintelligence.models.DocumentFieldType
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.goldberg.law.entity.Check
+import com.goldberg.law.entity.Classification
+import com.goldberg.law.entity.ClassificationInfo
+import com.goldberg.law.entity.ICheck
+import com.goldberg.law.entity.IClassification
+import com.goldberg.law.entity.IClient
+import com.goldberg.law.entity.IInputFile
+import com.goldberg.law.entity.IStatementDetails
+import com.goldberg.law.entity.ITransaction
+import com.goldberg.law.entity.InputFile
+import com.goldberg.law.entity.Statement
+import com.goldberg.law.entity.Transaction
 import com.goldberg.law.script.maritalinvestments.model.InstrumentKey
 import com.goldberg.law.script.maritalinvestments.model.InstrumentKeyDeserializer
 import com.goldberg.law.script.maritalinvestments.model.InstrumentKeyKeyDeserializer
@@ -17,15 +31,20 @@ import com.nimbusds.jose.shaded.gson.GsonBuilder
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.*
 import org.apache.pdfbox.pdmodel.PDDocument
+import java.lang.reflect.Proxy
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.security.MessageDigest
 import java.text.NumberFormat
 import java.time.LocalDate
 import java.util.*
+import kotlin.collections.toSet
+import kotlin.reflect.full.memberProperties
+import kotlin.reflect.KClass
 
 val OBJECT_MAPPER = ObjectMapper().apply {
     enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
+    disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
     registerModule(SimpleModule().apply {
         addSerializer(DocumentField::class.java, DocumentFieldSerializer())
         addSerializer(AnalyzedDocument::class.java, AnalyzedDocumentSerializer())
@@ -33,8 +52,22 @@ val OBJECT_MAPPER = ObjectMapper().apply {
         addKeyDeserializer(InstrumentKey::class.java, InstrumentKeyKeyDeserializer())
         addDeserializer(InvestmentTransaction::class.java, InvestmentTransactionDeserializer())
     })
+    registerModule(KotlinModule.Builder().build())
     registerModule(JavaTimeModule())
+    ignoreInterfacePropertiesOn(Classification::class, IClassification::class, IInputFile::class, IClient::class)
+    ignoreInterfacePropertiesOn(InputFile::class, IInputFile::class, IClient::class)
+    ignoreInterfacePropertiesOn(Check::class, ICheck::class, IClassification::class, IInputFile::class)
+    ignoreInterfacePropertiesOn(Statement::class, IStatementDetails::class, IClassification::class, IInputFile::class)
+    ignoreInterfacePropertiesOn(Transaction::class, ITransaction::class, IClassification::class, IInputFile::class)
+}
 
+fun ObjectMapper.ignoreInterfacePropertiesOn(
+    target: KClass<*>,
+    vararg interfaces: KClass<*>
+) {
+    val names = interfaces.flatMap { it.memberProperties.map { p -> p.name } }.toSet()
+
+    configOverride(target.java).ignorals = JsonIgnoreProperties.Value.forIgnoredProperties(names)
 }
 
 val GSON: Gson = GsonBuilder()
@@ -60,9 +93,9 @@ fun String.withExtension(ext: String) = removeSuffix(ext) + ext
 
 // without extension
 fun String.getDocumentName() = this.substringAfterLast("/").substringBeforeLast(".")
+fun String.getFolderName() = this.substringBefore("/")
 
-fun String.last4Digits() = this.filter { str ->
-    str.isDigit() }.let {
+fun String.last4Digits() = this.filter { str -> str.isDigit() }.let {
     if (it.length > 4) it.substring(it.length - 4) else it
 }
 
@@ -74,6 +107,8 @@ fun String.bdSafe() = try {
 fun String.bd() = BigDecimal(this)
 fun Number.bd() = this.toString().bd()
 fun BigDecimal.clean(): BigDecimal = this.stripTrailingZeros().let { if (it.scale() < 0) it.setScale(0) else it }
+
+fun Date.monthsFromNow(numMonths: Int) = Calendar.getInstance().apply { time = this@monthsFromNow; add(Calendar.MONTH, numMonths) }.time
 
 fun BigDecimal.toCurrency(): String = "%.2f".format(this)
 

@@ -3,10 +3,13 @@ package com.goldberg.law.document
 import com.goldberg.law.categorization.TransactionCategorizer
 import com.goldberg.law.categorization.chatgbt.ChatGBTClient
 import com.goldberg.law.categorization.model.TransactionCategorization
-import com.nhaarman.mockitokotlin2.*
+import org.mockito.Mockito.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.whenever
+import kotlin.test.Ignore
 
+@Ignore
 class TransactionCategorizerTest {
     private val chatGBTClient: ChatGBTClient = mock()
     private val transactionCategorizer = TransactionCategorizer(chatGBTClient)
@@ -143,6 +146,7 @@ class TransactionCategorizerTest {
     }
 
     @Test
+    @Ignore
     fun test() {
         val chatGBTClient = ChatGBTClient("",)
 

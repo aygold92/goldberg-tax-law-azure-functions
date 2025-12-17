@@ -1,39 +1,43 @@
 package com.goldberg.law.function
 
-import com.goldberg.law.document.model.ModelValues.CLIENT_NAME
-import com.goldberg.law.document.model.ModelValues.FILENAME
-import com.goldberg.law.document.model.ModelValues.REQUEST_ID
-import com.goldberg.law.document.model.StatementModelValues.Companion.METADATA_1
-import com.goldberg.law.document.model.StatementModelValues.Companion.METADATA_2
-import com.goldberg.law.document.model.StatementModelValues.Companion.METADATA_3
-import com.goldberg.law.document.model.StatementModelValues.Companion.METADATA_4
-import com.goldberg.law.document.model.StatementModelValues.Companion.METADATA_5
-import com.goldberg.law.document.model.StatementModelValues.Companion.OTHER_FILENAME
-import com.goldberg.law.document.model.StatementModelValues.Companion.STATEMENT_MODEL_1
-import com.goldberg.law.document.model.StatementModelValues.Companion.STATEMENT_MODEL_2
-import com.goldberg.law.document.model.StatementModelValues.Companion.STATEMENT_MODEL_3
-import com.goldberg.law.document.model.StatementModelValues.Companion.STATEMENT_MODEL_4
-import com.goldberg.law.document.model.StatementModelValues.Companion.STATEMENT_MODEL_5
+import com.goldberg.law.document.model.StatementModelValues.REQUEST_ID
+import com.goldberg.law.document.model.pdf.DocumentType
+import com.goldberg.law.entity.EntityValues.CHECK_ID
+import com.goldberg.law.entity.EntityValues.CHECK_ID_2
+import com.goldberg.law.entity.EntityValues.CLASSFN_ID
+import com.goldberg.law.entity.EntityValues.CLASSFN_ID_2
+import com.goldberg.law.entity.EntityValues.CLASSFN_ID_3
+import com.goldberg.law.entity.EntityValues.CLASSFN_ID_4
+import com.goldberg.law.entity.EntityValues.CLASSFN_ID_5
+import com.goldberg.law.entity.EntityValues.FILE_ID
+import com.goldberg.law.entity.EntityValues.FILE_ID_2
+import com.goldberg.law.entity.EntityValues.FILE_ID_3
+import com.goldberg.law.entity.EntityValues.STMT_ID
+import com.goldberg.law.entity.EntityValues.STMT_ID_2
+import com.goldberg.law.entity.EntityValues.STMT_ID_3
+import com.goldberg.law.entity.EntityValues.STMT_ID_4
+import com.goldberg.law.entity.EntityValues.newClassification
 import com.goldberg.law.function.activity.ProcessDataModelActivity
-import com.goldberg.law.function.activity.UpdateMetadataActivity
-import com.goldberg.law.function.model.DocumentDataModelContainer
-import com.goldberg.law.function.model.activity.ProcessDataModelActivityInput
-import com.goldberg.law.function.model.activity.UpdateMetadataActivityInput
-import com.goldberg.law.function.model.metadata.InputFileMetadata
+import com.goldberg.law.function.activity.model.ProcessDataModelActivityInput
+import com.goldberg.law.function.activity.model.ProcessDataModelActivityOutput
+import com.goldberg.law.function.model.ExtractedDocumentIds
 import com.goldberg.law.function.model.tracking.OrchestrationStatus
 import com.microsoft.durabletask.Task
 import com.microsoft.durabletask.TaskOrchestrationContext
-import com.nhaarman.mockitokotlin2.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.Mockito.mock
+import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoMoreInteractions
+import org.mockito.kotlin.whenever
 
 class ConcurrentExecutionOrchestratorTest {
-
-    private val numWorkers = 2
-
-    private val executionOrchestrator = ConcurrentExecutionOrchestrator()
+    private val executionOrchestrator = ConcurrentExecutionOrchestrator(2)
     @Mock
     private val orchestrationStatus: OrchestrationStatus = mock()
 
@@ -41,13 +45,7 @@ class ConcurrentExecutionOrchestratorTest {
     private val mockContext: TaskOrchestrationContext = mock()
 
     @Mock
-    private val processDataModelTask: Task<DocumentDataModelContainer> = mock()
-
-    @Mock
-    private val updateMetadataTask: Task<Void> = mock()
-
-    @Mock
-    private val otherUpdateMetadataTask: Task<Void> = mock()
+    private val processDataModelTask: Task<ProcessDataModelActivityOutput> = mock()
 
     @Mock
     private val anyOfTask: Task<Task<*>> = mock()
@@ -55,11 +53,9 @@ class ConcurrentExecutionOrchestratorTest {
     @BeforeEach
     fun setup() {
         whenever(mockContext.instanceId).thenReturn(REQUEST_ID)
-        whenever(mockContext.callActivity(eq(ProcessDataModelActivity.FUNCTION_NAME), any(), eq(DocumentDataModelContainer::class.java)))
+        whenever(mockContext.callActivity(eq(ProcessDataModelActivity.FUNCTION_NAME), any(), eq(ProcessDataModelActivityOutput::class.java)))
             .thenReturn(processDataModelTask)
-        whenever(mockContext.callActivity(eq(UpdateMetadataActivity.FUNCTION_NAME), any<UpdateMetadataActivityInput>()))
-            .thenReturn(updateMetadataTask, otherUpdateMetadataTask)
-        whenever(mockContext.anyOf(any<List<Task<DocumentDataModelContainer>>>()))
+        whenever(mockContext.anyOf(any<List<Task<ProcessDataModelActivityOutput>>>()))
             .thenReturn(anyOfTask)
         whenever(anyOfTask.await()).thenReturn(processDataModelTask)
 
@@ -69,103 +65,102 @@ class ConcurrentExecutionOrchestratorTest {
 
     @Test
     fun testProcessDataModelOneLoop() {
-        val updateMetadataTasks: MutableList<Task<Void>> = mutableListOf()
+        val ret1 = ProcessDataModelActivityOutput(fileId = FILE_ID, extractedDocumentIds = ExtractedDocumentIds(checkIds = setOf(CHECK_ID)))
+        val ret2 = ProcessDataModelActivityOutput(fileId = FILE_ID, extractedDocumentIds = ExtractedDocumentIds(statementIds = setOf(STMT_ID)))
 
-        whenever(processDataModelTask.await()).thenReturn(
-            DocumentDataModelContainer(statementDataModel = STATEMENT_MODEL_1),
-            DocumentDataModelContainer(statementDataModel = STATEMENT_MODEL_2)
+        whenever(processDataModelTask.await()).thenReturn(ret1, ret2)
+
+        val docsToAnalyze = listOf(
+            newClassification(classificationId = CLASSFN_ID_2, type = DocumentType.CheckTypes.B_OF_A_CHECK),
+            newClassification()
         )
 
-        whenever(orchestrationStatus.getNumStatementsForDoc(any())).thenReturn(2)
-        whenever(orchestrationStatus.docIsComplete(any()))
-            .thenReturn(false, true)
-
-        val docsToAnalyze = listOf(METADATA_1, METADATA_2)
-
-        val analyzedModels = executionOrchestrator.execProcessDataModels(
-            mockContext, docsToAnalyze, orchestrationStatus, 2, CLIENT_NAME, updateMetadataTasks
+        val processDataModelActivityOutputs = executionOrchestrator.execProcessDataModels(
+            mockContext, docsToAnalyze, orchestrationStatus
         )
 
-        assertThat(analyzedModels.toSet()).isEqualTo(setOf(
-            DocumentDataModelContainer(statementDataModel = STATEMENT_MODEL_1),
-            DocumentDataModelContainer(statementDataModel = STATEMENT_MODEL_2)
-        ))
-
-        assertThat(updateMetadataTasks).hasSize(1)
+        assertThat(processDataModelActivityOutputs.toSet()).isEqualTo(setOf(ret1, ret2))
 
         verify(processDataModelTask, times(2)).await()
 
-        verify(orchestrationStatus, times(2)).updateDoc(eq(FILENAME), any())
-        verify(orchestrationStatus, times(2)).docIsComplete(FILENAME)
+        verify(orchestrationStatus, times(2)).updateDoc(eq(FILE_ID), any())
         verify(orchestrationStatus, times(2)).save()
-        verify(orchestrationStatus).getNumStatementsForDoc(FILENAME)
         verify(mockContext, times(2)).instanceId
-        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, CLIENT_NAME, METADATA_1), DocumentDataModelContainer::class.java)
-        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, CLIENT_NAME, METADATA_2), DocumentDataModelContainer::class.java)
+        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, docsToAnalyze[0]), ProcessDataModelActivityOutput::class.java)
+        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, docsToAnalyze[1]), ProcessDataModelActivityOutput::class.java)
         verify(mockContext, times(2)).anyOf(any<List<Task<*>>>())
 //        verify(mockContext, times(2)).anyOf(argThat<List<Task<*>>> { l -> l.size == numWorkers })
 
-        verify(mockContext).callActivity(UpdateMetadataActivity.FUNCTION_NAME, UpdateMetadataActivityInput(CLIENT_NAME, FILENAME, InputFileMetadata(2, true, true)))
+        verifyNoMoreInteractions(mockContext, orchestrationStatus, processDataModelTask)
+    }
 
+    @Test
+    fun testProcessDataModelOneLoopMultipleStatementsPerClassification() {
+        val ret1 = ProcessDataModelActivityOutput(fileId = FILE_ID, extractedDocumentIds = ExtractedDocumentIds(checkIds = setOf(CHECK_ID, CHECK_ID_2)))
+        val ret2 = ProcessDataModelActivityOutput(fileId = FILE_ID, extractedDocumentIds = ExtractedDocumentIds(statementIds = setOf(STMT_ID, STMT_ID_2)))
 
-        verifyNoMoreInteractions(mockContext, orchestrationStatus, processDataModelTask, updateMetadataTask)
+        whenever(processDataModelTask.await()).thenReturn(ret1, ret2)
 
+        val docsToAnalyze = listOf(
+            newClassification(classificationId = FILE_ID_2, type = DocumentType.CheckTypes.B_OF_A_CHECK),
+            newClassification()
+        )
+
+        val processDataModelActivityOutputs = executionOrchestrator.execProcessDataModels(
+            mockContext, docsToAnalyze, orchestrationStatus
+        )
+
+        assertThat(processDataModelActivityOutputs.toSet()).isEqualTo(setOf(ret1, ret2))
+
+        verify(processDataModelTask, times(2)).await()
+
+        verify(orchestrationStatus, times(2)).updateDoc(eq(FILE_ID), any())
+        verify(orchestrationStatus, times(2)).save()
+        verify(mockContext, times(2)).instanceId
+        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, docsToAnalyze[0]),
+            ProcessDataModelActivityOutput::class.java)
+        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, docsToAnalyze[1]),
+            ProcessDataModelActivityOutput::class.java)
+        verify(mockContext, times(2)).anyOf(any<List<Task<*>>>())
+//        verify(mockContext, times(2)).anyOf(argThat<List<Task<*>>> { l -> l.size == numWorkers })
+
+        verifyNoMoreInteractions(mockContext, orchestrationStatus, processDataModelTask)
     }
 
     @Test
     fun testProcessDataModelMultipleLoops() {
-        val updateMetadataTasks: MutableList<Task<Void>> = mutableListOf()
+        val ret1 = ProcessDataModelActivityOutput(fileId = FILE_ID, extractedDocumentIds = ExtractedDocumentIds(checkIds = setOf(CHECK_ID)))
+        val ret2 = ProcessDataModelActivityOutput(fileId = FILE_ID, extractedDocumentIds = ExtractedDocumentIds(statementIds = setOf(STMT_ID)))
+        val ret3 = ProcessDataModelActivityOutput(fileId = FILE_ID_3, extractedDocumentIds = ExtractedDocumentIds(statementIds = setOf(STMT_ID_2)))
+        val ret4 = ProcessDataModelActivityOutput(fileId = FILE_ID_3, extractedDocumentIds = ExtractedDocumentIds(statementIds = setOf(STMT_ID_3)))
+        val ret5 = ProcessDataModelActivityOutput(fileId = FILE_ID_3, extractedDocumentIds = ExtractedDocumentIds(statementIds = setOf(STMT_ID_4)))
 
-        whenever(processDataModelTask.await()).thenReturn(
-            DocumentDataModelContainer(statementDataModel = STATEMENT_MODEL_1),
-            DocumentDataModelContainer(statementDataModel = STATEMENT_MODEL_2),
-            DocumentDataModelContainer(statementDataModel = STATEMENT_MODEL_3),
-            DocumentDataModelContainer(statementDataModel = STATEMENT_MODEL_4),
-            DocumentDataModelContainer(statementDataModel = STATEMENT_MODEL_5)
+        whenever(processDataModelTask.await()).thenReturn(ret1, ret2, ret3, ret4, ret5)
+
+        val docsToAnalyze = listOf(
+            newClassification(FILE_ID, CLASSFN_ID_5, DocumentType.CheckTypes.B_OF_A_CHECK),
+            newClassification(FILE_ID, CLASSFN_ID, DocumentType.BankTypes.B_OF_A),
+            newClassification(FILE_ID_3, CLASSFN_ID_2, DocumentType.BankTypes.B_OF_A),
+            newClassification(FILE_ID_3, CLASSFN_ID_3, DocumentType.BankTypes.B_OF_A),
+            newClassification(FILE_ID_3, CLASSFN_ID_4, DocumentType.BankTypes.B_OF_A),
         )
+        val analyzedModels = executionOrchestrator.execProcessDataModels(mockContext, docsToAnalyze, orchestrationStatus)
 
-        whenever(orchestrationStatus.getNumStatementsForDoc(any())).thenReturn(2)
-        whenever(orchestrationStatus.docIsComplete(any()))
-            .thenReturn(false, false, false, true, true)
-
-        val docsToAnalyze = listOf(METADATA_1, METADATA_2, METADATA_3, METADATA_4, METADATA_5)
-        val analyzedModels = executionOrchestrator.execProcessDataModels(
-            mockContext, docsToAnalyze, orchestrationStatus, 2, CLIENT_NAME, updateMetadataTasks
-        )
-
-        assertThat(analyzedModels.toSet()).isEqualTo(setOf(
-            DocumentDataModelContainer(statementDataModel = STATEMENT_MODEL_1),
-            DocumentDataModelContainer(statementDataModel = STATEMENT_MODEL_2),
-            DocumentDataModelContainer(statementDataModel = STATEMENT_MODEL_3),
-            DocumentDataModelContainer(statementDataModel = STATEMENT_MODEL_4),
-            DocumentDataModelContainer(statementDataModel = STATEMENT_MODEL_5),
-        ))
-
-        assertThat(updateMetadataTasks).hasSize(2)
+        assertThat(analyzedModels.toSet()).isEqualTo(setOf(ret1, ret2, ret3, ret4, ret5))
 
         verify(processDataModelTask, times(5)).await()
 
-        verify(orchestrationStatus, times(3)).updateDoc(eq(FILENAME), any())
-        verify(orchestrationStatus, times(2)).updateDoc(eq(OTHER_FILENAME), any())
-        verify(orchestrationStatus, times(3)).docIsComplete(FILENAME)
-        verify(orchestrationStatus, times(2)).docIsComplete(OTHER_FILENAME)
+        verify(orchestrationStatus, times(2)).updateDoc(eq(FILE_ID), any())
+        verify(orchestrationStatus, times(3)).updateDoc(eq(FILE_ID_3), any())
         verify(orchestrationStatus, times(5)).save()
-        verify(orchestrationStatus).getNumStatementsForDoc(FILENAME)
-        verify(orchestrationStatus).getNumStatementsForDoc(OTHER_FILENAME)
         verify(mockContext, times(5)).instanceId
-        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, CLIENT_NAME, METADATA_1), DocumentDataModelContainer::class.java)
-        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, CLIENT_NAME, METADATA_2), DocumentDataModelContainer::class.java)
-        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, CLIENT_NAME, METADATA_3), DocumentDataModelContainer::class.java)
-        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, CLIENT_NAME, METADATA_4), DocumentDataModelContainer::class.java)
-        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, CLIENT_NAME, METADATA_5), DocumentDataModelContainer::class.java)
+        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, docsToAnalyze[0]), ProcessDataModelActivityOutput::class.java)
+        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, docsToAnalyze[1]), ProcessDataModelActivityOutput::class.java)
+        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, docsToAnalyze[2]), ProcessDataModelActivityOutput::class.java)
+        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, docsToAnalyze[3]), ProcessDataModelActivityOutput::class.java)
+        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, docsToAnalyze[4]), ProcessDataModelActivityOutput::class.java)
         verify(mockContext, times(5)).anyOf((any<List<Task<*>>>()))
-//        verify(mockContext)).anyOf(any<List<Task<*>>>( { l -> l.size == 1 }))
 
-        verify(mockContext).callActivity(UpdateMetadataActivity.FUNCTION_NAME, UpdateMetadataActivityInput(CLIENT_NAME, FILENAME, InputFileMetadata(2, true, true)))
-        verify(mockContext).callActivity(UpdateMetadataActivity.FUNCTION_NAME, UpdateMetadataActivityInput(CLIENT_NAME, OTHER_FILENAME, InputFileMetadata(2, true, true)))
-
-
-        verifyNoMoreInteractions(mockContext, orchestrationStatus, processDataModelTask, updateMetadataTask)
-
+        verifyNoMoreInteractions(mockContext, orchestrationStatus, processDataModelTask)
     }
 }

@@ -6,52 +6,40 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.goldberg.law.document.model.input.tables.CheckEntriesTable
 import com.goldberg.law.document.model.input.tables.CheckEntriesTable.Companion.getCheckImageTable
-import com.goldberg.law.document.model.output.CheckDataKey
-import com.goldberg.law.document.model.output.TransactionHistoryRecord
 import com.goldberg.law.document.model.pdf.ClassifiedPdfDocument
-import com.goldberg.law.document.model.pdf.ClassifiedPdfMetadata
+import com.goldberg.law.entity.CheckDetails
+import com.goldberg.law.entity.Classification
 import com.goldberg.law.util.*
 import java.math.BigDecimal
+import java.util.*
 
-data class CheckDataModel @JsonCreator constructor(
-    @JsonProperty("accountNumber") val accountNumber: String?,
-    @JsonProperty("checkNumber") val checkNumber: Int?,
-    @JsonProperty("to") val to: String?,
-    @JsonProperty("description") val description: String?,
-    @JsonProperty("date") val date: String?,
-    @JsonProperty("amount") val amount: BigDecimal?,
-    @JsonProperty("checkEntries") val checkEntries: CheckEntriesTable?,
-    @JsonProperty("batesStamp") val batesStamp: String?,
-    @JsonProperty("pageMetadata") override val pageMetadata: ClassifiedPdfMetadata
-): DocumentDataModel(pageMetadata) {
+data class CheckDataModel(
+    val accountNumber: String?,
+    val checkNumber: Int?,
+    val to: String?,
+    val description: String?,
+    val date: String?,
+    val amount: BigDecimal?,
+    val checkEntries: CheckEntriesTable?,
+    val batesStamp: String?,
+    override val classification: Classification
+): DocumentDataModel(classification) {
     @JsonIgnore @Transient
     val transactionDate = fromWrittenDate(date)
 
-    @JsonIgnore
-    fun checkDataKey() = CheckDataKey(accountNumber, checkNumber)
-
-    @JsonIgnore
-    fun getFinalDescription() = if (this.to != null && this.description != null) "${this.to} - ${this.description}"
-    else this.to ?: this.description
-
-    fun toCsv() = listOf(
-        accountNumber?.addQuotes(),
-        checkNumber,
-        description?.addQuotes(),
-        date,
-        amount?.toCurrency(),
-        batesStamp?.addQuotes(),
-        pageMetadata.toCsv()
-    ).joinToString(",")
-
-    fun matches(record: TransactionHistoryRecord): Boolean {
-        // if one of the amounts does not exist, we can probably say it matches
-        val amountMatches: Boolean = if (this.amount != null && record.amount != null) this.amount.abs() == record.amount.abs() else true
-        return this.checkNumber == record.checkNumber && amountMatches
-    }
-
-    fun extractNestedChecks(): List<CheckDataModel> = checkEntries?.images?.map { it.toCheckDataModel(accountNumber, batesStamp, pageMetadata) }
-        ?: listOf(this)
+    fun toCheckDetails(): List<CheckDetails> = checkEntries?.images?.map { it.toCheckDetails(accountNumber, batesStamp) }
+        ?: listOf(
+            CheckDetails(
+                checkId = UUID.randomUUID(),
+                accountNumber = accountNumber,
+                batesStamp = batesStamp,
+                date = date,
+                checkNumber = checkNumber,
+                description = description,
+                to = to,
+                amount = amount,
+            )
+        )
 
     object Keys {
         const val ACCOUNT_NUMBER = "AccountNumber"
@@ -78,7 +66,7 @@ data class CheckDataModel @JsonCreator constructor(
                 amount = documentFields[Keys.AMOUNT]?.currencyValue(),
                 batesStamp = documentFields[Keys.BATES_STAMP]?.valueString,
                 checkEntries = this.getCheckImageTable(),
-                pageMetadata = classifiedPdfDocument.toDocumentMetadata()
+                classification = classifiedPdfDocument.classification
             )
         }
 
@@ -90,9 +78,9 @@ data class CheckDataModel @JsonCreator constructor(
                 accountNumberRead.substring(accountNumberRead.length -8, accountNumberRead.length -4)
             else accountNumberRead
 
-        fun blankModel(classifiedPdfDocument: ClassifiedPdfDocument): CheckDataModel = CheckDataModel(
+        fun blankModel(classification: Classification): CheckDataModel = CheckDataModel(
             null, null, null, null, null, null, null, null,
-            classifiedPdfDocument.toDocumentMetadata()
+            classification
         )
 
         /** NOTE: BE VERY CAREFUL AS THIS NEEDS TO LINE UP PERFECTLY WITH WHAT IS OUTPUT IN THE .toCsv() METHOD */

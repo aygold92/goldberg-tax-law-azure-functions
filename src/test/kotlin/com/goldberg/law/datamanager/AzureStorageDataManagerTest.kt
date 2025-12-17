@@ -4,18 +4,23 @@ import com.azure.core.util.BinaryData
 import com.azure.storage.blob.BlobClient
 import com.azure.storage.blob.BlobContainerClient
 import com.azure.storage.blob.BlobServiceClient
-import com.goldberg.law.document.model.ModelValues
-import com.goldberg.law.document.model.ModelValues.CLIENT_NAME
-import com.goldberg.law.document.model.StatementModelValues
+import com.goldberg.law.document.model.StatementModelValues.newCheckDataModel
+import com.goldberg.law.document.model.StatementModelValues.newStatementModel
 import com.goldberg.law.document.model.input.ExtraPageDataModel
-import com.goldberg.law.document.model.pdf.ClassifiedPdfMetadata
 import com.goldberg.law.document.model.pdf.DocumentType
+import com.goldberg.law.entity.EntityValues.CLASSFN_ID
+import com.goldberg.law.entity.EntityValues.CLIENT_ID
+import com.goldberg.law.entity.EntityValues.newClassification
 import com.goldberg.law.util.toStringDetailed
-import com.nhaarman.mockitokotlin2.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.Mockito.mock
+import org.mockito.kotlin.any
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoMoreInteractions
+import org.mockito.kotlin.whenever
 
 class AzureStorageDataManagerTest {
     @Mock
@@ -25,6 +30,8 @@ class AzureStorageDataManagerTest {
 
     @Mock
     val blobClient: BlobClient = mock()
+
+    val dataManager = AzureStorageDataManager(serviceClient)
 
     @BeforeEach
     fun setup() {
@@ -41,45 +48,36 @@ class AzureStorageDataManagerTest {
 
     @Test
     fun testLoadStatementModel() {
-        val dataManager = AzureStorageDataManager(serviceClient)
-        val blobName = "Test"
-        whenever(blobClient.downloadContent()).thenReturn(BinaryData.fromString(StatementModelValues.STATEMENT_MODEL_WF_BANK_0.toStringDetailed()))
-        val result = dataManager.loadModel(CLIENT_NAME, ClassifiedPdfMetadata(blobName, 1, DocumentType.BankTypes.WF_BANK))
+        whenever(blobClient.downloadContent()).thenReturn(BinaryData.fromString(newStatementModel().toStringDetailed()))
+        val result = dataManager.loadModel(newClassification())
 
-        assertThat(result).isEqualTo(StatementModelValues.STATEMENT_MODEL_WF_BANK_0)
+        assertThat(result).isEqualTo(newStatementModel())
 
-        verify(serviceClient).getBlobContainerClient(BlobContainer.MODELS.forClient(CLIENT_NAME))
-        verify(containerClient).getBlobClient("$blobName/$blobName[1-1]_Model.json")
-        verifyNoMoreInteractions(serviceClient)
+        verify(serviceClient).getBlobContainerClient(CLIENT_ID.toString())
+        verify(containerClient).getBlobClient("${AzureStorageDataManager.MODEL_FILE_FOLDER}/$CLASSFN_ID.json")
+        verify(blobClient).downloadContent()
+        verifyNoMoreInteractions(serviceClient, containerClient, blobClient)
     }
 
     @Test
     fun testLoadCheckModel() {
-        val dataManager = AzureStorageDataManager(serviceClient)
-        val blobName = "Test"
+        whenever(blobClient.downloadContent()).thenReturn(BinaryData.fromString(newCheckDataModel().toStringDetailed()))
+        val result = dataManager.loadModel(newClassification(type = DocumentType.CheckTypes.MISC_CHECK))
 
-        val model = ModelValues.newCheckData(1000)
-        whenever(blobClient.downloadContent()).thenReturn(BinaryData.fromString(model.toStringDetailed()))
-        val result = dataManager.loadModel(CLIENT_NAME, ClassifiedPdfMetadata(blobName, 1, DocumentType.CheckTypes.MISC_CHECK))
-
-        assertThat(result).isEqualTo(model)
-        verify(serviceClient).getBlobContainerClient(BlobContainer.MODELS.forClient(CLIENT_NAME))
-        verify(containerClient).getBlobClient("$blobName/$blobName[1-1]_Model.json")
-        verifyNoMoreInteractions(serviceClient)
+        verify(serviceClient).getBlobContainerClient(CLIENT_ID.toString())
+        verify(containerClient).getBlobClient("${AzureStorageDataManager.MODEL_FILE_FOLDER}/$CLASSFN_ID.json")
+        verify(blobClient).downloadContent()
+        verifyNoMoreInteractions(serviceClient, containerClient, blobClient)
     }
 
     @Test
     fun testLoadExtraPageModel() {
-        val dataManager = AzureStorageDataManager(serviceClient)
-        val blobName = "Test"
+        whenever(blobClient.downloadContent()).thenReturn(BinaryData.fromString(ExtraPageDataModel(newClassification(type = DocumentType.IrrelevantTypes.EXTRA_PAGES)).toStringDetailed()))
+        val result = dataManager.loadModel(newClassification(type = DocumentType.IrrelevantTypes.EXTRA_PAGES))
 
-        val model = ExtraPageDataModel(ClassifiedPdfMetadata(blobName, 1, DocumentType.IrrelevantTypes.EXTRA_PAGES))
-        whenever(blobClient.downloadContent()).thenReturn(BinaryData.fromString(model.toStringDetailed()))
-        val result = dataManager.loadModel(CLIENT_NAME, ClassifiedPdfMetadata(blobName, 1, DocumentType.IrrelevantTypes.EXTRA_PAGES))
-
-        assertThat(result).isEqualTo(model)
-        verify(serviceClient).getBlobContainerClient(BlobContainer.MODELS.forClient(CLIENT_NAME))
-        verify(containerClient).getBlobClient("$blobName/$blobName[1-1]_Model.json")
-        verifyNoMoreInteractions(serviceClient)
+        verify(serviceClient).getBlobContainerClient(CLIENT_ID.toString())
+        verify(containerClient).getBlobClient("${AzureStorageDataManager.MODEL_FILE_FOLDER}/$CLASSFN_ID.json")
+        verify(blobClient).downloadContent()
+        verifyNoMoreInteractions(serviceClient, containerClient, blobClient)
     }
 }

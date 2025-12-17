@@ -3,8 +3,8 @@ package com.goldberg.law.document.model.input.tables
 import com.azure.ai.documentintelligence.models.DocumentField
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.goldberg.law.document.model.output.TransactionHistoryRecord
-import com.goldberg.law.document.model.pdf.ClassifiedPdfMetadata
+import com.goldberg.law.entity.Classification
+import com.goldberg.law.entity.TransactionDetails
 import com.goldberg.law.util.currencyValue
 import com.goldberg.law.util.pageNumber
 import com.goldberg.law.util.valueAsInt
@@ -17,13 +17,14 @@ data class TransactionTableChecksRecord @JsonCreator constructor(
     @JsonProperty("amount") val amount: BigDecimal?,
     @JsonProperty("page") override val page: Int,
 ): TransactionRecord() {
-    override fun toTransactionHistoryRecord(statementDate: Date?, metadata: ClassifiedPdfMetadata): TransactionHistoryRecord = TransactionHistoryRecord(
-        id = this.id,
+    override fun toTransactionDetails(statementDate: Date?, classification: Classification): TransactionDetails = TransactionDetails(
+        transactionId = this.id,
         date = fromWrittenDateStatementDateOverride(this.date, statementDate),
-        description = TransactionHistoryRecord.CHECK_DESCRIPTION,
+        description = CHECK_DESCRIPTION,
         checkNumber = this.number,
         amount = amount?.abs()?.negate(),  // a check represents money leaving, so it is always negative. Some statements show it as positive while others negative
-        filePageNumber = metadata.pagesOrdered[page - 1]
+        filePageNumber = classification.pagesOrdered[page - 1],
+        checkId = null
     )
 
     object Keys {
@@ -41,5 +42,7 @@ data class TransactionTableChecksRecord @JsonCreator constructor(
                 page = recordFields.pageNumber()
             )
         }
+
+        const val CHECK_DESCRIPTION = "Check"
     }
 }

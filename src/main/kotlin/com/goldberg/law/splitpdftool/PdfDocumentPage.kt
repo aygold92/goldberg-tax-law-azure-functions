@@ -1,7 +1,6 @@
 package com.goldberg.law.splitpdftool
 
 import com.azure.core.util.BinaryData
-import com.goldberg.law.function.model.PdfPageData
 import com.goldberg.law.util.withoutExtension
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.pdfbox.pdmodel.PDDocument

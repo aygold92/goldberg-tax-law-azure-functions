@@ -1,48 +1,32 @@
 package com.goldberg.law.function.model.tracking
 
-import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.goldberg.law.function.model.metadata.InputFileMetadata
-import com.goldberg.law.util.associate
 import com.microsoft.durabletask.TaskOrchestrationContext
+import java.util.*
 
-data class OrchestrationStatus @JsonCreator constructor(
+data class OrchestrationStatus(
     @JsonIgnore @Transient val ctx: TaskOrchestrationContext,
-    @JsonProperty("stage") private var stage: OrchestrationStage,
-    @JsonProperty("documents") private val documents: MutableMap<String, DocumentOrchestrationStatus>,
+    private var stage: OrchestrationStage,
+    private val docs: MutableMap<UUID, DocumentOrchestrationStatus>,
 ) {
-    @get:JsonProperty("totalStatements")
-    private val totalStatements: Int?
-        get() = documents.map { it.value.numStatements }.filterNotNull().takeIf { it.isNotEmpty() }?.sum()
+    @get:JsonProperty("totalDocuments")
+    private val totalDocs: Int?
+        get() = this@OrchestrationStatus.docs.map { it.value.numDocsTotal }.filterNotNull().takeIf { it.isNotEmpty() }?.sum()
 
-    @get:JsonProperty("statementsCompleted")
-    private val statementsCompleted: Int?
-        get() = documents.map { it.value.statementsCompleted }.filterNotNull().takeIf { it.isNotEmpty() }?.sum()
-
-    fun documentMetadataMap() = documents.associate { filename, status ->
-        filename to InputFileMetadata(
-            numstatements = status.numStatements,
-            classified = status.classified ?: false,
-            analyzed = docIsComplete(filename),
-        )
-    }
+    @get:JsonProperty("docsCompleted")
+    private val docsCompleted: Int?
+        get() = this@OrchestrationStatus.docs.map { it.value.docsAnalyzed }.filterNotNull().takeIf { it.isNotEmpty() }?.sum()
 
     fun updateStage(stage: OrchestrationStage): OrchestrationStatus {
         this.stage = stage
         return this
     }
 
-    fun updateDoc(docName: String, updater: DocumentOrchestrationStatus.() -> Unit): OrchestrationStatus {
-        this.documents[docName]?.updater()
+    fun updateDoc(fileId: UUID, updater: DocumentOrchestrationStatus.() -> Unit): OrchestrationStatus {
+        this.docs[fileId]?.updater()
         return this
     }
-
-    fun getNumStatementsForDoc(docName: String): Int? = documents[docName]?.numStatements
-
-    fun docIsComplete(docName: String): Boolean = documents[docName]?.let {
-        it.statementsCompleted != null && it.statementsCompleted == it.numStatements
-    } ?: false
 
     fun save() = this.also {
         ctx.setCustomStatus(getExternalStatus())
@@ -50,13 +34,13 @@ data class OrchestrationStatus @JsonCreator constructor(
 
     // for unit testing
     fun getExternalStatus() = ExternalOrchestrationStatus(
-        stage, documents, statementsCompleted, totalStatements
+        stage, this@OrchestrationStatus.docs, docsCompleted, totalDocs
     )
 
     data class ExternalOrchestrationStatus(
-        @JsonProperty("stage") val stage: OrchestrationStage,
-        @JsonProperty("documents") val documents: Map<String, DocumentOrchestrationStatus>,
-        @JsonProperty("statementsCompleted") val statementsCompleted: Int?,
-        @JsonProperty("totalStatements") val totalStatements: Int?,
+        val stage: OrchestrationStage,
+        val docs: Map<UUID, DocumentOrchestrationStatus>,
+        val docsCompleted: Int?,
+        val totalDocs: Int?,
     )
 }

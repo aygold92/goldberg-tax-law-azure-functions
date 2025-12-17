@@ -4,9 +4,10 @@ import com.goldberg.law.categorization.chatgbt.ChatGBTClient
 import com.goldberg.law.categorization.model.TransactionCategorization
 import com.goldberg.law.categorization.model.TransactionVendor
 import com.goldberg.law.categorization.model.VendorCategorization
+import com.google.inject.Inject
 import io.github.oshai.kotlinlogging.KotlinLogging
 
-class TransactionCategorizer(private val chatGBTClient: ChatGBTClient) {
+class TransactionCategorizer @Inject constructor(private val chatGBTClient: ChatGBTClient) {
     private val logger = KotlinLogging.logger {}
     // standard bank transactions that don't need to be categorized
     private fun isIgnorable(description: String): Boolean {

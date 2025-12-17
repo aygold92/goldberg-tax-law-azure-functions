@@ -1,8 +1,9 @@
 package com.goldberg.law.function
 
-import com.goldberg.law.function.model.request.AzureAnalyzeDocumentsRequest
+import com.goldberg.law.function.api.model.AzureAnalyzeDocumentsRequest
 import com.goldberg.law.util.OBJECT_MAPPER
 import com.goldberg.law.util.toStringDetailed
+import com.google.inject.Inject
 import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.HttpMethod
 import com.microsoft.azure.functions.HttpRequestMessage
@@ -15,7 +16,7 @@ import com.microsoft.durabletask.azurefunctions.DurableClientInput
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.util.*
 
-class InitAnalyzeDocumentsFunction {
+class InitAnalyzeDocumentsFunction @Inject constructor() {
     private val logger = KotlinLogging.logger {}
 
     /**

@@ -1,22 +1,20 @@
 package com.goldberg.law.document.model.pdf
 
+import com.goldberg.law.entity.Classification
+import com.goldberg.law.entity.IClassification
 import org.apache.pdfbox.pdmodel.PDDocument
 
 class ClassifiedPdfDocument(
-    filename: String,
+    val classification: Classification,
     document: PDDocument,
-    pages: Set<Int>,
-    val classification: String
-) : PdfDocument(filename, document, pages) {
-    val documentType = DocumentType.getBankType(classification)
-
-    fun toDocumentMetadata() = ClassifiedPdfMetadata(filename, pages, classification)
+) : PdfDocument(classification.inputFile, document), IClassification by classification {
 
     fun isRelevant() = documentType.isRelevant()
 
     fun isStatementDocument() = documentType.isStatement()
 
     fun isCheckDocument() = documentType.isCheck()
+
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -33,5 +31,5 @@ class ClassifiedPdfDocument(
         return result
     }
 
-    override fun toString() = "{filename: $filename, pages: $pages, classification: $classification, statementType: ${documentType}}"
+    override fun toString() = "{filename: $fileName, pages: $pagesOrdered, classification: $classification, statementType: ${documentType}}"
 }

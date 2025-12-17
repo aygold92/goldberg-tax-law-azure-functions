@@ -1,8 +1,9 @@
 package com.goldberg.law.function.api
 
-import com.azure.storage.blob.BlobServiceClient
-import com.goldberg.law.function.model.request.AnalyzeDocumentResult
-import com.goldberg.law.function.model.request.ListClientsResponse
+import com.goldberg.law.database.service.ClientService
+import com.goldberg.law.function.api.model.AnalyzeDocumentResult
+import com.goldberg.law.function.api.model.ListClientsResponse
+import com.google.inject.Inject
 import com.microsoft.azure.functions.*
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
@@ -10,7 +11,7 @@ import com.microsoft.azure.functions.annotation.HttpTrigger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.util.*
 
-class ListClientsFunction(private val blobServiceClient: BlobServiceClient,) {
+class ListClientsFunction @Inject constructor(private val clientService: ClientService) {
 
     private val logger = KotlinLogging.logger {}
 
@@ -22,9 +23,7 @@ class ListClientsFunction(private val blobServiceClient: BlobServiceClient,) {
     ): HttpResponseMessage = try {
         logger.info { "[${ctx.invocationId}] processing ListClientsRequest" }
 
-        val containers = blobServiceClient.listBlobContainers().toList()
-        // TODO: should we handle partially created clients?
-        val clients = containers.map { it.name.substringBeforeLast("-") }.toSet()
+        val clients = clientService.listClients()
 
         request.createResponseBuilder(HttpStatus.OK)
             .body(ListClientsResponse(clients))

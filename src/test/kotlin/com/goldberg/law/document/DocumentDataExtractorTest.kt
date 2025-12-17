@@ -6,32 +6,17 @@ import com.azure.ai.documentintelligence.models.AnalyzeResult
 import com.azure.ai.documentintelligence.models.AnalyzedDocument
 import com.azure.core.util.polling.PollResponse
 import com.azure.core.util.polling.SyncPoller
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.goldberg.law.document.model.ModelValues.CHECK_FILENAME
-import com.goldberg.law.document.model.ModelValues.newClassifiedPdfDocument
 import com.goldberg.law.document.model.StatementModelValues
-import com.goldberg.law.document.model.StatementModelValues.Companion.STATEMENT_MODEL_NFCU_SAME
-import com.goldberg.law.document.model.StatementModelValues.Companion.STATEMENT_MODEL_WF_BANK_0
-import com.goldberg.law.document.model.StatementModelValues.Companion.STATEMENT_MODEL_WF_BANK_1
-import com.goldberg.law.document.model.StatementModelValues.Companion.STATEMENT_MODEL_WF_BANK_2
-import com.goldberg.law.document.model.StatementModelValues.Companion.STATEMENT_MODEL_WF_BANK_3
-import com.goldberg.law.document.model.StatementModelValues.Companion.STATEMENT_MODEL_WF_BANK_4
-import com.goldberg.law.document.model.input.CheckDataModel
-import com.goldberg.law.document.model.input.tables.CheckEntriesTable
-import com.goldberg.law.document.model.input.tables.CheckEntriesTableRow
-import com.goldberg.law.document.model.pdf.ClassifiedPdfMetadata
-import com.goldberg.law.document.model.pdf.DocumentType.CheckTypes
-import com.goldberg.law.util.GSON
-import com.goldberg.law.util.asCurrency
-import com.goldberg.law.util.normalizeDate
+import com.goldberg.law.document.model.StatementModelValues.newClassifiedPdfDocument
+import com.goldberg.law.document.model.pdf.DocumentType
+import com.goldberg.law.entity.EntityValues.newClassification
 import com.goldberg.law.util.readJson
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.Mockito.mock
+import org.mockito.kotlin.any
+import org.mockito.kotlin.whenever
 import java.nio.file.Files
 import java.nio.file.Paths
 
@@ -59,7 +44,7 @@ class DocumentDataExtractorTest {
 //    fun testNFCU() {
 //        val page = readFileRelative("NFCU_Same.json")
 //        whenever(analyzeResult.documents).thenReturn(listOf(page.readJson(AnalyzedDocument::class.java)))
-//        val result = documentDataExtractor.extractStatementData(newClassifiedPdfDocument(filename = StatementModelValues.FileNames.NFCU_BANK))
+//        val result = documentDataExtractor.extractStatementData(newClassifiedPdfDocument())
 //        assertThat(result).isEqualTo(STATEMENT_MODEL_NFCU_SAME)
 //    }
 //

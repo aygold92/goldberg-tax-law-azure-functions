@@ -1,16 +1,17 @@
 package com.goldberg.law.document.model.input
 
-import com.goldberg.law.document.model.ModelValues.CHECK_FILENAME
-import com.goldberg.law.document.model.ModelValues.FILENAME
-import com.goldberg.law.document.model.ModelValues.newClassifiedPdfDocument
-import com.goldberg.law.document.model.pdf.ClassifiedPdfMetadata
 import com.goldberg.law.document.model.pdf.DocumentType
+import com.goldberg.law.entity.EntityValues.CLASSFN_ID
+import com.goldberg.law.entity.EntityValues.CLASSFN_ID_2
+import com.goldberg.law.entity.EntityValues.CLASSFN_ID_3
+import com.goldberg.law.entity.EntityValues.FILE_ID
+import com.goldberg.law.entity.EntityValues.newClassification
+import com.goldberg.law.entity.EntityValues.newClassificationInfo
 import com.goldberg.law.function.model.DocumentDataModelContainerTest.Companion.CHECK_DATA_MODEL
 import com.goldberg.law.function.model.DocumentDataModelContainerTest.Companion.EXTRA_PAGE_DATA_MODEL
 import com.goldberg.law.function.model.DocumentDataModelContainerTest.Companion.STATEMENT_DATA_MODEL
 import com.goldberg.law.util.GSON
 import com.goldberg.law.util.OBJECT_MAPPER
-import com.nimbusds.jose.shaded.gson.Gson
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -18,14 +19,14 @@ class DocumentDataModelTest {
     @Test
     fun testDocumentDataModelInheritance() {
         val documentModels: List<DocumentDataModel> = listOf(
-            StatementDataModel.blankModel(newClassifiedPdfDocument()),
-            CheckDataModel.blankModel(newClassifiedPdfDocument(filename = CHECK_FILENAME, classification = DocumentType.CheckTypes.EAGLE_BANK_CHECK)),
-            ExtraPageDataModel(newClassifiedPdfDocument(classification = DocumentType.IrrelevantTypes.EXTRA_PAGES).toDocumentMetadata())
+            StatementDataModel.blankModel(newClassification()),
+            CheckDataModel.blankModel(newClassification(FILE_ID, CLASSFN_ID_2, DocumentType.CheckTypes.EAGLE_BANK_CHECK)),
+            ExtraPageDataModel(newClassification(FILE_ID,CLASSFN_ID_3, DocumentType.IrrelevantTypes.EXTRA_PAGES)),
         )
 
-        assertThat(documentModels[0].pageMetadata).isEqualTo(ClassifiedPdfMetadata(FILENAME, 1, DocumentType.BankTypes.WF_BANK))
-        assertThat(documentModels[1].pageMetadata).isEqualTo(ClassifiedPdfMetadata(CHECK_FILENAME, 1, DocumentType.CheckTypes.EAGLE_BANK_CHECK))
-        assertThat(documentModels[2].pageMetadata).isEqualTo(ClassifiedPdfMetadata(FILENAME, 1, DocumentType.IrrelevantTypes.EXTRA_PAGES))
+        assertThat(documentModels[0].classification).isEqualTo(newClassification())
+        assertThat(documentModels[1].classification).isEqualTo(newClassification(FILE_ID, CLASSFN_ID_2, DocumentType.CheckTypes.EAGLE_BANK_CHECK))
+        assertThat(documentModels[2].classification).isEqualTo(newClassification(FILE_ID,CLASSFN_ID_3, DocumentType.IrrelevantTypes.EXTRA_PAGES))
     }
 
     @Test

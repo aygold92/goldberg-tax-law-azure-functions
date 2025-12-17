@@ -1,9 +1,12 @@
 package com.goldberg.law.function.api
 
+import com.goldberg.law.database.service.ClassificationService
 import com.goldberg.law.datamanager.AzureStorageDataManager
-import com.goldberg.law.function.model.request.*
+import com.goldberg.law.function.api.model.AnalyzeDocumentResult
+import com.goldberg.law.function.api.model.PutDocumentDataModelRequest
+import com.goldberg.law.function.api.model.PutDocumentDataModelResponse
 import com.goldberg.law.util.OBJECT_MAPPER
-import com.goldberg.law.util.toStringDetailed
+import com.google.inject.Inject
 import com.microsoft.azure.functions.*
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
@@ -11,8 +14,9 @@ import com.microsoft.azure.functions.annotation.HttpTrigger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.util.*
 
-class PutDocumentDataModelFunction(
+class PutDocumentDataModelFunction @Inject constructor(
     private val dataManager: AzureStorageDataManager,
+    private val classificationService: ClassificationService,
 ) {
     private val logger = KotlinLogging.logger {}
 
@@ -25,12 +29,14 @@ class PutDocumentDataModelFunction(
         logger.info { "[${ctx.invocationId}] processing ${request?.body?.orElseThrow()}" }
         val req = OBJECT_MAPPER.readValue(request?.body?.orElseThrow(), PutDocumentDataModelRequest::class.java)
 
-        val model = req.model.getDocumentDataModel()
-        logger.info { "putting model model to ${model.pageMetadata.modelFileName()}" }
-        val filename = dataManager.saveModel(req.clientName, model)
+        val classification = classificationService.loadClassification(req.classificationId)
+        logger.info { "putting model model to ${classification.info.modelLocation}" }
+        val location = dataManager.saveModel(classification, req.model.getDocumentDataModel())
+
+        classificationService.updateModelLocation(req.classificationId, location)
 
         request!!.createResponseBuilder(HttpStatus.OK)
-            .body(PutDocumentDataModelResponse(filename, model))
+            .body(PutDocumentDataModelResponse(classification.classificationId, req.model.getDocumentDataModel()))
             .build()
     } catch (ex: Exception) {
         // TODO: different error codes

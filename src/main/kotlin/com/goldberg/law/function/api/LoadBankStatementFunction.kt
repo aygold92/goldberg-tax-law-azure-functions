@@ -1,11 +1,9 @@
 package com.goldberg.law.function.api
 
-import com.goldberg.law.datamanager.AzureStorageDataManager
-import com.goldberg.law.document.model.output.BankStatement
-import com.goldberg.law.document.model.output.BankStatementKey
-import com.goldberg.law.function.model.request.LoadBankStatementRequest
-import com.goldberg.law.function.model.response.LoadBankStatementResponse
+import com.goldberg.law.database.service.StatementService
+import com.goldberg.law.function.api.model.LoadBankStatementRequest
 import com.goldberg.law.util.OBJECT_MAPPER
+import com.google.inject.Inject
 import com.microsoft.azure.functions.*
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
@@ -13,8 +11,8 @@ import com.microsoft.azure.functions.annotation.HttpTrigger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.util.*
 
-class LoadBankStatementFunction(
-    private val dataManager: AzureStorageDataManager,
+class LoadBankStatementFunction @Inject constructor(
+    private val statementService: StatementService,
 ) {
     private val logger = KotlinLogging.logger {}
 
@@ -27,16 +25,10 @@ class LoadBankStatementFunction(
         logger.info { "[${ctx.invocationId}] processing ${request?.body?.orElseThrow()}" }
         val req = OBJECT_MAPPER.readValue(request?.body?.orElseThrow(), LoadBankStatementRequest::class.java)
 
-        val key = BankStatementKey(req.accountNumber, req.classification, req.date?.replace("/", "_")).toString()
-        val finalKey = if (req.filenameWithPages != null) "${key}:${req.filenameWithPages}" else key
-        val statement: BankStatement = dataManager.loadBankStatement(req.clientName, finalKey)
-        val response = LoadBankStatementResponse(
-            statement = statement,
-            suspiciousReasons = statement.getSuspiciousReasons(),
-        )
+        val statement = statementService.loadStatement(req.statementId)
 
         request!!.createResponseBuilder(HttpStatus.OK)
-            .body(response)
+            .body(statement)
             .build()
     } catch (ex: Exception) {
         logger.error(ex) { "Error loading bank statement for $request" }

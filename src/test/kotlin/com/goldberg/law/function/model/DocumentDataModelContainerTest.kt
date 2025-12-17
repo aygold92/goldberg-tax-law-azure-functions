@@ -1,14 +1,18 @@
 package com.goldberg.law.function.model
 
-import com.goldberg.law.document.model.ModelValues.ACCOUNT_NUMBER
-import com.goldberg.law.document.model.ModelValues.BATES_STAMP
-import com.goldberg.law.document.model.ModelValues.FILENAME
-import com.goldberg.law.document.model.ModelValues.FIXED_STATEMENT_DATE
+import com.goldberg.law.document.model.StatementModelValues
+import com.goldberg.law.document.model.StatementModelValues.ACCOUNT_NUMBER
+import com.goldberg.law.document.model.StatementModelValues.newCheckDataModel
 import com.goldberg.law.document.model.input.*
 import com.goldberg.law.document.model.input.tables.*
-import com.goldberg.law.document.model.pdf.ClassifiedPdfMetadata
 import com.goldberg.law.document.model.pdf.DocumentType
-import com.goldberg.law.function.model.activity.ProcessStatementsActivityOutput
+import com.goldberg.law.entity.EntityValues.CLASSFN_ID_2
+import com.goldberg.law.entity.EntityValues.CLASSFN_ID_3
+import com.goldberg.law.entity.EntityValues.DEFAULT_BATES_STAMP
+import com.goldberg.law.entity.EntityValues.DEFAULT_DATE
+import com.goldberg.law.entity.EntityValues.FILE_ID_2
+import com.goldberg.law.entity.EntityValues.FILE_ID_3
+import com.goldberg.law.entity.EntityValues.newClassification
 import com.goldberg.law.util.GSON
 import com.goldberg.law.util.OBJECT_MAPPER
 import com.goldberg.law.util.asCurrency
@@ -46,13 +50,6 @@ class DocumentDataModelContainerTest {
     }
 
     @Test
-    fun testProcessStatementAndChecksOutputSerializableGson() {
-        val model = ProcessStatementsActivityOutput(mapOf("test" to setOf("st1", "st2", "test2"), "test2" to setOf("st3", "st4")))
-        val otherModel = GSON.fromJson(GSON.toJson(model), ProcessStatementsActivityOutput::class.java)
-        assertThat(otherModel).isEqualTo(model)
-    }
-
-    @Test
     fun testOneOf(){
         assertThrows<IllegalArgumentException> { DocumentDataModelContainer(STATEMENT_DATA_MODEL, CHECK_DATA_MODEL, EXTRA_PAGE_DATA_MODEL).getDocumentDataModel() }
         assertThrows<IllegalArgumentException> { DocumentDataModelContainer(STATEMENT_DATA_MODEL, null, EXTRA_PAGE_DATA_MODEL).getDocumentDataModel() }
@@ -84,15 +81,9 @@ class DocumentDataModelContainerTest {
     }
 
     companion object {
-        val STATEMENT_DATA_MODEL = StatementDataModel(
-            documentType = "Test",
-            date = FIXED_STATEMENT_DATE,
+        val STATEMENT_DATA_MODEL = StatementModelValues.newStatementModel(
             summaryOfAccountsTable = SummaryOfAccountsTable(listOf(SummaryOfAccountsTableRecord("", 4.asCurrency(), 5.asCurrency()))),
-            transactionTableDepositWithdrawal = null,
-            batesStampsTable = BatesStampTable(listOf(BatesStampTableRow(BATES_STAMP, 1))),
-            accountNumber = "",
-            beginningBalance = null,
-            endingBalance = null,
+            batesStampsTable = BatesStampTable(listOf(BatesStampTableRow(DEFAULT_BATES_STAMP, 1))),
             transactionTableAmount = TransactionTableAmount(records = listOf(TransactionTableAmountRecord("test", "test", 1.asCurrency(), page = 1))),
             transactionTableCreditsCharges = TransactionTableCreditsCharges(records = listOf(
                 TransactionTableCreditsChargesRecord("test", "test", 1.asCurrency(), 2.asCurrency(), page = 1)
@@ -102,20 +93,10 @@ class DocumentDataModelContainerTest {
             transactionTableChecks = TransactionTableChecks(records = listOf(TransactionTableChecksRecord("test", 1, 1.asCurrency(), page = 1))),
             interestCharged = 3.asCurrency(),
             feesCharged = 4.asCurrency(),
-            pageMetadata = ClassifiedPdfMetadata(FILENAME, 1, DocumentType.BankTypes.WF_BANK)
+            classification = newClassification()
         )
 
-        val CHECK_DATA_MODEL = CheckDataModel(
-            accountNumber = ACCOUNT_NUMBER,
-            checkNumber = 1234,
-            to = "",
-            description = "",
-            date = FIXED_STATEMENT_DATE,
-            amount = null,
-            checkEntries = null,
-            batesStamp = BATES_STAMP,
-            pageMetadata = ClassifiedPdfMetadata(FILENAME, 1, DocumentType.BankTypes.WF_BANK)
-        )
+        val CHECK_DATA_MODEL = newCheckDataModel()
 
         val CHECK_DATA_MODEL_CHECK_ENTRIES = CheckDataModel(
             accountNumber = ACCOUNT_NUMBER,
@@ -129,18 +110,18 @@ class DocumentDataModelContainerTest {
                     checkNumber = 1234,
                     to = "test",
                     description = "desc",
-                    date = FIXED_STATEMENT_DATE,
+                    date = DEFAULT_DATE,
                     amount = 65.60.asCurrency(),
                     accountNumber = null,
                     page = 1
             )
             )),
-            batesStamp = BATES_STAMP,
-            pageMetadata = ClassifiedPdfMetadata(FILENAME, 1, DocumentType.CheckTypes.B_OF_A_CHECK)
+            batesStamp = DEFAULT_BATES_STAMP,
+            classification = newClassification(FILE_ID_2, CLASSFN_ID_2, DocumentType.CheckTypes.B_OF_A_CHECK)
         )
 
         val EXTRA_PAGE_DATA_MODEL = ExtraPageDataModel(
-            pageMetadata = ClassifiedPdfMetadata(FILENAME, 1, DocumentType.IrrelevantTypes.EXTRA_PAGES)
+            classification = newClassification(FILE_ID_3, CLASSFN_ID_3, DocumentType.IrrelevantTypes.EXTRA_PAGES)
         )
     }
 }
