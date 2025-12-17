@@ -1,9 +1,10 @@
 package com.goldberg.law.function.api
 
-import com.goldberg.law.datamanager.AzureStorageDataManager
-import com.goldberg.law.function.model.request.ListInputDocumentsRequest
-import com.goldberg.law.function.model.metadata.InputFileMetadata
+import com.goldberg.law.database.service.FileService
+import com.goldberg.law.entity.InputFileSummary
+import com.goldberg.law.function.api.model.ListInputDocumentsRequest
 import com.goldberg.law.util.OBJECT_MAPPER
+import com.google.inject.Inject
 import com.microsoft.azure.functions.*
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
@@ -11,8 +12,8 @@ import com.microsoft.azure.functions.annotation.HttpTrigger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.util.*
 
-class ListInputDocumentsFunction(
-    private val dataManager: AzureStorageDataManager,
+class ListInputDocumentsFunction @Inject constructor(
+    private val fileService: FileService,
 ) {
     private val logger = KotlinLogging.logger {}
 
@@ -26,7 +27,7 @@ class ListInputDocumentsFunction(
         val req = OBJECT_MAPPER.readValue(request?.body?.orElseThrow(), ListInputDocumentsRequest::class.java)
 
         // List all input documents for the client
-        val inputDocuments: Map<String, InputFileMetadata> = dataManager.listInputPdfDocuments(req.clientName)
+        val inputDocuments: List<InputFileSummary> = fileService.listFileSummaries(req.clientId)
 
         request!!.createResponseBuilder(HttpStatus.OK)
             .body(inputDocuments)

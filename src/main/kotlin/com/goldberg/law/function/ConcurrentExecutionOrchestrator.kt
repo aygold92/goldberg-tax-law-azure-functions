@@ -1,69 +1,60 @@
 package com.goldberg.law.function
 
-import com.goldberg.law.document.model.pdf.ClassifiedPdfMetadata
+import com.goldberg.law.AppModule
+import com.goldberg.law.entity.Classification
+import com.goldberg.law.entity.InputFile
 import com.goldberg.law.function.activity.ClassifyDocumentActivity
 import com.goldberg.law.function.activity.ProcessDataModelActivity
-import com.goldberg.law.function.activity.UpdateMetadataActivity
-import com.goldberg.law.function.model.DocumentDataModelContainer
-import com.goldberg.law.function.model.activity.ClassifyDocumentActivityInput
-import com.goldberg.law.function.model.activity.ClassifyDocumentActivityOutput
-import com.goldberg.law.function.model.activity.ProcessDataModelActivityInput
-import com.goldberg.law.function.model.activity.UpdateMetadataActivityInput
-import com.goldberg.law.function.model.metadata.InputFileMetadata
+import com.goldberg.law.function.activity.model.ClassifyDocumentActivityInput
+import com.goldberg.law.function.activity.model.ClassifyDocumentActivityOutput
+import com.goldberg.law.function.activity.model.ProcessDataModelActivityInput
+import com.goldberg.law.function.activity.model.ProcessDataModelActivityOutput
 import com.goldberg.law.function.model.tracking.OrchestrationStatus
+import com.google.inject.Inject
+import com.google.inject.name.Named
 import com.microsoft.durabletask.Task
 import com.microsoft.durabletask.TaskOrchestrationContext
+import java.util.*
 
-class ConcurrentExecutionOrchestrator {
+class ConcurrentExecutionOrchestrator @Inject constructor(
+    @Named(AppModule.NUM_FUNCTION_WORKERS) private val numWorkers: Int,
+) {
 
     fun execClassifyDocuments(
         ctx: TaskOrchestrationContext,
-        filesToClassify: List<String>,
+        filesToClassify: List<InputFile>,
         orchestrationStatus: OrchestrationStatus,
-        numWorkers: Int,
-        clientName: String
-    ): Map<String, List<ClassifiedPdfMetadata>> = execActivityConcurrent(
+    ): Map<UUID, List<Classification>> = execActivityConcurrent(
         ctx,
         filesToClassify,
-        numWorkers,
         ClassifyDocumentActivity.FUNCTION_NAME,
-        { filename -> ClassifyDocumentActivityInput(ctx.instanceId, clientName, filename) },
+        { inputFile -> ClassifyDocumentActivityInput(ctx.instanceId, inputFile) },
         ClassifyDocumentActivityOutput::class.java,
-        { output -> orchestrationStatus.updateDoc(output.filename) { numStatements = output.classifiedDocuments.size; classified = true }.save() }
-    ).associate { it.filename to it.classifiedDocuments }
+        { output -> orchestrationStatus.updateDoc(output.fileId) {
+            numStatementPages = output.classifications.filter { it.documentType.isStatement() }.size
+            numCheckPages = output.classifications.filter { it.documentType.isCheck() }.size
+            classified = true
+        }.save() }
+    ).associate { it.fileId to it.classifications }
 
     fun execProcessDataModels(
         ctx: TaskOrchestrationContext,
-        docsToAnalyze: List<ClassifiedPdfMetadata>,
+        docsToAnalyze: List<Classification>,
         orchestrationStatus: OrchestrationStatus,
-        numWorkers: Int,
-        clientName: String,
-        updateMetadataTasks: MutableList<Task<Void>>
-    ): MutableSet<DocumentDataModelContainer> = execActivityConcurrent(
+    ): List<ProcessDataModelActivityOutput> = execActivityConcurrent(
         ctx,
         docsToAnalyze,
-        numWorkers,
         ProcessDataModelActivity.FUNCTION_NAME,
-        { doc -> ProcessDataModelActivityInput(ctx.instanceId, clientName, doc) },
-        DocumentDataModelContainer::class.java,
-        { dataModelContainer ->
-            val completedDocFilename = dataModelContainer.getDocumentDataModel().pageMetadata.filename
-            orchestrationStatus.updateDoc(completedDocFilename) { incrementStatementsCompleted() }
-                .save()
-
-            if (orchestrationStatus.docIsComplete(completedDocFilename)) {
-                val metadata = InputFileMetadata(orchestrationStatus.getNumStatementsForDoc(completedDocFilename), true, true)
-                updateMetadataTasks.add(
-                    ctx.callActivity(UpdateMetadataActivity.FUNCTION_NAME, UpdateMetadataActivityInput(clientName, completedDocFilename, metadata))
-                )
-            }
-        }
-    ).toMutableSet()
+        { classification -> ProcessDataModelActivityInput(ctx.instanceId, classification) },
+        ProcessDataModelActivityOutput::class.java,
+        { (fileId, _) -> orchestrationStatus.updateDoc(fileId) { incrementDocumentsAnalyzed() }.save() }
+    )
 
     fun <I, R> execActivityConcurrent(
         ctx: TaskOrchestrationContext,
-        items: List<I>, concurrentTasks: Int,
-        activityName: String, activityInput: (I) -> Any,
+        items: List<I>,
+        activityName: String,
+        activityInput: (I) -> Any,
         output: Class<R>,
         result: (R) -> Unit = { }
     ): List<R> {
@@ -71,7 +62,7 @@ class ConcurrentExecutionOrchestrator {
         val inFlightTasks: MutableList<Task<R>> = mutableListOf()
         val returnItems: MutableList<R> = mutableListOf()
         while(pendingItems.isNotEmpty() || inFlightTasks.isNotEmpty()) {
-            while(inFlightTasks.size < concurrentTasks && pendingItems.isNotEmpty()) {
+            while(inFlightTasks.size < numWorkers && pendingItems.isNotEmpty()) {
                 inFlightTasks.add(ctx.callActivity(activityName, activityInput(pendingItems.removeFirst()), output))
             }
 

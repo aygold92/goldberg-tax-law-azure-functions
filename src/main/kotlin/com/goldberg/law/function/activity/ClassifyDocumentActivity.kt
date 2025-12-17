@@ -1,17 +1,23 @@
 package com.goldberg.law.function.activity
 
+import com.goldberg.law.database.service.ClassificationService
 import com.goldberg.law.datamanager.AzureStorageDataManager
 import com.goldberg.law.document.DocumentClassifier
-import com.goldberg.law.function.model.activity.ClassifyDocumentActivityInput
-import com.goldberg.law.function.model.activity.ClassifyDocumentActivityOutput
-import com.goldberg.law.function.model.metadata.InputFileMetadata
+import com.goldberg.law.entity.Classification
+import com.goldberg.law.function.activity.model.ClassifyDocumentActivityInput
+import com.goldberg.law.function.activity.model.ClassifyDocumentActivityOutput
 import com.goldberg.law.util.toStringDetailed
+import com.google.inject.Inject
 import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.durabletask.azurefunctions.DurableActivityTrigger
 import io.github.oshai.kotlinlogging.KotlinLogging
 
-class ClassifyDocumentActivity(private val dataManager: AzureStorageDataManager, private val documentClassifier: DocumentClassifier) {
+class ClassifyDocumentActivity @Inject constructor(
+    private val classificationService: ClassificationService,
+    private val azureStorageDataManager: AzureStorageDataManager,
+    private val documentClassifier: DocumentClassifier
+) {
     private val logger = KotlinLogging.logger {}
 
     @FunctionName(FUNCTION_NAME)
@@ -20,18 +26,15 @@ class ClassifyDocumentActivity(private val dataManager: AzureStorageDataManager,
         context: ExecutionContext
     ): ClassifyDocumentActivityOutput {
         logger.info { "[${input.requestId}][${context.invocationId}] processing ${input.toStringDetailed()}" }
-        val document = dataManager.loadInputPdfDocument(input.clientName, input.filename)
-        val classifiedDocuments = documentClassifier.classifyDocument(document)
-        val classifiedDocumentsMetadata = classifiedDocuments.map { it.toDocumentMetadata() }
-        dataManager.saveClassificationData(input.clientName, input.filename, classifiedDocumentsMetadata)
+        val document = azureStorageDataManager.loadInputPdfDocument(input.inputFile)
+        val classifiedFile = documentClassifier.classifyDocument(document)
+        val classificationInfos = classificationService.insertClassifications(classifiedFile)
 
-        dataManager.updateInputPdfMetadata(input.clientName, input.filename, InputFileMetadata(numstatements = classifiedDocuments.size, classified = true))
+        val classifiedDocuments = classificationInfos.map { document.asClassifiedDocument(it) }
 
-        classifiedDocuments.forEach {
-            dataManager.saveSplitPdf(input.clientName, it)
-        }
+        classifiedDocuments.forEach { azureStorageDataManager.saveSplitPdf(it) }
 
-        return ClassifyDocumentActivityOutput(input.filename, classifiedDocumentsMetadata).also {
+        return ClassifyDocumentActivityOutput(input.inputFile.fileId, classifiedDocuments.map { it.classification }).also {
             logger.info { "[${input.requestId}][${context.invocationId}] returning $it" }
         }
     }

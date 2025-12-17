@@ -1,8 +1,9 @@
 package com.goldberg.law.script.maritalinvestments
 
-import com.goldberg.law.function.model.request.AnalyzeDocumentResult
+import com.goldberg.law.function.api.model.ApiResult
 import com.goldberg.law.script.maritalinvestments.model.VanguardTransaction
-import com.goldberg.law.util.*
+import com.goldberg.law.util.OBJECT_MAPPER
+import com.goldberg.law.util.fromWrittenDate
 import com.microsoft.azure.functions.*
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
@@ -44,7 +45,7 @@ class ProcessMaritalTransactionsFunction(private val csvParser: CsvParser) {
         logger.error(ex) { "Error analyzing for input $request" }
 
         request!!.createResponseBuilder(HttpStatus.BAD_REQUEST)
-            .body(AnalyzeDocumentResult.failed(ex))
+            .body(ApiResult.failed(ex))
             .build()
     }
 

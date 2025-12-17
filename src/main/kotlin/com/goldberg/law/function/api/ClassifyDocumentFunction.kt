@@ -1,9 +1,11 @@
 package com.goldberg.law.function.api
 
+import com.goldberg.law.database.service.FileService
 import com.goldberg.law.function.activity.ClassifyDocumentActivity
-import com.goldberg.law.function.model.activity.ClassifyDocumentActivityInput
-import com.goldberg.law.function.model.activity.ClassifyDocumentActivityOutput
-import com.goldberg.law.function.model.request.AnalyzeDocumentResult
+import com.goldberg.law.function.activity.model.ClassifyDocumentActivityInput
+import com.goldberg.law.function.activity.model.ClassifyDocumentActivityOutput
+import com.goldberg.law.function.api.model.AnalyzeDocumentResult
+import com.goldberg.law.function.api.model.ClassifyDocumentRequest
 import com.goldberg.law.util.OBJECT_MAPPER
 import com.microsoft.azure.functions.*
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
@@ -12,7 +14,10 @@ import com.microsoft.azure.functions.annotation.HttpTrigger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.util.*
 
-class ClassifyDocumentFunction(private val classifyDocumentActivity: ClassifyDocumentActivity) {
+class ClassifyDocumentFunction(
+    private val fileService: FileService,
+    private val classifyDocumentActivity: ClassifyDocumentActivity
+) {
     private val logger = KotlinLogging.logger {}
 
     @FunctionName(FUNCTION_NAME)
@@ -22,8 +27,12 @@ class ClassifyDocumentFunction(private val classifyDocumentActivity: ClassifyDoc
         ctx: ExecutionContext
     ): HttpResponseMessage = try {
         logger.info { "[${ctx.invocationId}] processing ${request?.body?.orElseThrow()}" }
-        val input = OBJECT_MAPPER.readValue(request?.body?.orElseThrow(), ClassifyDocumentActivityInput::class.java)
-        val output: ClassifyDocumentActivityOutput = classifyDocumentActivity.classifyDocument(input, ctx)
+        val input = OBJECT_MAPPER.readValue(request?.body?.orElseThrow(), ClassifyDocumentRequest::class.java)
+        val inputFile = fileService.loadFile(input.fileId)
+        val output: ClassifyDocumentActivityOutput = classifyDocumentActivity.classifyDocument(
+            ClassifyDocumentActivityInput(ctx.invocationId, inputFile),
+            ctx
+        )
 
         request!!.createResponseBuilder(HttpStatus.OK)
             .body(output)

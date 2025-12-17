@@ -53,6 +53,7 @@ Training Data
 realInput
 analyzeOutput
 prodB
+prod
 
 # used for git cleaning
 replacements.txt

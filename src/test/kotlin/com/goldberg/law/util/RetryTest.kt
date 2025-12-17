@@ -2,16 +2,12 @@ package com.goldberg.law.util
 
 import com.azure.core.exception.HttpResponseException
 import com.azure.core.http.HttpResponse
-import com.azure.core.implementation.http.BufferedHttpResponse
-import com.goldberg.law.util.RetryCalculator
-import com.goldberg.law.util.RetryContext
-import com.goldberg.law.util.RetryLimitExceededException
-import com.goldberg.law.util.retryWithBackoff
-import com.nhaarman.mockitokotlin2.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.Mock
+import org.mockito.Mockito.*
+import org.mockito.kotlin.whenever
 import java.util.concurrent.ExecutionException
 
 class RetryTest {
@@ -33,7 +29,7 @@ class RetryTest {
     @Test
     fun testRetryLimitMock() {
         val context = RetryContext()
-        whenever(client.add(any())).thenThrow(RuntimeException())
+        whenever(client.add(anyInt())).thenThrow(RuntimeException())
         val func = { client.add(5) }
         assertThrows<RetryLimitExceededException> { retryWithBackoff(func, { it is Exception }, retryCalculator, context) }
         verify(client, times(4)).add(5)
@@ -43,7 +39,7 @@ class RetryTest {
     @Test
     fun testRetryLimitMockFailImmediately() {
         val context = RetryContext()
-        whenever(client.add(any())).thenThrow(RuntimeException())
+        whenever(client.add(anyInt())).thenThrow(RuntimeException())
         val func = { client.add(5) }
         assertThrows<RuntimeException> { retryWithBackoff(func, { false }, retryCalculator, context) }
         verify(client, times(1)).add(5)

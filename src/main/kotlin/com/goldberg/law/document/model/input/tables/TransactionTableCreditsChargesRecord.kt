@@ -3,8 +3,8 @@ package com.goldberg.law.document.model.input.tables
 import com.azure.ai.documentintelligence.models.DocumentField
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.goldberg.law.document.model.output.TransactionHistoryRecord
-import com.goldberg.law.document.model.pdf.ClassifiedPdfMetadata
+import com.goldberg.law.entity.Classification
+import com.goldberg.law.entity.TransactionDetails
 import com.goldberg.law.util.currencyValue
 import com.goldberg.law.util.pageNumber
 import java.math.BigDecimal
@@ -17,13 +17,15 @@ data class TransactionTableCreditsChargesRecord @JsonCreator constructor(
     @JsonProperty("charges") val charges: BigDecimal?,
     @JsonProperty("page") override val page: Int,
 ): TransactionRecord() {
-    override fun toTransactionHistoryRecord(statementDate: Date?, metadata: ClassifiedPdfMetadata): TransactionHistoryRecord = TransactionHistoryRecord(
-        id = this.id,
+    override fun toTransactionDetails(statementDate: Date?, classification: Classification): TransactionDetails = TransactionDetails(
+        transactionId = this.id,
         date = fromWrittenDateStatementDateOverride(this.date, statementDate),
         description = this.description,
         // a credit represents a net increase in money, a charge is a decrease
         amount = this.credits ?: this.charges?.negate(),
-        filePageNumber = metadata.pagesOrdered[page - 1]
+        filePageNumber = classification.pagesOrdered[page - 1],
+        checkNumber = null,
+        checkId = null,
     )
 
     object Keys {

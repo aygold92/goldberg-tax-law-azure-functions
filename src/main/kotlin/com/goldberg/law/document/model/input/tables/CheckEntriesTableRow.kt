@@ -1,33 +1,30 @@
 package com.goldberg.law.document.model.input.tables
 
 import com.azure.ai.documentintelligence.models.DocumentField
-import com.fasterxml.jackson.annotation.JsonCreator
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.goldberg.law.document.model.input.CheckDataModel
-import com.goldberg.law.document.model.pdf.ClassifiedPdfMetadata
+import com.goldberg.law.entity.CheckDetails
 import com.goldberg.law.util.*
 import java.math.BigDecimal
+import java.util.*
 
-data class CheckEntriesTableRow @JsonCreator constructor(
-    @JsonProperty("date") val date: String?,
-    @JsonProperty("checkNumber") val checkNumber: Int?,
-    @JsonProperty("to") val to: String?,
-    @JsonProperty("description") val description: String?,
-    @JsonProperty("amount") val amount: BigDecimal?,
-    @JsonProperty("accountNumber") val accountNumber: String?,
-    @JsonProperty("page") val page: Int,
+data class CheckEntriesTableRow(
+    val date: String?,
+    val checkNumber: Int?,
+    val to: String?,
+    val description: String?,
+    val amount: BigDecimal?,
+    val accountNumber: String?,
+    val page: Int,
 ) {
-    fun toCheckDataModel(accountNumber: String?, batesStamp: String?, metadata: ClassifiedPdfMetadata): CheckDataModel {
-        return CheckDataModel(
+    fun toCheckDetails(accountNumber: String?, batesStamp: String?): CheckDetails {
+        return CheckDetails(
+            checkId = UUID.randomUUID(),
             accountNumber = this.accountNumber ?: accountNumber,
-            checkEntries = null,
             batesStamp = batesStamp,
             date = this.date,
             checkNumber = checkNumber,
             description = this.description,
             to = to,
             amount = amount,
-            pageMetadata = metadata
         )
     }
 

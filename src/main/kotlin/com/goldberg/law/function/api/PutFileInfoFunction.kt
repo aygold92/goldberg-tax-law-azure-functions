@@ -1,0 +1,173 @@
+package com.goldberg.law.function.api
+
+import com.goldberg.law.database.service.ClientService
+import com.goldberg.law.database.service.FileService
+import com.goldberg.law.datamanager.AzureStorageDataManager
+import com.goldberg.law.datamanager.Extension
+import com.goldberg.law.datamanager.StorageLocation
+import com.goldberg.law.document.exception.InvalidPdfException
+import com.goldberg.law.entity.InputFile
+import com.goldberg.law.entity.InputFileInfo
+import com.goldberg.law.function.api.model.AnalyzeDocumentResult
+import com.goldberg.law.function.api.model.ApiResult
+import com.goldberg.law.function.api.model.PutDocumentDataModelRequest
+import com.goldberg.law.function.api.model.PutDocumentDataModelResponse
+import com.goldberg.law.function.api.model.PutFileInfoRequest
+import com.goldberg.law.function.api.model.PutFileInfoResponse
+import com.goldberg.law.function.model.EventSchema
+import com.goldberg.law.util.OBJECT_MAPPER
+import java.security.MessageDigest
+import com.google.inject.Inject
+import com.microsoft.azure.functions.ExecutionContext
+import com.microsoft.azure.functions.HttpMethod
+import com.microsoft.azure.functions.HttpRequestMessage
+import com.microsoft.azure.functions.HttpResponseMessage
+import com.microsoft.azure.functions.HttpStatus
+import com.microsoft.azure.functions.annotation.AuthorizationLevel
+import com.microsoft.azure.functions.annotation.EventGridTrigger
+import com.microsoft.azure.functions.annotation.FunctionName
+import com.microsoft.azure.functions.annotation.HttpTrigger
+import io.github.oshai.kotlinlogging.KotlinLogging
+import org.apache.pdfbox.Loader
+import java.net.URI
+import java.time.Instant
+import java.util.*
+
+class PutFileInfoFunction @Inject constructor(
+    private val clientService: ClientService,
+    private val fileService: FileService,
+    private val azureStorageDataManager: AzureStorageDataManager
+) {
+    private val logger = KotlinLogging.logger {}
+
+    @FunctionName(FUNCTION_NAME)
+    fun run(
+        @HttpTrigger(name = "req", methods = [HttpMethod.POST], authLevel = AuthorizationLevel.ANONYMOUS)
+        request: HttpRequestMessage<Optional<String?>?>?,
+        ctx: ExecutionContext
+    ): HttpResponseMessage = try {
+        logger.info { "[${ctx.invocationId}] processing ${request?.body?.orElseThrow()}" }
+        val req = OBJECT_MAPPER.readValue(request?.body?.orElseThrow(), PutFileInfoRequest::class.java)
+        val response = putFileInfo(ctx, req)
+
+        request!!.createResponseBuilder(HttpStatus.OK)
+            .body(response)
+            .build()
+    } catch (ex: Exception) {
+        // TODO: different error codes
+        logger.error(ex) { "Error putting new file info $request" }
+
+        request!!.createResponseBuilder(HttpStatus.BAD_REQUEST)
+            .body(ApiResult.failed(ex))
+            .build()
+    }
+
+    @FunctionName(FUNCTION_NAME_EVENT_GRID)
+    fun run(
+        @EventGridTrigger(name = "eventGridEvent") event: EventSchema,
+        ctx: ExecutionContext
+    ) {
+        try {
+            logger.info { "[${ctx.invocationId}] Processing Event Grid event: ${event.id}" }
+            
+            // Only process BlobCreated events
+            if (event.eventType != "Microsoft.Storage.BlobCreated") {
+                logger.debug { "[${ctx.invocationId}] Ignoring event type: ${event.eventType}" }
+                return
+            }
+
+            // Extract event data
+            val eventId = UUID.fromString(event.id)
+            val data = event.data
+
+            // Extract blob URL from event data
+            val blobUrl = data.url
+
+            logger.info { "[${ctx.invocationId}] Processing blob created event for: $blobUrl" }
+
+            // Parse blob URL to extract container name and blob path
+            val uri = URI(blobUrl)
+            val pathParts = uri.path.removePrefix("/").split("/", limit = 2)
+            if (pathParts.size < 2) {
+                throw IllegalArgumentException("Invalid blob URL format: $blobUrl")
+            }
+
+            val containerName = pathParts[0] // This is the clientId (UUID)
+            val blobPath = pathParts[1] // e.g., "input/filename.pdf"
+
+            // Extract filename from blob path (remove "input/" prefix)
+            val filename = if (blobPath.startsWith("input/")) {
+                blobPath.removePrefix("input/")
+            } else {
+                throw IllegalArgumentException("Blob must be in 'input/' folder, but found: $blobPath")
+            }
+
+            // Parse container name as UUID (clientId)
+            val clientId = try {
+                UUID.fromString(containerName)
+            } catch (ex: Exception) {
+                throw IllegalArgumentException("Container name must be a valid UUID (clientId): $containerName", ex)
+            }
+
+            val storageLocation = StorageLocation(
+                containerName = containerName,
+                filePath = blobPath.removeSuffix(".pdf"),
+                extension = Extension.PDF
+            )
+
+            putFileInfo(ctx, PutFileInfoRequest(
+                filename = filename,
+                clientId = clientId,
+                storageLocation = storageLocation,
+                requestToken = eventId
+            ))
+        } catch (ex: Exception) {
+            logger.error(ex) { "[${ctx.invocationId}] Error processing Event Grid event: ${event.id}" }
+            throw ex
+        }
+    }
+
+    private fun putFileInfo(ctx: ExecutionContext, req: PutFileInfoRequest): PutFileInfoResponse {
+        val client = clientService.loadClient(req.clientId)
+        logger.info { "[${ctx.invocationId}] Found client: ${client.clientName} (ID: ${client.clientId})" }
+
+        // Load blob bytes from Azure Storage
+        val blobBytes = azureStorageDataManager.loadBlobBytes(req.storageLocation)
+
+        // Validate PDF
+        val pdfDocument = try {
+            Loader.loadPDF(blobBytes)
+        } catch (ex: Exception) {
+            throw InvalidPdfException("Unable to load PDF from blob ${req.storageLocation}: $ex")
+        }
+
+        val contentHash = UUID.nameUUIDFromBytes(MessageDigest.getInstance("SHA-256").digest(blobBytes))
+        logger.info { "[${ctx.invocationId}] Generated content hash: $contentHash for file: ${req.filename}" }
+
+        val inputFile = InputFile(
+            client = client,
+            info = InputFileInfo(
+                fileId = UUID.randomUUID(),
+                fileName = req.filename,
+                contentHash = contentHash,
+                storageLocation = req.storageLocation,
+                uploadedAt = Instant.now().toEpochMilli(),
+                numPages = pdfDocument.numberOfPages
+            )
+        )
+
+        val fileId = fileService.insertFile(
+            inputFile = inputFile,
+            requestToken = req.requestToken
+        )
+
+        logger.info { "[${ctx.invocationId}] Successfully inserted file: $req.filename for client: ${client.clientName} with ID: $fileId" }
+        return PutFileInfoResponse(fileId)
+    }
+
+    companion object {
+        const val FUNCTION_NAME = "PutFileInfo"
+        const val FUNCTION_NAME_EVENT_GRID = "$FUNCTION_NAME-eventGrid"
+    }
+}
+

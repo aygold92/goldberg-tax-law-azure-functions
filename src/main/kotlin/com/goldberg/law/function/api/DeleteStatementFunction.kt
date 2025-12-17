@@ -1,9 +1,9 @@
 package com.goldberg.law.function.api
 
-import com.goldberg.law.datamanager.AzureStorageDataManager
-import com.goldberg.law.document.model.output.BankStatementKey
-import com.goldberg.law.function.model.request.DeleteStatementRequest
+import com.goldberg.law.database.service.StatementService
+import com.goldberg.law.function.api.model.DeleteStatementRequest
 import com.goldberg.law.util.OBJECT_MAPPER
+import com.google.inject.Inject
 import com.microsoft.azure.functions.*
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
@@ -11,8 +11,8 @@ import com.microsoft.azure.functions.annotation.HttpTrigger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.util.*
 
-class DeleteStatementFunction(
-    private val dataManager: AzureStorageDataManager,
+class DeleteStatementFunction @Inject constructor(
+    private val statementService: StatementService,
 ) {
     private val logger = KotlinLogging.logger {}
 
@@ -25,11 +25,9 @@ class DeleteStatementFunction(
         logger.info { "[${ctx.invocationId}] processing ${request?.body?.orElseThrow()}" }
         val req = OBJECT_MAPPER.readValue(request?.body?.orElseThrow(), DeleteStatementRequest::class.java)
 
-        val key = BankStatementKey(req.accountNumber, req.classification, req.date?.replace("/", "_")).toString()
-        val finalKey = if (req.filenameWithPages != null) "${key}:${req.filenameWithPages}" else key
-        dataManager.deleteBankStatement(req.clientName, finalKey)
+        statementService.deleteBankStatement(req.statementId)
 
-        logger.info { "Deleted statement file ${finalKey} for client ${req.clientName}" }
+        logger.info { "Deleted statement file ${req.statementId}" }
 
         request!!.createResponseBuilder(HttpStatus.OK)
             .body(mapOf("message" to "Statement deleted successfully"))

@@ -1,26 +1,92 @@
 package com.goldberg.law.function.model.tracking
 
-import com.goldberg.law.document.model.ModelValues.FILENAME
-import com.goldberg.law.document.model.StatementModelValues.Companion.OTHER_FILENAME
-import com.goldberg.law.function.model.metadata.InputFileMetadata
+import com.goldberg.law.document.model.pdf.DocumentType
+import com.goldberg.law.entity.EntityValues.CLASSFN_ID
+import com.goldberg.law.entity.EntityValues.CLASSFN_ID_2
+import com.goldberg.law.entity.EntityValues.CLASSFN_ID_3
+import com.goldberg.law.entity.EntityValues.CLASSFN_ID_4
+import com.goldberg.law.entity.EntityValues.FILE_ID
+import com.goldberg.law.entity.EntityValues.FILE_ID_2
+import com.goldberg.law.entity.EntityValues.FILE_ID_3
+import com.goldberg.law.entity.EntityValues.newClassification
+import com.goldberg.law.entity.EntityValues.newClassifiedCheck
+import com.goldberg.law.entity.EntityValues.newClassifiedStatement
+import com.goldberg.law.entity.EntityValues.newInputFile
 import com.goldberg.law.util.KotlinExtensionsTest.Companion.OBJECT_MAPPER
 import com.microsoft.durabletask.TaskOrchestrationContext
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
-import com.nhaarman.mockitokotlin2.whenever
 import com.nimbusds.jose.shaded.gson.Gson
 import org.assertj.core.api.AssertionsForClassTypes.assertThat
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
-import org.mockito.Mockito.mock
+import org.mockito.Mockito.*
 
 class OrchestrationStatusTest {
     @Mock
     private val mockContext: TaskOrchestrationContext = mock()
 
     @Test
+    fun testInitialValueBasic() {
+        val status = OrchestrationStatusFactory().new(
+            mockContext,
+            OrchestrationStage.EXTRACTING_DATA,
+            setOf(newInputFile(), newInputFile(FILE_ID_2)),
+            setOf(),
+            setOf()
+        )
+
+        val documentStatusMap = mutableMapOf(
+            FILE_ID to DocumentOrchestrationStatus(FILE_ID, null, null, null, false),
+            FILE_ID_2 to DocumentOrchestrationStatus(FILE_ID_2, null, null, null, false),
+        )
+
+        assertThat(status).isEqualTo(OrchestrationStatus(mockContext, OrchestrationStage.EXTRACTING_DATA, documentStatusMap))
+
+        assertThat(status.getExternalStatus()).isEqualTo(OrchestrationStatus.ExternalOrchestrationStatus(
+            stage = OrchestrationStage.EXTRACTING_DATA,
+            docs = documentStatusMap,
+            docsCompleted = null,
+            totalDocs = null
+        ))
+    }
+
+    @Test
+    fun testInitialValue() {
+        val status = OrchestrationStatusFactory().new(
+            mockContext,
+            OrchestrationStage.EXTRACTING_DATA,
+            setOf(newInputFile(), newInputFile(FILE_ID_2)),
+            setOf(
+                newClassification(FILE_ID_3, CLASSFN_ID, DocumentType.BankTypes.WF_BANK),
+                newClassification(FILE_ID_3, CLASSFN_ID_2, DocumentType.CheckTypes.CHECKS),
+
+            ),
+            setOf(
+                newClassifiedStatement(newClassification(FILE_ID_3, CLASSFN_ID_3, DocumentType.BankTypes.WF_BANK)),
+                newClassifiedCheck(newClassification(FILE_ID_3, CLASSFN_ID_4, DocumentType.CheckTypes.CHECKS)),
+            )
+        )
+
+        val documentStatusMap = mutableMapOf(
+            FILE_ID to DocumentOrchestrationStatus(FILE_ID, null, null, null, false),
+            FILE_ID_2 to DocumentOrchestrationStatus(FILE_ID_2, null, null, null, false),
+            FILE_ID_3 to DocumentOrchestrationStatus(FILE_ID_3, 2, 2, 2, true),
+        )
+
+        assertThat(status).isEqualTo(OrchestrationStatus(mockContext, OrchestrationStage.EXTRACTING_DATA, documentStatusMap))
+
+        assertThat(status.getExternalStatus()).isEqualTo(OrchestrationStatus.ExternalOrchestrationStatus(
+            stage = OrchestrationStage.EXTRACTING_DATA,
+            docs = documentStatusMap,
+            docsCompleted = 2,
+            totalDocs = 4
+        ))
+    }
+
+    @Test
     fun testSerializationGSONEmpty() {
-        val status = OrchestrationStatusFactory().new(mockContext, OrchestrationStage.EXTRACTING_DATA, setOf("a", "b")).getExternalStatus()
+        val status = OrchestrationStatusFactory()
+            .new(mockContext, OrchestrationStage.EXTRACTING_DATA, setOf(newInputFile(), newInputFile(FILE_ID_2)), setOf(), setOf())
+            .getExternalStatus()
 
         val result = Gson().toJson(status)
         assertThat(result).doesNotContain("ctx").doesNotContain("context")
@@ -29,9 +95,9 @@ class OrchestrationStatusTest {
     @Test
     fun testSerializationGSONFull() {
         val status = OrchestrationStatus(mockContext, OrchestrationStage.EXTRACTING_DATA, mutableMapOf(
-                "a" to DocumentOrchestrationStatus("a", 5, 1, true),
-                "b" to DocumentOrchestrationStatus("b", 5, 0, true),
-                "c" to DocumentOrchestrationStatus("c", 5, 5, true),
+                FILE_ID to DocumentOrchestrationStatus(FILE_ID, 5, 2, 1, true),
+                FILE_ID_2 to DocumentOrchestrationStatus(FILE_ID_2, 5, 2, 0, true),
+                FILE_ID_3 to DocumentOrchestrationStatus(FILE_ID_3, 5, 2, 7, true),
             )
         )
 
@@ -39,103 +105,75 @@ class OrchestrationStatusTest {
 
         println(result)
 
-        assertThat(result).contains("\"totalStatements\":15").contains("\"statementsCompleted\":6")
+        assertThat(result).contains("\"totalDocs\":21").contains("\"docsCompleted\":8")
 
         assertThat(result).doesNotContain("ctx").doesNotContain("context")
     }
 
     @Test
     fun testSerializationJackson() {
-        val status = OrchestrationStatusFactory().new(mockContext, OrchestrationStage.EXTRACTING_DATA, setOf("a", "b")).getExternalStatus()
+        val status = OrchestrationStatusFactory()
+            .new(mockContext, OrchestrationStage.EXTRACTING_DATA, setOf(newInputFile(), newInputFile(FILE_ID_2)), setOf(), setOf())
+            .getExternalStatus()
+
+        assertThat(status.docsCompleted)
 
         val result = OBJECT_MAPPER.writeValueAsString(status)
         println(result)
 
-        assertThat(result).contains("totalStatements").contains("statementsCompleted")
+        assertThat(result).contains("totalDocs").contains("docsCompleted")
         assertThat(result).doesNotContain("ctx").doesNotContain("context")
     }
 
     @Test
     fun testSave() {
         val documentStatusMap = mutableMapOf(
-            FILENAME to DocumentOrchestrationStatus(FILENAME, 3, 2, true),
-            OTHER_FILENAME to DocumentOrchestrationStatus(OTHER_FILENAME, 4, 4, true)
+            FILE_ID to DocumentOrchestrationStatus(FILE_ID, 3, 1, 2, true),
+            FILE_ID_2 to DocumentOrchestrationStatus(FILE_ID_2, 4, 1, 4, true)
         )
         val status = OrchestrationStatus(mockContext, OrchestrationStage.EXTRACTING_DATA, documentStatusMap)
 
         status.save()
 
         verify(mockContext).setCustomStatus(OrchestrationStatus.ExternalOrchestrationStatus(
-            OrchestrationStage.EXTRACTING_DATA, documentStatusMap.toMap(), 6, 7
+            OrchestrationStage.EXTRACTING_DATA, documentStatusMap.toMap(), 6, 9
         ))
         verifyNoMoreInteractions(mockContext)
     }
 
     @Test
-    fun testNew() {
-        val status = OrchestrationStatusFactory().new(mockContext, OrchestrationStage.EXTRACTING_DATA, setOf(FILENAME, OTHER_FILENAME))
-
-        assertThat(status).isEqualTo(OrchestrationStatus(mockContext, OrchestrationStage.EXTRACTING_DATA, mutableMapOf(
-            FILENAME to DocumentOrchestrationStatus(FILENAME, null, null, null),
-            OTHER_FILENAME to DocumentOrchestrationStatus(OTHER_FILENAME, null, null, null),
-        )))
-    }
-
-    @Test
     fun testUpdateStage() {
-        val status = OrchestrationStatusFactory().new(mockContext, OrchestrationStage.EXTRACTING_DATA, setOf(FILENAME, OTHER_FILENAME))
-            .updateStage(OrchestrationStage.CREATING_BANK_STATEMENTS)
+        val status = OrchestrationStatusFactory()
+            .new(mockContext, OrchestrationStage.EXTRACTING_DATA, setOf(newInputFile(), newInputFile(FILE_ID_2)), setOf(), setOf())
+            .updateStage(OrchestrationStage.MATCHING_CHECKS)
 
-        assertThat(status).isEqualTo(OrchestrationStatus(mockContext, OrchestrationStage.CREATING_BANK_STATEMENTS, mutableMapOf(
-            FILENAME to DocumentOrchestrationStatus(FILENAME, null, null, null),
-            OTHER_FILENAME to DocumentOrchestrationStatus(OTHER_FILENAME, null, null, null),
-        )))
+        val documentStatusMap = mutableMapOf(
+            FILE_ID to DocumentOrchestrationStatus(FILE_ID, null, null, null, false),
+            FILE_ID_2 to DocumentOrchestrationStatus(FILE_ID_2, null, null, null, false),
+        )
+
+        assertThat(status).isEqualTo(OrchestrationStatus(mockContext, OrchestrationStage.MATCHING_CHECKS, documentStatusMap))
     }
 
     @Test
     fun testUpdateDoc() {
-        val status = OrchestrationStatusFactory().new(mockContext, OrchestrationStage.EXTRACTING_DATA, setOf(FILENAME, OTHER_FILENAME))
+        val status = OrchestrationStatusFactory()
+            .new(mockContext, OrchestrationStage.EXTRACTING_DATA, setOf(newInputFile(), newInputFile(FILE_ID_2)), setOf(), setOf())
 
-        status.updateDoc(FILENAME) {
-            numStatements = 5
+        status.updateDoc(FILE_ID) {
+            numStatementPages = 5
             classified = false
-        }.updateDoc(OTHER_FILENAME) {
-            statementsCompleted = 3
-            numStatements = 10
+        }.updateDoc(FILE_ID_2) {
+            docsAnalyzed = 3
+            numStatementPages = 10
             classified = true
         }
 
-        assertThat(status).isEqualTo(OrchestrationStatus(mockContext, OrchestrationStage.EXTRACTING_DATA, mutableMapOf(
-            FILENAME to DocumentOrchestrationStatus(FILENAME, 5, null, false),
-            OTHER_FILENAME to DocumentOrchestrationStatus(OTHER_FILENAME, 10, 3, true),
-        )))
-    }
+        val documentStatusMap = mutableMapOf(
+            FILE_ID to DocumentOrchestrationStatus(FILE_ID, 5, null, null, false),
+            FILE_ID_2 to DocumentOrchestrationStatus(FILE_ID_2, 10, null, 3, true),
+        )
 
-    @Test
-    fun testToMetadataMap() {
-        val status = OrchestrationStatus(mockContext, OrchestrationStage.EXTRACTING_DATA, mutableMapOf(
-            FILENAME to DocumentOrchestrationStatus(FILENAME, 3, 2, true),
-            OTHER_FILENAME to DocumentOrchestrationStatus(OTHER_FILENAME, 4, 4, true)
-        ))
-
-        assertThat(status.documentMetadataMap()).isEqualTo(mapOf(
-                FILENAME to InputFileMetadata(3, true, false),
-                OTHER_FILENAME to InputFileMetadata(4, true, true),
-            ))
-    }
-
-    @Test
-    fun testGetNumStatementsForDocAndDocComplete() {
-        val status = OrchestrationStatus(mockContext, OrchestrationStage.EXTRACTING_DATA, mutableMapOf(
-            FILENAME to DocumentOrchestrationStatus(FILENAME, 3, 2, true),
-            OTHER_FILENAME to DocumentOrchestrationStatus(OTHER_FILENAME, 4, 4, true)
-        ))
-
-        assertThat(status.getNumStatementsForDoc(FILENAME)).isEqualTo(3)
-        assertThat(status.getNumStatementsForDoc(OTHER_FILENAME)).isEqualTo(4)
-        assertThat(status.getNumStatementsForDoc("random")).isEqualTo(null)
-        assertThat(status.docIsComplete(FILENAME)).isFalse()
-        assertThat(status.docIsComplete(OTHER_FILENAME)).isTrue()
-        assertThat(status.docIsComplete("random")).isFalse()
+        assertThat(status).isEqualTo(OrchestrationStatus(mockContext, OrchestrationStage.EXTRACTING_DATA, documentStatusMap))
     }
 }

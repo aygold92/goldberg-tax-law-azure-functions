@@ -6,22 +6,25 @@ import com.azure.ai.documentintelligence.models.AnalyzeResult
 import com.azure.ai.documentintelligence.models.AnalyzedDocument
 import com.azure.core.util.polling.PollResponse
 import com.azure.core.util.polling.SyncPoller
-import com.goldberg.law.document.model.ModelValues.newPdfDocumentMulti
-import com.goldberg.law.document.model.pdf.ClassifiedPdfDocument
+import com.goldberg.law.document.model.StatementModelValues.newPdfDocument
 import com.goldberg.law.document.model.pdf.DocumentType
 import com.goldberg.law.document.model.pdf.DocumentType.BankTypes.B_OF_A
 import com.goldberg.law.document.model.pdf.DocumentType.BankTypes.WF_BANK
 import com.goldberg.law.document.model.pdf.DocumentType.CheckTypes.CHECKS
+import com.goldberg.law.document.model.pdf.DocumentType.CheckTypes.CHECKS_RAW
 import com.goldberg.law.document.model.pdf.DocumentType.CreditCardTypes.B_OF_A_CC
 import com.goldberg.law.document.model.pdf.DocumentType.TransactionTypes.TRANSACTIONS_TYPE
+import com.goldberg.law.entity.EntityValues.DEFAULT_CLASSIFICATION_TYPE
+import com.goldberg.law.entity.EntityValues.newClassifiedFile
+import com.goldberg.law.entity.EntityValues.newClassifiedPages
 import com.goldberg.law.util.readJson
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.Mockito.any
+import org.mockito.Mockito.mock
+import org.mockito.kotlin.whenever
 
 
 class DocumentClassifierTest {
@@ -50,30 +53,32 @@ class DocumentClassifierTest {
 
     @Test
     fun testNone() {
-        val document = newPdfDocumentMulti(pages = (1..2).toSet())
+        val document = newPdfDocument(pages = (1..2).toSet())
         whenever(analyzeResult.documents).thenReturn(newAnalyzedDocs(
             TRANSACTIONS_TYPE,
             DocumentType.ExtraPageTypes.TEXT,
         ))
         val result = classifier.classifyDocument(document)
-        assertThat(result).isEqualTo(listOf<ClassifiedPdfDocument>())
+        assertThat(result).isEqualTo(newClassifiedFile(classifications = listOf()))
     }
 
     @Test
     fun testClassifyBasic() {
-        val document = newPdfDocumentMulti(pages = (1..2).toSet())
+        val document = newPdfDocument(pages = (1..2).toSet())
         whenever(analyzeResult.documents).thenReturn(newAnalyzedDocs(
-            WF_BANK,
+            DEFAULT_CLASSIFICATION_TYPE,
+            DEFAULT_CLASSIFICATION_TYPE,
         ))
         val result = classifier.classifyDocument(document)
-        assertThat(result).isEqualTo(listOf(
-            document.docForPages(setOf(1)).asClassifiedDocument(WF_BANK),
-        ))
+        assertThat(result).isEqualTo(newClassifiedFile(classifications = listOf(
+            newClassifiedPages(),
+            newClassifiedPages(pages = setOf(2))
+        )))
     }
 
     @Test
     fun testClassifyBasicExtraPages() {
-        val document = newPdfDocumentMulti(pages = (1..4).toSet())
+        val document = newPdfDocument(pages = (1..4).toSet())
         whenever(analyzeResult.documents).thenReturn(newAnalyzedDocs(
             DocumentType.ExtraPageTypes.TEXT,
             TRANSACTIONS_TYPE,
@@ -81,14 +86,14 @@ class DocumentClassifierTest {
             DocumentType.ExtraPageTypes.TEXT,
         ))
         val result = classifier.classifyDocument(document)
-        assertThat(result).isEqualTo(listOf(
-            document.docForPages(setOf(3)).asClassifiedDocument(WF_BANK),
-        ))
+        assertThat(result).isEqualTo(newClassifiedFile(classifications = listOf(
+            newClassifiedPages(pages = setOf(3), classification = WF_BANK),
+        )))
     }
 
     @Test
-    fun testClassify() {
-        val document = newPdfDocumentMulti(pages = (1..8).toSet())
+    fun testClassifyStatementsWithTransactions() {
+        val document = newPdfDocument(pages = (1..8).toSet())
         whenever(analyzeResult.documents).thenReturn(newAnalyzedDocs(
             WF_BANK,
             TRANSACTIONS_TYPE,
@@ -100,74 +105,74 @@ class DocumentClassifierTest {
             B_OF_A_CC,
         ))
         val result = classifier.classifyDocument(document)
-        assertThat(result).isEqualTo(listOf(
-            document.docForPages(setOf(1, 2, 3)).asClassifiedDocument(WF_BANK),
-            document.docForPages(setOf(5, 6)).asClassifiedDocument(B_OF_A_CC),
-            document.docForPages(setOf(7)).asClassifiedDocument(B_OF_A_CC),
-            document.docForPages(setOf(8)).asClassifiedDocument(B_OF_A_CC),
-        ))
+        assertThat(result).isEqualTo(newClassifiedFile(classifications = listOf(
+            newClassifiedPages(pages = setOf(1, 2, 3), classification = WF_BANK),
+            newClassifiedPages(pages = setOf(5, 6), classification = B_OF_A_CC),
+            newClassifiedPages(pages = setOf(7), classification = B_OF_A_CC),
+            newClassifiedPages(pages = setOf(8), classification = B_OF_A_CC),
+        )))
     }
 
     @Test
     fun testChecks() {
-        val document = newPdfDocumentMulti(pages = (1..5).toSet())
+        val document = newPdfDocument(pages = (1..5).toSet())
         whenever(analyzeResult.documents).thenReturn(newAnalyzedDocs(
+            CHECKS_RAW,
             CHECKS,
             CHECKS,
-            DocumentType.CheckTypes.CHECKS_RAW,
-            DocumentType.CheckTypes.CHECKS_RAW,
-            CHECKS,
+            CHECKS_RAW,
+            CHECKS_RAW,
         ))
         val result = classifier.classifyDocument(document)
-        assertThat(result).isEqualTo(listOf(
-            document.docForPages(setOf(1)).asClassifiedDocument(CHECKS),
-            document.docForPages(setOf(2)).asClassifiedDocument(CHECKS),
-            document.docForPages(setOf(3)).asClassifiedDocument(DocumentType.CheckTypes.CHECKS_RAW),
-            document.docForPages(setOf(4)).asClassifiedDocument(DocumentType.CheckTypes.CHECKS_RAW),
-            document.docForPages(setOf(5)).asClassifiedDocument(CHECKS),
-        ))
+        assertThat(result).isEqualTo(newClassifiedFile(classifications = listOf(
+            newClassifiedPages(pages = setOf(1), classification = CHECKS_RAW),
+            newClassifiedPages(pages = setOf(2), classification = CHECKS),
+            newClassifiedPages(pages = setOf(3), classification = CHECKS),
+            newClassifiedPages(pages = setOf(4), classification = CHECKS_RAW),
+            newClassifiedPages(pages = setOf(5), classification = CHECKS_RAW),
+        )))
     }
 
     @Test
     fun testClassifyStatementsAndChecks() {
-        val document = newPdfDocumentMulti(pages = (1..4).toSet())
+        val document = newPdfDocument(pages = (1..4).toSet())
         whenever(analyzeResult.documents).thenReturn(newAnalyzedDocs(
             B_OF_A,
-            DocumentType.CheckTypes.CHECKS_RAW,
-            DocumentType.CheckTypes.CHECKS_RAW,
+            CHECKS,
+            CHECKS,
             B_OF_A,
         ))
         val result = classifier.classifyDocument(document)
-        assertThat(result).isEqualTo(listOf(
-            document.docForPages(setOf(1)).asClassifiedDocument(B_OF_A),
-            document.docForPages(setOf(2)).asClassifiedDocument(DocumentType.CheckTypes.CHECKS_RAW),
-            document.docForPages(setOf(3)).asClassifiedDocument(DocumentType.CheckTypes.CHECKS_RAW),
-            document.docForPages(setOf(4)).asClassifiedDocument(B_OF_A),
-        ))
+        assertThat(result).isEqualTo(newClassifiedFile(classifications = listOf(
+            newClassifiedPages(pages = setOf(2), classification = CHECKS),
+            newClassifiedPages(pages = setOf(3), classification = CHECKS),
+            newClassifiedPages(pages = setOf(1), classification = B_OF_A),
+            newClassifiedPages(pages = setOf(4), classification = B_OF_A),
+        )))
     }
 
     @Test
     fun testWeird() {
-        val document = newPdfDocumentMulti(pages = (1..10).toSet())
+        val document = newPdfDocument(pages = (1..10).toSet())
         whenever(analyzeResult.documents).thenReturn(newAnalyzedDocs(
             B_OF_A,
             DocumentType.ExtraPageTypes.TEXT,
             TRANSACTIONS_TYPE,
-            DocumentType.CheckTypes.CHECKS_RAW,
+            CHECKS,
             TRANSACTIONS_TYPE,
             DocumentType.ExtraPageTypes.TEXT,
-            DocumentType.CheckTypes.CHECKS_RAW,
+            CHECKS,
             TRANSACTIONS_TYPE,
             DocumentType.ExtraPageTypes.TEXT,
             B_OF_A,
         ))
         val result = classifier.classifyDocument(document)
-        assertThat(result).isEqualTo(listOf(
-            document.docForPages(setOf(1, 3)).asClassifiedDocument(B_OF_A),
-            document.docForPages(setOf(4)).asClassifiedDocument(DocumentType.CheckTypes.CHECKS_RAW),
-            document.docForPages(setOf(7)).asClassifiedDocument(DocumentType.CheckTypes.CHECKS_RAW),
-            document.docForPages(setOf(10)).asClassifiedDocument(B_OF_A),
-        ))
+        assertThat(result).isEqualTo(newClassifiedFile(classifications = listOf(
+            newClassifiedPages(pages = setOf(4), classification = CHECKS),
+            newClassifiedPages(pages = setOf(7), classification = CHECKS),
+            newClassifiedPages(pages = setOf(1, 3, 5, 8), classification = B_OF_A),
+            newClassifiedPages(pages = setOf(10), classification = B_OF_A),
+        )))
     }
 
     companion object {

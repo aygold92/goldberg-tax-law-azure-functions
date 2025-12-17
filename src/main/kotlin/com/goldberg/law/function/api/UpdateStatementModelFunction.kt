@@ -1,32 +1,26 @@
 package com.goldberg.law.function.api
 
-import com.goldberg.law.datamanager.AzureStorageDataManager
-import com.goldberg.law.document.exception.FileNotFoundException
-import com.goldberg.law.document.model.ManualRecord
-import com.goldberg.law.document.model.ManualRecordTable
-import com.goldberg.law.document.model.input.StatementDataModel
-import com.goldberg.law.document.model.input.tables.BatesStampTable
-import com.goldberg.law.document.model.input.tables.BatesStampTableRow
-import com.goldberg.law.document.model.pdf.ClassifiedPdfMetadata
-import com.goldberg.law.function.activity.ProcessStatementsActivity
-import com.goldberg.law.function.model.DocumentDataModelContainer
-import com.goldberg.law.function.model.activity.ProcessStatementsActivityInput
-import com.goldberg.law.function.model.request.AnalyzeDocumentResult
-import com.goldberg.law.function.model.request.UpdateStatementModelRequest
-import com.goldberg.law.document.model.pdf.DocumentType
+import com.goldberg.law.database.DbExec.txnSafe
+import com.goldberg.law.database.service.ClassificationService
+import com.goldberg.law.database.service.StatementService
+import com.goldberg.law.database.service.TransactionService
+import com.goldberg.law.function.api.model.ApiResult
+import com.goldberg.law.function.api.model.UpdateStatementModelRequest
 import com.goldberg.law.util.OBJECT_MAPPER
-import com.goldberg.law.util.mapAsync
+import com.google.inject.Inject
 import com.microsoft.azure.functions.*
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.jetbrains.exposed.sql.Database
 import java.util.*
 
-class UpdateStatementModelFunction(
-    private val dataManager: AzureStorageDataManager,
-    private val processStatementsActivity: ProcessStatementsActivity,
-    private val putDocumentClassificationFunction: PutDocumentClassificationFunction,
+class UpdateStatementModelFunction @Inject constructor(
+    private val classificationService: ClassificationService,
+    private val statementService: StatementService,
+    private val transactionService: TransactionService,
+    private val db: Database,
 ) {
     private val logger = KotlinLogging.logger {}
 
@@ -39,58 +33,27 @@ class UpdateStatementModelFunction(
         logger.info { "[${ctx.invocationId}] processing ${request?.body?.orElseThrow()}" }
         val req = OBJECT_MAPPER.readValue(request?.body?.orElseThrow(), UpdateStatementModelRequest::class.java)
 
-        val metadata = dataManager.loadInputMetadata(req.clientName, req.modelDetails.details.filename)
-            ?: throw FileNotFoundException("file ${req.clientName}/${req.modelDetails.details.filename} does not exist")
+        // check if statementId exists TODO: don't load the whole statement
+        val current = statementService.loadBankStatement(req.statementDetails.statementId)
 
-
-        val details = req.modelDetails.details
-
-        val pages = req.modelDetails.pages.map { it.filePageNumber }.toSet()
-        val pdfMetadata = ClassifiedPdfMetadata(details.filename, pages, details.classification)
-
-        val model = StatementDataModel(
-            documentType = pdfMetadata.classification,
-            date = details.statementDate,
-            accountNumber = details.accountNumber,
-            beginningBalance = details.beginningBalance,
-            endingBalance = details.endingBalance,
-            interestCharged = details.interestCharged,
-            feesCharged = details.feesCharged,
-            pageMetadata = pdfMetadata,
-            manualRecordTable = ManualRecordTable(req.modelDetails.transactions.map { tr ->
-                // TODO: should I get rid of PdfPageData in checkPageData?
-                ManualRecord(tr.id, tr.date, tr.description, tr.amount, tr.checkNumber, tr.checkPdfMetadata, tr.filePageNumber)
-            }),
-            batesStamps = BatesStampTable(req.modelDetails.pages.mapNotNull { if (it.batesStamp != null) BatesStampTableRow(it.batesStamp, it.filePageNumber) else null })
-        )
-
-        if (!DocumentType.hasMultipleStatements(pdfMetadata.classification)) 
-            dataManager.saveModel(req.clientName, model)
-
-        putDocumentClassificationFunction.overwriteClassificationIndividual(req.clientName, listOf(pdfMetadata))
-
-        // load the checks
-        val checkModels = req.modelDetails.transactions.filter { it.checkPdfMetadata != null && it.checkPdfMetadata.filename.isNotEmpty() }.distinct().mapAsync {
-            dataManager.loadModel(req.clientName, it.checkPdfMetadata!!)
+        db.txnSafe {
+            if (current.toClassifiedPages() != req.classification) {
+                classificationService.updateClassification(req.classificationId, req.classification)
+            }
+            statementService.updateBankStatement(req.statementDetails)
+            transactionService.upsertTransactions(req.statementDetails.statementId, req.upserts)
+            transactionService.deleteTransactions(req.deletes)
         }
 
-        val documentDataModels = listOf(DocumentDataModelContainer(statementDataModel = model))
-            .union(checkModels.map { DocumentDataModelContainer(it) })
-
-
-        val ret = processStatementsActivity.processStatementsAndChecks(ProcessStatementsActivityInput(
-            ctx.invocationId!!, req.clientName, documentDataModels, mapOf(req.modelDetails.details.filename to metadata), true
-        ), ctx)
-
         request!!.createResponseBuilder(HttpStatus.OK)
-            .body(ret)
+//            .body()
             .build()
     } catch (ex: Exception) {
         // TODO: different error codes
         logger.error(ex) { "Error updating statement $request" }
 
         request!!.createResponseBuilder(HttpStatus.BAD_REQUEST)
-            .body(AnalyzeDocumentResult.failed(ex))
+            .body(ApiResult.failed(ex))
             .build()
     }
 

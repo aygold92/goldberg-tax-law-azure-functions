@@ -1,17 +1,15 @@
 package com.goldberg.law.function.model
 
-import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.goldberg.law.document.model.input.CheckDataModel
 import com.goldberg.law.document.model.input.DocumentDataModel
 import com.goldberg.law.document.model.input.ExtraPageDataModel
 import com.goldberg.law.document.model.input.StatementDataModel
 
-data class DocumentDataModelContainer @JsonCreator constructor(
-    @JsonProperty("statementDataModel") val statementDataModel: StatementDataModel? = null,
-    @JsonProperty("checkDataModel") val checkDataModel: CheckDataModel? = null,
-    @JsonProperty("extraPageDataModel") val extraPageDataModel: ExtraPageDataModel? = null,
+data class DocumentDataModelContainer(
+    val statementDataModel: StatementDataModel? = null,
+    val checkDataModel: CheckDataModel? = null,
+    val extraPageDataModel: ExtraPageDataModel? = null,
 ) {
 
     constructor(documentDataModel: DocumentDataModel): this(

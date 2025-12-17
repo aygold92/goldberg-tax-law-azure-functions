@@ -3,8 +3,9 @@ package com.goldberg.law.document.model.input.tables
 import com.azure.ai.documentintelligence.models.DocumentField
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.goldberg.law.document.model.output.TransactionHistoryRecord
-import com.goldberg.law.document.model.pdf.ClassifiedPdfMetadata
+import com.goldberg.law.database.tables.TransactionsTable.checkId
+import com.goldberg.law.entity.Classification
+import com.goldberg.law.entity.TransactionDetails
 import com.goldberg.law.util.pageNumber
 import com.goldberg.law.util.positiveCurrencyValue
 import com.goldberg.law.util.valueAsInt
@@ -19,14 +20,15 @@ data class TransactionTableDepositWithdrawalRecord @JsonCreator constructor(
     @JsonProperty("withdrawalAmount") val withdrawalAmount: BigDecimal?,
     @JsonProperty("page") override val page: Int,
 ): TransactionRecord() {
-    override fun toTransactionHistoryRecord(statementDate: Date?, metadata: ClassifiedPdfMetadata): TransactionHistoryRecord = TransactionHistoryRecord(
-        id = this.id,
+    override fun toTransactionDetails(statementDate: Date?, classification: Classification): TransactionDetails = TransactionDetails(
+        transactionId = this.id,
         date = fromWrittenDateStatementDateOverride(this.date, statementDate),
         checkNumber = this.checkNumber ?: extractCheckNumber(this.description),
         description = this.description,
         // TODO: can we do better for the case it has both?
         amount = this.depositAmount ?: this.withdrawalAmount?.negate(),
-        filePageNumber = metadata.pagesOrdered[page - 1]
+        filePageNumber = classification.pagesOrdered[page - 1],
+        checkId = null,
     )
 
     object Keys {

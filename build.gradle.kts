@@ -52,7 +52,7 @@ repositories {
 dependencies {
     // kotlin
     implementation(kotlin("stdlib"))
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0-RC.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
     // guice
     implementation("com.google.inject:guice:7.0.0")
     // logging
@@ -80,7 +80,14 @@ dependencies {
     //implementation("com.azure:azure-sdk-bom:1.2.27")
 //    implementation("com.azure:azure-storage-blob")
 //    implementation("com.azure:azure-ai-formrecognizer")
-    // implementation("mysql:mysql-connector-java")
+    // MySQL Database
+    implementation("mysql:mysql-connector-java:8.0.33")
+    implementation("com.zaxxer:HikariCP:5.0.1")
+    implementation("org.xerial:sqlite-jdbc:3.50.3.0")
+    implementation("org.jetbrains.exposed:exposed-core:0.61.0")
+    implementation("org.jetbrains.exposed:exposed-dao:0.61.0")
+    implementation("org.jetbrains.exposed:exposed-jdbc:0.61.0")
+    implementation("org.jetbrains.exposed:exposed-java-time:0.61.0")
 
     // PDF Splitter
     implementation("org.apache.pdfbox:pdfbox:3.0.2")
@@ -88,19 +95,21 @@ dependencies {
     // Kotlin
     implementation("org.jetbrains.kotlin:kotlin-stdlib:2.0.0")
 
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.17.2")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.2")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.21.0")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.21.0")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.21.0")
 
     // csv parsing
     implementation("org.apache.commons:commons-csv:1.14.1")
 
     // Test
     testImplementation("org.jetbrains.kotlin:kotlin-test:2.0.0")
+    testImplementation("com.h2database:h2:2.4.240")
     testImplementation(libs.junit.jupiter)
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
-    testImplementation("org.assertj:assertj-core:3.26.0")
-    testImplementation("org.mockito:mockito-core:5.12.0")
-    testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.14.2")
+    testImplementation("org.assertj:assertj-core:3.27.7")
+//    testImplementation("org.mockito:mockito-core:5.12.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:6.2.3")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
