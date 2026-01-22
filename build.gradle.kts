@@ -91,6 +91,9 @@ dependencies {
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.17.2")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.2")
 
+    // csv parsing
+    implementation("org.apache.commons:commons-csv:1.14.1")
+
     // Test
     testImplementation("org.jetbrains.kotlin:kotlin-test:2.0.0")
     testImplementation(libs.junit.jupiter)
@@ -98,7 +101,6 @@ dependencies {
     testImplementation("org.assertj:assertj-core:3.26.0")
     testImplementation("org.mockito:mockito-core:5.12.0")
     testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
-    testImplementation("org.apache.commons:commons-csv:1.9.0")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.

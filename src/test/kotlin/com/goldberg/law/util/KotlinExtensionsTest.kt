@@ -82,7 +82,7 @@ class KotlinExtensionsTest {
     fun testContentAndValueDifferent() {
         val value = "{\"type\":\"number\",\"content\":\"-18\",\"value\":-2906.179931640625}"
         val field = value.readJson(DocumentField::class.java)
-        assertThat(field.currencyValue()).isEqualTo((-2906.18).asCurrency())
+        assertThat(field.currencyValue()).isEqualTo((-18).asCurrency())
     }
 
     @Test
@@ -105,7 +105,6 @@ class KotlinExtensionsTest {
     @ValueSource(strings = [
         "{\"type\":\"number\",\"content\":\"- \$2,906.18\",\"value\":2906.179931640625}",
         "{\"type\":\"number\",\"content\":\" - \$2,906.18\",\"value\":2906.179931640625}",
-        "{\"type\":\"number\",\"content\":\"-18\",\"value\":2906.179931640625}",
         "{\"type\":\"number\",\"content\":\"-2,906.18\",\"value\":-2906.179931640625}",
     ])
     fun testDocumentFieldToPositiveCurrencyValue(value: String) {

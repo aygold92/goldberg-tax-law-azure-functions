@@ -7,6 +7,12 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.goldberg.law.script.maritalinvestments.model.InstrumentKey
+import com.goldberg.law.script.maritalinvestments.model.InstrumentKeyDeserializer
+import com.goldberg.law.script.maritalinvestments.model.InstrumentKeyKeyDeserializer
+import com.goldberg.law.script.maritalinvestments.model.InvestmentTransaction
+import com.goldberg.law.script.maritalinvestments.model.InvestmentTransactionDeserializer
+import com.nimbusds.jose.shaded.gson.Gson
 import com.nimbusds.jose.shaded.gson.GsonBuilder
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.*
@@ -20,13 +26,18 @@ import java.util.*
 
 val OBJECT_MAPPER = ObjectMapper().apply {
     enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
-    registerModule(SimpleModule().apply { addSerializer(DocumentField::class.java, DocumentFieldSerializer()) })
-    registerModule(SimpleModule().apply { addSerializer(AnalyzedDocument::class.java, AnalyzedDocumentSerializer()) })
+    registerModule(SimpleModule().apply {
+        addSerializer(DocumentField::class.java, DocumentFieldSerializer())
+        addSerializer(AnalyzedDocument::class.java, AnalyzedDocumentSerializer())
+        addDeserializer(InstrumentKey::class.java, InstrumentKeyDeserializer())
+        addKeyDeserializer(InstrumentKey::class.java, InstrumentKeyKeyDeserializer())
+        addDeserializer(InvestmentTransaction::class.java, InvestmentTransactionDeserializer())
+    })
     registerModule(JavaTimeModule())
 
 }
 
-val GSON = GsonBuilder()
+val GSON: Gson = GsonBuilder()
     .registerTypeAdapter(LocalDate::class.java, LocalDateAdapter())
     .registerTypeAdapter(DocumentFieldType::class.java, DocumentFieldTypeAdaptor())
     .create()
@@ -55,19 +66,24 @@ fun String.last4Digits() = this.filter { str ->
     if (it.length > 4) it.substring(it.length - 4) else it
 }
 
+fun String.bdSafe() = try {
+    BigDecimal(this)
+} catch (ex: NumberFormatException) {
+    null
+}
+fun String.bd() = BigDecimal(this)
+fun Number.bd() = this.toString().bd()
+fun BigDecimal.clean(): BigDecimal = this.stripTrailingZeros().let { if (it.scale() < 0) it.setScale(0) else it }
+
 fun BigDecimal.toCurrency(): String = "%.2f".format(this)
 
 fun Double.asCurrency(): BigDecimal = BigDecimal(this).setScale(2, RoundingMode.HALF_UP)
 fun Int.asCurrency(): BigDecimal = BigDecimal(this).setScale(2, RoundingMode.HALF_UP)
-fun String.asCurrency(): BigDecimal? = try {
-    BigDecimal(this).setScale(2, RoundingMode.HALF_UP)
-} catch (ex: NumberFormatException) {
-    null
-}
+fun String.asCurrency(): BigDecimal? = this.bdSafe()?.setScale(2, RoundingMode.HALF_UP)
 
-fun Number.asCurrency(): BigDecimal? = BigDecimal(this.toString()).setScale(2, RoundingMode.HALF_UP)
+fun Number.asCurrency(): BigDecimal = BigDecimal(this.toString()).setScale(2, RoundingMode.HALF_UP)
 
-fun Map<String?, *>.valueNotNull(key: String): Boolean = this.containsKey(key) && this.get(key) != null
+fun Map<String?, *>.valueNotNull(key: String): Boolean = this.containsKey(key) && this[key] != null
 
 fun String.hackToNumber(): String = this.trim()
     .filterIndexed { idx, ch -> ch.isLetterOrDigit() || (ch == '-' && idx != 1) ||  listOf('.', '$').contains(ch) }.let { value ->
@@ -89,6 +105,8 @@ fun String.parseCurrency(): BigDecimal? = this.asCurrency()
         }
     }
 
+fun String.parseBigDecimal(): BigDecimal? = this.bdSafe() ?: this.hackToNumber().bdSafe()
+
 fun String.removeNonDigitOrSlash(): String {
     return this.replace(Regex("[^0-9/]"), "")
 }
@@ -103,7 +121,7 @@ fun DocumentField.currencyValue(): BigDecimal? = this.content?.parseCurrency()?.
             else throw ex
         }
         // fixes bug where sometimes randomly the value becomes off by some very small amount -- in this case the content is accurate.
-        // for example, content says "$534,446.46 and the double value randomly is 53446.4375
+        // for example, content says "$534,446.46" and the double value randomly is 53446.4375
         if ((contentValue.abs() - doubleValue.abs()).abs() < .05.asCurrency()) {
             contentValue
         }
