@@ -189,10 +189,13 @@ data class StatementDataModel @JsonCreator constructor(
             classifiedPdfDocument.toDocumentMetadata()
         )
 
-        fun TransactionHistoryRecord.isBeginningBalanceRecord() = (this.description in beginningBalanceTransactionDescriptions) && this.amount == null
+        fun TransactionHistoryRecord.isBeginningBalanceRecord() = (this.description?.lowercase() in beginningBalanceTransactionDescriptions) && this.amount == null
         
-        const val NFCU_BANK_BEGINNING_BALANCE_TRANSACTION_DESCRIPTION = "Beginning Balance"
-        const val CAPITAL_ONE_JOINT_BEGINNING_BALANCE_TRANSACTION_DESCRIPTION = "Opening Balance"
-        val beginningBalanceTransactionDescriptions = listOf(NFCU_BANK_BEGINNING_BALANCE_TRANSACTION_DESCRIPTION, CAPITAL_ONE_JOINT_BEGINNING_BALANCE_TRANSACTION_DESCRIPTION)
+        const val NFCU_BANK_BEGINNING_BALANCE_TRANSACTION_DESCRIPTION = "beginning balance"
+        const val CAPITAL_ONE_JOINT_BEGINNING_BALANCE_TRANSACTION_DESCRIPTION = "opening balance"
+        val beginningBalanceTransactionDescriptions = listOf(
+            NFCU_BANK_BEGINNING_BALANCE_TRANSACTION_DESCRIPTION.lowercase(),
+            CAPITAL_ONE_JOINT_BEGINNING_BALANCE_TRANSACTION_DESCRIPTION.lowercase()
+        )
     }
 }

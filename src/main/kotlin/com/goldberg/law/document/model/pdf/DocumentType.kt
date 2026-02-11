@@ -1,5 +1,6 @@
 package com.goldberg.law.document.model.pdf
 
+import com.goldberg.law.document.model.pdf.DocumentType.BankTypes.ATLANTIC_UNION
 import com.goldberg.law.document.model.pdf.DocumentType.BankTypes.B_OF_A
 import com.goldberg.law.document.model.pdf.DocumentType.BankTypes.EAGLE_BANK
 import com.goldberg.law.document.model.pdf.DocumentType.BankTypes.NFCU_BANK
@@ -7,6 +8,7 @@ import com.goldberg.law.document.model.pdf.DocumentType.BankTypes.WF_BANK
 import com.goldberg.law.document.model.pdf.DocumentType.BankTypes.WF_BANK_JOINT
 import com.goldberg.law.document.model.pdf.DocumentType.BankTypes.TRUIST
 import com.goldberg.law.document.model.pdf.DocumentType.BankTypes.CAPITAL_ONE_JOINT
+import com.goldberg.law.document.model.pdf.DocumentType.BankTypes.SANDY_SPRING
 import com.goldberg.law.document.model.pdf.DocumentType.CheckTypes.B_OF_A_CHECK
 import com.goldberg.law.document.model.pdf.DocumentType.CheckTypes.EAGLE_BANK_CHECK
 import com.goldberg.law.document.model.pdf.DocumentType.CheckTypes.MISC_CHECK
@@ -23,7 +25,7 @@ import com.goldberg.law.document.model.pdf.DocumentType.IrrelevantTypes.EXTRA_PA
 
 enum class DocumentType(val docTypes: List<String> = listOf()) {
     CREDIT_CARD(listOf(AMEX_CC, C1_CC, CITI_CC, WF_CC, B_OF_A_CC, B_OF_A_CC_BUSINESS, NFCU_CC)),
-    BANK(listOf(EAGLE_BANK, WF_BANK, WF_BANK_JOINT, B_OF_A, NFCU_BANK, TRUIST, CAPITAL_ONE_JOINT)),
+    BANK(listOf(EAGLE_BANK, WF_BANK, WF_BANK_JOINT, B_OF_A, NFCU_BANK, TRUIST, CAPITAL_ONE_JOINT, SANDY_SPRING, ATLANTIC_UNION)),
     CHECK(listOf(EAGLE_BANK_CHECK, B_OF_A_CHECK, MISC_CHECK, NFCU_CHECK, CHECKS)),
     IRRELEVANT(listOf(EXTRA_PAGES)),
     TRANSACTIONS(listOf(TransactionTypes.TRANSACTIONS_TYPE)),
@@ -54,6 +56,8 @@ enum class DocumentType(val docTypes: List<String> = listOf()) {
         const val NFCU_BANK = "NFCU Bank"
         const val TRUIST = "Truist"
         const val CAPITAL_ONE_JOINT = "Capital One Joint"
+        const val SANDY_SPRING = "Sandy Spring"
+        const val ATLANTIC_UNION = "Atlantic Union"
     }
 
     object CheckTypes {
@@ -75,6 +79,8 @@ enum class DocumentType(val docTypes: List<String> = listOf()) {
     companion object {
         fun getBankType(docType: String): DocumentType = DocumentType.entries.find { it.docTypes.contains(docType) } ?: UNKNOWN
         // this handles the fact that some bank types have multiple statements in the same page
-        fun hasMultipleStatements(classification: String) = classification == NFCU_BANK || classification == CAPITAL_ONE_JOINT
+        fun hasMultipleStatements(classification: String) = classification in DOC_TYPES_MULTIPLE_STATEMENTS
+
+        private val DOC_TYPES_MULTIPLE_STATEMENTS = listOf(NFCU_BANK, CAPITAL_ONE_JOINT, ATLANTIC_UNION)
     }
 }
