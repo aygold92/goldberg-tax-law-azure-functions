@@ -39,7 +39,7 @@ data class TransactionHistoryRecord @JsonCreator constructor(
     val transactionDate = fromWrittenDate(date)
     fun toCsv(statementDate: String?, accountNumber: String?, metadata: ClassifiedPdfMetadata, batesStamps: Map<Int, String>) = listOf(
         date,
-        getFinalDescription()?.addQuotes(),
+        getFinalDescription()?.replace("\"", "")?.addQuotes(),
         amount?.toCurrency(),
         "",
         joinAccountNumber(accountNumber, metadata.classification),
