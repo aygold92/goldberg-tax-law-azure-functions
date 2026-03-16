@@ -14,6 +14,7 @@ interface InvestmentTransaction {
     val type: TransactionType
     val quantity: BigDecimal?
     val amount: BigDecimal
+    val classificationOverride: TransactionClassification?
 
     fun log(preMaritalPercent: BigDecimal?) = TransactionLog(this, preMaritalPercent)
 }
@@ -24,4 +25,8 @@ class InvestmentTransactionDeserializer : JsonDeserializer<InvestmentTransaction
 
         return p.codec.treeToValue(node, VanguardTransaction::class.java)
     }
+}
+
+enum class TransactionClassification {
+    PreMarital, Marital
 }

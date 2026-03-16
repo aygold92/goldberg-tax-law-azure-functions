@@ -7,5 +7,5 @@ data class ProcessMaritalTransactionsInput @JsonCreator constructor(
     @JsonProperty("transactionsCsv") val transactionsCsv: String,
     @JsonProperty("startingHoldings") val startingHoldings: HoldingsReport,
     @JsonProperty("marriageDate") val marriageDate: String,
-    @JsonProperty("useCashRatio") val useSplitCashAccounts: Boolean,
+    @JsonProperty("processorType") val processorType: ProcessMaritalTransactionsFunction.MaritalTransactionProcessorType,
 )

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonTypeName
 import com.goldberg.law.util.ZERO
-import com.goldberg.law.util.bd
 import com.goldberg.law.util.fromWrittenDate
 import com.goldberg.law.util.parseBigDecimal
 import com.goldberg.law.util.parseCurrency
@@ -24,6 +23,7 @@ data class VanguardTransaction @JsonCreator constructor(
     @JsonProperty("price") val price: BigDecimal?,
     @JsonProperty("commissionsFees") val commissionsFees: BigDecimal?,
     @JsonProperty("amount") override val amount: BigDecimal,
+    @JsonProperty("classificationOverride") override val classificationOverride: TransactionClassification?,
 ): InvestmentTransaction {
     override val type = transactionType.toTransactionType()
     override val date = tradeDate
@@ -50,7 +50,7 @@ data class VanguardTransaction @JsonCreator constructor(
          * Note: "—" in any column means null. All values are trimmed.
          */
         fun fromCsvLine(csvLine: CSVRecord): VanguardTransaction {
-            if (csvLine.size() != 10) throw InvalidCsvException(csvLine, "Line has ${csvLine.size()} columns")
+            if (csvLine.size() !in 10..11) throw InvalidCsvException(csvLine, "Line has ${csvLine.size()} columns")
 
             val trimmedValues: List<String?> = csvLine.values().map { value -> value.trim().let { if (it == "-" || it == "—" || it.isBlank()) null else it } }
 
@@ -78,6 +78,7 @@ data class VanguardTransaction @JsonCreator constructor(
                 price = trimmedValues.getOrNull(7)?.parseCurrency(),
                 commissionsFees = trimmedValues.getOrNull(8)?.let { if (it.equals("FREE", ignoreCase = true)) ZERO else it.parseCurrency() },
                 amount = trimmedValues.getOrNull(9)?.parseCurrency()?.abs() ?: throw InvalidCsvFieldException(csvLine, "amount"),
+                classificationOverride = trimmedValues.getOrNull(10)?.let { TransactionClassification.valueOf(it) },
             )
         }
     }
