@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 
 class FIFOSplitCashTransactionProcessorTest {
-    private val processor = FIFOSplitCashTransactionProcessor()
     @Test
     fun testNoSharedTransactions() {
         val transactionLog: List<TransactionLog> = listOf(
@@ -30,14 +29,14 @@ class FIFOSplitCashTransactionProcessorTest {
             newTransaction(DATE_3, SYMBOL_1, VanguardTransactionType.WITHDRAWAL, 50.bd()).log(BigDecimal.ONE),
         )
 
-        val result = processor.processMaritalTransactions(
+        val result = FIFOSplitCashTransactionProcessor(
             transactions = transactionLog.map { it.transaction },
             startingHoldings = HoldingsReport(
                 preMaritalHoldings = mapOf(SYMBOL_MMF to 100.bd()),
                 sharedHoldings = mapOf(),
             ),
             marriageDate = DATE_1
-        )
+        ).processMaritalTransactions()
 
         assertThat(result).bigDecimalCompare().isEqualTo(
             ProcessMaritalTransactionsOutput(
@@ -80,7 +79,7 @@ class FIFOSplitCashTransactionProcessorTest {
             newTransaction(DATE_3, HoldingSymbol.NO_SYM, VanguardTransactionType.WITHDRAWAL, 50.bd()).log(1.bd()),
         )
 
-        val result = processor.processMaritalTransactions(
+        val result = FIFOSplitCashTransactionProcessor(
             transactions = transactionLog.map { it.transaction },
             startingHoldings = HoldingsReport(
                 preMaritalHoldings = mapOf(
@@ -91,7 +90,7 @@ class FIFOSplitCashTransactionProcessorTest {
                 sharedHoldings = mapOf(),
             ),
             marriageDate = DATE_BEFORE
-        )
+        ).processMaritalTransactions()
 
         assertThat(result).bigDecimalCompare().isEqualTo(
             ProcessMaritalTransactionsOutput(
@@ -136,7 +135,7 @@ class FIFOSplitCashTransactionProcessorTest {
             newTransaction(DATE_3, HoldingSymbol.NO_SYM, VanguardTransactionType.WITHDRAWAL, 143.bd()).log(0.bd()),
         )
 
-        val result = processor.processMaritalTransactions(
+        val result = FIFOSplitCashTransactionProcessor(
             transactions = transactionLog.map { it.transaction },
             startingHoldings = HoldingsReport(
                 preMaritalHoldings = mapOf(
@@ -147,7 +146,7 @@ class FIFOSplitCashTransactionProcessorTest {
                 sharedHoldings = mapOf()
             ),
             marriageDate = DATE_BEFORE
-        )
+        ).processMaritalTransactions()
 
         assertThat(result).bigDecimalCompare().isEqualTo(
             ProcessMaritalTransactionsOutput(
@@ -180,7 +179,7 @@ class FIFOSplitCashTransactionProcessorTest {
             newTransaction(DATE_2, SYMBOL_2, VanguardTransactionType.BUY, 100.bd(), 30.bd()).log(".625".bd()),
         )
 
-        val result = processor.processMaritalTransactions(
+        val result = FIFOSplitCashTransactionProcessor(
             transactions = transactionLog.map { it.transaction },
             startingHoldings = HoldingsReport(
                 preMaritalHoldings = mapOf(
@@ -192,7 +191,7 @@ class FIFOSplitCashTransactionProcessorTest {
                 )
             ),
             marriageDate = DATE_BEFORE
-        )
+        ).processMaritalTransactions()
 
         assertThat(result).bigDecimalCompare().isEqualTo(
             ProcessMaritalTransactionsOutput(
@@ -235,7 +234,7 @@ class FIFOSplitCashTransactionProcessorTest {
 
         )
 
-        val result = processor.processMaritalTransactions(
+        val result = FIFOSplitCashTransactionProcessor(
             transactions = transactionLog.map { it.transaction },
             startingHoldings = HoldingsReport(
                 preMaritalHoldings = mapOf(
@@ -250,7 +249,7 @@ class FIFOSplitCashTransactionProcessorTest {
                 )
             ),
             marriageDate = DATE_BEFORE
-        )
+        ).processMaritalTransactions()
 
         assertThat(result).bigDecimalCompare().isEqualTo(
             ProcessMaritalTransactionsOutput(
@@ -287,14 +286,14 @@ class FIFOSplitCashTransactionProcessorTest {
             newTransaction(dateNov, SYMBOL_1, VanguardTransactionType.CORP_ACTION_REDEMPTION, 100.bd(), 40.bd()).log(.5.bd()),
         )
 
-        val result = processor.processMaritalTransactions(
+        val result = FIFOSplitCashTransactionProcessor(
             transactions = transactionLog.map { it.transaction },
             startingHoldings = HoldingsReport(
                 preMaritalHoldings = mapOf(SYMBOL_MMF to 100.bd()),
                 sharedHoldings = mapOf(SYMBOL_MMF to 100.bd()),
             ),
             marriageDate = DATE_BEFORE
-        )
+        ).processMaritalTransactions()
 
         assertThat(result).bigDecimalCompare().isEqualTo(
             ProcessMaritalTransactionsOutput(
@@ -325,14 +324,14 @@ class FIFOSplitCashTransactionProcessorTest {
             newTransaction(DATE_1, SYMBOL_1, VanguardTransactionType.DIVIDEND, 50.bd()).log(.6.bd()),
         )
 
-        val result = processor.processMaritalTransactions(
+        val result = FIFOSplitCashTransactionProcessor(
             transactions = transactionLog.map { it.transaction },
             startingHoldings = HoldingsReport(
                 preMaritalHoldings = mapOf(SYMBOL_MMF to 100.bd(), SYMBOL_1 to 60.bd()),
                 sharedHoldings = mapOf(SYMBOL_1 to 40.bd()),
             ),
             marriageDate = DATE_BEFORE
-        )
+        ).processMaritalTransactions()
 
         // cash after sell: starting (100, 1.0) + proceeds (100, 0.6) + distribution (50, 0.6)
         // PM = 100 + 60 + 30 = 190, M = 0 + 40 + 20 = 60
@@ -363,14 +362,14 @@ class FIFOSplitCashTransactionProcessorTest {
             newTransaction(DATE_1, SYMBOL_MMF, VanguardTransactionType.REINVESTMENT, 20.bd()).log(.6.bd()),
         )
 
-        val result = processor.processMaritalTransactions(
+        val result = FIFOSplitCashTransactionProcessor(
             transactions = transactionLog.map { it.transaction },
             startingHoldings = HoldingsReport(
                 preMaritalHoldings = mapOf(SYMBOL_MMF to 60.bd()),
                 sharedHoldings = mapOf(SYMBOL_MMF to 40.bd()),
             ),
             marriageDate = DATE_BEFORE
-        )
+        ).processMaritalTransactions()
 
         // starting (100, 0.6) + unpaired dividend (20, 0.6) + paired reinvestment (20, 0.6)
         // total cash = 140, PM = 140 * 0.6 = 84, M = 140 * 0.4 = 56
@@ -398,14 +397,14 @@ class FIFOSplitCashTransactionProcessorTest {
             newTransaction(DATE_2, HoldingSymbol.NO_SYM, VanguardTransactionType.WIRE_IN, 50.bd(), override = TransactionClassification.PreMarital).log(BigDecimal.ONE),
         )
 
-        val result = processor.processMaritalTransactions(
+        val result = FIFOSplitCashTransactionProcessor(
             transactions = transactionLog.map { it.transaction },
             startingHoldings = HoldingsReport(
                 preMaritalHoldings = mapOf(SYMBOL_MMF to 10.bd()),
                 sharedHoldings = mapOf(),
             ),
             marriageDate = DATE_1
-        )
+        ).processMaritalTransactions()
 
         // cash: starting (10, 1.0) + marital override (100, 0.0) + pre-marital override (50, 1.0)
         // PM = 10 + 0 + 50 = 60, M = 0 + 100 + 0 = 100

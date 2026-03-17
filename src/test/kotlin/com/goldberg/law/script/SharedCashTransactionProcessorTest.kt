@@ -12,19 +12,18 @@ import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 
 class SharedCashTransactionProcessorTest {
-    private val processor = SharedCashTransactionProcessor()
     @Test
     fun testSellAllThenDistributionReinvestment() {
         val transactionLog: List<TransactionLog> = listOf(
             // sweep in to set the cash symbol
             newTransaction(DATE_0, SYMBOL_MMF, VanguardTransactionType.SWEEP_IN, 100.bd()).log(null),
             newTransaction(DATE_0, SYMBOL_1, VanguardTransactionType.CORP_ACTION_REDEMPTION, 200.bd(), 100.bd()).log(.5.bd()),
-            newTransaction(DATE_1, SYMBOL_1, VanguardTransactionType.INTEREST, 10.bd()).log(0.bd()),
+            newTransaction(DATE_1, SYMBOL_1, VanguardTransactionType.INTEREST, 10.bd()).log(.5.bd()),
             // reinvest at .5 we end up with 5 shares each
-            newTransaction(DATE_2, SYMBOL_1, VanguardTransactionType.REINVESTMENT, 20.bd(), 10.bd()).log(.5.bd()),
+            newTransaction(DATE_1, SYMBOL_1, VanguardTransactionType.REINVESTMENT, 10.bd(), 10.bd()).log(.5.bd()),
         )
 
-        val result = processor.processMaritalTransactions(
+        val result = SharedCashTransactionProcessor(
             transactions = transactionLog.map { it.transaction },
             startingHoldings = HoldingsReport(
                 preMaritalHoldings = mapOf(
@@ -36,7 +35,7 @@ class SharedCashTransactionProcessorTest {
                 ),
             ),
             marriageDate = DATE_0
-        )
+        ).processMaritalTransactions()
 
         assertThat(result).bigDecimalCompare().isEqualTo(
             ProcessMaritalTransactionsOutput(
@@ -46,7 +45,7 @@ class SharedCashTransactionProcessorTest {
                         SYMBOL_1 to 5.bd()
                     ),
                     sharedHoldings = mapOf(
-                        SYMBOL_MMF to 590.bd(),
+                        SYMBOL_MMF to 600.bd(),
                         SYMBOL_1 to 5.bd()
                     )
                 )),
@@ -65,19 +64,19 @@ class SharedCashTransactionProcessorTest {
             newTransaction(DATE_1, SYMBOL_2, VanguardTransactionType.BUY, 25.bd(), 25.bd()).log(BigDecimal.ONE),
             newTransaction(DATE_2, SYMBOL_2, VanguardTransactionType.SELL_EXCHANGE, 75.bd(), 15.bd()).log(BigDecimal.ONE),
             newTransaction(DATE_2, SYMBOL_MMF, VanguardTransactionType.SWEEP_IN, 75.bd()).log(null),
-            newTransaction(DATE_3, SYMBOL_1, VanguardTransactionType.DIVIDEND, 25.bd()).log(BigDecimal.ZERO),
-            newTransaction(DATE_3, SYMBOL_1, VanguardTransactionType.CAPITAL_GAIN_LT, 25.bd()).log(BigDecimal.ZERO),
+            newTransaction(DATE_3, SYMBOL_1, VanguardTransactionType.DIVIDEND, 25.bd()).log(BigDecimal.ONE),
+            newTransaction(DATE_3, SYMBOL_1, VanguardTransactionType.CAPITAL_GAIN_LT, 25.bd()).log(BigDecimal.ONE),
             newTransaction(DATE_3, SYMBOL_1, VanguardTransactionType.WITHDRAWAL, 50.bd()).log(BigDecimal.ZERO),
         )
 
-        val result = processor.processMaritalTransactions(
+        val result = SharedCashTransactionProcessor(
             transactions = transactionLog.map { it.transaction },
             startingHoldings = HoldingsReport(
                 preMaritalHoldings = mapOf(SYMBOL_MMF to 100.bd()),
                 sharedHoldings = mapOf(),
             ),
             marriageDate = DATE_1
-        )
+        ).processMaritalTransactions()
 
         assertThat(result).bigDecimalCompare().isEqualTo(
             ProcessMaritalTransactionsOutput(
@@ -89,6 +88,7 @@ class SharedCashTransactionProcessorTest {
                     ),
                     sharedHoldings = mapOf(
                         SYMBOL_MMF to 225.bd(),
+                        SYMBOL_1 to BigDecimal.ZERO,
                         SYMBOL_2 to BigDecimal.ZERO,
                     )
                 )),
@@ -109,12 +109,12 @@ class SharedCashTransactionProcessorTest {
             // total is 10 and 10, so the ratio is 0.5
             newTransaction(DATE_2, SYMBOL_2, VanguardTransactionType.SELL_EXCHANGE, 75.bd(), 15.bd()).log(.5.bd()),
             newTransaction(DATE_2, SYMBOL_MMF, VanguardTransactionType.SWEEP_IN, 75.bd()).log(null),
-            newTransaction(DATE_3, SYMBOL_1, VanguardTransactionType.DIVIDEND, 25.bd()).log(BigDecimal.ZERO),
-            newTransaction(DATE_3, SYMBOL_1, VanguardTransactionType.CAPITAL_GAIN_LT, 25.bd()).log(BigDecimal.ZERO),
+            newTransaction(DATE_3, SYMBOL_1, VanguardTransactionType.DIVIDEND, 25.bd()).log(".9090909090909090909090909090909091".bd()),
+            newTransaction(DATE_3, SYMBOL_1, VanguardTransactionType.CAPITAL_GAIN_LT, 25.bd()).log(".9090909090909090909090909090909091".bd()),
             newTransaction(DATE_3, SYMBOL_1, VanguardTransactionType.WITHDRAWAL, 50.bd()).log(BigDecimal.ZERO),
         )
 
-        val result = processor.processMaritalTransactions(
+        val result = SharedCashTransactionProcessor(
             transactions = transactionLog.map { it.transaction },
             startingHoldings = HoldingsReport(
                 preMaritalHoldings = mapOf(
@@ -125,7 +125,7 @@ class SharedCashTransactionProcessorTest {
                 sharedHoldings = mapOf(),
             ),
             marriageDate = DATE_BEFORE
-        )
+        ).processMaritalTransactions()
 
         assertThat(result).bigDecimalCompare().isEqualTo(
             ProcessMaritalTransactionsOutput(

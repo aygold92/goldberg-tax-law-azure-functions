@@ -12,8 +12,6 @@ import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 
 class SplitCashTransactionProcessorTest {
-    private val processor = SplitCashTransactionProcessor()
-
     @Test
     fun testSellAllThenDistributionReinvestment() {
         val transactionLog: List<TransactionLog> = listOf(
@@ -21,13 +19,12 @@ class SplitCashTransactionProcessorTest {
             newTransaction(DATE_0, SYMBOL_MMF, VanguardTransactionType.SWEEP_IN, 100.bd()).log(null),
             // sell to 0, (200, 400) in MMF after
             newTransaction(DATE_0, SYMBOL_1, VanguardTransactionType.CORP_ACTION_REDEMPTION, 200.bd(), 100.bd()).log(.5.bd()),
-            // distribute at .5 so (205, 405)
-            newTransaction(DATE_1, SYMBOL_1, VanguardTransactionType.INTEREST, 10.bd()).log(.5.bd()),
-            // reinvest at .5 we end up with (5,5) shares and (195, 395)
-            newTransaction(DATE_2, SYMBOL_1, VanguardTransactionType.REINVESTMENT, 20.bd(), 10.bd()).log(.5.bd()),
+            // should never touch the cash balance, just add using last known ratio of .5
+            newTransaction(DATE_2, SYMBOL_1, VanguardTransactionType.INTEREST, 10.bd()).log(.5.bd()),
+            newTransaction(DATE_2, SYMBOL_1, VanguardTransactionType.REINVESTMENT, 10.bd(), 10.bd()).log(.5.bd()),
         )
 
-        val result = processor.processMaritalTransactions(
+        val result = SplitCashTransactionProcessor(
             transactions = transactionLog.map { it.transaction },
             startingHoldings = HoldingsReport(
                 preMaritalHoldings = mapOf(
@@ -40,17 +37,17 @@ class SplitCashTransactionProcessorTest {
                 ),
             ),
             marriageDate = DATE_1
-        )
+        ).processMaritalTransactions()
 
         assertThat(result).bigDecimalCompare().isEqualTo(
             ProcessMaritalTransactionsOutput(
                 holdingsReport = mapOf("11/1/2020" to HoldingsReport(
                     preMaritalHoldings = mapOf(
-                        SYMBOL_MMF to 195.bd(),
+                        SYMBOL_MMF to 200.bd(),
                         SYMBOL_1 to 5.bd()
                     ),
                     sharedHoldings = mapOf(
-                        SYMBOL_MMF to 395.bd(),
+                        SYMBOL_MMF to 400.bd(),
                         SYMBOL_1 to 5.bd()
                     )
                 )),
@@ -74,14 +71,14 @@ class SplitCashTransactionProcessorTest {
             newTransaction(DATE_3, SYMBOL_1, VanguardTransactionType.WITHDRAWAL, 50.bd()).log(BigDecimal.ONE),
         )
 
-        val result = processor.processMaritalTransactions(
+        val result = SplitCashTransactionProcessor(
             transactions = transactionLog.map { it.transaction },
             startingHoldings = HoldingsReport(
                 preMaritalHoldings = mapOf(SYMBOL_MMF to 100.bd()),
                 sharedHoldings = mapOf(),
             ),
             marriageDate = DATE_1
-        )
+        ).processMaritalTransactions()
 
         assertThat(result).bigDecimalCompare().isEqualTo(
             ProcessMaritalTransactionsOutput(
@@ -125,7 +122,7 @@ class SplitCashTransactionProcessorTest {
             newTransaction(DATE_3, SYMBOL_1, VanguardTransactionType.WITHDRAWAL, 50.bd()).log("0.45223665223665223665".bd()),
         )
 
-        val result = processor.processMaritalTransactions(
+        val result = SplitCashTransactionProcessor(
             transactions = transactionLog.map { it.transaction },
             startingHoldings = HoldingsReport(
                 preMaritalHoldings = mapOf(
@@ -136,7 +133,7 @@ class SplitCashTransactionProcessorTest {
                 sharedHoldings = mapOf(),
             ),
             marriageDate = DATE_BEFORE
-        )
+        ).processMaritalTransactions()
 
         assertThat(result).bigDecimalCompare().isEqualTo(
             ProcessMaritalTransactionsOutput(
@@ -181,7 +178,7 @@ class SplitCashTransactionProcessorTest {
             newTransaction(DATE_3, SYMBOL_1, VanguardTransactionType.WITHDRAWAL, 143.bd()).log("0.4965034965034965034965035".bd()),
         )
 
-        val result = processor.processMaritalTransactions(
+        val result = SplitCashTransactionProcessor(
             transactions = transactionLog.map { it.transaction },
             startingHoldings = HoldingsReport(
                 preMaritalHoldings = mapOf(
@@ -192,7 +189,7 @@ class SplitCashTransactionProcessorTest {
                 sharedHoldings = mapOf()
             ),
             marriageDate = DATE_BEFORE
-        )
+        ).processMaritalTransactions()
 
         assertThat(result).bigDecimalCompare().isEqualTo(
             ProcessMaritalTransactionsOutput(

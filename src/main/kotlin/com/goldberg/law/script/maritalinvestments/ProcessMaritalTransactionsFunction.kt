@@ -20,12 +20,12 @@ class ProcessMaritalTransactionsFunction(private val csvParser: CsvParser) {
             .map { VanguardTransaction.fromCsvLine(it) }
 
         val processor: MaritalTransactionProcessor = when (input.processorType) {
-            MaritalTransactionProcessorType.SplitCash -> SplitCashTransactionProcessor()
-            MaritalTransactionProcessorType.SharedCash -> SharedCashTransactionProcessor()
-            MaritalTransactionProcessorType.FIFO -> FIFOSplitCashTransactionProcessor()
+            MaritalTransactionProcessorType.SplitCash -> SplitCashTransactionProcessor(transactions, input.startingHoldings, marriageDate)
+            MaritalTransactionProcessorType.SharedCash -> SharedCashTransactionProcessor(transactions, input.startingHoldings, marriageDate)
+            MaritalTransactionProcessorType.FIFO -> FIFOSplitCashTransactionProcessor(transactions, input.startingHoldings, marriageDate)
         }
 
-        return processor.processMaritalTransactions(transactions, input.startingHoldings, marriageDate)
+        return processor.processMaritalTransactions()
     }
 
     @FunctionName(FUNCTION_NAME)
