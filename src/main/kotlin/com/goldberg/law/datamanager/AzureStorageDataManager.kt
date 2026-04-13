@@ -177,7 +177,7 @@ class AzureStorageDataManager(private val serviceClient: BlobServiceClient) {
         val containerClient = getContainerClient(clientName, BlobContainer.STATEMENTS)
         val blobs = containerClient.listBlobs(
             ListBlobsOptions().apply { details = BlobListDetails().apply { retrieveMetadata = true } },
-            Duration.ofSeconds(10)
+            Duration.ofSeconds(20)
         )
         val result = mutableMapOf<String, StatementMetadata>()
         for (blob in blobs) {

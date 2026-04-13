@@ -15,10 +15,14 @@ class CheckToStatementMatcher {
         val finalStatements = allStatements.sortedBy { it.statementDate }.map { originalStatement ->
             val checks = mutableMapOf<Int, ClassifiedPdfMetadata>()
             val transactions = originalStatement.transactions.map { record ->
-                if (record.checkNumber == null) record
-                else {
+                if (record.checkDataModel?.pageMetadata != null) {
+                    record.withCheckInfo(allChecks.find { it.pageMetadata == record.checkDataModel.pageMetadata })
+                } else if (record.checkNumber == null) {
+                    record
+                } else {
+                    // TODO: make this check smarter. The first checking of the account number is kind of worthless
                     val checkModel = allChecksMap[CheckDataKey(originalStatement.accountNumber, record.checkNumber)]
-                        ?: allChecksMap.values.find { it.matches(record) }
+                        ?: allChecksMap.values.find { it.checkNumber == record.checkNumber }
                     if (checkModel?.checkNumber != null) {
                         checks[checkModel.checkNumber] = checkModel.pageMetadata
                         record.withCheckInfo(checkModel)

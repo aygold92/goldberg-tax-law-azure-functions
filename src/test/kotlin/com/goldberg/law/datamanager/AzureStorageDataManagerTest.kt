@@ -60,7 +60,7 @@ class AzureStorageDataManagerTest {
 
         val model = ModelValues.newCheckData(1000)
         whenever(blobClient.downloadContent()).thenReturn(BinaryData.fromString(model.toStringDetailed()))
-        val result = dataManager.loadModel(CLIENT_NAME, ClassifiedPdfMetadata(blobName, 1, DocumentType.CheckTypes.MISC_CHECK))
+        val result = dataManager.loadModel(CLIENT_NAME, ClassifiedPdfMetadata(blobName, 1, DocumentType.CheckTypes.CHECKS))
 
         assertThat(result).isEqualTo(model)
         verify(serviceClient).getBlobContainerClient(BlobContainer.MODELS.forClient(CLIENT_NAME))
@@ -73,9 +73,9 @@ class AzureStorageDataManagerTest {
         val dataManager = AzureStorageDataManager(serviceClient)
         val blobName = "Test"
 
-        val model = ExtraPageDataModel(ClassifiedPdfMetadata(blobName, 1, DocumentType.IrrelevantTypes.EXTRA_PAGES))
+        val model = ExtraPageDataModel(ClassifiedPdfMetadata(blobName, 1, DocumentType.ExtraPageTypes.TEXT))
         whenever(blobClient.downloadContent()).thenReturn(BinaryData.fromString(model.toStringDetailed()))
-        val result = dataManager.loadModel(CLIENT_NAME, ClassifiedPdfMetadata(blobName, 1, DocumentType.IrrelevantTypes.EXTRA_PAGES))
+        val result = dataManager.loadModel(CLIENT_NAME, ClassifiedPdfMetadata(blobName, 1, DocumentType.ExtraPageTypes.TEXT))
 
         assertThat(result).isEqualTo(model)
         verify(serviceClient).getBlobContainerClient(BlobContainer.MODELS.forClient(CLIENT_NAME))

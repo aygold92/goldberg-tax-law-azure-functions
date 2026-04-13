@@ -32,7 +32,7 @@ class DocumentClassifier @Inject constructor(
 
         val pageClassifications = poller.finalResult.documents
             .mapIndexed { idx, doc -> Triple(idx + 1, doc.documentType, DocumentType.getBankType(doc.documentType)) }
-            .filter { DocumentType.getBankType(it.second) != DocumentType.IRRELEVANT }
+            .filter { DocumentType.getBankType(it.second) != DocumentType.EXTRA_PAGES }
 
         var currentClassification: String? = null
         var currentPages = mutableSetOf<Int>()

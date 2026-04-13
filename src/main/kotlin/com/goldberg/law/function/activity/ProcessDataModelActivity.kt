@@ -92,7 +92,7 @@ class ProcessDataModelActivity @Inject constructor(
                 date = normalizeDate("6 2 2022"),
                 description = "test",
                 checkEntries = null,
-                pageMetadata = ClassifiedPdfMetadata(FILENAME, 1, CheckTypes.EAGLE_BANK_CHECK)
+                pageMetadata = ClassifiedPdfMetadata(FILENAME, 1, CheckTypes.CHECKS)
             ),
             StatementDataModel(
                 documentType = "Test",
@@ -112,10 +112,10 @@ class ProcessDataModelActivity @Inject constructor(
                 feesCharged = null,
                 pageMetadata = ClassifiedPdfMetadata(FILENAME, 2, BankTypes.WF_BANK)
             ),
-            ExtraPageDataModel(ClassifiedPdfMetadata(FILENAME, 3, DocumentType.IrrelevantTypes.EXTRA_PAGES)),
-            ExtraPageDataModel(ClassifiedPdfMetadata(FILENAME, 4, DocumentType.IrrelevantTypes.EXTRA_PAGES)),
-            ExtraPageDataModel(ClassifiedPdfMetadata(FILENAME, 5, DocumentType.IrrelevantTypes.EXTRA_PAGES)),
-            ExtraPageDataModel(ClassifiedPdfMetadata(FILENAME, 6, DocumentType.IrrelevantTypes.EXTRA_PAGES)),
+            ExtraPageDataModel(ClassifiedPdfMetadata(FILENAME, 3, DocumentType.ExtraPageTypes.TEXT)),
+            ExtraPageDataModel(ClassifiedPdfMetadata(FILENAME, 4, DocumentType.ExtraPageTypes.TEXT)),
+            ExtraPageDataModel(ClassifiedPdfMetadata(FILENAME, 5, DocumentType.ExtraPageTypes.TEXT)),
+            ExtraPageDataModel(ClassifiedPdfMetadata(FILENAME, 6, DocumentType.ExtraPageTypes.TEXT)),
         )
     }
 }

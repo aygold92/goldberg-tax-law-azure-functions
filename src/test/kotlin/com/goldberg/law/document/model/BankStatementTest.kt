@@ -363,7 +363,7 @@ class BankStatementTest {
             .isEqualTo(statementGson)
             .isEqualTo(statement)
 
-        assertThat(statementJackson.getSuspiciousReasons()).contains(BankStatement.SuspiciousReasons.NO_TRANSACTIONS_FOUND)
+        assertThat(statementJackson.isSuspicious()).isFalse
     }
 
     @Test
@@ -379,7 +379,7 @@ class BankStatementTest {
 
     @Test
     fun testSerializeAndDeserializeJacksonAndGsonWithChecks() {
-        val statement = newBankStatement().copy(checks = mutableMapOf(1000 to ClassifiedPdfMetadata("testCheck", 2, DocumentType.CheckTypes.MISC_CHECK)))
+        val statement = newBankStatement().copy(checks = mutableMapOf(1000 to ClassifiedPdfMetadata("testCheck", 2, DocumentType.CheckTypes.CHECKS)))
 
         val statementJackson = OBJECT_MAPPER.readValue(statement.toStringDetailed(), BankStatement::class.java)
 

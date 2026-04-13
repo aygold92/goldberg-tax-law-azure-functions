@@ -37,6 +37,6 @@ class ClassifyDocumentActivity(private val dataManager: AzureStorageDataManager,
     }
 
     companion object {
-        const val FUNCTION_NAME = "ClassifyDocument"
+        const val FUNCTION_NAME = "ClassifyDocumentActivity"
     }
 }

@@ -22,7 +22,7 @@ data class TransactionTableDepositWithdrawalRecord @JsonCreator constructor(
     override fun toTransactionHistoryRecord(statementDate: Date?, metadata: ClassifiedPdfMetadata): TransactionHistoryRecord = TransactionHistoryRecord(
         id = this.id,
         date = fromWrittenDateStatementDateOverride(this.date, statementDate),
-        checkNumber = this.checkNumber,
+        checkNumber = this.checkNumber ?: extractCheckNumber(this.description),
         description = this.description,
         // TODO: can we do better for the case it has both?
         amount = this.depositAmount ?: this.withdrawalAmount?.negate(),

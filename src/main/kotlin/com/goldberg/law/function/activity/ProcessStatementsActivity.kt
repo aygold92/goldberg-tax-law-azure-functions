@@ -59,7 +59,11 @@ class ProcessStatementsActivity @Inject constructor(
         inputFileToStatement.mapAsync { filename, azureFileNames ->
             val statements = (if (input.keepOriginalMetadata) input.metadataMap[filename]?.statements ?: setOf() else setOf())
                 .union(azureFileNames)
-            dataManager.updateInputPdfMetadata(input.clientName, filename, input.metadataMap[filename]!!.copy(statements = statements))
+            try {
+                dataManager.updateInputPdfMetadata(input.clientName, filename, input.metadataMap[filename]!!.copy(statements = statements))
+            } catch (e: Exception) {
+                logger.error { "Unable to update metadata for $filename with statements: $statements: $e" }
+            }
         }
 
         return ProcessStatementsActivityOutput(inputFileToStatement)

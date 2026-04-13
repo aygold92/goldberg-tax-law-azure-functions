@@ -243,7 +243,6 @@ data class BankStatement @JsonCreator constructor(
     object SuspiciousReasons {
         const val MISSING_FIELDS = "Missing fields: %s"
         const val BALANCE_DOES_NOT_ADD_UP = "Beginning balance (%s) + net transactions (%s) != ending balance (%s). Expected (%s)"
-        const val NO_TRANSACTIONS_FOUND = "No transactions recorded"
         const val CONTAINS_SUSPICIOUS_RECORDS = "Contains suspicious records"
         const val INCORRECT_DATES = "Found transactions with dates outside of this statement: %s"
     }
@@ -257,7 +256,6 @@ data class BankStatement @JsonCreator constructor(
                     else stmt.endingBalance - stmt.beginningBalance
                 SuspiciousReasons.BALANCE_DOES_NOT_ADD_UP.format(stmt.beginningBalance?.toCurrency(), stmt.getNetTransactions().toCurrency(), stmt.endingBalance?.toCurrency(), expected?.toCurrency())
            },
-            Pair(BankStatement::hasNoRecords) { _ -> SuspiciousReasons.NO_TRANSACTIONS_FOUND },
             Pair(BankStatement::hasSuspiciousRecords) { _ -> SuspiciousReasons.CONTAINS_SUSPICIOUS_RECORDS },
             Pair(BankStatement::hasRecordsWithIncorrectDates) { stmt -> SuspiciousReasons.INCORRECT_DATES.format(stmt.getTransactionDatesOutsideOfStatement()) }
         )

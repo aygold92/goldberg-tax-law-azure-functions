@@ -8,6 +8,7 @@ import com.nimbusds.jose.shaded.gson.TypeAdapter
 import com.nimbusds.jose.shaded.gson.stream.JsonToken
 import com.nimbusds.jose.shaded.gson.stream.JsonWriter
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -168,6 +169,28 @@ class KotlinExtensionsTest {
             listOf("AA", "BB", "CC", "DD", "EE", "FF", "GG", "HH")
         )
     }
+
+    @Nested
+    inner class Last4Digits {
+        @ParameterizedTest
+        @ValueSource(strings = ["1234", " .- 1234", "56781234", "56781234abcd", "asdln123-.;ajns]['/.4"])
+        fun testLast4Digits(original: String) {
+            assertThat(original.last4Digits()).isEqualTo("1234")
+        }
+
+        @Test
+        fun testLast4DigitsOnly3Digits() {
+            assertThat("abc123".last4Digits()).isEqualTo("123")
+            assertThat("abc3".last4Digits()).isEqualTo("3") // TODO: should this be the behavior?
+        }
+
+        @Test
+        fun testLast4DigitsNoNumbers() {
+            val original = "Prime Checking"
+            assertThat(original.last4Digits()).isEqualTo(original)
+        }
+    }
+
 
     companion object {
         val OBJECT_MAPPER = ObjectMapper()

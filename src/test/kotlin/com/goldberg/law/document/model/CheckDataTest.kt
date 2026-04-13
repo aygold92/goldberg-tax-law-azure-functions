@@ -10,6 +10,10 @@ import com.goldberg.law.document.model.input.tables.CheckEntriesTableRow
 import com.goldberg.law.util.asCurrency
 import com.goldberg.law.util.normalizeDate
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
+import org.junit.jupiter.params.provider.ValueSource
 import kotlin.test.Test
 
 class CheckDataTest {
@@ -138,5 +142,30 @@ class CheckDataTest {
         assertThat(compositeCheckData.extractNestedChecks()).isEqualTo(listOf(checkData1, checkData2))
     }
 
+    @Nested
+    inner class GetAccountNumberTest {
+        @ParameterizedTest
+        @ValueSource( strings = ["2024⑈ 1167", "2024⑈ 1167", "jSBjkda982  920241167", "2024 =+[[;[,/;'     1167"])
+        fun testAccountNumberWithCheckNumber(accountNumberRead: String) {
+            assertThat(CheckDataModel.getAccountNumber(accountNumberRead, 1167)).isEqualTo("2024")
+        }
+
+        @Test
+        fun testAccountNumberCheckNumberWithLeadingZeroes() {
+            assertThat(CheckDataModel.getAccountNumber("2024⑈ 0167", 167)).isEqualTo("2024")
+            assertThat(CheckDataModel.getAccountNumber("2024⑈ 0007", 7)).isEqualTo("2024")
+        }
+
+        @Test
+        fun testEndOfAccountNumberMatchesCheckNumberTrailingZeroes() {
+            assertThat(CheckDataModel.getAccountNumber("202498000007", 7)).isEqualTo("9800")
+        }
+
+        @Test
+        fun testEndOfAccountNumberMatchesCheckNumberNoTrailingZeroes() {
+            assertThat(CheckDataModel.getAccountNumber("2024⑈ 0207", 7)).isEqualTo("20240207")
+            assertThat(CheckDataModel.getAccountNumber("20240207", 7)).isEqualTo("20240207")
+        }
+    }
 
 }

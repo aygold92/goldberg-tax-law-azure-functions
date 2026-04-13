@@ -57,7 +57,7 @@ object ModelValues {
     const val CHECK_BATES_STAMP = "CH-12345"
     const val CHECK_FILENAME = "checkfile"
     const val CHECK_FILE_PAGE = 7
-    val BASIC_CHECK_PAGE_METADATA = ClassifiedPdfMetadata(CHECK_FILENAME, CHECK_FILE_PAGE, DocumentType.CheckTypes.EAGLE_BANK_CHECK)
+    val BASIC_CHECK_PAGE_METADATA = ClassifiedPdfMetadata(CHECK_FILENAME, CHECK_FILE_PAGE, DocumentType.CheckTypes.CHECKS)
 
     fun newBankStatement(
         filename: String = FILENAME,

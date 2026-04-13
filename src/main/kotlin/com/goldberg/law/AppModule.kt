@@ -250,4 +250,10 @@ class AppModule constructor(private val appEnvironmentSettings: AppEnvironmentSe
         processStatementsActivity: ProcessStatementsActivity
     ) = MatchStatementsWithChecksFunction(azureStorageDataManager, processStatementsActivity)
 
+    @Provides
+    @Singleton
+    fun classifyDocumentFunction(
+        classifyDocumentActivity: ClassifyDocumentActivity
+    ) = ClassifyDocumentFunction(classifyDocumentActivity)
+
 }

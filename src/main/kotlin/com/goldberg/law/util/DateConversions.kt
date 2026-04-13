@@ -12,7 +12,7 @@ import java.util.*
 private val logger = KotlinLogging.logger {}
 private val acceptedDateFormats = listOf(
     "MMMM d yyyy", // April 7 2020
-    "MMMM d yyyy", // April 07 2020
+    "MMMM dd yyyy", // April 07 2020
     "MMM d yyyy",  // Apr 7 2020
     "MMM dd yyyy", // Apr 07 2020
     "MM dd yyyy",  // 04 07 2020
@@ -20,6 +20,7 @@ private val acceptedDateFormats = listOf(
     "MM dd yy",    // 04 07 20
     "M d yy",      // 4 7 20
     "yyyyMMdd",    // 20200407
+    "MMddyy",      // 040720 -- for `TFCU Bank (Old)` Type
     "yyyy MMM d",  // 2020 Apr 7
     "yyyy MMM dd", // 2020 Apr 07
 )
@@ -53,7 +54,7 @@ fun fromWrittenDate(monthDayYear: String?): Date? {
         .replace("\\s+".toRegex(), " ").trim()
     acceptedDateFormats.forEach { format ->
         try {
-            return SimpleDateFormat(format).parse(dateString).adjustYear()
+            return SimpleDateFormat(format).apply { isLenient = false }.parse(dateString).adjustYear()
         } catch (e: ParseException) {
             // Continue to the next format
         }

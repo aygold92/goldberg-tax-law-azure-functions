@@ -2,6 +2,7 @@ package com.goldberg.law.document.model
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.goldberg.law.document.model.input.CheckDataModel
 import com.goldberg.law.document.model.input.tables.TransactionRecord
 import com.goldberg.law.document.model.output.TransactionHistoryRecord
 import com.goldberg.law.document.model.pdf.ClassifiedPdfMetadata
@@ -27,6 +28,7 @@ data class ManualRecord @JsonCreator constructor(
             description = this.description,
             checkNumber = this.checkNumber,
             amount = amount,
+            checkDataModel = if (checkPdfMetadata != null) CheckDataModel.blankModel(checkPdfMetadata) else null,
             filePageNumber = page  // TODO: should it be this?: metadata.pagesOrdered[page - 1]
         )
     }

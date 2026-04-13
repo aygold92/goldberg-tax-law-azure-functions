@@ -8,17 +8,12 @@ import com.azure.core.util.polling.PollResponse
 import com.azure.core.util.polling.SyncPoller
 import com.goldberg.law.document.model.ModelValues.newPdfDocumentMulti
 import com.goldberg.law.document.model.pdf.ClassifiedPdfDocument
+import com.goldberg.law.document.model.pdf.DocumentType
 import com.goldberg.law.document.model.pdf.DocumentType.BankTypes.B_OF_A
 import com.goldberg.law.document.model.pdf.DocumentType.BankTypes.WF_BANK
-import com.goldberg.law.document.model.pdf.DocumentType.CheckTypes.B_OF_A_CHECK
 import com.goldberg.law.document.model.pdf.DocumentType.CheckTypes.CHECKS
-import com.goldberg.law.document.model.pdf.DocumentType.CheckTypes.EAGLE_BANK_CHECK
-import com.goldberg.law.document.model.pdf.DocumentType.CheckTypes.MISC_CHECK
-import com.goldberg.law.document.model.pdf.DocumentType.CheckTypes.NFCU_CHECK
 import com.goldberg.law.document.model.pdf.DocumentType.CreditCardTypes.B_OF_A_CC
-import com.goldberg.law.document.model.pdf.DocumentType.IrrelevantTypes.EXTRA_PAGES
 import com.goldberg.law.document.model.pdf.DocumentType.TransactionTypes.TRANSACTIONS_TYPE
-import com.goldberg.law.util.GSON
 import com.goldberg.law.util.readJson
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
@@ -58,7 +53,7 @@ class DocumentClassifierTest {
         val document = newPdfDocumentMulti(pages = (1..2).toSet())
         whenever(analyzeResult.documents).thenReturn(newAnalyzedDocs(
             TRANSACTIONS_TYPE,
-            EXTRA_PAGES,
+            DocumentType.ExtraPageTypes.TEXT,
         ))
         val result = classifier.classifyDocument(document)
         assertThat(result).isEqualTo(listOf<ClassifiedPdfDocument>())
@@ -80,10 +75,10 @@ class DocumentClassifierTest {
     fun testClassifyBasicExtraPages() {
         val document = newPdfDocumentMulti(pages = (1..4).toSet())
         whenever(analyzeResult.documents).thenReturn(newAnalyzedDocs(
-            EXTRA_PAGES,
+            DocumentType.ExtraPageTypes.TEXT,
             TRANSACTIONS_TYPE,
             WF_BANK,
-            EXTRA_PAGES,
+            DocumentType.ExtraPageTypes.TEXT,
         ))
         val result = classifier.classifyDocument(document)
         assertThat(result).isEqualTo(listOf(
@@ -98,7 +93,7 @@ class DocumentClassifierTest {
             WF_BANK,
             TRANSACTIONS_TYPE,
             TRANSACTIONS_TYPE,
-            EXTRA_PAGES,
+            DocumentType.ExtraPageTypes.TEXT,
             B_OF_A_CC,
             TRANSACTIONS_TYPE,
             B_OF_A_CC,
@@ -117,19 +112,19 @@ class DocumentClassifierTest {
     fun testChecks() {
         val document = newPdfDocumentMulti(pages = (1..5).toSet())
         whenever(analyzeResult.documents).thenReturn(newAnalyzedDocs(
-            B_OF_A_CHECK,
             CHECKS,
-            MISC_CHECK,
-            NFCU_CHECK,
-            EAGLE_BANK_CHECK,
+            CHECKS,
+            DocumentType.CheckTypes.CHECKS_RAW,
+            DocumentType.CheckTypes.CHECKS_RAW,
+            CHECKS,
         ))
         val result = classifier.classifyDocument(document)
         assertThat(result).isEqualTo(listOf(
-            document.docForPages(setOf(1)).asClassifiedDocument(B_OF_A_CHECK),
+            document.docForPages(setOf(1)).asClassifiedDocument(CHECKS),
             document.docForPages(setOf(2)).asClassifiedDocument(CHECKS),
-            document.docForPages(setOf(3)).asClassifiedDocument(MISC_CHECK),
-            document.docForPages(setOf(4)).asClassifiedDocument(NFCU_CHECK),
-            document.docForPages(setOf(5)).asClassifiedDocument(EAGLE_BANK_CHECK),
+            document.docForPages(setOf(3)).asClassifiedDocument(DocumentType.CheckTypes.CHECKS_RAW),
+            document.docForPages(setOf(4)).asClassifiedDocument(DocumentType.CheckTypes.CHECKS_RAW),
+            document.docForPages(setOf(5)).asClassifiedDocument(CHECKS),
         ))
     }
 
@@ -138,15 +133,15 @@ class DocumentClassifierTest {
         val document = newPdfDocumentMulti(pages = (1..4).toSet())
         whenever(analyzeResult.documents).thenReturn(newAnalyzedDocs(
             B_OF_A,
-            B_OF_A_CHECK,
-            B_OF_A_CHECK,
+            DocumentType.CheckTypes.CHECKS_RAW,
+            DocumentType.CheckTypes.CHECKS_RAW,
             B_OF_A,
         ))
         val result = classifier.classifyDocument(document)
         assertThat(result).isEqualTo(listOf(
             document.docForPages(setOf(1)).asClassifiedDocument(B_OF_A),
-            document.docForPages(setOf(2)).asClassifiedDocument(B_OF_A_CHECK),
-            document.docForPages(setOf(3)).asClassifiedDocument(B_OF_A_CHECK),
+            document.docForPages(setOf(2)).asClassifiedDocument(DocumentType.CheckTypes.CHECKS_RAW),
+            document.docForPages(setOf(3)).asClassifiedDocument(DocumentType.CheckTypes.CHECKS_RAW),
             document.docForPages(setOf(4)).asClassifiedDocument(B_OF_A),
         ))
     }
@@ -156,21 +151,21 @@ class DocumentClassifierTest {
         val document = newPdfDocumentMulti(pages = (1..10).toSet())
         whenever(analyzeResult.documents).thenReturn(newAnalyzedDocs(
             B_OF_A,
-            EXTRA_PAGES,
+            DocumentType.ExtraPageTypes.TEXT,
             TRANSACTIONS_TYPE,
-            B_OF_A_CHECK,
+            DocumentType.CheckTypes.CHECKS_RAW,
             TRANSACTIONS_TYPE,
-            EXTRA_PAGES,
-            B_OF_A_CHECK,
+            DocumentType.ExtraPageTypes.TEXT,
+            DocumentType.CheckTypes.CHECKS_RAW,
             TRANSACTIONS_TYPE,
-            EXTRA_PAGES,
+            DocumentType.ExtraPageTypes.TEXT,
             B_OF_A,
         ))
         val result = classifier.classifyDocument(document)
         assertThat(result).isEqualTo(listOf(
             document.docForPages(setOf(1, 3)).asClassifiedDocument(B_OF_A),
-            document.docForPages(setOf(4)).asClassifiedDocument(B_OF_A_CHECK),
-            document.docForPages(setOf(7)).asClassifiedDocument(B_OF_A_CHECK),
+            document.docForPages(setOf(4)).asClassifiedDocument(DocumentType.CheckTypes.CHECKS_RAW),
+            document.docForPages(setOf(7)).asClassifiedDocument(DocumentType.CheckTypes.CHECKS_RAW),
             document.docForPages(setOf(10)).asClassifiedDocument(B_OF_A),
         ))
     }

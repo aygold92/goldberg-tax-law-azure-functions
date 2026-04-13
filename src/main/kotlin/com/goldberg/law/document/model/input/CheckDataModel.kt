@@ -65,7 +65,7 @@ data class CheckDataModel @JsonCreator constructor(
     }
     companion object {
         fun AnalyzedDocument.toCheckDataModel(classifiedPdfDocument: ClassifiedPdfDocument): CheckDataModel = this.fields.let { documentFields ->
-            val accountNumberRead = documentFields[Keys.ACCOUNT_NUMBER]?.valueString?.hackToNumber()
+            val accountNumberRead = documentFields[Keys.ACCOUNT_NUMBER]?.valueString
             val checkNumber = documentFields[Keys.CHECK_NUMBER]?.valueAsInt()
             val accountNumber = getAccountNumber(accountNumberRead, checkNumber)
 
@@ -84,15 +84,21 @@ data class CheckDataModel @JsonCreator constructor(
 
         // for some checks, we need to get the account number from the bottom of the check,
         // which can get smashed together with the checkNumber, like "8558⑈5563"
-        private fun getAccountNumber(accountNumberRead: String?, checkNumber: Int?): String? =
-            if (accountNumberRead != null && accountNumberRead.length >= 8 && accountNumberRead.endsWith(checkNumber.toString()))
-                // TODO: make sure this works
-                accountNumberRead.substring(accountNumberRead.length -8, accountNumberRead.length -4)
-            else accountNumberRead
+        // TODO: account for the case where the check number starts with 0s, like "8558⑈0563" (check number will be 563)
+        fun getAccountNumber(accountNumber: String?, checkNumber: Int?): String? = accountNumber?.hackToNumber()?.let { accountNumberRead ->
+            if (accountNumberRead.length < 8) return@let accountNumberRead
 
-        fun blankModel(classifiedPdfDocument: ClassifiedPdfDocument): CheckDataModel = CheckDataModel(
+            val last4 = accountNumberRead.substring(accountNumberRead.length - 4)
+            val last8to4 = accountNumberRead.substring(accountNumberRead.length -8, accountNumberRead.length -4)
+            if (last4.toInt() == checkNumber) last8to4
+            else accountNumberRead
+        }
+
+        fun blankModel(classifiedPdfDocument: ClassifiedPdfDocument): CheckDataModel = blankModel(classifiedPdfDocument.toDocumentMetadata())
+
+        fun blankModel(classifiedPdfMetadata: ClassifiedPdfMetadata): CheckDataModel = CheckDataModel(
             null, null, null, null, null, null, null, null,
-            classifiedPdfDocument.toDocumentMetadata()
+            classifiedPdfMetadata
         )
 
         /** NOTE: BE VERY CAREFUL AS THIS NEEDS TO LINE UP PERFECTLY WITH WHAT IS OUTPUT IN THE .toCsv() METHOD */

@@ -38,7 +38,7 @@ abstract class TransactionRecord(open val id: String = UUID.randomUUID().toStrin
     }
 
     companion object {
-        private val CHECK_REGEX = Regex("^Check (\\d+)$") // Matches "Check xxx" where xxx is a number
+        private val CHECK_REGEX = Regex("^Check\\s*#?\\s*(\\d+)$", RegexOption.IGNORE_CASE) // Matches "Check[optional whitespace][optional #][optional whitespace]xxx" where xxx is a number
     }
 }
 

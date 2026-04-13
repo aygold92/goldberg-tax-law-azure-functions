@@ -13,6 +13,8 @@ import com.goldberg.law.util.fromWrittenDate
 import com.goldberg.law.util.normalizeDate
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 
 class TransactionRecordTest {
     @Test
@@ -50,17 +52,14 @@ class TransactionRecordTest {
             .isEqualTo(newHistoryRecord(amount = 500.0, id = statementRecord.id))
     }
 
-    @Test
-    fun testCheckDescriptionBecomesCheckNumber() {
-        val checkDescription = "Check 4892"
-        val statementRecord = TransactionTableAmountRecord(FIXED_TRANSACTION_DATE, checkDescription, AMOUNT, 1)
-        assertThat(statementRecord.toTransactionHistoryRecord(STATEMENT_DATE_BEGINNING, newPdfMetadata(classification = DocumentType.CreditCardTypes.C1_CC)))
-            .isEqualTo(newHistoryRecord(checkNumber = 4892, description = checkDescription, id = statementRecord.id))
-    }
-
-    @Test
-    fun testCheckDescriptionBecomesCheckNumberLeadingZeros() {
-        val checkDescription = "Check 004892"
+    @ParameterizedTest
+    @ValueSource(strings = [
+        "Check 4892", "Check   4892", "Check   4892",
+        "Check #4892", "Check  # 4892", "Check#   4892", "Check#4892",
+        "Check 004892", "Check # 004892", // leading zeroes removed
+        "CHECK # 4892", "cHeCk4892"
+    ])
+    fun testCheckDescriptionBecomesCheckNumber(checkDescription: String) {
         val statementRecord = TransactionTableAmountRecord(FIXED_TRANSACTION_DATE, checkDescription, AMOUNT, 1)
         assertThat(statementRecord.toTransactionHistoryRecord(STATEMENT_DATE_BEGINNING, newPdfMetadata(classification = DocumentType.CreditCardTypes.C1_CC)))
             .isEqualTo(newHistoryRecord(checkNumber = 4892, description = checkDescription, id = statementRecord.id))

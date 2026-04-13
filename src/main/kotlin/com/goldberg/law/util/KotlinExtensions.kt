@@ -61,10 +61,10 @@ fun String.withExtension(ext: String) = removeSuffix(ext) + ext
 // without extension
 fun String.getDocumentName() = this.substringAfterLast("/").substringBeforeLast(".")
 
-fun String.last4Digits() = this.filter { str ->
+fun String.last4Digits(): String = (this.filter { str ->
     str.isDigit() }.let {
     if (it.length > 4) it.substring(it.length - 4) else it
-}
+}).takeIf { it.isNotEmpty() } ?: this
 
 fun String.bdSafe() = try {
     BigDecimal(this)

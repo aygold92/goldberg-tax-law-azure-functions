@@ -6,7 +6,6 @@ import com.goldberg.law.document.model.ModelValues.FIXED_STATEMENT_DATE
 import com.goldberg.law.document.model.ModelValues.FIXED_TRANSACTION_DATE
 import com.goldberg.law.document.model.ModelValues.newPdfMetadata
 import com.goldberg.law.document.model.StatementModelValues
-import com.goldberg.law.document.model.input.StatementDataModel.Companion.NFCU_BANK_BEGINNING_BALANCE_TRANSACTION_DESCRIPTION
 import com.goldberg.law.document.model.input.tables.TransactionTableAmount
 import com.goldberg.law.document.model.input.tables.TransactionTableAmountRecord
 import com.goldberg.law.document.model.output.TransactionHistoryRecord
@@ -19,10 +18,10 @@ class StatementDataModelTest {
     @Test
     fun testNFCUBank() {
         val records = listOf(
-            TransactionTableAmountRecord(FIXED_TRANSACTION_DATE, NFCU_BANK_BEGINNING_BALANCE_TRANSACTION_DESCRIPTION, null, 1),
+            TransactionTableAmountRecord(FIXED_TRANSACTION_DATE, "Beginning Balance", null, 1),
             TransactionTableAmountRecord(FIXED_TRANSACTION_DATE, "test", 50.asCurrency(), 1),
             TransactionTableAmountRecord(FIXED_TRANSACTION_DATE, "test", 50.asCurrency(), 1),
-            TransactionTableAmountRecord(FIXED_TRANSACTION_DATE, NFCU_BANK_BEGINNING_BALANCE_TRANSACTION_DESCRIPTION, null, 1),
+            TransactionTableAmountRecord(FIXED_TRANSACTION_DATE, "Beginning Balance", null, 1),
             TransactionTableAmountRecord(FIXED_TRANSACTION_DATE, "test2", 50.asCurrency(), 1),
             TransactionTableAmountRecord(FIXED_TRANSACTION_DATE, "test2", 50.asCurrency(), 1),
         )

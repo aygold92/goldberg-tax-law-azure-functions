@@ -136,11 +136,11 @@ class DocumentDataModelContainerTest {
             )
             )),
             batesStamp = BATES_STAMP,
-            pageMetadata = ClassifiedPdfMetadata(FILENAME, 1, DocumentType.CheckTypes.B_OF_A_CHECK)
+            pageMetadata = ClassifiedPdfMetadata(FILENAME, 1, DocumentType.CheckTypes.CHECKS)
         )
 
         val EXTRA_PAGE_DATA_MODEL = ExtraPageDataModel(
-            pageMetadata = ClassifiedPdfMetadata(FILENAME, 1, DocumentType.IrrelevantTypes.EXTRA_PAGES)
+            pageMetadata = ClassifiedPdfMetadata(FILENAME, 1, DocumentType.ExtraPageTypes.TEXT)
         )
     }
 }

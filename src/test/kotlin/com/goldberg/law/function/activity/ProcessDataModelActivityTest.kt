@@ -29,9 +29,9 @@ class ProcessDataModelActivityTest {
     @Ignore
     fun testFakeCheckModel() {
         val output = ProcessDataModelActivity(dataExtractor, dataManager).processDataModel(
-            ProcessDataModelActivityInput("1234", CLIENT_NAME, ClassifiedPdfMetadata("newpage.pdf", 1, DocumentType.CheckTypes.EAGLE_BANK_CHECK)), context)
+            ProcessDataModelActivityInput("1234", CLIENT_NAME, ClassifiedPdfMetadata("newpage.pdf", 1, DocumentType.CheckTypes.CHECKS)), context)
         assertThat(output.isCheckModel()).isTrue()
-        assertThat(output.getDocumentDataModel().pageMetadata).isEqualTo(ClassifiedPdfMetadata("newpage.pdf", 1, DocumentType.CheckTypes.EAGLE_BANK_CHECK))
+        assertThat(output.getDocumentDataModel().pageMetadata).isEqualTo(ClassifiedPdfMetadata("newpage.pdf", 1, DocumentType.CheckTypes.CHECKS))
         assertThat(dataManager.saveModel(CLIENT_NAME, output.checkDataModel!!))
     }
 
@@ -49,9 +49,9 @@ class ProcessDataModelActivityTest {
     @Ignore
     fun testFakeExtraPageModel() {
         val output = ProcessDataModelActivity(dataExtractor, dataManager).processDataModel(
-            ProcessDataModelActivityInput("1234", CLIENT_NAME, ClassifiedPdfMetadata("newpage.pdf", 6, DocumentType.IrrelevantTypes.EXTRA_PAGES)), context)
+            ProcessDataModelActivityInput("1234", CLIENT_NAME, ClassifiedPdfMetadata("newpage.pdf", 6, DocumentType.ExtraPageTypes.TEXT)), context)
         assertThat(output.isExtraPageDataModel()).isTrue()
-        assertThat(output.getDocumentDataModel().pageMetadata).isEqualTo(ClassifiedPdfMetadata("newpage.pdf", 6, DocumentType.IrrelevantTypes.EXTRA_PAGES))
+        assertThat(output.getDocumentDataModel().pageMetadata).isEqualTo(ClassifiedPdfMetadata("newpage.pdf", 6, DocumentType.ExtraPageTypes.TEXT))
         assertThat(dataManager.saveModel(CLIENT_NAME, output.extraPageDataModel!!))
     }
 }
