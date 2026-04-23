@@ -1,6 +1,7 @@
 package com.goldberg.law.function.api
 
 import com.goldberg.law.database.service.StatementService
+import com.goldberg.law.function.api.model.ApiResult
 import com.goldberg.law.function.api.model.DeleteStatementRequest
 import com.goldberg.law.util.OBJECT_MAPPER
 import com.google.inject.Inject
@@ -30,12 +31,12 @@ class DeleteStatementFunction @Inject constructor(
         logger.info { "Deleted statement file ${req.statementId}" }
 
         request!!.createResponseBuilder(HttpStatus.OK)
-            .body(mapOf("message" to "Statement deleted successfully"))
+            .body(ApiResult(ApiResult.ApiStatus.Success))
             .build()
     } catch (ex: Exception) {
         logger.error(ex) { "Error deleting statement for $request" }
         request!!.createResponseBuilder(HttpStatus.BAD_REQUEST)
-            .body(mapOf("error" to ex.message))
+            .body(ApiResult.failed(ex))
             .build()
     }
 

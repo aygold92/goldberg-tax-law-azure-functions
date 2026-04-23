@@ -2,8 +2,6 @@ package com.goldberg.law.function.api
 
 import com.goldberg.law.database.service.ClassificationService
 import com.goldberg.law.function.api.model.ApiResult
-import com.goldberg.law.function.api.model.GetDocumentClassificationRequest
-import com.goldberg.law.util.OBJECT_MAPPER
 import com.google.inject.Inject
 import com.microsoft.azure.functions.*
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
@@ -19,21 +17,21 @@ class GetDocumentClassificationFunction @Inject constructor(
 
     @FunctionName(FUNCTION_NAME)
     fun run(
-        @HttpTrigger(name = "req", methods = [HttpMethod.POST], authLevel = AuthorizationLevel.ANONYMOUS)
+        @HttpTrigger(name = "req", methods = [HttpMethod.GET], authLevel = AuthorizationLevel.ANONYMOUS)
         request: HttpRequestMessage<Optional<String?>?>?,
         ctx: ExecutionContext
     ): HttpResponseMessage = try {
-        logger.info { "[${ctx.invocationId}] processing ${request?.body?.orElseThrow()}" }
-        val req = OBJECT_MAPPER.readValue(request?.body?.orElseThrow(), GetDocumentClassificationRequest::class.java)
-        val classifications = classificationService.loadClassifications(req.fileId)
+        val fileId = UUID.fromString(request!!.queryParameters["fileId"]
+            ?: throw IllegalArgumentException("Missing required query parameter: fileId"))
+        logger.info { "[${ctx.invocationId}] loading classifications for fileId=$fileId" }
 
-        request!!.createResponseBuilder(HttpStatus.OK)
+        val classifications = classificationService.loadClassifications(fileId)
+
+        request.createResponseBuilder(HttpStatus.OK)
             .body(classifications)
             .build()
     } catch (ex: Exception) {
-        // TODO: different error codes
-        logger.error(ex) { "Error loading model $request" }
-
+        logger.error(ex) { "Error loading classifications for $request" }
         request!!.createResponseBuilder(HttpStatus.BAD_REQUEST)
             .body(ApiResult.failed(ex))
             .build()

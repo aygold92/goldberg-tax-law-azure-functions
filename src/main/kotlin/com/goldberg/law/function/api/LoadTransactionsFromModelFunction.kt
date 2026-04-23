@@ -3,7 +3,7 @@ package com.goldberg.law.function.api
 import com.goldberg.law.database.service.ClassificationService
 import com.goldberg.law.datamanager.AzureStorageDataManager
 import com.goldberg.law.document.model.input.StatementDataModel
-import com.goldberg.law.function.api.model.AnalyzeDocumentResult
+import com.goldberg.law.function.api.model.ApiResult
 import com.goldberg.law.function.api.model.LoadTransactionsFromModelRequest
 import com.goldberg.law.util.OBJECT_MAPPER
 import com.google.inject.Inject
@@ -43,7 +43,7 @@ class LoadTransactionsFromModelFunction @Inject constructor(
         logger.error(ex) { "Error loading model $request" }
 
         request!!.createResponseBuilder(HttpStatus.BAD_REQUEST)
-            .body(AnalyzeDocumentResult.failed(ex))
+            .body(ApiResult.failed(ex))
             .build()
     }
 

@@ -3,9 +3,9 @@ package com.goldberg.law.function.api
 import com.azure.storage.blob.BlobServiceClient
 import com.azure.storage.blob.sas.BlobContainerSasPermission
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues
-import com.goldberg.law.function.api.model.AnalyzeDocumentResult
-import com.goldberg.law.function.api.model.SASTokenRequest
-import com.goldberg.law.function.api.model.SASTokenResponse
+import com.goldberg.law.function.api.model.ApiResult
+import com.goldberg.law.function.api.model.FetchSASTokenRequest
+import com.goldberg.law.function.api.model.FetchSASTokenResponse
 import com.goldberg.law.util.OBJECT_MAPPER
 import com.goldberg.law.util.toStringDetailed
 import com.microsoft.azure.functions.*
@@ -29,7 +29,7 @@ class FetchSASTokenFunction @Inject constructor(
         ctx: ExecutionContext
     ): HttpResponseMessage = try {
         logger.info { "[${ctx.invocationId}] processing ${request.queryParameters.toStringDetailed()}" }
-        val req = OBJECT_MAPPER.convertValue(request.queryParameters, SASTokenRequest::class.java)
+        val req = OBJECT_MAPPER.convertValue(request.queryParameters, FetchSASTokenRequest::class.java)
 
         val permission = BlobContainerSasPermission()
 //            .setListPermission(true)
@@ -38,18 +38,18 @@ class FetchSASTokenFunction @Inject constructor(
 //            .setTagsPermission(true)
 //            .setDeletePermission(true)
 
-        val token = blobServiceClient.getBlobContainerClient(req.clientId)
+        val token = blobServiceClient.getBlobContainerClient(req.clientId.toString())
             .generateSas(BlobServiceSasSignatureValues(OffsetDateTime.now().plusMinutes(15), permission))
 
         request.createResponseBuilder(HttpStatus.OK)
-            .body(SASTokenResponse(token))
+            .body(FetchSASTokenResponse(token))
             .build()
     } catch (ex: Exception) {
         // TODO: different error codes
         // TODO: don't log sensitive information
         logger.error(ex) { "Error fetch SAS token for input $request" }
         request.createResponseBuilder(HttpStatus.BAD_REQUEST)
-            .body(AnalyzeDocumentResult.failed(ex))
+            .body(ApiResult.failed(ex))
             .build()
     }
     companion object {

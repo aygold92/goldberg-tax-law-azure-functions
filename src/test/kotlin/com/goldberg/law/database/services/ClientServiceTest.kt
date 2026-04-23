@@ -34,7 +34,7 @@ class ClientServiceTest : DatabaseTest() {
 
         @Test
         fun `insert, load, list, then delete`() {
-            val beginning = Instant.now().epochSecond
+            Thread.sleep(5) // for timing
             // Insert
             val clientId = clientService.insertClient(EntityValues.DEFAULT_CLIENT_NAME, UUID.randomUUID())
 

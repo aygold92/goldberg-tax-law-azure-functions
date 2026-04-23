@@ -1,9 +1,7 @@
 package com.goldberg.law.function.api
 
 import com.goldberg.law.database.service.FileService
-import com.goldberg.law.entity.InputFileSummary
-import com.goldberg.law.function.api.model.ListInputDocumentsRequest
-import com.goldberg.law.util.OBJECT_MAPPER
+import com.goldberg.law.function.api.model.ApiResult
 import com.google.inject.Inject
 import com.microsoft.azure.functions.*
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
@@ -19,27 +17,27 @@ class ListInputDocumentsFunction @Inject constructor(
 
     @FunctionName(FUNCTION_NAME)
     fun run(
-        @HttpTrigger(name = "req", methods = [HttpMethod.POST], authLevel = AuthorizationLevel.ANONYMOUS)
+        @HttpTrigger(name = "req", methods = [HttpMethod.GET], authLevel = AuthorizationLevel.ANONYMOUS)
         request: HttpRequestMessage<Optional<String?>?>?,
         ctx: ExecutionContext
     ): HttpResponseMessage = try {
-        logger.info { "[${ctx.invocationId}] processing ${request?.body?.orElseThrow()}" }
-        val req = OBJECT_MAPPER.readValue(request?.body?.orElseThrow(), ListInputDocumentsRequest::class.java)
+        val clientId = UUID.fromString(request!!.queryParameters["clientId"]
+            ?: throw IllegalArgumentException("Missing required query parameter: clientId"))
+        logger.info { "[${ctx.invocationId}] listing input documents for clientId=$clientId" }
 
-        // List all input documents for the client
-        val inputDocuments: List<InputFileSummary> = fileService.listFileSummaries(req.clientId)
+        val inputDocuments = fileService.listFileSummaries(clientId)
 
-        request!!.createResponseBuilder(HttpStatus.OK)
+        request.createResponseBuilder(HttpStatus.OK)
             .body(inputDocuments)
             .build()
     } catch (ex: Exception) {
         logger.error(ex) { "Error listing input documents for $request" }
         request!!.createResponseBuilder(HttpStatus.BAD_REQUEST)
-            .body(mapOf("error" to ex.message))
+            .body(ApiResult.failed(ex))
             .build()
     }
 
     companion object {
         const val FUNCTION_NAME = "ListInputDocuments"
     }
-} 
+}

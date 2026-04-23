@@ -1,8 +1,7 @@
 package com.goldberg.law.function.api
 
 import com.goldberg.law.database.service.StatementService
-import com.goldberg.law.function.api.model.LoadBankStatementRequest
-import com.goldberg.law.util.OBJECT_MAPPER
+import com.goldberg.law.function.api.model.ApiResult
 import com.google.inject.Inject
 import com.microsoft.azure.functions.*
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
@@ -18,26 +17,27 @@ class LoadBankStatementFunction @Inject constructor(
 
     @FunctionName(FUNCTION_NAME)
     fun run(
-        @HttpTrigger(name = "req", methods = [HttpMethod.POST], authLevel = AuthorizationLevel.ANONYMOUS)
+        @HttpTrigger(name = "req", methods = [HttpMethod.GET], authLevel = AuthorizationLevel.ANONYMOUS)
         request: HttpRequestMessage<Optional<String?>?>?,
         ctx: ExecutionContext
     ): HttpResponseMessage = try {
-        logger.info { "[${ctx.invocationId}] processing ${request?.body?.orElseThrow()}" }
-        val req = OBJECT_MAPPER.readValue(request?.body?.orElseThrow(), LoadBankStatementRequest::class.java)
+        val statementId = UUID.fromString(request!!.queryParameters["statementId"]
+            ?: throw IllegalArgumentException("Missing required query parameter: statementId"))
+        logger.info { "[${ctx.invocationId}] loading bank statement statementId=$statementId" }
 
-        val statement = statementService.loadBankStatement(req.statementId)
+        val statement = statementService.loadBankStatement(statementId)
 
-        request!!.createResponseBuilder(HttpStatus.OK)
+        request.createResponseBuilder(HttpStatus.OK)
             .body(statement)
             .build()
     } catch (ex: Exception) {
         logger.error(ex) { "Error loading bank statement for $request" }
         request!!.createResponseBuilder(HttpStatus.BAD_REQUEST)
-            .body(mapOf("error" to ex.message))
+            .body(ApiResult.failed(ex))
             .build()
     }
 
     companion object {
         const val FUNCTION_NAME = "LoadBankStatement"
     }
-} 
+}

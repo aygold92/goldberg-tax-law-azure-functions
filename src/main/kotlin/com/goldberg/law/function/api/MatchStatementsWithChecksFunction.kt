@@ -1,7 +1,7 @@
 package com.goldberg.law.function.api
 
 import com.goldberg.law.database.service.TransactionService
-import com.goldberg.law.function.api.model.AnalyzeDocumentResult
+import com.goldberg.law.function.api.model.ApiResult
 import com.goldberg.law.function.api.model.MatchStatementsWithChecksRequest
 import com.goldberg.law.function.api.model.TransactionCheckMatch
 import com.goldberg.law.util.OBJECT_MAPPER
@@ -48,7 +48,7 @@ class MatchStatementsWithChecksFunction @Inject constructor(
         logger.error(ex) { "Error matching statements with checks $request" }
 
         request!!.createResponseBuilder(HttpStatus.BAD_REQUEST)
-            .body(AnalyzeDocumentResult.failed(ex))
+            .body(ApiResult.failed(ex))
             .build()
     }
 

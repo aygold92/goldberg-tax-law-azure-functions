@@ -8,7 +8,6 @@ import com.goldberg.law.datamanager.StorageLocation
 import com.goldberg.law.document.exception.InvalidPdfException
 import com.goldberg.law.entity.InputFile
 import com.goldberg.law.entity.InputFileInfo
-import com.goldberg.law.function.api.model.AnalyzeDocumentResult
 import com.goldberg.law.function.api.model.ApiResult
 import com.goldberg.law.function.api.model.PutDocumentDataModelRequest
 import com.goldberg.law.function.api.model.PutDocumentDataModelResponse

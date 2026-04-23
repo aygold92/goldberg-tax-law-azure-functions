@@ -2,7 +2,7 @@ package com.goldberg.law.function.api
 
 import com.goldberg.law.database.DbExec.txnSafe
 import com.goldberg.law.database.service.ClassificationService
-import com.goldberg.law.function.api.model.AnalyzeDocumentResult
+import com.goldberg.law.function.api.model.ApiResult
 import com.goldberg.law.function.api.model.PutDocumentClassificationRequest
 import com.goldberg.law.function.api.model.PutDocumentClassificationResponse
 import com.goldberg.law.util.OBJECT_MAPPER
@@ -43,7 +43,7 @@ class PutDocumentClassificationFunction @Inject constructor(
         logger.error(ex) { "Error overwriting model $request" }
 
         request!!.createResponseBuilder(HttpStatus.BAD_REQUEST)
-            .body(AnalyzeDocumentResult.failed(ex))
+            .body(ApiResult.failed(ex))
             .build()
     }
 

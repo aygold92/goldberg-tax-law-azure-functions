@@ -2,9 +2,7 @@ package com.goldberg.law.function.api
 
 import com.goldberg.law.database.service.ClassificationService
 import com.goldberg.law.datamanager.AzureStorageDataManager
-import com.goldberg.law.function.api.model.AnalyzeDocumentResult
-import com.goldberg.law.function.api.model.GetDocumentDataModelRequest
-import com.goldberg.law.util.OBJECT_MAPPER
+import com.goldberg.law.function.api.model.ApiResult
 import com.google.inject.Inject
 import com.microsoft.azure.functions.*
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
@@ -21,24 +19,24 @@ class GetDocumentDataModelFunction @Inject constructor(
 
     @FunctionName(FUNCTION_NAME)
     fun run(
-        @HttpTrigger(name = "req", methods = [HttpMethod.POST], authLevel = AuthorizationLevel.ANONYMOUS)
+        @HttpTrigger(name = "req", methods = [HttpMethod.GET], authLevel = AuthorizationLevel.ANONYMOUS)
         request: HttpRequestMessage<Optional<String?>?>?,
         ctx: ExecutionContext
     ): HttpResponseMessage = try {
-        logger.info { "[${ctx.invocationId}] processing ${request?.body?.orElseThrow()}" }
-        val req = OBJECT_MAPPER.readValue(request?.body?.orElseThrow(), GetDocumentDataModelRequest::class.java)
-        val classification = classificationService.loadClassification(req.classificationId)
+        val classificationId = UUID.fromString(request!!.queryParameters["classificationId"]
+            ?: throw IllegalArgumentException("Missing required query parameter: classificationId"))
+        logger.info { "[${ctx.invocationId}] loading data model for classificationId=$classificationId" }
+
+        val classification = classificationService.loadClassification(classificationId)
         val model = dataManager.loadModel(classification)
 
-        request!!.createResponseBuilder(HttpStatus.OK)
+        request.createResponseBuilder(HttpStatus.OK)
             .body(model)
             .build()
     } catch (ex: Exception) {
-        // TODO: different error codes
-        logger.error(ex) { "Error loading model $request" }
-
+        logger.error(ex) { "Error loading model for $request" }
         request!!.createResponseBuilder(HttpStatus.BAD_REQUEST)
-            .body(AnalyzeDocumentResult.failed(ex))
+            .body(ApiResult.failed(ex))
             .build()
     }
 

@@ -1,7 +1,7 @@
 package com.goldberg.law.function.api
 
 import com.goldberg.law.database.service.ClientService
-import com.goldberg.law.function.api.model.AnalyzeDocumentResult
+import com.goldberg.law.function.api.model.ApiResult
 import com.goldberg.law.function.api.model.ListClientsResponse
 import com.google.inject.Inject
 import com.microsoft.azure.functions.*
@@ -32,7 +32,7 @@ class ListClientsFunction @Inject constructor(private val clientService: ClientS
         // TODO: different error codes
         logger.error(ex) { "Error listing clients" }
         request.createResponseBuilder(HttpStatus.BAD_REQUEST)
-            .body(AnalyzeDocumentResult.failed(ex))
+            .body(ApiResult.failed(ex))
             .build()
     }
 

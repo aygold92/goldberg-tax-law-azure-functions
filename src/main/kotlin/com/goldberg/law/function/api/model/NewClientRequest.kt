@@ -8,5 +8,5 @@ import javax.inject.Inject
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class NewClientRequest @Inject constructor(
     @JsonProperty("clientName") val clientName: String,
-    @JsonProperty("clientToken") val clientToken: UUID,
+    @JsonProperty("requestToken") val requestToken: UUID,
 )

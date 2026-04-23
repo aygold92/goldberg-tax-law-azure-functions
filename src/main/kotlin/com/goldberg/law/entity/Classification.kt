@@ -2,6 +2,7 @@ package com.goldberg.law.entity
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.type.TypeReference
 import com.goldberg.law.database.tables.ClassificationsTable
 import com.goldberg.law.datamanager.StorageLocation
@@ -27,7 +28,7 @@ data class Classification(
 data class ClassificationInfo(
     override val classificationId: UUID,
     override val pages: Set<Int>,
-    override val classificationType: String,
+    @get:JsonProperty("classification") override val classificationType: String,
     val modelLocation: StorageLocation? = null,
     val createdAt: Long,
     val updatedAt: Long,

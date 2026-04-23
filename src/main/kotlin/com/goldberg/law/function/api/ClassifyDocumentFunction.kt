@@ -4,7 +4,7 @@ import com.goldberg.law.database.service.FileService
 import com.goldberg.law.function.activity.ClassifyDocumentActivity
 import com.goldberg.law.function.activity.model.ClassifyDocumentActivityInput
 import com.goldberg.law.function.activity.model.ClassifyDocumentActivityOutput
-import com.goldberg.law.function.api.model.AnalyzeDocumentResult
+import com.goldberg.law.function.api.model.ApiResult
 import com.goldberg.law.function.api.model.ClassifyDocumentRequest
 import com.goldberg.law.util.OBJECT_MAPPER
 import com.microsoft.azure.functions.*
@@ -41,7 +41,7 @@ class ClassifyDocumentFunction(
         logger.error(ex) { "Error classifying document $request" }
 
         request!!.createResponseBuilder(HttpStatus.BAD_REQUEST)
-            .body(AnalyzeDocumentResult.failed(ex))
+            .body(ApiResult.failed(ex))
             .build()
     }
 

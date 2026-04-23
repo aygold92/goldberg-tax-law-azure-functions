@@ -2,7 +2,7 @@ package com.goldberg.law.function.api
 
 import com.goldberg.law.database.service.ClassificationService
 import com.goldberg.law.datamanager.AzureStorageDataManager
-import com.goldberg.law.function.api.model.AnalyzeDocumentResult
+import com.goldberg.law.function.api.model.ApiResult
 import com.goldberg.law.function.api.model.PutDocumentDataModelRequest
 import com.goldberg.law.function.api.model.PutDocumentDataModelResponse
 import com.goldberg.law.util.OBJECT_MAPPER
@@ -43,7 +43,7 @@ class PutDocumentDataModelFunction @Inject constructor(
         logger.error(ex) { "Error overwriting model $request" }
 
         request!!.createResponseBuilder(HttpStatus.BAD_REQUEST)
-            .body(AnalyzeDocumentResult.failed(ex))
+            .body(ApiResult.failed(ex))
             .build()
     }
 

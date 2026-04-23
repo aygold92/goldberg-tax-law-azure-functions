@@ -4,7 +4,7 @@ import com.goldberg.law.AppModule
 import com.goldberg.law.database.service.ClassificationService
 import com.goldberg.law.function.activity.ProcessDataModelActivity
 import com.goldberg.law.function.activity.model.ProcessDataModelActivityInput
-import com.goldberg.law.function.api.model.AnalyzeDocumentResult
+import com.goldberg.law.function.api.model.ApiResult
 import com.goldberg.law.function.api.model.AnalyzePagesRequest
 import com.goldberg.law.util.OBJECT_MAPPER
 import com.goldberg.law.util.mapAsync
@@ -47,7 +47,7 @@ class AnalyzePageFunction @Inject constructor(
         logger.error(ex) { "Error analyzing for input $request" }
 
         request!!.createResponseBuilder(HttpStatus.BAD_REQUEST)
-            .body(AnalyzeDocumentResult.failed(ex))
+            .body(ApiResult.failed(ex))
             .build()
     }
 

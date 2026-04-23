@@ -2,8 +2,9 @@ package com.goldberg.law.function.api
 
 import com.goldberg.law.database.service.ClientService
 import com.goldberg.law.datamanager.AzureStorageDataManager
-import com.goldberg.law.function.api.model.AnalyzeDocumentResult
+import com.goldberg.law.function.api.model.ApiResult
 import com.goldberg.law.function.api.model.NewClientRequest
+import com.goldberg.law.function.api.model.NewClientResponse
 import com.goldberg.law.util.OBJECT_MAPPER
 import com.google.inject.Inject
 import com.microsoft.azure.functions.*
@@ -40,7 +41,7 @@ class NewClientFunction @Inject constructor(
         }
 
         // Insert client into MySQL first (with idempotency check)
-        val clientId = clientService.insertClient(req.clientName, req.clientToken)
+        val clientId = clientService.insertClient(req.clientName, req.requestToken)
         logger.info { "Client created/retrieved with ID: $clientId" }
 
         // create container for storing files
@@ -48,14 +49,14 @@ class NewClientFunction @Inject constructor(
         logger.info { "created container $req.clientName" }
 
         request!!.createResponseBuilder(HttpStatus.OK)
-            .body(req)
+            .body(NewClientResponse(clientId, req.clientName))
             .build()
     } catch (ex: Exception) {
         // TODO: different error codes
         logger.error(ex) { "Error creating new client for input $request" }
 
         request!!.createResponseBuilder(HttpStatus.BAD_REQUEST)
-            .body(AnalyzeDocumentResult.failed(ex))
+            .body(ApiResult.failed(ex))
             .build()
     }
 

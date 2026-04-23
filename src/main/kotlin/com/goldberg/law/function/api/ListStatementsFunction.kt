@@ -1,9 +1,7 @@
 package com.goldberg.law.function.api
 
 import com.goldberg.law.database.service.StatementService
-import com.goldberg.law.entity.StatementSummary
-import com.goldberg.law.function.api.model.ListStatementsRequest
-import com.goldberg.law.util.OBJECT_MAPPER
+import com.goldberg.law.function.api.model.ApiResult
 import com.google.inject.Inject
 import com.microsoft.azure.functions.*
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
@@ -19,27 +17,27 @@ class ListStatementsFunction @Inject constructor(
 
     @FunctionName(FUNCTION_NAME)
     fun run(
-        @HttpTrigger(name = "req", methods = [HttpMethod.POST], authLevel = AuthorizationLevel.ANONYMOUS)
+        @HttpTrigger(name = "req", methods = [HttpMethod.GET], authLevel = AuthorizationLevel.ANONYMOUS)
         request: HttpRequestMessage<Optional<String?>?>?,
         ctx: ExecutionContext
     ): HttpResponseMessage = try {
-        logger.info { "[${ctx.invocationId}] processing ${request?.body?.orElseThrow()}" }
-        val req = OBJECT_MAPPER.readValue(request?.body?.orElseThrow(), ListStatementsRequest::class.java)
+        val clientId = UUID.fromString(request!!.queryParameters["clientId"]
+            ?: throw IllegalArgumentException("Missing required query parameter: clientId"))
+        logger.info { "[${ctx.invocationId}] listing statements for clientId=$clientId" }
 
-        // Fetch all statement metadata for the client
-        val statementsMap: List<StatementSummary> = statementService.listBankStatements(req.clientId)
+        val statements = statementService.listBankStatements(clientId)
 
-        request!!.createResponseBuilder(HttpStatus.OK)
-            .body(statementsMap)
+        request.createResponseBuilder(HttpStatus.OK)
+            .body(statements)
             .build()
     } catch (ex: Exception) {
         logger.error(ex) { "Error listing statements for $request" }
         request!!.createResponseBuilder(HttpStatus.BAD_REQUEST)
-            .body(mapOf("error" to ex.message))
+            .body(ApiResult.failed(ex))
             .build()
     }
 
     companion object {
         const val FUNCTION_NAME = "ListStatements"
     }
-} 
+}

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import java.util.*
 
 data class MatchStatementsWithChecksRequest @JsonCreator constructor(
-    @JsonProperty("clientName") val clientName: String,
     @JsonProperty("clientId") val clientId: UUID,
     @JsonProperty("transactionCheckMatches") val transactionCheckMatches: List<TransactionCheckMatch>,
 )
