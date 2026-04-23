@@ -3,18 +3,15 @@ package com.goldberg.law.function.api
 import com.goldberg.law.database.service.ClientService
 import com.goldberg.law.database.service.FileService
 import com.goldberg.law.datamanager.AzureStorageDataManager
-import com.goldberg.law.datamanager.Extension
-import com.goldberg.law.datamanager.StorageLocation
 import com.goldberg.law.document.exception.InvalidPdfException
 import com.goldberg.law.entity.InputFile
 import com.goldberg.law.entity.InputFileInfo
 import com.goldberg.law.function.api.model.ApiResult
-import com.goldberg.law.function.api.model.PutDocumentDataModelRequest
-import com.goldberg.law.function.api.model.PutDocumentDataModelResponse
 import com.goldberg.law.function.api.model.PutFileInfoRequest
 import com.goldberg.law.function.api.model.PutFileInfoResponse
 import com.goldberg.law.function.model.EventSchema
 import com.goldberg.law.util.OBJECT_MAPPER
+import com.goldberg.law.util.withoutExtension
 import java.security.MessageDigest
 import com.google.inject.Inject
 import com.microsoft.azure.functions.ExecutionContext
@@ -86,19 +83,21 @@ class PutFileInfoFunction @Inject constructor(
 
             // Parse blob URL to extract container name and blob path
             val uri = URI(blobUrl)
-            val pathParts = uri.path.removePrefix("/").split("/", limit = 2)
-            if (pathParts.size < 2) {
+            val pathParts = uri.path.removePrefix("/").split("/", limit = 3)
+            if (pathParts.size != 3) {
                 throw IllegalArgumentException("Invalid blob URL format: $blobUrl")
             }
 
             val containerName = pathParts[0] // This is the clientId (UUID)
-            val blobPath = pathParts[1] // e.g., "input/filename.pdf"
+            val folder = pathParts[1] // e.g., "uploads"
+            val filename = pathParts[2] // e.g. filename.pdf
 
-            // Extract filename from blob path (remove "input/" prefix)
-            val filename = if (blobPath.startsWith("input/")) {
-                blobPath.removePrefix("input/")
-            } else {
-                throw IllegalArgumentException("Blob must be in 'input/' folder, but found: $blobPath")
+            if (folder != AzureStorageDataManager.UPLOAD_FOLDER) {
+                throw IllegalArgumentException("Blob $blobUrl must be in '${AzureStorageDataManager.UPLOAD_FOLDER}/' folder, but found: $folder")
+            }
+
+            if (!filename.endsWith(".pdf")) {
+                throw IllegalArgumentException("Filename for blob $blobUrl must be a PDF file.  Found: $filename")
             }
 
             // Parse container name as UUID (clientId)
@@ -108,16 +107,9 @@ class PutFileInfoFunction @Inject constructor(
                 throw IllegalArgumentException("Container name must be a valid UUID (clientId): $containerName", ex)
             }
 
-            val storageLocation = StorageLocation(
-                containerName = containerName,
-                filePath = blobPath.removeSuffix(".pdf"),
-                extension = Extension.PDF
-            )
-
             putFileInfo(ctx, PutFileInfoRequest(
                 filename = filename,
                 clientId = clientId,
-                storageLocation = storageLocation,
                 requestToken = eventId
             ))
         } catch (ex: Exception) {
@@ -128,39 +120,52 @@ class PutFileInfoFunction @Inject constructor(
 
     private fun putFileInfo(ctx: ExecutionContext, req: PutFileInfoRequest): PutFileInfoResponse {
         val client = clientService.loadClient(req.clientId)
+        val filename = req.filename.withoutExtension()
         logger.info { "[${ctx.invocationId}] Found client: ${client.clientName} (ID: ${client.clientId})" }
 
-        // Load blob bytes from Azure Storage
-        val blobBytes = azureStorageDataManager.loadBlobBytes(req.storageLocation)
+        val blobBytes = azureStorageDataManager.loadUploadedPdfBytes(req.clientId, filename)
 
-        // Validate PDF
         val pdfDocument = try {
             Loader.loadPDF(blobBytes)
         } catch (ex: Exception) {
-            throw InvalidPdfException("Unable to load PDF from blob ${req.storageLocation}: $ex")
+            throw InvalidPdfException("Unable to load PDF for file ${req.clientId}/$filename: $ex")
         }
 
         val contentHash = UUID.nameUUIDFromBytes(MessageDigest.getInstance("SHA-256").digest(blobBytes))
-        logger.info { "[${ctx.invocationId}] Generated content hash: $contentHash for file: ${req.filename}" }
 
         val inputFile = InputFile(
             client = client,
             info = InputFileInfo(
-                fileId = UUID.randomUUID(),
-                fileName = req.filename,
+                fileId = UUID.randomUUID(), // placeholder — DB generates the real ID
+                fileName = filename,
                 contentHash = contentHash,
-                storageLocation = req.storageLocation,
                 uploadedAt = Instant.now().toEpochMilli(),
                 numPages = pdfDocument.numberOfPages
             )
         )
-
+        // Insert into DB first so the DB generates the fileId
         val fileId = fileService.insertFile(
             inputFile = inputFile,
             requestToken = req.requestToken
         )
 
-        logger.info { "[${ctx.invocationId}] Successfully inserted file: $req.filename for client: ${client.clientName} with ID: $fileId" }
+        // Copy blob to input folder using the DB-generated fileId; rollback DB on failure
+        try {
+            azureStorageDataManager.saveInputPdf(inputFile.withFileId(fileId), blobBytes)
+        } catch (ex: Exception) {
+            logger.error(ex) { "[${ctx.invocationId}] Blob save failed, rolling back DB insert for fileId=$fileId" }
+            fileService.deleteInputFile(fileId)
+            throw ex
+        }
+
+        // Delete the upload blob — non-critical, log and continue on failure
+        try {
+            azureStorageDataManager.deleteUploadBlob(req.clientId, filename)
+        } catch (ex: Exception) {
+            logger.warn(ex) { "[${ctx.invocationId}] Failed to delete upload blob ${filename}, continuing" }
+        }
+
+        logger.info { "[${ctx.invocationId}] Successfully processed file: ${req.filename} for client: ${client.clientName} with ID: $fileId" }
         return PutFileInfoResponse(fileId)
     }
 

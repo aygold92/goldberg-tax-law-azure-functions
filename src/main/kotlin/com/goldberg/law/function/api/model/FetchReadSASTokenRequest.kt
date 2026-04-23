@@ -6,6 +6,6 @@ import java.util.UUID
 import javax.inject.Inject
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class FetchSASTokenRequest @Inject constructor(
-    @JsonProperty("clientId") val clientId: UUID,
+data class FetchReadSASTokenRequest @Inject constructor(
+    @JsonProperty("fileId") val fileId: UUID,
 )

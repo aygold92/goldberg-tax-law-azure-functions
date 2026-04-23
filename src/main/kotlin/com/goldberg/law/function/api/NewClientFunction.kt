@@ -45,8 +45,14 @@ class NewClientFunction @Inject constructor(
         logger.info { "Client created/retrieved with ID: $clientId" }
 
         // create container for storing files
-        azureStorageDataManager.createClientContainerIfNotExists(clientId)
-        logger.info { "created container $req.clientName" }
+        try {
+            azureStorageDataManager.createClientContainerIfNotExists(clientId)
+            logger.info { "created container $req.clientName" }
+        } catch (ex: Exception) {
+            logger.error(ex) { "[${ctx.invocationId}] Client container creation failed, rolling back DB insert for clientId=$clientId" }
+            clientService.deleteClient(clientId)
+            throw ex
+        }
 
         request!!.createResponseBuilder(HttpStatus.OK)
             .body(NewClientResponse(clientId, req.clientName))

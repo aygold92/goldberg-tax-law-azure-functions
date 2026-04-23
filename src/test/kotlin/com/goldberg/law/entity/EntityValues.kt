@@ -77,14 +77,12 @@ object EntityValues {
         fileId: UUID = FILE_ID,
         fileName: String = DEFAULT_FILENAME,
         contentHash: UUID = DEFAULT_FILE_CONTENT_HASH,
-        storageLocation: StorageLocation = DEFAULT_STORAGE_LOCATION,
         uploadedAt: Long = DEFAULT_UPLOADED_AT,
         numPages: Int = DEFAULT_NUM_PAGES,
     ) = InputFileInfo(
         fileId = fileId,
         fileName = fileName,
         contentHash = contentHash,
-        storageLocation = storageLocation,
         uploadedAt = uploadedAt,
         numPages = numPages,
     )

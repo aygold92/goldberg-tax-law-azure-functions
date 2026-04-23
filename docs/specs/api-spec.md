@@ -28,11 +28,14 @@ All endpoints use `AuthorizationLevel.ANONYMOUS` — no authentication headers r
 ### `StorageLocation`
 ```json
 {
-  "containerName": "string",
-  "filePath": "string",
-  "extension": "PDF | CSV | JSON"
+  "containerName": "uuid-string",
+  "filePath": "uploads/statement",
+  "extension": "pdf | json"
 }
 ```
+- `containerName` — the client's blob container (their UUID)
+- `filePath` — path within the container, without extension (e.g. `uploads/statement`, `input/file-uuid`)
+- `extension` — always lowercase (`pdf` or `json`); the full blob path is `{filePath}.{extension}`
 
 ### `Client`
 ```json
@@ -233,7 +236,6 @@ Register a new input file. The file must already be uploaded to Azure Blob Stora
 ```json
 {
   "filename": "statement.pdf",
-  "storageLocation": { ...StorageLocation },
   "clientId": "uuid",
   "requestToken": "uuid"
 }
@@ -527,16 +529,55 @@ Link transactions to checks. If `transactionCheckMatches` is empty, the server a
 
 ---
 
-#### `GET /api/RequestSASToken?clientId={uuid}`
+#### `POST /api/FetchWriteSASTokens`
 
-Generate a short-lived SAS token for direct blob storage uploads. Token is valid for 15 minutes and grants write access to the client's container.
+Generate short-lived write SAS tokens for direct blob storage uploads. Each token is valid for 15 minutes, scoped to `uploads/{filename}` only. All filenames must end with `.pdf`. Files already present in the database are excluded from `tokens` and returned in `alreadyExist` instead.
 
-**Query params:** `clientId` (UUID)
+Once the upload completes, call `PutFileInfo` to register the file — it will copy the blob from `uploads/` to `input/` and delete the staging blob.
+
+**Request:**
+```json
+{
+  "clientId": "uuid",
+  "filenames": ["statement.pdf", "checks.pdf"]
+}
+```
 
 **Response 200:**
 ```json
-{ "token": "string" }
+{
+  "tokens": {
+    "statement": {
+      "token": "sas-token-string",
+      "storageLocation": { ...StorageLocation }
+    }
+  },
+  "alreadyExist": ["checks"]
+}
 ```
+> Note: token keys and `alreadyExist` entries use the filename **without** the `.pdf` extension. `storageLocation` is the blob path to upload to (`uploads/{filename}.pdf` in the client's container).
+
+---
+
+#### `POST /api/FetchReadSASToken`
+
+Generate a short-lived read SAS token for a file already in the database. Token is valid for 15 minutes, scoped to the file's blob path. Returns 400 if the file is not found.
+
+**Request:**
+```json
+{
+  "fileId": "uuid"
+}
+```
+
+**Response 200:**
+```json
+{
+  "token": "sas-token-string",
+  "storageLocation": { ...StorageLocation }
+}
+```
+> `storageLocation` is the blob path to read from (`input/{fileId}.pdf` in the client's container).
 
 ---
 

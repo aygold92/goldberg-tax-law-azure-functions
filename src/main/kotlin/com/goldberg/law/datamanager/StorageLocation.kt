@@ -1,6 +1,8 @@
 package com.goldberg.law.datamanager
 
+import com.fasterxml.jackson.annotation.JsonValue
 import com.goldberg.law.util.OBJECT_MAPPER
+import com.goldberg.law.util.toStringDetailed
 
 data class StorageLocation(
     val containerName: String,
@@ -8,7 +10,7 @@ data class StorageLocation(
     val extension: Extension
 ) {
     fun filePathWithExt() = "$filePath.$extension"
-    fun serialize(): String = OBJECT_MAPPER.writeValueAsString(this)
+    fun serialize(): String = this.toStringDetailed()
     override fun toString() = "$containerName/$filePath.$extension"
 
     companion object {
@@ -24,5 +26,6 @@ enum class Extension(val extension: String) {
     PDF("pdf"),
     JSON("json");
 
+    @JsonValue
     override fun toString() = extension
 }

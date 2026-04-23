@@ -21,7 +21,6 @@ class FileService @Inject constructor(private val db: Database) {
             val newFileId = FilesTable.insert {
                 it[FilesTable.clientId] = EntityID(inputFile.clientId, ClientsTable)
                 it[FilesTable.fileName] = inputFile.info.fileName
-                it[FilesTable.storageLocation] = inputFile.info.storageLocation.serialize()
                 it[FilesTable.contentHash] = inputFile.info.contentHash
                 it[FilesTable.numPages] = inputFile.info.numPages
                 it[FilesTable.clientToken] = requestToken
@@ -90,6 +89,13 @@ class FileService @Inject constructor(private val db: Database) {
         }
 
         Triple(inputFiles, classificationSet, classifiedItemSet)
+    }
+
+    fun fileNamesExist(clientId: UUID, fileNames: List<String>): Set<String> = db.txnSafe {
+        FilesTable.select(FilesTable.fileName)
+            .where { (FilesTable.clientId eq clientId) and (FilesTable.fileName inList fileNames) }
+            .map { it[FilesTable.fileName] }
+            .toSet()
     }
 
     fun loadFileSummary(fileId: UUID): InputFileSummary = db.txnSafe {
