@@ -285,7 +285,6 @@ Delete a file and all associated data (classifications, statements, transactions
 **Request:**
 ```json
 {
-  "clientId": "uuid",
   "fileId": "uuid"
 }
 ```
@@ -293,7 +292,6 @@ Delete a file and all associated data (classifications, statements, transactions
 **Response 200:**
 ```json
 {
-  "clientId": "uuid",
   "fileId": "uuid"
 }
 ```
