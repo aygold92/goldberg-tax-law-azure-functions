@@ -15,8 +15,8 @@ object DatabaseConfig {
         val config = HikariConfig().apply {
             // Database connection
             jdbcUrl = buildJdbcUrl()
-            username = System.getenv("DB_USER") ?: throw IllegalStateException("DB_USER environment variable not set")
-            password = System.getenv("DB_PASSWORD") ?: throw IllegalStateException("DB_PASSWORD environment variable not set")
+            username = System.getenv("MySql.user") ?: throw IllegalStateException("DB_USER environment variable not set")
+            password = System.getenv("MySql.password") ?: throw IllegalStateException("DB_PASSWORD environment variable not set")
             driverClassName = "com.mysql.cj.jdbc.Driver"
             
             // Pool size for Azure Functions
@@ -49,9 +49,9 @@ object DatabaseConfig {
     }
 
     private fun buildJdbcUrl(): String {
-        val host = System.getenv("DB_HOST") ?: throw IllegalStateException("DB_HOST environment variable not set")
-        val port = System.getenv("DB_PORT") ?: "3306"
-        val databaseName = System.getenv("DB_NAME") ?: throw IllegalStateException("DB_NAME environment variable not set")
+        val host = System.getenv("MySql.endpoint") ?: throw IllegalStateException("DB_HOST environment variable not set")
+        val port = System.getenv("Mysql.port") ?: "3306"
+        val databaseName = System.getenv("MySql.dbname") ?: throw IllegalStateException("DB_NAME environment variable not set")
 
         return "jdbc:mysql://$host:$port/$databaseName?useSSL=true&requireSSL=true&serverTimezone=UTC"
     }

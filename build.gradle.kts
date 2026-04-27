@@ -24,6 +24,13 @@ val suspend = if (project.findProperty("debug")?.toString()?.toBoolean() == true
 
 val isProd = project.findProperty("prod")?.toString()?.toBoolean() == true
 
+val env = project.findProperty("env") as String?
+
+fun localSettingsFile(): File = when {
+    env != null -> project.file("${env}.local.settings.json")
+    else -> project.file("local.settings.json")
+}
+
 // TODO: this should be passed in on the command line
 azurefunctions {
     subscription = "39fd9868-2043-43d5-80a5-4e2e7145ba11"
@@ -119,10 +126,10 @@ java {
     }
 }
 
-// Function to read local.settings.json using Jackson and set environment variables
+// Function to read local settings using Jackson and set environment variables
 fun setEnvironmentVariablesFromJson(): Map<String, String> {
-    val filePath = project.file("local.settings.json")
-    if (!filePath.exists()) { throw IllegalStateException("local.settings.json not found!") }
+    val filePath = localSettingsFile()
+    if (!filePath.exists()) { throw IllegalStateException("${filePath.name} not found!") }
 
     val mapper = ObjectMapper().apply { enable(JsonParser.Feature.ALLOW_COMMENTS); }
     return mapper.readTree(filePath).get("Values").let { valuesNode ->
@@ -168,4 +175,15 @@ tasks.register<JavaExec>("splitPdf") {
 tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
+}
+
+tasks.named("azureFunctionsRun") {
+    doFirst {
+        if (env != null) {
+            val src = localSettingsFile()
+            if (!src.exists()) throw IllegalStateException("${src.name} not found!")
+            src.copyTo(project.file("local.settings.json"), overwrite = true)
+            println("Loaded settings from: ${src.name}")
+        }
+    }
 }
