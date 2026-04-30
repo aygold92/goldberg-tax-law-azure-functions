@@ -42,7 +42,7 @@ class DocumentClassifierTest {
     private val analyzeResult: AnalyzeResult = mock()
 
     private val modelId = "Test"
-    private val classifier = DocumentClassifier(client, modelId)
+    private val classifier = AzureDocumentClassifier(client, modelId)
 
     @BeforeEach
     fun setup() {
