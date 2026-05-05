@@ -18,7 +18,7 @@ import com.microsoft.azure.functions.ExecutionContext
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.durabletask.azurefunctions.DurableActivityTrigger
 import io.github.oshai.kotlinlogging.KotlinLogging
-import javax.inject.Inject
+import com.google.inject.Inject
 
 class ProcessDataModelActivity @Inject constructor(
     private val dataExtractor: DocumentDataExtractor,

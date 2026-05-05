@@ -8,7 +8,7 @@ import org.apache.pdfbox.Loader
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
-import javax.inject.Inject
+import com.google.inject.Inject
 
 /**
  * Local command line utility for splitting a PDF document into separate single page documents

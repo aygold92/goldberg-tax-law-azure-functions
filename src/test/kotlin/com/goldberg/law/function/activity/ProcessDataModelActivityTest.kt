@@ -68,6 +68,7 @@ class ProcessDataModelActivityTest {
 
     @AfterEach
     fun verify() {
+        verify(context, atLeastOnce()).invocationId
         verifyNoMoreInteractions(dataManager, dataExtractor, classificationService, statementService, checkService, documentStatementCreator, context)
     }
 

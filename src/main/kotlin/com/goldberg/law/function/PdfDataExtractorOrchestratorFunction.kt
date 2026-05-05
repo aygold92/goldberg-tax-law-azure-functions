@@ -19,7 +19,7 @@ import com.microsoft.durabletask.TaskOrchestrationContext
 import com.microsoft.durabletask.azurefunctions.DurableOrchestrationTrigger
 import com.microsoft.durabletask.interruption.OrchestratorBlockedException
 import io.github.oshai.kotlinlogging.KotlinLogging
-import javax.inject.Inject
+import com.google.inject.Inject
 
 class PdfDataExtractorOrchestratorFunction @Inject constructor(
     private val concurrentExecutionOrchestrator: ConcurrentExecutionOrchestrator,
@@ -62,7 +62,7 @@ class PdfDataExtractorOrchestratorFunction @Inject constructor(
 
         val processDataModelActivityOutputs = concurrentExecutionOrchestrator.execProcessDataModels(
             ctx,
-            newDocumentClassifications.values.flatten(),
+            newDocumentClassifications.values.flatten() + classificationsToAnalyze,
             orchestrationStatus
         )
         val documentsByFile = processDataModelActivityOutputs.groupBy({ it.fileId }, { it.extractedDocumentIds })

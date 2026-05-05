@@ -7,6 +7,7 @@ import com.goldberg.law.function.activity.model.ClassifyDocumentActivityOutput
 import com.goldberg.law.function.api.model.ApiResult
 import com.goldberg.law.function.api.model.ClassifyDocumentRequest
 import com.goldberg.law.util.OBJECT_MAPPER
+import com.google.inject.Inject
 import com.microsoft.azure.functions.*
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
@@ -14,7 +15,7 @@ import com.microsoft.azure.functions.annotation.HttpTrigger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.util.*
 
-class ClassifyDocumentFunction(
+class ClassifyDocumentFunction @Inject constructor(
     private val fileService: FileService,
     private val classifyDocumentActivity: ClassifyDocumentActivity
 ) {

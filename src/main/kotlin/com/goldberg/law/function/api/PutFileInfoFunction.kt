@@ -37,7 +37,7 @@ class PutFileInfoFunction @Inject constructor(
     private val logger = KotlinLogging.logger {}
 
     @FunctionName(FUNCTION_NAME)
-    fun run(
+    fun runPutFileInfoHttp(
         @HttpTrigger(name = "req", methods = [HttpMethod.POST], authLevel = AuthorizationLevel.ANONYMOUS)
         request: HttpRequestMessage<Optional<String?>?>?,
         ctx: ExecutionContext
@@ -59,7 +59,7 @@ class PutFileInfoFunction @Inject constructor(
     }
 
     @FunctionName(FUNCTION_NAME_EVENT_GRID)
-    fun run(
+    fun runEventGrid(
         @EventGridTrigger(name = "eventGridEvent") event: EventSchema,
         ctx: ExecutionContext
     ) {

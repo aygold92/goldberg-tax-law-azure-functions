@@ -1,11 +1,16 @@
 package com.goldberg.law.entity
 
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.goldberg.law.document.model.pdf.DocumentType
 import com.goldberg.law.entity.EntityValues.newClassification
 import com.goldberg.law.entity.EntityValues.newClassifiedFilePages
 import com.goldberg.law.entity.EntityValues.newStatement
+import com.goldberg.law.function.activity.model.ProcessDataModelActivityInput
 import com.goldberg.law.util.GSON
 import com.goldberg.law.util.OBJECT_MAPPER
+import com.google.gson.GsonBuilder
 import com.nimbusds.jose.shaded.gson.Gson
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.AssertionsForClassTypes
@@ -56,6 +61,52 @@ class EntitySerializationTest {
         assertThat(DocumentType.BANK)
             .isEqualTo(statementGSON.documentType)
             .isEqualTo(statementJackson.documentType)
+    }
+
+    @Test
+    fun testClassificationRoundTripWithKotlinModule() {
+        val mapper = ObjectMapper().apply {
+            disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            registerModule(KotlinModule.Builder().build())
+        }
+        val input = ProcessDataModelActivityInput(requestId = "test-request", classification = newClassification())
+        val json = mapper.writeValueAsString(input)
+        val deserialized = mapper.readValue(json, ProcessDataModelActivityInput::class.java)
+        assertThat(deserialized.classification.clientId).isEqualTo(input.classification.clientId)
+        assertThat(deserialized.classification.fileId).isEqualTo(input.classification.fileId)
+        assertThat(deserialized.classification.classificationId).isEqualTo(input.classification.classificationId)
+    }
+
+    @Test
+    fun testClassificationRoundTripWithoutKotlinModule() {
+        // Simulates the Azure Durable Functions SDK's Jackson mapper, which uses a plain
+        // ObjectMapper without KotlinModule. @JsonCreator + @JsonProperty must be present
+        // on Classification and InputFile so the constructor is called and $$delegate_* fields
+        // are initialized.
+        val sdkMapper = ObjectMapper().apply {
+            disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+        }
+        val input = ProcessDataModelActivityInput(requestId = "test-request", classification = newClassification())
+        val json = sdkMapper.writeValueAsString(input)
+        val deserialized = sdkMapper.readValue(json, ProcessDataModelActivityInput::class.java)
+        assertThat(deserialized.classification.clientId).isEqualTo(input.classification.clientId)
+        assertThat(deserialized.classification.fileId).isEqualTo(input.classification.fileId)
+        assertThat(deserialized.classification.classificationId).isEqualTo(input.classification.classificationId)
+    }
+
+    @Test
+    fun testClassificationRoundTripWithGson() {
+        // Simulates the Azure Durable Functions SDK's GSON deserializer, which uses a plain
+        // GsonBuilder without any custom type adapters. The @JsonAdapter annotation on
+        // Classification and InputFile must cause the constructor to be called so that
+        // $$delegate_* fields are initialized and delegated properties don't NPE.
+        val sdkGson = GsonBuilder().create()
+        val input = ProcessDataModelActivityInput(requestId = "test-request", classification = newClassification())
+        val json = sdkGson.toJson(input)
+        val deserialized = sdkGson.fromJson(json, ProcessDataModelActivityInput::class.java)
+        assertThat(deserialized.classification.clientId).isEqualTo(input.classification.clientId)
+        assertThat(deserialized.classification.fileId).isEqualTo(input.classification.fileId)
+        assertThat(deserialized.classification.classificationId).isEqualTo(input.classification.classificationId)
     }
 
     companion object {

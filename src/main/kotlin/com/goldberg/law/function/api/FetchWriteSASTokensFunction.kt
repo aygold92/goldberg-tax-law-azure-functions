@@ -1,8 +1,5 @@
 package com.goldberg.law.function.api
 
-import com.azure.storage.blob.BlobServiceClient
-import com.azure.storage.blob.sas.BlobSasPermission
-import com.azure.storage.blob.sas.BlobServiceSasSignatureValues
 import com.goldberg.law.database.service.FileService
 import com.goldberg.law.datamanager.AzureStorageDataManager
 import com.goldberg.law.function.api.model.ApiResult
@@ -10,14 +7,13 @@ import com.goldberg.law.function.api.model.FetchWriteSASTokensRequest
 import com.goldberg.law.function.api.model.FetchWriteSASTokensResponse
 import com.goldberg.law.util.OBJECT_MAPPER
 import com.goldberg.law.util.withoutExtension
+import com.google.inject.Inject
 import com.microsoft.azure.functions.*
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
 import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import io.github.oshai.kotlinlogging.KotlinLogging
-import java.time.OffsetDateTime
 import java.util.*
-import javax.inject.Inject
 
 class FetchWriteSASTokensFunction @Inject constructor(
     private val azureStorageDataManager: AzureStorageDataManager,

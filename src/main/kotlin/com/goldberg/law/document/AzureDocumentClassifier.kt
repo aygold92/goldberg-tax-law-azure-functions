@@ -12,8 +12,8 @@ import com.goldberg.law.util.isAzureThrottlingError
 import com.goldberg.law.util.retryWithBackoff
 import com.goldberg.law.util.toStringDetailed
 import io.github.oshai.kotlinlogging.KotlinLogging
-import javax.inject.Inject
-import javax.inject.Named
+import com.google.inject.Inject
+import com.google.inject.name.Named
 
 class AzureDocumentClassifier @Inject constructor(
     private val client: DocumentIntelligenceClient,

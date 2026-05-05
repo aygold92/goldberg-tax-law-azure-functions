@@ -25,7 +25,7 @@ class GetDocumentClassificationFunction @Inject constructor(
             ?: throw IllegalArgumentException("Missing required query parameter: fileId"))
         logger.info { "[${ctx.invocationId}] loading classifications for fileId=$fileId" }
 
-        val classifications = classificationService.loadClassifications(fileId)
+        val classifications = classificationService.loadClassifications(fileId).map { it.info }
 
         request.createResponseBuilder(HttpStatus.OK)
             .body(classifications)

@@ -3,6 +3,7 @@ package com.goldberg.law.datamanager
 import com.azure.core.util.BinaryData
 import com.azure.storage.blob.BlobServiceClient
 import com.azure.storage.blob.models.*
+import com.azure.storage.blob.options.BlobParallelUploadOptions
 import com.azure.storage.blob.sas.BlobSasPermission
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues
 import com.goldberg.law.document.exception.FileNotFoundException
@@ -28,18 +29,20 @@ class AzureStorageDataManager @Inject constructor(private val serviceClient: Blo
     /**
      * Functions to save files
      */
-    private fun saveFile(storageLocation: StorageLocation, content: BinaryData, overwrite: Boolean): StorageLocation {
+    private fun saveFile(storageLocation: StorageLocation, content: BinaryData, overwrite: Boolean, contentType: String? = null): StorageLocation {
         try {
+            val options = BlobParallelUploadOptions(content).apply {
+                if (contentType != null) headers = BlobHttpHeaders().setContentType(contentType)
+                if (!overwrite) requestConditions = BlobRequestConditions().setIfNoneMatch("*")
+            }
             serviceClient.getBlobContainerClient(storageLocation.containerName)
                 .getBlobClient(storageLocation.filePathWithExt())
-                .upload(content, overwrite)
+                .uploadWithResponse(options, null, null)
             return storageLocation
         } catch (ex: Throwable) {
             logger.error { ex }
             throw ex
         }
-        // Optionally, set the content type to indicate it's a CSV file
-        // blobClient.setHttpHeaders(BlobHttpHeaders().setContentType("text/csv"))
     }
 
     private fun saveFile(storageLocation: StorageLocation, content: String, overwrite: Boolean): StorageLocation {
@@ -48,10 +51,10 @@ class AzureStorageDataManager @Inject constructor(private val serviceClient: Blo
     }
 
     fun saveInputPdf(inputFile: InputFile, bytes: ByteArray) =
-        saveFile(inputFile.storageLocation(), BinaryData.fromBytes(bytes), overwrite = false)
+        saveFile(inputFile.storageLocation(), BinaryData.fromBytes(bytes), overwrite = false, contentType = "application/pdf")
 
     fun saveSplitPdf(document: ClassifiedPdfDocument) =
-        saveFile(document.classification.storageLocation(), document.toBinaryData(), true)
+        saveFile(document.classification.storageLocation(), document.toBinaryData(), true, contentType = "application/pdf")
 
     fun saveModel(classification: Classification, dataModel: DocumentDataModel) =
         saveFile(classification.modelLocation(), dataModel.toStringDetailed(), true)
@@ -148,16 +151,19 @@ class AzureStorageDataManager @Inject constructor(private val serviceClient: Blo
 
     fun generateReadSasToken(inputFile: InputFile): SASTokenResult {
         val location = inputFile.storageLocation()
-        return SASTokenResult(token = generateSasToken(location, BlobSasPermission().setReadPermission(true)), storageLocation = location)
+        return SASTokenResult(token = generateSasToken(location, BlobSasPermission().setReadPermission(true), contentDisposition = "inline", contentType = "application/pdf"), storageLocation = location)
     }
 
-    private fun generateSasToken(location: StorageLocation, permission: BlobSasPermission): String =
+    private fun generateSasToken(location: StorageLocation, permission: BlobSasPermission, contentDisposition: String? = null, contentType: String? = null): String =
         serviceClient.getBlobContainerClient(location.containerName)
             .getBlobClient(location.filePathWithExt())
             .generateSas(BlobServiceSasSignatureValues(
                 OffsetDateTime.now().plusMinutes(15),
                 permission
-            ))
+            ).apply {
+                if (contentDisposition != null) setContentDisposition(contentDisposition)
+                if (contentType != null) setContentType(contentType)
+            })
 
 
     fun InputFile.storageLocation() = StorageLocation(clientId.toString(), "$INPUT_FILE_FOLDER/$fileId", Extension.PDF)

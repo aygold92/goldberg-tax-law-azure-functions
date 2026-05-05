@@ -16,10 +16,10 @@ import com.goldberg.law.document.ProxyDocumentClassifier
 import com.goldberg.law.document.ProxyDocumentDataExtractor
 import com.google.inject.AbstractModule
 import com.google.inject.Provides
+import com.google.inject.Singleton
 import com.google.inject.name.Named
 import org.jetbrains.exposed.sql.Database
 import java.time.Duration
-import javax.inject.Singleton
 
 class AppModule: AbstractModule() {
     override fun configure() {

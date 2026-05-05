@@ -122,7 +122,7 @@ class StatementServiceTest : DatabaseTest() {
                 EntityValues.newStatement(classification = classification, transactions = emptyList())
             )
 
-            Thread.sleep(5)
+            Thread.sleep(10)
             val loaded = statementService.loadBankStatement(statementId)
             val creationTime = loaded.statementDetails.createdAt
             assertTimeIsDuringTest(creationTime)
