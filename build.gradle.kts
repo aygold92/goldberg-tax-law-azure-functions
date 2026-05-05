@@ -87,7 +87,9 @@ dependencies {
     //implementation("com.azure:azure-sdk-bom:1.2.27")
 //    implementation("com.azure:azure-storage-blob")
 //    implementation("com.azure:azure-ai-formrecognizer")
-    // MySQL Database
+    // MySQL Database + Migrations
+    implementation("org.flywaydb:flyway-core:9.22.3")
+    runtimeOnly("org.flywaydb:flyway-mysql:9.22.3")
     implementation("mysql:mysql-connector-java:8.0.33")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.xerial:sqlite-jdbc:3.50.3.0")
@@ -180,10 +182,13 @@ tasks.named<Test>("test") {
 tasks.named("azureFunctionsRun") {
     doFirst {
         if (env != null) {
+            println("env property set to $env, copying from $env.local.settings.json...")
             val src = localSettingsFile()
             if (!src.exists()) throw IllegalStateException("${src.name} not found!")
             src.copyTo(project.file("local.settings.json"), overwrite = true)
             println("Loaded settings from: ${src.name}")
+        } else {
+            println("no env property specified, skipping copying of local.settings.json...")
         }
     }
 }

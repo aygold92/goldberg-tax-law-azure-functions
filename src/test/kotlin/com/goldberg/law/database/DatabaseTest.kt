@@ -57,10 +57,10 @@ abstract class DatabaseTest {
     fun setupSchema() {
 
         transaction(db) {
-            // H2 doesn't include MD5() even in MySQL mode — register it via a pre-compiled
+            // H2 doesn't include SHA2() even in MySQL mode — register it via a pre-compiled
             // static method to avoid H2's runtime Java compilation (which fails due to
             // annotation processor conflicts on the test classpath).
-            exec("""CREATE ALIAS IF NOT EXISTS MD5 FOR "com.goldberg.law.database.H2Functions.md5"""")
+            exec("""CREATE ALIAS IF NOT EXISTS SHA2 FOR "com.goldberg.law.database.H2Functions.sha2"""")
 
             // Drop first — Gradle daemon keeps the named H2 database alive across builds
             // (DB_CLOSE_DELAY=-1), so constraints from a prior run would conflict on CREATE.

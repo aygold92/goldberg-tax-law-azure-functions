@@ -11,8 +11,8 @@ object ClassificationsTable : UUIDTable("classifications", "classification_id") 
     val classificationType = varchar("classification_type", 100)
     val modelLocation = text("model_location").nullable()
 
-    val pagesHash = varchar("pages_hash", 32)
-        .withDefinition("GENERATED ALWAYS AS (MD5(pages))")
+    val pagesHash = varchar("pages_hash", 64)
+        .withDefinition("GENERATED ALWAYS AS (SHA2(pages, 256))")
         .databaseGenerated() // Computed column for uniqueness
     val createdAt = timestamp("created_at").defaultExpression(CurrentTimestamp)
     val updatedAt = timestamp("updated_at").defaultExpression(CurrentTimestamp)

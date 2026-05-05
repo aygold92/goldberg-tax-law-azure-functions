@@ -3,6 +3,7 @@ package com.goldberg.law.database
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
 import java.sql.Connection
 
@@ -57,6 +58,10 @@ object DatabaseConfig {
     }
 
     val database: Database by lazy {
+        Flyway.configure()
+            .dataSource(dataSource)
+            .load()
+            .migrate()
         Database.connect(dataSource)
     }
 
