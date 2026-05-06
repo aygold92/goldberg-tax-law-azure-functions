@@ -11,6 +11,7 @@ import com.goldberg.law.function.api.model.PutFileInfoRequest
 import com.goldberg.law.function.api.model.PutFileInfoResponse
 import com.goldberg.law.function.model.EventSchema
 import com.goldberg.law.util.OBJECT_MAPPER
+import com.goldberg.law.util.sha256
 import com.goldberg.law.util.withoutExtension
 import java.security.MessageDigest
 import com.google.inject.Inject
@@ -131,14 +132,12 @@ class PutFileInfoFunction @Inject constructor(
             throw InvalidPdfException("Unable to load PDF for file ${req.clientId}/$filename: $ex")
         }
 
-        val contentHash = UUID.nameUUIDFromBytes(MessageDigest.getInstance("SHA-256").digest(blobBytes))
-
         val inputFile = InputFile(
             client = client,
             info = InputFileInfo(
                 fileId = UUID.randomUUID(), // placeholder — DB generates the real ID
                 fileName = filename,
-                contentHash = contentHash,
+                contentHash = blobBytes.sha256(),
                 uploadedAt = Instant.now().toEpochMilli(),
                 numPages = pdfDocument.numberOfPages
             )

@@ -12,7 +12,8 @@ class TransactionVerifier @Inject constructor() {
         if (transaction.isDescriptionEmpty()) add(SuspiciousReasons.NO_DESCRIPTION.format(transaction.date))
         if (transaction.isAmountInvalid()) add(SuspiciousReasons.NO_AMOUNT.format(transaction.date))
         if (transaction.hasCheckWithoutNumber()) add(SuspiciousReasons.CHECK_WITHOUT_NUMBER.format(transaction.date))
-        if (transaction.hasNumberWithoutCheck()) add(SuspiciousReasons.CHECK_WRONG_DESCRIPTION.format(transaction.date))
+        // TODO: this should be a warning
+        // if (transaction.hasNumberWithoutCheck()) add(SuspiciousReasons.CHECK_WRONG_DESCRIPTION.format(transaction.date))
         if (statementDate != null && transaction.isOutsideStatementRange(statementDate)) add(SuspiciousReasons.DATE_OUTSIDE_STATEMENT.format(transaction.date))
     }
 

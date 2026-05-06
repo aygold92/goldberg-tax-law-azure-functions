@@ -56,6 +56,7 @@ class TransactionService @Inject constructor(
     fun loadTransactionsByStatement(statementIds: List<UUID>): Map<UUID, List<TransactionDetails>> = db.txnSafe {
         TransactionsTable
             .selectAll().where { TransactionsTable.statementId inList statementIds }
+            .orderBy(TransactionsTable.filePageNumber to SortOrder.ASC, TransactionsTable.date to SortOrder.ASC)
             .map { row -> row[TransactionsTable.statementId].value to TransactionDetails.fromRow(row) }
             .groupBy({ it.first }, { it.second })
     }
@@ -63,6 +64,7 @@ class TransactionService @Inject constructor(
     fun loadTransactions(statementId: UUID): List<TransactionDetails> = db.txnSafe {
         TransactionsTable
             .selectAll().where { TransactionsTable.statementId eq statementId }
+            .orderBy(TransactionsTable.filePageNumber to SortOrder.ASC, TransactionsTable.date to SortOrder.ASC)
             .map { TransactionDetails.fromRow(it) }
     }
 

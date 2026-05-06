@@ -28,7 +28,7 @@ data class Classification(
 data class ClassificationInfo(
     override val classificationId: UUID,
     override val pages: Set<Int>,
-    @get:JsonProperty("classification") override val classificationType: String,
+    override val classificationType: String,
     val modelLocation: StorageLocation? = null,
     val createdAt: Long,
     val updatedAt: Long,

@@ -213,3 +213,5 @@ fun Any.md5Hash(): String {
     val hashBytes = digest.digest(this.toStringDetailed().toByteArray(charset = Charsets.US_ASCII))
     return hashBytes.toHexString()
 }
+
+fun ByteArray.sha256() = UUID.nameUUIDFromBytes(MessageDigest.getInstance("SHA-256").digest(this))
