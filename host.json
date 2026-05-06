@@ -6,6 +6,10 @@
       "isEnabled": true
     },
     "logLevel": {
+      "com.goldberg.law": "Debug",
+      "org.flywaydb": "Warning",
+      "com.azure": "Warning",
+      "com.microsoft.azure.storage": "Warning",
       "DurableTask.AzureStorage": "Warning",
       "DurableTask.Core": "Warning"
     }

@@ -46,14 +46,7 @@ obj/
 # Ignore Gradle build output directory
 build
 
-# Test Files
-testInput
-testOutput
-Training Data
-realInput
-analyzeOutput
-prodB
-prod
-
 # used for git cleaning
 replacements.txt
+
+META-INF
