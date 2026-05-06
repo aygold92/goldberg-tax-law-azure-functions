@@ -128,15 +128,34 @@ java {
     }
 }
 
-// Function to read local settings using Jackson and set environment variables
-fun setEnvironmentVariablesFromJson(): Map<String, String> {
-    val filePath = localSettingsFile()
-    if (!filePath.exists()) { throw IllegalStateException("${filePath.name} not found!") }
+// Reads a settings file as a JsonNode; returns null if the file doesn't exist.
+fun readSettingsNode(file: File): com.fasterxml.jackson.databind.JsonNode? {
+    if (!file.exists()) return null
+    return ObjectMapper().apply { enable(JsonParser.Feature.ALLOW_COMMENTS) }.readTree(file)
+}
 
-    val mapper = ObjectMapper().apply { enable(JsonParser.Feature.ALLOW_COMMENTS); }
-    return mapper.readTree(filePath).get("Values").let { valuesNode ->
-        valuesNode.fieldNames().asSequence().associateWith { valuesNode.get(it).asText() }
-    }.ifEmpty { throw IllegalStateException("No environment variables found in local.settings.json!") }
+fun nodeToStringMap(node: com.fasterxml.jackson.databind.JsonNode?): Map<String, String> =
+    node?.fields()?.asSequence()?.associate { it.key to it.value.asText() } ?: emptyMap()
+
+// Merges common.local.settings.json with {env}.local.settings.json.
+// Env-specific values override common ones at every level.
+fun mergedSettings(): Map<String, Any> {
+    val common = readSettingsNode(project.file("common.local.settings.json"))
+    val override = if (env != null) readSettingsNode(localSettingsFile()) else null
+
+    val values = (nodeToStringMap(common?.get("Values")) + nodeToStringMap(override?.get("Values")))
+        .ifEmpty { throw IllegalStateException("No Values found in common.local.settings.json!") }
+
+    return mapOf(
+        "IsEncrypted" to ((override?.get("IsEncrypted") ?: common?.get("IsEncrypted"))?.asBoolean() ?: false),
+        "Values"      to values,
+        "Host"        to (nodeToStringMap(common?.get("Host")) + nodeToStringMap(override?.get("Host")))
+    )
+}
+
+fun setEnvironmentVariablesFromJson(): Map<String, String> {
+    @Suppress("UNCHECKED_CAST")
+    return (mergedSettings()["Values"] as Map<String, String>)
 }
 
 application {
@@ -181,14 +200,12 @@ tasks.named<Test>("test") {
 
 tasks.named("azureFunctionsRun") {
     doFirst {
-        if (env != null) {
-            println("env property set to $env, copying from $env.local.settings.json...")
-            val src = localSettingsFile()
-            if (!src.exists()) throw IllegalStateException("${src.name} not found!")
-            src.copyTo(project.file("local.settings.json"), overwrite = true)
-            println("Loaded settings from: ${src.name}")
-        } else {
-            println("no env property specified, skipping copying of local.settings.json...")
-        }
+        // Azure Functions Core Tools always reads local.settings.json — write the merged result there.
+        val sources = listOfNotNull("common.local.settings.json", env?.let { "$it.local.settings.json" })
+        println("Merging settings from: ${sources.joinToString(" + ")}")
+        val merged = mergedSettings()
+        ObjectMapper().writerWithDefaultPrettyPrinter().writeValue(project.file("local.settings.json"), merged)
+        @Suppress("UNCHECKED_CAST")
+        println("Written merged local.settings.json (${(merged["Values"] as Map<String, String>).size} Values keys)")
     }
 }

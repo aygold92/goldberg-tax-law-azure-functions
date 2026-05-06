@@ -1,0 +1,24 @@
+{
+  "modelId": "CompositeExtractor_V18",
+  "classifierId": "CompositeExtractorClassifier",
+  "docTypes": {
+    "Ally CC":                  { "modelId": "AllyCCExtractor" },
+    "AMEX CC":                  { "modelId": "AMEXCCExtractor" },
+    "Atlantic Union":           { "modelId": "AtlanticUnionExtractor" },
+    "BofA":                     { "modelId": "BofAJointExtractor" },
+    "BofA CC":                  { "modelId": "BofACCExtractor" },
+    "BofA CC Business":         { "modelId": "BofACCBusinessExtractor" },
+    "C1 CC":                    { "modelId": "C1CCExtractor" },
+    "Capital One Joint":        { "modelId": "CapitalOneJointExtractor" },
+    "Citi CC":                  { "modelId": "CitiCCExtractor" },
+    "M&T Bank":                 { "modelId": "MTBankExtractor" },
+    "NFCU Bank":                { "modelId": "NFCUBankExtractor" },
+    "Sandy Spring Eagle Bank":  { "modelId": "SandySpringEagleBankExtractor" },
+    "TFCU Bank":                { "modelId": "TFCUBankExtractor" },
+    "TFCU Bank (Old)":          { "modelId": "TFCUBankOldExtractor" },
+    "TFCU CC":                  { "modelId": "TFCUCCExtractor" },
+    "Truist":                   { "modelId": "TruistBankExtractor" },
+    "WF Bank Ind":              { "modelId": "WFBankIndExtractor" },
+    "WF Bank Joint":            { "modelId": "WFBankJointExtractor" }
+  }
+}
