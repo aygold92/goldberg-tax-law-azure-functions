@@ -6,6 +6,6 @@ import com.goldberg.law.entity.InputFile
 
 data class GetFilesToProcessActivityOutput(
     val filesToClassify: Set<InputFile>,
-    val classificationsToAnalyze: Set<Classification>,
+    val classificationsToProcess: Set<Classification>,
     val itemsCompleted: Set<ClassifiedItem>,
 )

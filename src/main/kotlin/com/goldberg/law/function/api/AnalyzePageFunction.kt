@@ -34,7 +34,7 @@ class AnalyzePageFunction @Inject constructor(
 
         val results = classificationService.loadClassifications(req.pageRequests).chunked(numWorkers).flatMap { classifications ->
                 classifications.mapAsync {
-                    val input = ProcessDataModelActivityInput(requestId = ctx.invocationId, classification = it)
+                    val input = ProcessDataModelActivityInput(ctx.invocationId, it, req.processingOptions)
                     processDataModelActivity.processDataModel(input, ctx)
                 }
             }

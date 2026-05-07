@@ -9,6 +9,7 @@ import com.goldberg.law.function.activity.model.ClassifyDocumentActivityInput
 import com.goldberg.law.function.activity.model.ClassifyDocumentActivityOutput
 import com.goldberg.law.function.activity.model.ProcessDataModelActivityInput
 import com.goldberg.law.function.activity.model.ProcessDataModelActivityOutput
+import com.goldberg.law.function.api.model.ClassificationProcessingOptions
 import com.goldberg.law.function.model.tracking.OrchestrationStatus
 import com.google.inject.Inject
 import com.google.inject.name.Named
@@ -41,11 +42,12 @@ class ConcurrentExecutionOrchestrator @Inject constructor(
         ctx: TaskOrchestrationContext,
         docsToAnalyze: List<Classification>,
         orchestrationStatus: OrchestrationStatus,
+        processingOptions: ClassificationProcessingOptions,
     ): List<ProcessDataModelActivityOutput> = execActivityConcurrent(
         ctx,
         docsToAnalyze,
         ProcessDataModelActivity.FUNCTION_NAME,
-        { classification -> ProcessDataModelActivityInput(ctx.instanceId, classification) },
+        { classification -> ProcessDataModelActivityInput(ctx.instanceId, classification, processingOptions) },
         ProcessDataModelActivityOutput::class.java,
         { (fileId, _) -> orchestrationStatus.updateDoc(fileId) { incrementDocumentsAnalyzed() }.save() }
     )

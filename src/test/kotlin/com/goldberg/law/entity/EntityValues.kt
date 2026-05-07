@@ -52,6 +52,7 @@ object EntityValues {
     const val DEFAULT_BATES_STAMP = "AG-12345"
     val DEFAULT_BATES_STAMPS: Map<Int, String> = mapOf(1 to DEFAULT_BATES_STAMP)
     val DEFAULT_STORAGE_LOCATION = StorageLocation("test-container", "test/path", Extension.PDF)
+    val DEFAULT_MODEL_LOCATION = StorageLocation("test-container", "test/path", Extension.JSON)
     const val DEFAULT_CHECK_NUMBER = 1001
     const val DEFAULT_PAYEE = "John Doe"
     const val DEFAULT_MEMO = "test memo"
@@ -121,9 +122,9 @@ object EntityValues {
         info = info,
     )
 
-    fun newClassification(fileId: UUID = FILE_ID, classificationId: UUID = CLASSFN_ID, type: String) = newClassification(
+    fun newClassification(fileId: UUID = FILE_ID, classificationId: UUID = CLASSFN_ID, type: String, analyzed: Boolean = false) = newClassification(
         inputFile = newInputFile(info = newInputFileInfo(fileId = fileId)),
-        info = newClassificationInfo(classificationId = classificationId, classificationType = type),
+        info = newClassificationInfo(classificationId = classificationId, classificationType = type, modelLocation = if (analyzed) DEFAULT_MODEL_LOCATION else null),
     )
 
     fun newCheckDetails(

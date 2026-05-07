@@ -6,7 +6,5 @@ data class AzureAnalyzeDocumentsRequest(
     val clientId: UUID,
     val fileIds: Set<UUID> = emptySet(),
     val classificationIds: Set<UUID> = emptySet(),
-    val reClassify: Boolean = false,
-    val reAnalyze: Boolean = false,
-    val reDoStatements: Boolean = false,
+    val processingOptions: ClassificationProcessingOptions = ClassificationProcessingOptions(),
 )

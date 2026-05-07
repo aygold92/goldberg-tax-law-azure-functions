@@ -72,6 +72,23 @@ class StatementService @Inject constructor(
         }
     }
 
+    fun loadStatementIdsForClassification(classificationId: UUID): Set<UUID> = db.txnSafe {
+        BankStatementsTable.selectAll().where { BankStatementsTable.classificationId eq classificationId }
+            .map { row -> row[BankStatementsTable.id].value }.toSet()
+    }
+
+    /** Deletes all statements (and their transactions via CASCADE) for a classification. Returns count deleted. */
+    fun deleteStatementsByClassificationId(classificationId: UUID): Int = db.txnSafe {
+        BankStatementsTable.deleteWhere { BankStatementsTable.classificationId eq classificationId }
+            .also { logger.info { "Deleted $it statement(s) for classification $classificationId" } }
+    }
+
+    /** Deletes existing statements then inserts new ones atomically. Returns the new statement IDs. */
+    fun replaceStatements(classificationId: UUID, newStatements: List<Statement>): List<UUID> = db.txnSafe {
+        deleteStatementsByClassificationId(classificationId)
+        newStatements.map { insertBankStatementWithTransactions(it) }
+    }
+
     /**
      * Load bank statement from MySQL
      */

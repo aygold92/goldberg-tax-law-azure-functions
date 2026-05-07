@@ -15,12 +15,16 @@ import com.goldberg.law.document.model.StatementModelValues.newPdfDocument
 import com.goldberg.law.document.model.StatementModelValues.newStatementModel
 import com.goldberg.law.document.model.input.ExtraPageDataModel
 import com.goldberg.law.document.model.pdf.DocumentType
+import com.goldberg.law.document.model.pdf.DocumentType.BankTypes.WF_BANK
 import com.goldberg.law.entity.CheckDetails
+import com.goldberg.law.entity.EntityValues.CHECK_ID
+import com.goldberg.law.entity.EntityValues.CHECK_ID_2
 import com.goldberg.law.entity.EntityValues.CLASSFN_ID
 import com.goldberg.law.entity.EntityValues.DEFAULT_CLASSIFICATION
 import com.goldberg.law.entity.EntityValues.DEFAULT_FILE
 import com.goldberg.law.entity.EntityValues.DEFAULT_STATEMENT
 import com.goldberg.law.entity.EntityValues.FILE_ID
+import com.goldberg.law.entity.EntityValues.STMT_ID
 import com.goldberg.law.entity.EntityValues.STMT_ID_2
 import com.goldberg.law.entity.EntityValues.entityCompare
 import com.goldberg.law.entity.EntityValues.newCheckDetails
@@ -30,11 +34,13 @@ import com.goldberg.law.entity.EntityValues.newStatement
 import com.goldberg.law.entity.EntityValues.newStatementDetails
 import com.goldberg.law.function.activity.model.ProcessDataModelActivityInput
 import com.goldberg.law.function.activity.model.ProcessDataModelActivityOutput
+import com.goldberg.law.function.api.model.ClassificationProcessingOptions
 import com.goldberg.law.function.model.ExtractedDocumentIds
 import com.microsoft.azure.functions.ExecutionContext
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.Mock
@@ -81,7 +87,7 @@ class ProcessDataModelActivityTest {
         whenever(dataExtractor.extractCheckData(any())).thenReturn(checkDataModel)
         whenever(dataManager.saveModel(any(), any())).thenReturn(STORAGE_LOCATION)
 
-        val output = activity.processDataModel(ProcessDataModelActivityInput(REQUEST_ID, classification), context)
+        val output = activity.processDataModel(ProcessDataModelActivityInput(REQUEST_ID, classification, PROCESSING_OPTIONS), context)
 
         assertThat(output.fileId).isEqualTo(FILE_ID)
         assertThat(output.extractedDocumentIds.checkIds).hasSize(1)
@@ -108,7 +114,7 @@ class ProcessDataModelActivityTest {
         whenever(dataExtractor.extractCheckData(any())).thenReturn(model)
         whenever(dataManager.saveModel(any(), any())).thenReturn(STORAGE_LOCATION)
 
-        val output = activity.processDataModel(ProcessDataModelActivityInput(REQUEST_ID, classification), context)
+        val output = activity.processDataModel(ProcessDataModelActivityInput(REQUEST_ID, classification, PROCESSING_OPTIONS), context)
 
         assertThat(output.fileId).isEqualTo(FILE_ID)
         assertThat(output.extractedDocumentIds.checkIds).hasSize(2)
@@ -134,7 +140,7 @@ class ProcessDataModelActivityTest {
         whenever(dataManager.saveModel(any(), any())).thenReturn(STORAGE_LOCATION)
         whenever(documentStatementCreator.createBankStatements(any(), any())).thenReturn(listOf(DEFAULT_STATEMENT))
 
-        val output = activity.processDataModel(ProcessDataModelActivityInput(REQUEST_ID, DEFAULT_CLASSIFICATION), context)
+        val output = activity.processDataModel(ProcessDataModelActivityInput(REQUEST_ID, DEFAULT_CLASSIFICATION, PROCESSING_OPTIONS), context)
 
         assertThat(output.fileId).isEqualTo(FILE_ID)
         assertThat(output.extractedDocumentIds.checkIds).isEmpty()
@@ -160,7 +166,7 @@ class ProcessDataModelActivityTest {
             stmt1, stmt2
         ))
 
-        val output = activity.processDataModel(ProcessDataModelActivityInput(REQUEST_ID, DEFAULT_CLASSIFICATION), context)
+        val output = activity.processDataModel(ProcessDataModelActivityInput(REQUEST_ID, DEFAULT_CLASSIFICATION, PROCESSING_OPTIONS), context)
 
         assertThat(output.fileId).isEqualTo(FILE_ID)
         assertThat(output.extractedDocumentIds.checkIds).isEmpty()
@@ -183,7 +189,7 @@ class ProcessDataModelActivityTest {
         whenever(dataManager.saveModel(any(), any())).thenReturn(STORAGE_LOCATION)
         whenever(documentStatementCreator.createBankStatements(any(), any())).thenReturn(listOf(DEFAULT_STATEMENT))
 
-        val output = activity.processDataModel(ProcessDataModelActivityInput(REQUEST_ID, DEFAULT_CLASSIFICATION, true), context)
+        val output = activity.processDataModel(ProcessDataModelActivityInput(REQUEST_ID, DEFAULT_CLASSIFICATION, PROCESSING_OPTIONS, true), context)
 
         assertThat(output.fileId).isEqualTo(FILE_ID)
         assertThat(output.extractedDocumentIds.checkIds).isEmpty()
@@ -204,7 +210,7 @@ class ProcessDataModelActivityTest {
         whenever(dataManager.loadSplitPdfDocument(any())).thenReturn(classifiedPdfDocument)
         whenever(dataManager.saveModel(any(), any())).thenReturn(STORAGE_LOCATION)
 
-        assertThatThrownBy { activity.processDataModel(ProcessDataModelActivityInput(REQUEST_ID, classification), context) }
+        assertThatThrownBy { activity.processDataModel(ProcessDataModelActivityInput(REQUEST_ID, classification, PROCESSING_OPTIONS), context) }
             .hasMessageContaining("extra page model")
 
         verify(dataManager).loadSplitPdfDocument(classification)
@@ -212,7 +218,182 @@ class ProcessDataModelActivityTest {
         verify(classificationService).updateModelLocation(CLASSFN_ID, STORAGE_LOCATION)
     }
 
+    // ── ProcessingOptions behavior ──────────────────────────────────────────────────────────────
+    // The 2-step pipeline: (1) AI analysis → model blob, (2) model → DB records.
+    // Baseline rule: if a step isn't done yet, always complete it regardless of options.
+    // Options only affect behavior when the step has already been completed.
+
+    @Nested
+    inner class WhenAlreadyAnalyzed {
+
+        private val analyzedBank = newClassification(FILE_ID, CLASSFN_ID, WF_BANK, analyzed = true)
+        private val analyzedCheck = newClassification(FILE_ID, CLASSFN_ID, DocumentType.CheckTypes.CHECKS, analyzed = true)
+
+        // ── Bank statement cases ─────────────────────────────────────────────────────────────
+
+        @Test
+        fun `analyzed, no existing statements - loads saved model without re-running AI, creates statements`() {
+            whenever(dataManager.loadModel(analyzedBank)).thenReturn(newStatementModel())
+            whenever(documentStatementCreator.createBankStatements(any(), any())).thenReturn(listOf(DEFAULT_STATEMENT))
+            whenever(statementService.loadStatementIdsForClassification(any())).thenReturn(emptySet())
+
+            val output = activity.processDataModel(ProcessDataModelActivityInput(REQUEST_ID, analyzedBank, PROCESSING_OPTIONS), context)
+
+            assertThat(output.extractedDocumentIds.statementIds).containsExactly(DEFAULT_STATEMENT.statementId)
+            verify(statementService).loadStatementIdsForClassification(CLASSFN_ID)
+            verify(dataManager).loadModel(analyzedBank)
+            verify(documentStatementCreator).createBankStatements(analyzedBank, newStatementModel())
+            verify(statementService).insertBankStatementWithTransactions(DEFAULT_STATEMENT)
+        }
+
+        @Test
+        fun `analyzed, has statements, default options - skips entirely, returns existing statement IDs`() {
+            whenever(statementService.loadStatementIdsForClassification(CLASSFN_ID)).thenReturn(setOf(STMT_ID))
+
+            val output = activity.processDataModel(ProcessDataModelActivityInput(REQUEST_ID, analyzedBank, PROCESSING_OPTIONS), context)
+
+            assertThat(output.extractedDocumentIds.statementIds).containsExactly(STMT_ID)
+            verify(statementService).loadStatementIdsForClassification(CLASSFN_ID)
+            // no AI, no model load, no DB writes
+        }
+
+        @Test
+        fun `analyzed, has statements, forceRecreate - loads model, inserts new statements without deleting existing`() {
+            whenever(statementService.loadStatementIdsForClassification(any())).thenReturn(setOf(STMT_ID))
+            whenever(dataManager.loadModel(any())).thenReturn(newStatementModel())
+            whenever(documentStatementCreator.createBankStatements(any(), any())).thenReturn(listOf(DEFAULT_STATEMENT))
+
+            val output = activity.processDataModel(
+                ProcessDataModelActivityInput(REQUEST_ID, analyzedBank,
+                    processingOptions = ClassificationProcessingOptions(forceRecreate = true)),
+                context,
+            )
+
+            assertThat(output.extractedDocumentIds.statementIds).containsExactly(DEFAULT_STATEMENT.statementId)
+            verify(statementService).loadStatementIdsForClassification(CLASSFN_ID)
+            verify(dataManager).loadModel(analyzedBank)
+            verify(documentStatementCreator).createBankStatements(analyzedBank, newStatementModel())
+            verify(statementService).insertBankStatementWithTransactions(DEFAULT_STATEMENT)
+        }
+
+        @Test
+        fun `analyzed, has statements, forceRecreate + replaceOnRecreate - atomically deletes old statements and inserts new`() {
+            whenever(statementService.loadStatementIdsForClassification(any())).thenReturn(setOf(STMT_ID))
+            whenever(dataManager.loadModel(any())).thenReturn(newStatementModel())
+            whenever(documentStatementCreator.createBankStatements(any(), any())).thenReturn(listOf(DEFAULT_STATEMENT))
+
+            val output = activity.processDataModel(
+                ProcessDataModelActivityInput(REQUEST_ID, analyzedBank,
+                    processingOptions = ClassificationProcessingOptions(forceRecreate = true, replaceOnRecreate = true)),
+                context,
+            )
+
+            assertThat(output.extractedDocumentIds.statementIds).containsExactly(DEFAULT_STATEMENT.statementId)
+            verify(statementService).loadStatementIdsForClassification(CLASSFN_ID)
+            verify(dataManager).loadModel(analyzedBank)
+            verify(documentStatementCreator).createBankStatements(analyzedBank, newStatementModel())
+            verify(statementService).replaceStatements(CLASSFN_ID, listOf(DEFAULT_STATEMENT))
+        }
+
+        @Test
+        fun `forceReanalysis - re-runs AI even when model already exists, saves new model, creates statements`() {
+            val classifiedPdfDocument = newClassifiedPdfDocument(classification = analyzedBank)
+            whenever(dataManager.loadSplitPdfDocument(any())).thenReturn(classifiedPdfDocument)
+            whenever(dataExtractor.extractStatementData(any())).thenReturn(newStatementModel())
+            whenever(dataManager.saveModel(any(), any())).thenReturn(STORAGE_LOCATION)
+            whenever(documentStatementCreator.createBankStatements(any(), any())).thenReturn(listOf(DEFAULT_STATEMENT))
+
+            val output = activity.processDataModel(
+                ProcessDataModelActivityInput(REQUEST_ID, analyzedBank,
+                    processingOptions = ClassificationProcessingOptions(forceReanalysis = true)),
+                context,
+            )
+
+            assertThat(output.extractedDocumentIds.statementIds).containsExactly(DEFAULT_STATEMENT.statementId)
+            verify(dataManager).loadSplitPdfDocument(analyzedBank)
+            verify(dataExtractor).extractStatementData(classifiedPdfDocument)
+            verify(dataManager).saveModel(analyzedBank, newStatementModel())
+            verify(classificationService).updateModelLocation(CLASSFN_ID, STORAGE_LOCATION)
+            verify(documentStatementCreator).createBankStatements(analyzedBank, newStatementModel())
+            verify(statementService).insertBankStatementWithTransactions(DEFAULT_STATEMENT)
+        }
+
+        @Test
+        fun `forceReanalysis + replaceOnRecreate - re-runs AI and atomically replaces existing statements`() {
+            val classifiedPdfDocument = newClassifiedPdfDocument(classification = analyzedBank)
+            whenever(dataManager.loadSplitPdfDocument(any())).thenReturn(classifiedPdfDocument)
+            whenever(dataExtractor.extractStatementData(any())).thenReturn(newStatementModel())
+            whenever(dataManager.saveModel(any(), any())).thenReturn(STORAGE_LOCATION)
+            whenever(documentStatementCreator.createBankStatements(any(), any())).thenReturn(listOf(DEFAULT_STATEMENT))
+
+            val output = activity.processDataModel(
+                ProcessDataModelActivityInput(REQUEST_ID, analyzedBank,
+                    processingOptions = ClassificationProcessingOptions(forceReanalysis = true, replaceOnRecreate = true)),
+                context,
+            )
+
+            assertThat(output.extractedDocumentIds.statementIds).containsExactly(DEFAULT_STATEMENT.statementId)
+            verify(dataManager).loadSplitPdfDocument(analyzedBank)
+            verify(dataExtractor).extractStatementData(classifiedPdfDocument)
+            verify(dataManager).saveModel(analyzedBank, newStatementModel())
+            verify(classificationService).updateModelLocation(CLASSFN_ID, STORAGE_LOCATION)
+            verify(documentStatementCreator).createBankStatements(analyzedBank, newStatementModel())
+            verify(statementService).replaceStatements(CLASSFN_ID, listOf(DEFAULT_STATEMENT))
+        }
+
+        // ── Check cases ──────────────────────────────────────────────────────────────────────
+
+        @Test
+        fun `analyzed check, no existing checks - loads saved model without re-running AI, creates checks`() {
+            val checkDataModel = newCheckDataModel(classification = analyzedCheck)
+            whenever(dataManager.loadModel(analyzedCheck)).thenReturn(checkDataModel)
+            whenever(checkService.loadCheckIdsForClassification(CLASSFN_ID)).thenReturn(emptySet())
+
+            val output = activity.processDataModel(ProcessDataModelActivityInput(REQUEST_ID, analyzedCheck, PROCESSING_OPTIONS), context)
+
+            assertThat(output.extractedDocumentIds.checkIds).hasSize(1)
+            verify(checkService).loadCheckIdsForClassification(CLASSFN_ID)
+            verify(dataManager).loadModel(analyzedCheck)
+            val checkCaptor = argumentCaptor<CheckDetails>()
+            verify(checkService).insertCheck(eq(analyzedCheck), checkCaptor.capture())
+            assertThat(checkCaptor.firstValue).entityCompare().isEqualTo(newCheckDetails())
+        }
+
+        @Test
+        fun `analyzed check, has checks, default options - skips entirely, returns existing check IDs`() {
+            whenever(checkService.loadCheckIdsForClassification(CLASSFN_ID)).thenReturn(setOf(CHECK_ID))
+
+            val output = activity.processDataModel(ProcessDataModelActivityInput(REQUEST_ID, analyzedCheck, PROCESSING_OPTIONS), context)
+
+            assertThat(output.extractedDocumentIds.checkIds).containsExactly(CHECK_ID)
+            verify(checkService).loadCheckIdsForClassification(CLASSFN_ID)
+            // no AI, no model load, no DB writes
+        }
+
+        @Test
+        fun `analyzed check, has checks, forceRecreate + replaceOnRecreate - atomically replaces checks`() {
+            val checkDataModel = newCheckDataModel(classification = analyzedCheck)
+            whenever(checkService.loadCheckIdsForClassification(CLASSFN_ID)).thenReturn(setOf(CHECK_ID))
+            whenever(dataManager.loadModel(analyzedCheck)).thenReturn(checkDataModel)
+
+            val output = activity.processDataModel(
+                ProcessDataModelActivityInput(REQUEST_ID, analyzedCheck,
+                    processingOptions = ClassificationProcessingOptions(forceRecreate = true, replaceOnRecreate = true)),
+                context,
+            )
+
+            assertThat(output.extractedDocumentIds.checkIds).hasSize(1)
+            verify(checkService).loadCheckIdsForClassification(CLASSFN_ID)
+            verify(dataManager).loadModel(analyzedCheck)
+            val checkCaptor = argumentCaptor<List<CheckDetails>>()
+            verify(checkService).replaceChecks(eq(analyzedCheck), checkCaptor.capture())
+            assertThat(checkCaptor.firstValue).hasSize(1)
+            assertThat(checkCaptor.firstValue.first()).entityCompare().isEqualTo(newCheckDetails())
+        }
+    }
+
     companion object {
         private val STORAGE_LOCATION = StorageLocation("test", "file/path", Extension.JSON)
+        private val PROCESSING_OPTIONS = ClassificationProcessingOptions()
     }
 }

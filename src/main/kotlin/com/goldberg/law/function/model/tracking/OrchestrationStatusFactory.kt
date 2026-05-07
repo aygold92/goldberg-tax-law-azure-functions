@@ -15,25 +15,22 @@ class OrchestrationStatusFactory @Inject constructor() {
         ctx: TaskOrchestrationContext,
         stage: OrchestrationStage,
         filesToClassify: Set<InputFile>,
-        classificationsToAnalyze: Set<Classification>,
+        classificationsToProcess: Set<Classification>,
         itemsCompleted: Set<ClassifiedItem>
     ): OrchestrationStatus {
-        val documentStatusMap = (filesToClassify + classificationsToAnalyze.map { it.inputFile } + itemsCompleted.map { it.classification.inputFile }).toSet().associate {
+        val documentStatusMap = (filesToClassify + classificationsToProcess.map { it.inputFile } + itemsCompleted.map { it.classification.inputFile }).toSet().associate {
             it.fileId to DocumentOrchestrationStatus(it.fileId, null, null, null, false)
         }.toMutableMap()
         val orchestrationStatus = OrchestrationStatus(ctx, stage, documentStatusMap)
-        (classificationsToAnalyze + itemsCompleted.map { it.classification }.distinct())
+        (classificationsToProcess + itemsCompleted.map { it.classification }.distinct())
             .groupBy { it.inputFile.fileId }
             .forEach { (fileId, classifications) ->
                 orchestrationStatus.updateDoc(fileId) {
                     classified = true
+                    docsAnalyzed = classifications.filter { it.info.modelLocation != null }.size
                     numStatementPages = classifications.filter { it.documentType.isStatement() }.size
                     numCheckPages = classifications.filter { it.documentType.isCheck() }.size
                 }
-        }
-
-        itemsCompleted.forEach { cI ->
-            orchestrationStatus.updateDoc(cI.classification.fileId) { docsAnalyzed = (docsAnalyzed ?: 0) + 1 }
         }
 
         return orchestrationStatus.save()

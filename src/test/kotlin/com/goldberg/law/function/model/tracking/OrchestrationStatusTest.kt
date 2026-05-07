@@ -5,6 +5,7 @@ import com.goldberg.law.entity.EntityValues.CLASSFN_ID
 import com.goldberg.law.entity.EntityValues.CLASSFN_ID_2
 import com.goldberg.law.entity.EntityValues.CLASSFN_ID_3
 import com.goldberg.law.entity.EntityValues.CLASSFN_ID_4
+import com.goldberg.law.entity.EntityValues.CLASSFN_ID_5
 import com.goldberg.law.entity.EntityValues.FILE_ID
 import com.goldberg.law.entity.EntityValues.FILE_ID_2
 import com.goldberg.law.entity.EntityValues.FILE_ID_3
@@ -58,18 +59,19 @@ class OrchestrationStatusTest {
             setOf(
                 newClassification(FILE_ID_3, CLASSFN_ID, DocumentType.BankTypes.WF_BANK),
                 newClassification(FILE_ID_3, CLASSFN_ID_2, DocumentType.CheckTypes.CHECKS),
+                newClassification(FILE_ID_3, CLASSFN_ID_5, DocumentType.BankTypes.WF_BANK, true),
 
             ),
             setOf(
-                newClassifiedStatement(newClassification(FILE_ID_3, CLASSFN_ID_3, DocumentType.BankTypes.WF_BANK)),
-                newClassifiedCheck(newClassification(FILE_ID_3, CLASSFN_ID_4, DocumentType.CheckTypes.CHECKS)),
+                newClassifiedStatement(newClassification(FILE_ID_3, CLASSFN_ID_3, DocumentType.BankTypes.WF_BANK, true)),
+                newClassifiedCheck(newClassification(FILE_ID_3, CLASSFN_ID_4, DocumentType.CheckTypes.CHECKS, true)),
             )
         )
 
         val documentStatusMap = mutableMapOf(
             FILE_ID to DocumentOrchestrationStatus(FILE_ID, null, null, null, false),
             FILE_ID_2 to DocumentOrchestrationStatus(FILE_ID_2, null, null, null, false),
-            FILE_ID_3 to DocumentOrchestrationStatus(FILE_ID_3, 2, 2, 2, true),
+            FILE_ID_3 to DocumentOrchestrationStatus(FILE_ID_3, 3, 2, 3, true),
         )
 
         assertThat(status).isEqualTo(OrchestrationStatus(mockContext, OrchestrationStage.EXTRACTING_DATA, documentStatusMap))
@@ -77,8 +79,8 @@ class OrchestrationStatusTest {
         assertThat(status.getExternalStatus()).isEqualTo(OrchestrationStatus.ExternalOrchestrationStatus(
             stage = OrchestrationStage.EXTRACTING_DATA,
             docs = documentStatusMap,
-            docsCompleted = 2,
-            totalDocs = 4
+            docsCompleted = 3,
+            totalDocs = 5
         ))
     }
 

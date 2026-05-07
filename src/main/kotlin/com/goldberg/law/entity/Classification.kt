@@ -16,6 +16,7 @@ data class Classification(
     val info: ClassificationInfo,
 ): IClassification by info, IInputFile by inputFile, IClient by inputFile.client {
     fun loggingInfo() = "[$classificationId] ${inputFile.fileName} - $pagesOrdered - $classificationType";
+    fun isAnalyzed() = info.modelLocation != null
 
     companion object {
         fun fromRow(row: ResultRow) = Classification(

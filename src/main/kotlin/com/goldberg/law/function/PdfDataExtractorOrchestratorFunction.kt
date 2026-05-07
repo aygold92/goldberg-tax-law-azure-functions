@@ -40,13 +40,13 @@ class PdfDataExtractorOrchestratorFunction @Inject constructor(
         if (!ctx.isReplaying) logger.info { "[${ctx.instanceId}] processing ${request.toStringDetailed()}" }
 
         /** step 1: ensure the requested files have been uploaded, and return the stored info */
-        val (filesToClassify, classificationsToAnalyze, itemsCompleted) = ctx.callActivity(
+        val (filesToClassify, classificationsToProcess, itemsCompleted) = ctx.callActivity(
             GetFilesToProcessActivity.FUNCTION_NAME,
             GetFilesToProcessActivityInput(ctx.instanceId, request.fileIds),
             GetFilesToProcessActivityOutput::class.java
         ).await()
 
-        val orchestrationStatus = orchestrationStatusFactory.new(ctx, OrchestrationStage.CLASSIFYING_DOCUMENTS, filesToClassify, classificationsToAnalyze, itemsCompleted)
+        val orchestrationStatus = orchestrationStatusFactory.new(ctx, OrchestrationStage.CLASSIFYING_DOCUMENTS, filesToClassify, classificationsToProcess, itemsCompleted)
 
         /** step 2: classify the PDFs */
         val newDocumentClassifications = concurrentExecutionOrchestrator.execClassifyDocuments(
@@ -60,10 +60,17 @@ class PdfDataExtractorOrchestratorFunction @Inject constructor(
         /** step 3: the heavy lifting: extract the data from the necessary documents.  Break it into groups for throttling purposes */
         orchestrationStatus.updateStage(OrchestrationStage.EXTRACTING_DATA).save()
 
+        val opts = request.processingOptions
+        val classificationsForProcessing = newDocumentClassifications.values.flatten() +
+                classificationsToProcess +
+                if (opts.forceReanalysis || opts.forceRecreate) itemsCompleted.map { it.classification }
+                else emptyList()
+
         val processDataModelActivityOutputs = concurrentExecutionOrchestrator.execProcessDataModels(
             ctx,
-            newDocumentClassifications.values.flatten() + classificationsToAnalyze,
-            orchestrationStatus
+            classificationsForProcessing,
+            orchestrationStatus,
+            opts,
         )
         val documentsByFile = processDataModelActivityOutputs.groupBy({ it.fileId }, { it.extractedDocumentIds })
             .map { (fileId, extractedDocuments) -> fileId to ExtractedDocumentIds(

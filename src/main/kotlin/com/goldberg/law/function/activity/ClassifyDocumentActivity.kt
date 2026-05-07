@@ -6,6 +6,7 @@ import com.goldberg.law.document.DocumentClassifier
 import com.goldberg.law.entity.Classification
 import com.goldberg.law.function.activity.model.ClassifyDocumentActivityInput
 import com.goldberg.law.function.activity.model.ClassifyDocumentActivityOutput
+import com.goldberg.law.util.mapAsync
 import com.goldberg.law.util.toStringDetailed
 import com.google.inject.Inject
 import com.microsoft.azure.functions.ExecutionContext
@@ -32,7 +33,7 @@ class ClassifyDocumentActivity @Inject constructor(
 
         val classifiedDocuments = classificationInfos.map { document.asClassifiedDocument(it) }
 
-        classifiedDocuments.forEach { azureStorageDataManager.saveSplitPdf(it) }
+        classifiedDocuments.mapAsync { azureStorageDataManager.saveSplitPdf(it) }
 
         return ClassifyDocumentActivityOutput(input.inputFile.fileId, classifiedDocuments.map { it.classification }).also {
             logger.info { "[${input.requestId}][${context.invocationId}] returning $it" }

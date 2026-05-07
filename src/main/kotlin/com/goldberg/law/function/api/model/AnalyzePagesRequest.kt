@@ -4,4 +4,5 @@ import java.util.*
 
 data class AnalyzePagesRequest(
     val pageRequests: Set<UUID>,
+    val processingOptions: ClassificationProcessingOptions = ClassificationProcessingOptions(),
 )

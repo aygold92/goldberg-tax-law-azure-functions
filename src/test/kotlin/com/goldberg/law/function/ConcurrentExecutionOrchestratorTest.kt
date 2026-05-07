@@ -20,6 +20,7 @@ import com.goldberg.law.entity.EntityValues.newClassification
 import com.goldberg.law.function.activity.ProcessDataModelActivity
 import com.goldberg.law.function.activity.model.ProcessDataModelActivityInput
 import com.goldberg.law.function.activity.model.ProcessDataModelActivityOutput
+import com.goldberg.law.function.api.model.ClassificationProcessingOptions
 import com.goldberg.law.function.model.ExtractedDocumentIds
 import com.goldberg.law.function.model.tracking.OrchestrationStatus
 import com.microsoft.durabletask.Task
@@ -76,7 +77,7 @@ class ConcurrentExecutionOrchestratorTest {
         )
 
         val processDataModelActivityOutputs = executionOrchestrator.execProcessDataModels(
-            mockContext, docsToAnalyze, orchestrationStatus
+            mockContext, docsToAnalyze, orchestrationStatus, PROCESSING_OPTIONS
         )
 
         assertThat(processDataModelActivityOutputs.toSet()).isEqualTo(setOf(ret1, ret2))
@@ -86,8 +87,8 @@ class ConcurrentExecutionOrchestratorTest {
         verify(orchestrationStatus, times(2)).updateDoc(eq(FILE_ID), any())
         verify(orchestrationStatus, times(2)).save()
         verify(mockContext, times(2)).instanceId
-        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, docsToAnalyze[0]), ProcessDataModelActivityOutput::class.java)
-        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, docsToAnalyze[1]), ProcessDataModelActivityOutput::class.java)
+        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, docsToAnalyze[0], PROCESSING_OPTIONS), ProcessDataModelActivityOutput::class.java)
+        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, docsToAnalyze[1], PROCESSING_OPTIONS), ProcessDataModelActivityOutput::class.java)
         verify(mockContext, times(2)).anyOf(any<List<Task<*>>>())
 //        verify(mockContext, times(2)).anyOf(argThat<List<Task<*>>> { l -> l.size == numWorkers })
 
@@ -107,7 +108,7 @@ class ConcurrentExecutionOrchestratorTest {
         )
 
         val processDataModelActivityOutputs = executionOrchestrator.execProcessDataModels(
-            mockContext, docsToAnalyze, orchestrationStatus
+            mockContext, docsToAnalyze, orchestrationStatus, PROCESSING_OPTIONS
         )
 
         assertThat(processDataModelActivityOutputs.toSet()).isEqualTo(setOf(ret1, ret2))
@@ -117,9 +118,9 @@ class ConcurrentExecutionOrchestratorTest {
         verify(orchestrationStatus, times(2)).updateDoc(eq(FILE_ID), any())
         verify(orchestrationStatus, times(2)).save()
         verify(mockContext, times(2)).instanceId
-        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, docsToAnalyze[0]),
+        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, docsToAnalyze[0], PROCESSING_OPTIONS),
             ProcessDataModelActivityOutput::class.java)
-        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, docsToAnalyze[1]),
+        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, docsToAnalyze[1], PROCESSING_OPTIONS),
             ProcessDataModelActivityOutput::class.java)
         verify(mockContext, times(2)).anyOf(any<List<Task<*>>>())
 //        verify(mockContext, times(2)).anyOf(argThat<List<Task<*>>> { l -> l.size == numWorkers })
@@ -144,7 +145,7 @@ class ConcurrentExecutionOrchestratorTest {
             newClassification(FILE_ID_3, CLASSFN_ID_3, DocumentType.BankTypes.B_OF_A),
             newClassification(FILE_ID_3, CLASSFN_ID_4, DocumentType.BankTypes.B_OF_A),
         )
-        val analyzedModels = executionOrchestrator.execProcessDataModels(mockContext, docsToAnalyze, orchestrationStatus)
+        val analyzedModels = executionOrchestrator.execProcessDataModels(mockContext, docsToAnalyze, orchestrationStatus, PROCESSING_OPTIONS)
 
         assertThat(analyzedModels.toSet()).isEqualTo(setOf(ret1, ret2, ret3, ret4, ret5))
 
@@ -154,13 +155,17 @@ class ConcurrentExecutionOrchestratorTest {
         verify(orchestrationStatus, times(3)).updateDoc(eq(FILE_ID_3), any())
         verify(orchestrationStatus, times(5)).save()
         verify(mockContext, times(5)).instanceId
-        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, docsToAnalyze[0]), ProcessDataModelActivityOutput::class.java)
-        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, docsToAnalyze[1]), ProcessDataModelActivityOutput::class.java)
-        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, docsToAnalyze[2]), ProcessDataModelActivityOutput::class.java)
-        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, docsToAnalyze[3]), ProcessDataModelActivityOutput::class.java)
-        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, docsToAnalyze[4]), ProcessDataModelActivityOutput::class.java)
+        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, docsToAnalyze[0], PROCESSING_OPTIONS), ProcessDataModelActivityOutput::class.java)
+        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, docsToAnalyze[1], PROCESSING_OPTIONS), ProcessDataModelActivityOutput::class.java)
+        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, docsToAnalyze[2], PROCESSING_OPTIONS), ProcessDataModelActivityOutput::class.java)
+        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, docsToAnalyze[3], PROCESSING_OPTIONS), ProcessDataModelActivityOutput::class.java)
+        verify(mockContext).callActivity(ProcessDataModelActivity.FUNCTION_NAME, ProcessDataModelActivityInput(REQUEST_ID, docsToAnalyze[4], PROCESSING_OPTIONS), ProcessDataModelActivityOutput::class.java)
         verify(mockContext, times(5)).anyOf((any<List<Task<*>>>()))
 
         verifyNoMoreInteractions(mockContext, orchestrationStatus, processDataModelTask)
+    }
+    
+    companion object {
+        val PROCESSING_OPTIONS = ClassificationProcessingOptions()
     }
 }

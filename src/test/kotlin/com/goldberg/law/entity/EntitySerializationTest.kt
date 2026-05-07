@@ -8,6 +8,7 @@ import com.goldberg.law.entity.EntityValues.newClassification
 import com.goldberg.law.entity.EntityValues.newClassifiedFilePages
 import com.goldberg.law.entity.EntityValues.newStatement
 import com.goldberg.law.function.activity.model.ProcessDataModelActivityInput
+import com.goldberg.law.function.api.model.ClassificationProcessingOptions
 import com.goldberg.law.util.GSON
 import com.goldberg.law.util.OBJECT_MAPPER
 import com.google.gson.GsonBuilder
@@ -69,7 +70,7 @@ class EntitySerializationTest {
             disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             registerModule(KotlinModule.Builder().build())
         }
-        val input = ProcessDataModelActivityInput(requestId = "test-request", classification = newClassification())
+        val input = ProcessDataModelActivityInput(requestId = "test-request", classification = newClassification(), processingOptions = ClassificationProcessingOptions())
         val json = mapper.writeValueAsString(input)
         val deserialized = mapper.readValue(json, ProcessDataModelActivityInput::class.java)
         assertThat(deserialized.classification.clientId).isEqualTo(input.classification.clientId)
@@ -86,7 +87,7 @@ class EntitySerializationTest {
         val sdkMapper = ObjectMapper().apply {
             disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
         }
-        val input = ProcessDataModelActivityInput(requestId = "test-request", classification = newClassification())
+        val input = ProcessDataModelActivityInput(requestId = "test-request", classification = newClassification(), processingOptions = ClassificationProcessingOptions())
         val json = sdkMapper.writeValueAsString(input)
         val deserialized = sdkMapper.readValue(json, ProcessDataModelActivityInput::class.java)
         assertThat(deserialized.classification.clientId).isEqualTo(input.classification.clientId)
@@ -101,7 +102,7 @@ class EntitySerializationTest {
         // Classification and InputFile must cause the constructor to be called so that
         // $$delegate_* fields are initialized and delegated properties don't NPE.
         val sdkGson = GsonBuilder().create()
-        val input = ProcessDataModelActivityInput(requestId = "test-request", classification = newClassification())
+        val input = ProcessDataModelActivityInput(requestId = "test-request", classification = newClassification(), processingOptions = ClassificationProcessingOptions())
         val json = sdkGson.toJson(input)
         val deserialized = sdkGson.fromJson(json, ProcessDataModelActivityInput::class.java)
         assertThat(deserialized.classification.clientId).isEqualTo(input.classification.clientId)

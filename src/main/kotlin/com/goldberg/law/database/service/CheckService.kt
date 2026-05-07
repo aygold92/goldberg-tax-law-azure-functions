@@ -13,10 +13,8 @@ import com.goldberg.law.entity.EntityType
 import com.google.inject.Inject
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.innerJoin
 import org.jetbrains.exposed.sql.insert
@@ -57,6 +55,23 @@ class CheckService @Inject constructor(
     fun deleteCheck(id: UUID) = db.txnSafe {
         ChecksTable.deleteWhere { ChecksTable.id eq id }
             .takeUnless { it == 0 } ?: throw EntityNotFoundException(EntityType.Check, id)
+    }
+
+    fun loadCheckIdsForClassification(classificationId: UUID): Set<UUID> = db.txnSafe {
+        ChecksTable.selectAll().where { ChecksTable.classificationId eq classificationId }
+            .map { row -> row[ChecksTable.id].value }.toSet()
+    }
+
+    /** Deletes all checks for a classification. Returns count deleted. */
+    fun deleteChecksByClassificationId(classificationId: UUID): Int = db.txnSafe {
+        ChecksTable.deleteWhere { ChecksTable.classificationId eq classificationId }
+            .also { logger.info { "Deleted $it check(s) for classification $classificationId" } }
+    }
+
+    /** Deletes existing checks then inserts new ones atomically. Returns the new check IDs. */
+    fun replaceChecks(classification: Classification, newChecks: List<CheckDetails>): List<UUID> = db.txnSafe {
+        deleteChecksByClassificationId(classification.classificationId)
+        newChecks.map { insertCheck(classification, it) }
     }
 
     companion object {

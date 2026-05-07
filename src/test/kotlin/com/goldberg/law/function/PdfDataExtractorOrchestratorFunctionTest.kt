@@ -21,6 +21,7 @@ import com.goldberg.law.function.activity.MatchChecksToStatementsActivity
 import com.goldberg.law.function.activity.model.*
 import com.goldberg.law.function.api.model.AnalyzeDocumentResult
 import com.goldberg.law.function.api.model.AzureAnalyzeDocumentsRequest
+import com.goldberg.law.function.api.model.ClassificationProcessingOptions
 import com.goldberg.law.function.model.ExtractedDocumentIds
 import com.goldberg.law.function.model.tracking.OrchestrationStage
 import com.goldberg.law.function.model.tracking.OrchestrationStatus
@@ -88,7 +89,7 @@ class PdfDataExtractorOrchestratorFunctionTest {
         whenever(getFilesToProcessTask.await()).thenReturn(
             GetFilesToProcessActivityOutput(
                 filesToClassify = setOf(newInputFile(), newInputFile(FILE_ID_2)),
-                classificationsToAnalyze = setOf(),
+                classificationsToProcess = setOf(),
                 itemsCompleted = setOf()
             )
         )
@@ -106,7 +107,7 @@ class PdfDataExtractorOrchestratorFunctionTest {
             ))
 
 
-        whenever(concurrentExecutionOrchestrator.execProcessDataModels(any(), any(), any()))
+        whenever(concurrentExecutionOrchestrator.execProcessDataModels(any(), any(), any(), any()))
             .thenReturn(listOf(
                 ProcessDataModelActivityOutput(fileId = FILE_ID, extractedDocumentIds = ExtractedDocumentIds(setOf(STMT_ID))),
                 ProcessDataModelActivityOutput(fileId = FILE_ID, extractedDocumentIds = ExtractedDocumentIds(setOf(STMT_ID_2))),
@@ -154,6 +155,7 @@ class PdfDataExtractorOrchestratorFunctionTest {
                 newClassification(FILE_ID_2, CLASSFN_ID_4, DocumentType.BankTypes.WF_BANK)
             ) },
             eq(orchestrationStatus),
+            eq(ClassificationProcessingOptions())
         )
 
         verify(matchCheckToStatementsTask).await()
