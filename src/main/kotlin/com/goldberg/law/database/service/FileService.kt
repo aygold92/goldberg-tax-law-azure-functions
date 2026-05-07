@@ -130,6 +130,7 @@ class FileService @Inject constructor(private val db: Database) {
             .select(ClientsTable.columns + FilesTable.columns + listOf(numChecks, numStatements, numTransactions, numAnalyzed, numDocuments))
             .where(where)
             .groupBy(FilesTable.id)
+            .orderBy(FilesTable.uploadedAt to SortOrder.DESC)
             .map { row ->
                 InputFileSummary(
                     inputFile = InputFile.fromRow(row),
