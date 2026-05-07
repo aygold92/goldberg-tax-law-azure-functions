@@ -34,12 +34,12 @@ class ClientServiceTest : DatabaseTest() {
 
         @Test
         fun `insert, load, list, then delete`() {
-            Thread.sleep(5) // for timing
+            Thread.sleep(20) // for timing
             // Insert
             val clientId = clientService.insertClient(EntityValues.DEFAULT_CLIENT_NAME, UUID.randomUUID())
 
             // Load — verify all fields round-trip correctly
-            Thread.sleep(5) // to ensure timing
+            Thread.sleep(20) // to ensure timing
             val loaded = clientService.loadClient(clientId)
             assertThat(loaded).entityCompare()
                 .isEqualTo(EntityValues.newClient(clientId = clientId))

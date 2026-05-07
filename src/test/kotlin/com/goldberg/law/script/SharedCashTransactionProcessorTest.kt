@@ -39,7 +39,7 @@ class SharedCashTransactionProcessorTest {
 
         assertThat(result).bigDecimalCompare().isEqualTo(
             ProcessMaritalTransactionsOutput(
-                holdingsReport = mapOf("11/1/2020" to HoldingsReport(
+                holdingsReport = mapOf("2020-11-01" to HoldingsReport(
                     preMaritalHoldings = mapOf(
                         SYMBOL_MMF to BigDecimal.ZERO,
                         SYMBOL_1 to 5.bd()
@@ -80,7 +80,7 @@ class SharedCashTransactionProcessorTest {
 
         assertThat(result).bigDecimalCompare().isEqualTo(
             ProcessMaritalTransactionsOutput(
-                holdingsReport = mapOf("11/1/2020" to HoldingsReport(
+                holdingsReport = mapOf("2020-11-01" to HoldingsReport(
                     preMaritalHoldings = mapOf(
                         SYMBOL_MMF to BigDecimal.ZERO,
                         SYMBOL_1 to 5.bd(),
@@ -129,7 +129,7 @@ class SharedCashTransactionProcessorTest {
 
         assertThat(result).bigDecimalCompare().isEqualTo(
             ProcessMaritalTransactionsOutput(
-                holdingsReport = mapOf("11/1/2020" to HoldingsReport(
+                holdingsReport = mapOf("2020-11-01" to HoldingsReport(
                     preMaritalHoldings = mapOf(
                         SYMBOL_MMF to 0.bd(),
                         SYMBOL_1 to 50.bd(),

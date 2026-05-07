@@ -23,9 +23,10 @@ private val acceptedDateFormats = listOf(
     "MMddyy",      // 040720 -- for `TFCU Bank (Old)` Type
     "yyyy MMM d",  // 2020 Apr 7
     "yyyy MMM dd", // 2020 Apr 07
+    "yyyy MM dd",  // 2020 04 07 -- ISO 8601
 )
 
-private val TRANSACTION_DATE_FORMAT = SimpleDateFormat("M/d/yyyy")
+private val TRANSACTION_DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd")
 fun Date.toTransactionDate(): String = TRANSACTION_DATE_FORMAT.format(this)
 private val MONTH_YEAR_FORMAT = SimpleDateFormat("M/yyyy")
 fun Date.toMonthYear(): String = MONTH_YEAR_FORMAT.format(this)

@@ -117,24 +117,24 @@ class ClassificationServiceTest : DatabaseTest() {
 
         @Test
         fun `test timing`() {
+            Thread.sleep(20) // to ensure creation time is after
             val classifiedFile = EntityValues.newClassifiedFile(fileId = fileId)
             val classificationId = classificationService.insertClassifications(classifiedFile).single().classificationId
 
             // Load by ID — verify all key fields
-            Thread.sleep(5)
             val createdModel = classificationService.loadClassification(classificationId)
             val creationTime = createdModel.info.createdAt
             assertTimeIsDuringTest(creationTime)
 
             // Update model location
-            Thread.sleep(5) // to ensure update time is after
+            Thread.sleep(20) // to ensure update time is after
             classificationService.updateModelLocation(classificationId, EntityValues.DEFAULT_STORAGE_LOCATION)
             val afterFirstModelUpdate = classificationService.loadClassification(classificationId)
             val firstUpdateTime = afterFirstModelUpdate.info.updatedAt
             assertTimeInWindow(firstUpdateTime, creationTime)
 
             // Update classification type and pages
-            Thread.sleep(5) // to ensure update time is after
+            Thread.sleep(20) // to ensure update time is after
             val updatedPages = EntityValues.newClassifiedPages(pages = setOf(3, 4))
             classificationService.updateClassification(classificationId, updatedPages)
 

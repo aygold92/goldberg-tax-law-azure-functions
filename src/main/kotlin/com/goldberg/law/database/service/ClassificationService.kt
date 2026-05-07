@@ -86,12 +86,14 @@ class ClassificationService @Inject constructor(
         ClassificationsTable.filesJoin()
             .selectAll().where { ClassificationsTable.id inList classificationIds }
             .map { row -> Classification.fromRow(row) }
+            .sortedBy { it.pagesOrdered.firstOrNull() }
     }
 
     fun loadClassifications(fileId: UUID): List<Classification> = db.txnSafe {
         ClassificationsTable.filesJoin()
             .selectAll().where { ClassificationsTable.fileId eq fileId }
             .map { Classification.fromRow(it) }
+            .sortedBy { it.pagesOrdered.firstOrNull() }
     }
 
     /**

@@ -123,6 +123,11 @@ class StatementService @Inject constructor(
             )
             .where { ClientsTable.id eq clientId }
             .groupBy(BankStatementsTable.id)
+            .orderBy(
+                FilesTable.id to SortOrder.ASC,
+                BankStatementsTable.date to SortOrder.ASC,
+                BankStatementsTable.createdAt to SortOrder.DESC
+            )
             .toList()
 
         if (statementRows.isEmpty()) return@txnSafe emptyList()

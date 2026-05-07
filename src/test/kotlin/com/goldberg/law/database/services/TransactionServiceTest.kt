@@ -207,17 +207,17 @@ class TransactionServiceTest : DatabaseTest() {
 
         @Test
         fun `upsert sets createdAt and updatedAt on insert, re-upsert only advances updatedAt`() {
-            Thread.sleep(5)
+            Thread.sleep(20)
             val txDetails = EntityValues.newTransactionDetails()
             transactionService.upsertTransactions(statementId, listOf(txDetails))
 
-            Thread.sleep(5)
+            Thread.sleep(20)
             val loaded = transactionService.loadTransaction(txDetails.transactionId)
             val creationTime = loaded.createdAt
             assertTimeIsDuringTest(creationTime)
             assertThat(loaded.updatedAt).isEqualTo(creationTime)
 
-            Thread.sleep(5)
+            Thread.sleep(20)
             transactionService.upsertTransactions(statementId, listOf(txDetails))
 
             val afterUpdate = transactionService.loadTransaction(txDetails.transactionId)

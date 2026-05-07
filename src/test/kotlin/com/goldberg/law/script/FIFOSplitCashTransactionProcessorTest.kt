@@ -40,7 +40,7 @@ class FIFOSplitCashTransactionProcessorTest {
 
         assertThat(result).bigDecimalCompare().isEqualTo(
             ProcessMaritalTransactionsOutput(
-                holdingsReport = mapOf("11/1/2020" to HoldingsReport(
+                holdingsReport = mapOf("2020-11-01" to HoldingsReport(
                     preMaritalHoldings = mapOf(
                         SYMBOL_MMF to 225.bd(),
                         SYMBOL_1 to 5.bd(),
@@ -94,7 +94,7 @@ class FIFOSplitCashTransactionProcessorTest {
 
         assertThat(result).bigDecimalCompare().isEqualTo(
             ProcessMaritalTransactionsOutput(
-                holdingsReport = mapOf("11/1/2020" to HoldingsReport(
+                holdingsReport = mapOf("2020-11-01" to HoldingsReport(
                     preMaritalHoldings = mapOf(
                         SYMBOL_MMF to 125.bd(),
                         SYMBOL_1 to 55.bd(),
@@ -150,7 +150,7 @@ class FIFOSplitCashTransactionProcessorTest {
 
         assertThat(result).bigDecimalCompare().isEqualTo(
             ProcessMaritalTransactionsOutput(
-                holdingsReport = mapOf("11/1/2020" to HoldingsReport(
+                holdingsReport = mapOf("2020-11-01" to HoldingsReport(
                     preMaritalHoldings = mapOf(
                         SYMBOL_MMF to 68.bd(),
                         SYMBOL_1 to 56.bd(),
@@ -195,7 +195,7 @@ class FIFOSplitCashTransactionProcessorTest {
 
         assertThat(result).bigDecimalCompare().isEqualTo(
             ProcessMaritalTransactionsOutput(
-                holdingsReport = mapOf("11/1/2020" to HoldingsReport(
+                holdingsReport = mapOf("2020-11-01" to HoldingsReport(
                     preMaritalHoldings = mapOf(
                         SYMBOL_MMF to 22.5.bd(),
                         SYMBOL_1 to 15.bd(),
@@ -253,7 +253,7 @@ class FIFOSplitCashTransactionProcessorTest {
 
         assertThat(result).bigDecimalCompare().isEqualTo(
             ProcessMaritalTransactionsOutput(
-                holdingsReport = mapOf("11/1/2020" to HoldingsReport(
+                holdingsReport = mapOf("2020-11-01" to HoldingsReport(
                     preMaritalHoldings = mapOf(
                         SYMBOL_MMF to 45.bd(),
                         SYMBOL_1 to 33.25.bd(),
@@ -273,7 +273,7 @@ class FIFOSplitCashTransactionProcessorTest {
     @Test
     fun testMultipleStatementPeriods() {
         // Exercises the mid-loop holdingsReport snapshot taken when crossing a statement boundary.
-        // All DATE_0/DATE_1 transactions fall in October (statement date 11/1/2020).
+        // All DATE_0/DATE_1 transactions fall in October (statement date 2020-11-01).
         // dateNov falls in November (statement date 12/1/2020), triggering the snapshot.
         val dateNov = fromWrittenDate("11/5/2020")!!
 
@@ -281,7 +281,7 @@ class FIFOSplitCashTransactionProcessorTest {
             newTransaction(DATE_0, SYMBOL_MMF, VanguardTransactionType.SWEEP_IN, 50.bd()).log(null),
             // starting cash is (200, .5); buy uses all of it: 100 PM, 100 M -> ratio 0.5
             newTransaction(DATE_0, SYMBOL_1, VanguardTransactionType.BUY, 200.bd(), 40.bd()).log(.5.bd()),
-            // crosses statement boundary here; snapshot at 11/1/2020 captures cash=0, SYMBOL_1=20PM/20M
+            // crosses statement boundary here; snapshot at 2020-11-01 captures cash=0, SYMBOL_1=20PM/20M
             // sell all 40 shares at 0.5 ratio, proceeds (100, .5) go into cash queue
             newTransaction(dateNov, SYMBOL_1, VanguardTransactionType.CORP_ACTION_REDEMPTION, 100.bd(), 40.bd()).log(.5.bd()),
         )
@@ -298,11 +298,11 @@ class FIFOSplitCashTransactionProcessorTest {
         assertThat(result).bigDecimalCompare().isEqualTo(
             ProcessMaritalTransactionsOutput(
                 holdingsReport = mapOf(
-                    "11/1/2020" to HoldingsReport(
+                    "2020-11-01" to HoldingsReport(
                         preMaritalHoldings = mapOf(SYMBOL_MMF to 0.bd(), SYMBOL_1 to 20.bd()),
                         sharedHoldings = mapOf(SYMBOL_MMF to 0.bd(), SYMBOL_1 to 20.bd()),
                     ),
-                    "12/1/2020" to HoldingsReport(
+                    "2020-12-01" to HoldingsReport(
                         preMaritalHoldings = mapOf(SYMBOL_MMF to 50.bd(), SYMBOL_1 to 0.bd()),
                         sharedHoldings = mapOf(SYMBOL_MMF to 50.bd(), SYMBOL_1 to 0.bd()),
                     ),
@@ -337,7 +337,7 @@ class FIFOSplitCashTransactionProcessorTest {
         // PM = 100 + 60 + 30 = 190, M = 0 + 40 + 20 = 60
         assertThat(result).bigDecimalCompare().isEqualTo(
             ProcessMaritalTransactionsOutput(
-                holdingsReport = mapOf("11/1/2020" to HoldingsReport(
+                holdingsReport = mapOf("2020-11-01" to HoldingsReport(
                     preMaritalHoldings = mapOf(SYMBOL_MMF to 190.bd(), SYMBOL_1 to 0.bd()),
                     sharedHoldings = mapOf(SYMBOL_MMF to 60.bd(), SYMBOL_1 to 0.bd()),
                 )),
@@ -375,7 +375,7 @@ class FIFOSplitCashTransactionProcessorTest {
         // total cash = 140, PM = 140 * 0.6 = 84, M = 140 * 0.4 = 56
         assertThat(result).bigDecimalCompare().isEqualTo(
             ProcessMaritalTransactionsOutput(
-                holdingsReport = mapOf("11/1/2020" to HoldingsReport(
+                holdingsReport = mapOf("2020-11-01" to HoldingsReport(
                     preMaritalHoldings = mapOf(SYMBOL_MMF to 84.bd()),
                     sharedHoldings = mapOf(SYMBOL_MMF to 56.bd()),
                 )),
@@ -410,7 +410,7 @@ class FIFOSplitCashTransactionProcessorTest {
         // PM = 10 + 0 + 50 = 60, M = 0 + 100 + 0 = 100
         assertThat(result).bigDecimalCompare().isEqualTo(
             ProcessMaritalTransactionsOutput(
-                holdingsReport = mapOf("11/1/2020" to HoldingsReport(
+                holdingsReport = mapOf("2020-11-01" to HoldingsReport(
                     preMaritalHoldings = mapOf(SYMBOL_MMF to 60.bd()),
                     sharedHoldings = mapOf(SYMBOL_MMF to 100.bd()),
                 )),

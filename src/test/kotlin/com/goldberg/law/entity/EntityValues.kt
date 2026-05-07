@@ -35,9 +35,9 @@ object EntityValues {
     const val DEFAULT_CLIENT_NAME = "testClient"
     const val DEFAULT_FILENAME = "test.pdf"
     const val DEFAULT_ACCOUNT_NUMBER = "1234"
-    const val DEFAULT_STATEMENT_DATE_STRING = "01/30/2024"
+    const val DEFAULT_STATEMENT_DATE_STRING = "2024-01-30"
     val DEFAULT_STATEMENT_DATE = fromWrittenDate(DEFAULT_STATEMENT_DATE_STRING)
-    const val DEFAULT_DATE = "1/15/2024"
+    const val DEFAULT_DATE = "2024-01-15"
     const val DEFAULT_DESCRIPTION = "test transaction"
     const val DEFAULT_CLASSIFICATION_TYPE = BankTypes.WF_BANK
     val DEFAULT_PAGES: Set<Int> = setOf(1)
