@@ -9,5 +9,4 @@ data class ProcessDataModelActivityInput @JsonCreator constructor(
     @JsonProperty("requestId") val requestId: String,
     @JsonProperty("classification") val classification: Classification,
     @JsonProperty("processingOptions") val processingOptions: ClassificationProcessingOptions,
-    @JsonProperty("useOriginalFile") val useOriginalFile: Boolean = false,
 )

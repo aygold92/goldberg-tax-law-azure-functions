@@ -3,6 +3,7 @@ package com.goldberg.law.function.api
 import com.goldberg.law.database.service.ClassificationService
 import com.goldberg.law.database.service.FileService
 import com.goldberg.law.datamanager.AzureStorageDataManager
+import com.goldberg.law.datamanager.InputPdfCache
 import com.goldberg.law.function.api.model.ApiResult
 import com.goldberg.law.function.api.model.DeleteDocumentRequest
 import com.goldberg.law.util.OBJECT_MAPPER
@@ -18,7 +19,8 @@ import java.util.*
 class DeleteInputDocumentFunction @Inject constructor(
     private val dataManager: AzureStorageDataManager,
     private val fileService: FileService,
-    private val classificationService: ClassificationService
+    private val classificationService: ClassificationService,
+    private val inputPdfCache: InputPdfCache
 ) {
     private val logger = KotlinLogging.logger {}
 
@@ -36,13 +38,12 @@ class DeleteInputDocumentFunction @Inject constructor(
         fileService.deleteInputFile(inputFile.fileId)
         logger.info { "Deleting all data from the database" }
 
-        classifications.mapAsync { dataManager.deleteSplitFile(it) }
-        logger.info { "Finished deleting split pdf files" }
-
         classifications.mapAsync { if (it.info.modelLocation != null) dataManager.deleteModelFile(it) }
         logger.info { "Finished deleting analyzed model files" }
 
         dataManager.deleteInputFile(inputFile)
+
+        inputPdfCache.invalidate(req.fileId)
 
         logger.info { "Deleted input file ${req.fileId} (${inputFile.fileName}) for client ${inputFile.client}" }
 

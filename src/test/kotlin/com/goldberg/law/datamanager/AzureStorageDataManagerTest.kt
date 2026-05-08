@@ -31,7 +31,8 @@ class AzureStorageDataManagerTest {
     @Mock
     val blobClient: BlobClient = mock()
 
-    val dataManager = AzureStorageDataManager(serviceClient)
+    val inputPdfCache: InputPdfCache = mock()
+    val dataManager = AzureStorageDataManager(serviceClient, inputPdfCache)
 
     @BeforeEach
     fun setup() {

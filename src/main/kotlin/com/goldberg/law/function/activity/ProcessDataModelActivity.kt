@@ -47,7 +47,7 @@ class ProcessDataModelActivity @Inject constructor(
         val documentIds = if (shouldAnalyze) {
             // analyze and create statements
             logger.info { "[${input.requestId}][${context.invocationId}] analyzing document for ${input.classification}" }
-            val dataModel = analyzeModel(input.useOriginalFile, input.classification)
+            val dataModel = analyzeModel(input.classification)
             createStatementsAndChecks(dataModel, input.classification, opts.replaceOnRecreate)
         } else {
             // recreate
@@ -72,13 +72,9 @@ class ProcessDataModelActivity @Inject constructor(
         }
     }
 
-    fun analyzeModel(useOriginalFile: Boolean, classification: Classification): DocumentDataModel {
-        val pdfDocument = if (!useOriginalFile) {
-            dataManager.loadSplitPdfDocument(classification)
-        } else {
-            dataManager.loadInputPdfDocument(classification.inputFile)
-                .asClassifiedDocument(classification.info)
-        }
+    fun analyzeModel(classification: Classification): DocumentDataModel {
+        val pdfDocument = dataManager.loadInputPdfDocument(classification.inputFile)
+            .asClassifiedDocument(classification.info)
         val dataModel = when (classification.documentType) {
             BANK, CREDIT_CARD -> dataExtractor.extractStatementData(pdfDocument)
             CHECK -> dataExtractor.extractCheckData(pdfDocument)

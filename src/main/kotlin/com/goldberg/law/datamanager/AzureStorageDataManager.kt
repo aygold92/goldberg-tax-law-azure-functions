@@ -23,7 +23,10 @@ import org.apache.pdfbox.Loader
 import java.time.OffsetDateTime
 import java.util.UUID
 
-class AzureStorageDataManager @Inject constructor(private val serviceClient: BlobServiceClient) {
+class AzureStorageDataManager @Inject constructor(
+    private val serviceClient: BlobServiceClient,
+    private val inputPdfCache: InputPdfCache,
+) {
     private val logger = KotlinLogging.logger {}
 
     /**
@@ -53,9 +56,6 @@ class AzureStorageDataManager @Inject constructor(private val serviceClient: Blo
     fun saveInputPdf(inputFile: InputFile, bytes: ByteArray) =
         saveFile(inputFile.storageLocation(), BinaryData.fromBytes(bytes), overwrite = false, contentType = "application/pdf")
 
-    fun saveSplitPdf(document: ClassifiedPdfDocument) =
-        saveFile(document.classification.storageLocation(), document.toBinaryData(), true, contentType = "application/pdf")
-
     fun saveModel(classification: Classification, dataModel: DocumentDataModel) =
         saveFile(classification.modelLocation(), dataModel.toStringDetailed(), true)
 
@@ -78,16 +78,12 @@ class AzureStorageDataManager @Inject constructor(private val serviceClient: Blo
     fun loadUploadedPdfBytes(clientId: UUID, fileName: String): ByteArray =
         loadFile(uploadedFileLocation(clientId, fileName)).toBytes()
 
-    fun loadInputPdfDocument(inputFile: InputFile): PdfDocument = inputFile.storageLocation().let { storageLocation ->
-        val fileBytes = loadFile(storageLocation).toBytes()
-        PdfDocument(inputFile, bytesToPDDocument(storageLocation, fileBytes))
-    }
-
-    // loads a PDF Page document that has already been stored in the filesystem according to convention
-    fun loadSplitPdfDocument(classification: Classification): ClassifiedPdfDocument = classification.storageLocation().let { storageLocation ->
-        val fileBytes = loadFile(storageLocation).toBytes()
-        ClassifiedPdfDocument(classification, bytesToPDDocument(storageLocation, fileBytes))
-            .also { logger.debug { "Successfully loaded file $storageLocation" } }
+    fun loadInputPdfDocument(inputFile: InputFile): PdfDocument {
+        val storageLocation = inputFile.storageLocation()
+        val pdDocument = inputPdfCache.getOrLoad(inputFile.fileId) {
+            bytesToPDDocument(storageLocation, loadFile(storageLocation).toBytes())
+        }
+        return PdfDocument(inputFile, pdDocument)
     }
 
     private fun bytesToPDDocument(storageLocation: StorageLocation, bytes: ByteArray) = try {
@@ -118,11 +114,8 @@ class AzureStorageDataManager @Inject constructor(private val serviceClient: Blo
     }
 
     fun deleteInputFile(file: InputFile) {
+        inputPdfCache.invalidate(file.fileId)
         deleteFile(file.storageLocation())
-    }
-
-    fun deleteSplitFile(classification: Classification) {
-        deleteFile(classification.storageLocation())
     }
 
     fun deleteModelFile(classification: Classification) {
@@ -167,13 +160,11 @@ class AzureStorageDataManager @Inject constructor(private val serviceClient: Blo
 
 
     fun InputFile.storageLocation() = StorageLocation(clientId.toString(), "$INPUT_FILE_FOLDER/$fileId", Extension.PDF)
-    fun Classification.storageLocation() = StorageLocation(clientId.toString(), "$SPLIT_INPUT_FILE_FOLDER/$classificationId", Extension.PDF)
     fun Classification.modelLocation() = StorageLocation(clientId.toString(), "$MODEL_FILE_FOLDER/$classificationId", Extension.JSON)
 
     companion object {
         const val UPLOAD_FOLDER = "uploads"
         const val INPUT_FILE_FOLDER = "input"
-        const val SPLIT_INPUT_FILE_FOLDER = "splitInput"
         const val MODEL_FILE_FOLDER = "models"
 
         fun uploadedFileLocation(clientId: UUID, fileName: String) =

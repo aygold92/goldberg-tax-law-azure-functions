@@ -181,11 +181,12 @@ fun <T> Collection<T>.breakIntoGroups(numGroups: Int): Map<Int, List<T>> {
         else this.mapIndexed { idx, it -> idx % numGroups to it }.groupBy({ it.first }, { it.second })
 }
 
-fun PDDocument.docForPage(pageNum: Int) = PDDocument().apply { addPage(this@docForPage.getPage(pageNum - 1)) }
-fun PDDocument.docForPages(pages: Set<Int>) = PDDocument().apply {
-    pages.sorted().forEach {
-        addPage(this@docForPages.getPage(it - 1))
-    }
+fun PDDocument.docForPage(pageNum: Int): PDDocument = synchronized(this) {
+    PDDocument().apply { importPage(this@docForPage.getPage(pageNum - 1)) }
+}
+
+fun PDDocument.docForPages(pages: Set<Int>): PDDocument = synchronized(this) {
+    PDDocument().apply { pages.sorted().forEach { importPage(this@docForPages.getPage(it - 1)) } }
 }
 
 fun <T, R> Collection<T>.mapAsync(dispatcher: CoroutineDispatcher = Dispatchers.IO, block: (T) -> R): List<R> = runBlocking {
