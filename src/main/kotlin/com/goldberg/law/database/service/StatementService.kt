@@ -119,7 +119,7 @@ class StatementService @Inject constructor(
      * Transactions are batch-loaded in a single follow-up query to avoid N+1.
      */
     fun listBankStatements(clientId: UUID): List<StatementSummary> = db.txnSafe {
-        val zeroLiteral = decimalLiteral(BigDecimal.ZERO) as Expression<BigDecimal?>
+        val zeroLiteral = decimalLiteral(ZERO) as Expression<BigDecimal?>
         val spendingAlias = Case()
             .When(TransactionsTable.amount less BigDecimal.ZERO, TransactionsTable.amount)
             .Else(zeroLiteral)

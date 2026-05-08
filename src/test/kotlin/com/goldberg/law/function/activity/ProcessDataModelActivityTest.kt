@@ -10,7 +10,6 @@ import com.goldberg.law.document.*
 import com.goldberg.law.document.model.StatementModelValues.REQUEST_ID
 import com.goldberg.law.document.model.StatementModelValues.newCheckDataModel
 import com.goldberg.law.document.model.StatementModelValues.newCheckEntriesTableRow
-import com.goldberg.law.document.model.StatementModelValues.newClassifiedPdfDocument
 import com.goldberg.law.document.model.StatementModelValues.newPdfDocument
 import com.goldberg.law.document.model.StatementModelValues.newStatementModel
 import com.goldberg.law.document.model.input.ExtraPageDataModel
@@ -81,9 +80,8 @@ class ProcessDataModelActivityTest {
     @Test
     fun testCheckModel() {
         val classification = newClassification(type = DocumentType.CheckTypes.CHECKS)
-        val classifiedPdfDocument = newClassifiedPdfDocument(classification = classification)
         val checkDataModel = newCheckDataModel(classification = classification)
-        whenever(dataManager.loadSplitPdfDocument(any())).thenReturn(classifiedPdfDocument)
+        whenever(dataManager.loadInputPdfDocument(any())).thenReturn(newPdfDocument())
         whenever(dataExtractor.extractCheckData(any())).thenReturn(checkDataModel)
         whenever(dataManager.saveModel(any(), any())).thenReturn(STORAGE_LOCATION)
 
@@ -93,8 +91,8 @@ class ProcessDataModelActivityTest {
         assertThat(output.extractedDocumentIds.checkIds).hasSize(1)
         assertThat(output.extractedDocumentIds.statementIds).isEmpty()
 
-        verify(dataManager).loadSplitPdfDocument(classification)
-        verify(dataExtractor).extractCheckData(classifiedPdfDocument)
+        verify(dataManager).loadInputPdfDocument(classification.inputFile)
+        verify(dataExtractor).extractCheckData(any())
         verify(dataManager).saveModel(classification, checkDataModel)
         verify(classificationService).updateModelLocation(CLASSFN_ID, STORAGE_LOCATION)
         val checkCaptor = argumentCaptor<CheckDetails>()
@@ -105,12 +103,11 @@ class ProcessDataModelActivityTest {
     @Test
     fun testCheckModelMultiple() {
         val classification = newClassification(type = DocumentType.CheckTypes.CHECKS_RAW)
-        val classifiedPdfDocument = newClassifiedPdfDocument(classification = classification)
         val model = newCheckDataModel(checkEntries = arrayOf(
             newCheckEntriesTableRow(),
             newCheckEntriesTableRow(checkNumber = 1001),
         ))
-        whenever(dataManager.loadSplitPdfDocument(any())).thenReturn(classifiedPdfDocument)
+        whenever(dataManager.loadInputPdfDocument(any())).thenReturn(newPdfDocument())
         whenever(dataExtractor.extractCheckData(any())).thenReturn(model)
         whenever(dataManager.saveModel(any(), any())).thenReturn(STORAGE_LOCATION)
 
@@ -120,8 +117,8 @@ class ProcessDataModelActivityTest {
         assertThat(output.extractedDocumentIds.checkIds).hasSize(2)
         assertThat(output.extractedDocumentIds.statementIds).isEmpty()
 
-        verify(dataManager).loadSplitPdfDocument(classification)
-        verify(dataExtractor).extractCheckData(classifiedPdfDocument)
+        verify(dataManager).loadInputPdfDocument(classification.inputFile)
+        verify(dataExtractor).extractCheckData(any())
         verify(dataManager).saveModel(classification, model)
         verify(classificationService).updateModelLocation(CLASSFN_ID, STORAGE_LOCATION)
         val checkCaptor = argumentCaptor<CheckDetails>()
@@ -134,8 +131,7 @@ class ProcessDataModelActivityTest {
 
     @Test
     fun testStatementModel() {
-        val classifiedPdfDocument = newClassifiedPdfDocument()
-        whenever(dataManager.loadSplitPdfDocument(any())).thenReturn(classifiedPdfDocument)
+        whenever(dataManager.loadInputPdfDocument(any())).thenReturn(newPdfDocument())
         whenever(dataExtractor.extractStatementData(any())).thenReturn(newStatementModel())
         whenever(dataManager.saveModel(any(), any())).thenReturn(STORAGE_LOCATION)
         whenever(documentStatementCreator.createBankStatements(any(), any())).thenReturn(listOf(DEFAULT_STATEMENT))
@@ -146,8 +142,8 @@ class ProcessDataModelActivityTest {
         assertThat(output.extractedDocumentIds.checkIds).isEmpty()
         assertThat(output.extractedDocumentIds.statementIds).hasSize(1)
 
-        verify(dataManager).loadSplitPdfDocument(DEFAULT_CLASSIFICATION)
-        verify(dataExtractor).extractStatementData(classifiedPdfDocument)
+        verify(dataManager).loadInputPdfDocument(DEFAULT_FILE)
+        verify(dataExtractor).extractStatementData(any())
         verify(dataManager).saveModel(DEFAULT_CLASSIFICATION, newStatementModel())
         verify(classificationService).updateModelLocation(CLASSFN_ID, STORAGE_LOCATION)
         verify(documentStatementCreator).createBankStatements(DEFAULT_CLASSIFICATION, newStatementModel())
@@ -156,8 +152,7 @@ class ProcessDataModelActivityTest {
 
     @Test
     fun testStatementModelMultiple() {
-        val classifiedPdfDocument = newClassifiedPdfDocument(classification = DEFAULT_CLASSIFICATION)
-        whenever(dataManager.loadSplitPdfDocument(any())).thenReturn(classifiedPdfDocument)
+        whenever(dataManager.loadInputPdfDocument(any())).thenReturn(newPdfDocument())
         whenever(dataExtractor.extractStatementData(any())).thenReturn(newStatementModel())
         whenever(dataManager.saveModel(any(), any())).thenReturn(STORAGE_LOCATION)
         val stmt1 = newStatement()
@@ -172,8 +167,8 @@ class ProcessDataModelActivityTest {
         assertThat(output.extractedDocumentIds.checkIds).isEmpty()
         assertThat(output.extractedDocumentIds.statementIds).hasSize(2)
 
-        verify(dataManager).loadSplitPdfDocument(DEFAULT_CLASSIFICATION)
-        verify(dataExtractor).extractStatementData(classifiedPdfDocument)
+        verify(dataManager).loadInputPdfDocument(DEFAULT_FILE)
+        verify(dataExtractor).extractStatementData(any())
         verify(dataManager).saveModel(DEFAULT_CLASSIFICATION, newStatementModel())
         verify(classificationService).updateModelLocation(CLASSFN_ID, STORAGE_LOCATION)
         verify(documentStatementCreator).createBankStatements(DEFAULT_CLASSIFICATION, newStatementModel())
@@ -182,38 +177,15 @@ class ProcessDataModelActivityTest {
     }
 
     @Test
-    fun testUseFullDocument() {
-        val pdfDocument = newClassifiedPdfDocument()
-        whenever(dataManager.loadInputPdfDocument(any())).thenReturn(pdfDocument)
-        whenever(dataExtractor.extractStatementData(any())).thenReturn(newStatementModel())
-        whenever(dataManager.saveModel(any(), any())).thenReturn(STORAGE_LOCATION)
-        whenever(documentStatementCreator.createBankStatements(any(), any())).thenReturn(listOf(DEFAULT_STATEMENT))
-
-        val output = activity.processDataModel(ProcessDataModelActivityInput(REQUEST_ID, DEFAULT_CLASSIFICATION, PROCESSING_OPTIONS, true), context)
-
-        assertThat(output.fileId).isEqualTo(FILE_ID)
-        assertThat(output.extractedDocumentIds.checkIds).isEmpty()
-        assertThat(output.extractedDocumentIds.statementIds).hasSize(1)
-
-        verify(dataManager).loadInputPdfDocument(DEFAULT_FILE)
-        verify(dataExtractor).extractStatementData(pdfDocument)
-        verify(dataManager).saveModel(DEFAULT_CLASSIFICATION, newStatementModel())
-        verify(classificationService).updateModelLocation(CLASSFN_ID, STORAGE_LOCATION)
-        verify(documentStatementCreator).createBankStatements(DEFAULT_CLASSIFICATION, newStatementModel())
-        verify(statementService).insertBankStatementWithTransactions(DEFAULT_STATEMENT)
-    }
-
-    @Test
     fun testExtraPageModel() {
         val classification = newClassification(type = DocumentType.ExtraPageTypes.TEXT)
-        val classifiedPdfDocument = newClassifiedPdfDocument(classification = classification)
-        whenever(dataManager.loadSplitPdfDocument(any())).thenReturn(classifiedPdfDocument)
+        whenever(dataManager.loadInputPdfDocument(any())).thenReturn(newPdfDocument(file = classification.inputFile))
         whenever(dataManager.saveModel(any(), any())).thenReturn(STORAGE_LOCATION)
 
         assertThatThrownBy { activity.processDataModel(ProcessDataModelActivityInput(REQUEST_ID, classification, PROCESSING_OPTIONS), context) }
             .hasMessageContaining("extra page model")
 
-        verify(dataManager).loadSplitPdfDocument(classification)
+        verify(dataManager).loadInputPdfDocument(classification.inputFile)
         verify(dataManager).saveModel(classification, ExtraPageDataModel(classification))
         verify(classificationService).updateModelLocation(CLASSFN_ID, STORAGE_LOCATION)
     }
@@ -297,8 +269,7 @@ class ProcessDataModelActivityTest {
 
         @Test
         fun `forceReanalysis - re-runs AI even when model already exists, saves new model, creates statements`() {
-            val classifiedPdfDocument = newClassifiedPdfDocument(classification = analyzedBank)
-            whenever(dataManager.loadSplitPdfDocument(any())).thenReturn(classifiedPdfDocument)
+            whenever(dataManager.loadInputPdfDocument(any())).thenReturn(newPdfDocument())
             whenever(dataExtractor.extractStatementData(any())).thenReturn(newStatementModel())
             whenever(dataManager.saveModel(any(), any())).thenReturn(STORAGE_LOCATION)
             whenever(documentStatementCreator.createBankStatements(any(), any())).thenReturn(listOf(DEFAULT_STATEMENT))
@@ -310,8 +281,8 @@ class ProcessDataModelActivityTest {
             )
 
             assertThat(output.extractedDocumentIds.statementIds).containsExactly(DEFAULT_STATEMENT.statementId)
-            verify(dataManager).loadSplitPdfDocument(analyzedBank)
-            verify(dataExtractor).extractStatementData(classifiedPdfDocument)
+            verify(dataManager).loadInputPdfDocument(analyzedBank.inputFile)
+            verify(dataExtractor).extractStatementData(any())
             verify(dataManager).saveModel(analyzedBank, newStatementModel())
             verify(classificationService).updateModelLocation(CLASSFN_ID, STORAGE_LOCATION)
             verify(documentStatementCreator).createBankStatements(analyzedBank, newStatementModel())
@@ -320,8 +291,7 @@ class ProcessDataModelActivityTest {
 
         @Test
         fun `forceReanalysis + replaceOnRecreate - re-runs AI and atomically replaces existing statements`() {
-            val classifiedPdfDocument = newClassifiedPdfDocument(classification = analyzedBank)
-            whenever(dataManager.loadSplitPdfDocument(any())).thenReturn(classifiedPdfDocument)
+            whenever(dataManager.loadInputPdfDocument(any())).thenReturn(newPdfDocument())
             whenever(dataExtractor.extractStatementData(any())).thenReturn(newStatementModel())
             whenever(dataManager.saveModel(any(), any())).thenReturn(STORAGE_LOCATION)
             whenever(documentStatementCreator.createBankStatements(any(), any())).thenReturn(listOf(DEFAULT_STATEMENT))
@@ -333,8 +303,8 @@ class ProcessDataModelActivityTest {
             )
 
             assertThat(output.extractedDocumentIds.statementIds).containsExactly(DEFAULT_STATEMENT.statementId)
-            verify(dataManager).loadSplitPdfDocument(analyzedBank)
-            verify(dataExtractor).extractStatementData(classifiedPdfDocument)
+            verify(dataManager).loadInputPdfDocument(analyzedBank.inputFile)
+            verify(dataExtractor).extractStatementData(any())
             verify(dataManager).saveModel(analyzedBank, newStatementModel())
             verify(classificationService).updateModelLocation(CLASSFN_ID, STORAGE_LOCATION)
             verify(documentStatementCreator).createBankStatements(analyzedBank, newStatementModel())

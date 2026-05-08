@@ -19,11 +19,11 @@ private val acceptedDateFormats = listOf(
     "M d yyyy",    // 4 7 2020
     "MM dd yy",    // 04 07 20
     "M d yy",      // 4 7 20
+    "yyyy MM dd",  // 2020 04 07 -- ISO 8601
     "yyyyMMdd",    // 20200407
     "MMddyy",      // 040720 -- for `TFCU Bank (Old)` Type
     "yyyy MMM d",  // 2020 Apr 7
     "yyyy MMM dd", // 2020 Apr 07
-    "yyyy MM dd",  // 2020 04 07 -- ISO 8601
 )
 
 private val TRANSACTION_DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd")

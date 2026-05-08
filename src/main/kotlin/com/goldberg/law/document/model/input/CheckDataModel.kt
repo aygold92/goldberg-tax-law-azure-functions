@@ -4,7 +4,6 @@ import com.azure.ai.documentintelligence.models.AnalyzedDocument
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.goldberg.law.document.model.input.tables.CheckEntriesTable
 import com.goldberg.law.document.model.input.tables.CheckEntriesTable.Companion.getCheckImageTable
-import com.goldberg.law.document.model.pdf.ClassifiedPdfDocument
 import com.goldberg.law.entity.CheckDetails
 import com.goldberg.law.entity.Classification
 import com.goldberg.law.util.*
@@ -50,7 +49,7 @@ data class CheckDataModel(
         const val BATES_STAMP = "BatesStamp"
     }
     companion object {
-        fun AnalyzedDocument.toCheckDataModel(classifiedPdfDocument: ClassifiedPdfDocument): CheckDataModel = this.fields.let { documentFields ->
+        fun AnalyzedDocument.toCheckDataModel(classification: Classification): CheckDataModel = this.fields.let { documentFields ->
             val accountNumberRead = documentFields[Keys.ACCOUNT_NUMBER]?.valueString
             val checkNumber = documentFields[Keys.CHECK_NUMBER]?.valueAsInt()
             val accountNumber = getAccountNumber(accountNumberRead, checkNumber)
@@ -64,7 +63,7 @@ data class CheckDataModel(
                 amount = documentFields[Keys.AMOUNT]?.currencyValue(),
                 batesStamp = documentFields[Keys.BATES_STAMP]?.valueString,
                 checkEntries = this.getCheckImageTable(),
-                classification = classifiedPdfDocument.classification
+                classification = classification
             )
         }
 

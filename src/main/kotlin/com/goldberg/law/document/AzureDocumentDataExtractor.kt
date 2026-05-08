@@ -38,7 +38,7 @@ class AzureDocumentDataExtractor @Inject constructor(
     override fun extractCheckData(classifiedDocument: ClassifiedPdfDocument): CheckDataModel {
         logger.info { "[Check Extractor] Processing file page $classifiedDocument" }
         return try {
-            extractData(classifiedDocument, checkExtractorModelId).toCheckDataModel(classifiedDocument).also {
+            extractData(classifiedDocument, checkExtractorModelId).toCheckDataModel(classifiedDocument.classification).also {
                 logger.info { "[Check Extractor] Processed $classifiedDocument to ${it.toStringDetailed()}" }
             }
         } catch (e: Throwable) {

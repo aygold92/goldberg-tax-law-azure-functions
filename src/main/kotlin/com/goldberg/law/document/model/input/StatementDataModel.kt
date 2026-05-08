@@ -1,9 +1,7 @@
 package com.goldberg.law.document.model.input
 
 import com.azure.ai.documentintelligence.models.AnalyzedDocument
-import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.goldberg.law.document.model.input.SummaryOfAccountsTable.Companion.getSummaryOfAccounts
 import com.goldberg.law.document.model.input.tables.*
 import com.goldberg.law.document.model.input.tables.BatesStampTable.Companion.getBatesStampTable
@@ -13,7 +11,6 @@ import com.goldberg.law.document.model.input.tables.TransactionTableCredits.Comp
 import com.goldberg.law.document.model.input.tables.TransactionTableCreditsCharges.Companion.getTransactionTableCreditsCharges
 import com.goldberg.law.document.model.input.tables.TransactionTableDebits.Companion.getTransactionTableDebits
 import com.goldberg.law.document.model.input.tables.TransactionTableDepositWithdrawal.Companion.getTransactionTableDepositWithdrawal
-import com.goldberg.law.document.model.pdf.ClassifiedPdfDocument
 import com.goldberg.law.entity.Classification
 import com.goldberg.law.util.*
 import java.math.BigDecimal
@@ -76,18 +73,12 @@ data class StatementDataModel(
 
     companion object {
         fun AnalyzedDocument.toBankDocument(classification: Classification): StatementDataModel = this.fields.let { documentFields ->
-            // for citi credit cards, the date field captures both the start and end
-            val statementDate = normalizeDate(documentFields[Keys.STATEMENT_DATE]?.valueString?.let {
-                if (it.contains("-")) it.substringAfter("-").trim()
-                else it
-            })
-
             StatementDataModel(
                 documentType = this.documentType,
-                date = statementDate,
+                date = documentFields[Keys.STATEMENT_DATE]?.valueString,
                 summaryOfAccountsTable = this.getSummaryOfAccounts(),
                 transactionTableDepositWithdrawal = this.getTransactionTableDepositWithdrawal(),
-                accountNumber = documentFields[Keys.ACCOUNT_NUMBER]?.valueString?.last4Digits(),
+                accountNumber = documentFields[Keys.ACCOUNT_NUMBER]?.valueString,
                 beginningBalance = documentFields[Keys.BEGINNING_BALANCE]?.currencyValue(),
                 endingBalance = documentFields[Keys.ENDING_BALANCE]?.currencyValue(),
                 feesCharged = documentFields[Keys.FEES_CHARGED]?.positiveCurrencyValue(),

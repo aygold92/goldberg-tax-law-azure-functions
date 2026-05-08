@@ -20,7 +20,7 @@ data class SummaryOfAccountsTableRecord @JsonCreator constructor(
     companion object {
         fun DocumentField.getAccountSummaryRecord(): SummaryOfAccountsTableRecord = this.valueMap.let { accountFields ->
             SummaryOfAccountsTableRecord(
-                accountNumber = accountFields[Keys.ACCOUNT_NUMBER]?.valueString?.last4Digits(),
+                accountNumber = accountFields[Keys.ACCOUNT_NUMBER]?.valueString,
                 beginningBalance = accountFields[Keys.BEGINNING_BALANCE]?.currencyValue(),
                 endingBalance = accountFields[Keys.ENDING_BALANCE]?.currencyValue(),
             )

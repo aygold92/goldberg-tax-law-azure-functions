@@ -148,14 +148,14 @@ class CheckDataModelTest {
     fun `toCheckDataModel extracts last 4 digits of account number`(input: String, expected: String) {
         val model = AD(mapOf(
             CheckDataModel.Keys.ACCOUNT_NUMBER to DF.of(input)
-        )).create().toCheckDataModel(newClassifiedPdfDocument())
+        )).create().toCheckDataModel(newClassification())
 
         assertThat(model.accountNumber).isEqualTo(expected)
     }
 
     @Test
     fun `toCheckDataModel returns null when account number is missing`() {
-        val model = AD(emptyMap()).create().toCheckDataModel(newClassifiedPdfDocument())
+        val model = AD(emptyMap()).create().toCheckDataModel(newClassification())
 
         assertThat(model.accountNumber).isNull()
     }
@@ -168,7 +168,7 @@ class CheckDataModelTest {
         val model = AD(mapOf(
             CheckDataModel.Keys.ACCOUNT_NUMBER to DF.of("8558⑈5563"),
             CheckDataModel.Keys.CHECK_NUMBER to DF.of(5563L),
-        )).create().toCheckDataModel(newClassifiedPdfDocument())
+        )).create().toCheckDataModel(newClassification())
 
         assertThat(model.accountNumber).isEqualTo("8558")
     }

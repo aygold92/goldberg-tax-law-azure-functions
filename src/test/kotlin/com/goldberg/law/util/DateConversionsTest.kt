@@ -34,6 +34,33 @@ class DateConversionsTest {
         assertThat(normalizeDate("$monthDay 2020")).isEqualTo("2020-04-07")
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = ["2012-12-31", "December 31 2012", "December 31, 2012", "December 31,2012", ".December 31, 2012", "December 31,  2012", "Dec 31, 2012",
+        "12/31/2012", "12/31/2012", "12/31/12", "12/31/12", " .-12/31. 2012 ; ",
+        // these dates were found on checks
+        "20121231", "2012 Dec 31",
+        // on TFCU Bank (Old) type
+        "123112"
+    ])
+    fun testFromStatementDateDec31(monthDayYear: String) {
+        val date = fromWrittenDate(monthDayYear)
+        assertThat(date?.toTransactionDate()).isEqualTo("2012-12-31")
+        assertThat(normalizeDate(monthDayYear)).isEqualTo("2012-12-31")
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["12/31", "12/31", "12/31/2012", "12/31/2012", "12/31/12", "12/31/12", ".-12/31.", "Dec 31", "December 31",
+        "December 31 2012", "December 31, 2012", "December 31,2012", ".December 31, 2012", "December 31,  2012", "Dec 31, 2012",
+        "12/31/2012", "12/31/2012", "12/31/12", "12/31/12", " .-12/31. 2012 ; ",
+        "20121231", "2012 Dec 31", "2012-12-31",
+        "123112"
+    ])
+    fun testFromTransactionDateDec31(monthDay: String) {
+        val date = fromWrittenDate(monthDay, "2012")
+        assertThat(date?.toTransactionDate()).isEqualTo("2012-12-31")
+        assertThat(normalizeDate("$monthDay 2012")).isEqualTo("2012-12-31")
+    }
+
     @Test
     fun testGetYear() {
         assertThat(fromWrittenDate("1/1", "2020")?.getYearSafe()).isEqualTo("2020")

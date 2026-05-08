@@ -1,12 +1,15 @@
 package com.goldberg.law.document
 
 import com.goldberg.law.document.model.input.StatementDataModel
+import com.goldberg.law.document.model.input.StatementDataModel.Keys
 import com.goldberg.law.document.model.pdf.DocumentType
 import com.goldberg.law.entity.Classification
 import com.goldberg.law.entity.Statement
 import com.goldberg.law.entity.StatementDetails
 import com.goldberg.law.entity.TransactionDetails
 import com.goldberg.law.util.asCurrency
+import com.goldberg.law.util.last4Digits
+import com.goldberg.law.util.normalizeDate
 import com.goldberg.law.verify.BankStatementVerifier
 import com.google.inject.Inject
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -16,6 +19,12 @@ class DocumentStatementCreator @Inject constructor(private val bankStatementVeri
     private val logger = KotlinLogging.logger {}
 
     fun createBankStatements(classification: Classification, model: StatementDataModel): List<Statement> {
+        // for citi credit cards, the date field captures both the start and end
+        val statementDate = normalizeDate(model.date?.let {
+            if (it.contains("-")) it.substringAfter("-").trim()
+            else it
+        })
+
         return if (DocumentType.hasMultipleStatements(classification.classificationType)) {
             val records = model.getTransactionRecords()
 
@@ -39,8 +48,8 @@ class DocumentStatementCreator @Inject constructor(private val bankStatementVeri
                 model.summaryOfAccountsTable!!.records.zip(result) { accountSummary, transactionRecords ->
                     val statementDetails = StatementDetails(
                         statementId = UUID.randomUUID(),
-                        date = model.date,
-                        accountNumber = accountSummary.accountNumber,
+                        date = statementDate,
+                        accountNumber = accountSummary.accountNumber?.last4Digits(),
                         beginningBalance = accountSummary.beginningBalance?.asCurrency(),
                         endingBalance = accountSummary.endingBalance?.asCurrency(),
                         interestCharged = model.interestCharged,
@@ -57,8 +66,8 @@ class DocumentStatementCreator @Inject constructor(private val bankStatementVeri
         } else {
             val statementDetails = StatementDetails(
                 statementId = UUID.randomUUID(),
-                date = model.date,
-                accountNumber = model.accountNumber,
+                date = statementDate,
+                accountNumber = model.accountNumber?.last4Digits(),
                 beginningBalance = model.beginningBalance?.asCurrency(),
                 endingBalance = model.endingBalance?.asCurrency(),
                 interestCharged = model.interestCharged,
