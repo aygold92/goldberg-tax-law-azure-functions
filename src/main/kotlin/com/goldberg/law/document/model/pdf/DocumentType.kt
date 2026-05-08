@@ -32,13 +32,14 @@ import com.goldberg.law.document.model.pdf.DocumentType.ExtraPageTypes.TRANSACTI
 import com.goldberg.law.document.model.pdf.DocumentType.ExtraPageTypes.WF_JOINT_OVERVIEW
 import com.goldberg.law.document.model.pdf.DocumentType.TransactionTypes.TRANSACTIONS_TFCU
 import com.goldberg.law.document.model.pdf.DocumentType.TransactionTypes.TRANSACTIONS_TYPE
+import com.goldberg.law.document.model.pdf.DocumentType.TransactionTypes.TRANSACTIONS_WF_SINGLE
 
 enum class DocumentType(val docTypes: List<String> = listOf()) {
     CREDIT_CARD(listOf(AMEX_CC, C1_CC, CITI_CC, WF_CC, B_OF_A_CC, B_OF_A_CC_BUSINESS, NFCU_CC, ALLY_CC, TFCU_CC)),
     BANK(listOf(EAGLE_BANK, WF_BANK, WF_BANK_JOINT, B_OF_A, NFCU_BANK, TRUIST, CAPITAL_ONE_JOINT, SANDY_SPRING, ATLANTIC_UNION, M_T_BANK, TFCU_BANK, TFCU_BANK_OLD)),
     CHECK(listOf(CHECKS, CHECKS_RAW)),
     EXTRA_PAGES(listOf(TEXT, BLANK, BACK_OF_CHECK, TRANSACTION_LIKE, B_OF_A_JOINT_OVERVIEW, WF_JOINT_OVERVIEW, TFCU_CHECK_SCANS)),
-    TRANSACTIONS(listOf(TRANSACTIONS_TYPE, TRANSACTIONS_TFCU)),
+    TRANSACTIONS(listOf(TRANSACTIONS_TYPE, TRANSACTIONS_TFCU, TRANSACTIONS_WF_SINGLE)),
     UNKNOWN;
 
     fun isCheck() = this == CHECK
@@ -83,6 +84,7 @@ enum class DocumentType(val docTypes: List<String> = listOf()) {
     object TransactionTypes {
         const val TRANSACTIONS_TYPE = "Transactions"
         const val TRANSACTIONS_TFCU = "Transactions - TFCU"
+        const val TRANSACTIONS_WF_SINGLE = "Transactions - WF Single"
     }
 
     object ExtraPageTypes {
