@@ -8,7 +8,8 @@ import java.time.Instant
 
 class DateConversionsTest {
     @ParameterizedTest
-    @ValueSource(strings = ["2020-04-07", "April 7 2020", "April 7, 2020", "April 7,2020", ".April 7, 2020", "April 7,  2020", "Apr 7, 2020",
+    @ValueSource(strings = ["2020-04-07", "April 7 2020", "April07,2020 @", "April7,2020 @", "April 7, 2020", "April 7,2020", ".April 7, 2020", "April 7,  2020",
+        "Apr 7, 2020","Apr07, 2020","Apr7, 2020",
         "4/7/2020", "04/07/2020", "4/7/20", "04/07/20", " .-4/7. 2020 ; ",
         // these dates were found on checks
         "20200407", "2020 Apr 7",
@@ -23,7 +24,8 @@ class DateConversionsTest {
 
     @ParameterizedTest
     @ValueSource(strings = ["4/7", "04/07", "4/7/2020", "04/07/2020", "4/7/20", "04/07/20", ".-4/7.", "Apr 7", "April 7",
-        "April 7 2020", "April 7, 2020", "April 7,2020", ".April 7, 2020", "April 7,  2020", "Apr 7, 2020",
+        "April 7 2020", "April07,2020 @", "April7,2020 @","April 7, 2020", "April 7,2020", ".April 7, 2020", "April 7,  2020",
+        "Apr 7, 2020", "Apr07, 2020","Apr7, 2020",
         "4/7/2020", "04/07/2020", "4/7/20", "04/07/20", " .-4/7. 2020 ; ",
         "20200407", "2020 Apr 7", "2020-04-07",
         "040720"

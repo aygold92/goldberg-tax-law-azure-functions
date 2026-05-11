@@ -12,9 +12,13 @@ import java.util.*
 private val logger = KotlinLogging.logger {}
 private val acceptedDateFormats = listOf(
     "MMMM d yyyy", // April 7 2020
+    "MMMMd yyyy", // April7 2020
     "MMMM dd yyyy", // April 07 2020
+    "MMMMdd yyyy", // April 07 2020
     "MMM d yyyy",  // Apr 7 2020
+    "MMMd yyyy",  // Apr7 2020
     "MMM dd yyyy", // Apr 07 2020
+    "MMMdd yyyy", // Apr07 2020
     "MM dd yyyy",  // 04 07 2020
     "M d yyyy",    // 4 7 2020
     "MM dd yy",    // 04 07 20

@@ -18,10 +18,13 @@ import com.google.inject.AbstractModule
 import com.google.inject.Provides
 import com.google.inject.Singleton
 import com.google.inject.name.Named
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.sql.Database
 import java.time.Duration
 
 class AppModule: AbstractModule() {
+    private val logger = KotlinLogging.logger {}
+
     override fun configure() {
         Runtime.getRuntime().addShutdownHook(Thread {
             DatabaseConfig.close()
@@ -33,17 +36,19 @@ class AppModule: AbstractModule() {
     @Singleton
     fun documentClassifier(): DocumentClassifier =
         if (isProxyMode()) ProxyDocumentClassifier()
-        else AzureDocumentClassifier(buildAzureClient(), getEnvStrict(CLASSIFIER_MODEL_ID))
+        else getEnvStrict(CLASSIFIER_MODEL_ID).let {
+            logger.info { "Using classifier model [$it]"}
+            AzureDocumentClassifier(buildAzureClient(), it)
+        }
 
     @Provides
     @Singleton
     fun documentDataExtractor(): DocumentDataExtractor =
         if (isProxyMode()) ProxyDocumentDataExtractor()
-        else AzureDocumentDataExtractor(
-            buildAzureClient(),
-            getEnvStrict(STATEMENT_EXTRACTOR_MODEL_ID),
-            getEnvStrict(CHECK_EXTRACTOR_MODEL_ID),
-        )
+        else Pair(getEnvStrict(STATEMENT_EXTRACTOR_MODEL_ID), getEnvStrict(CHECK_EXTRACTOR_MODEL_ID)).let { (statementExtractorModel, checkExtractorModel) ->
+            logger.info { "Using statement extractor model [$statementExtractorModel] and check extractor model [$checkExtractorModel]"}
+            AzureDocumentDataExtractor(buildAzureClient(), statementExtractorModel, checkExtractorModel)
+        }
 
     @Provides
     @Singleton
