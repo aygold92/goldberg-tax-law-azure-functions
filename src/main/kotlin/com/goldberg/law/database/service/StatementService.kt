@@ -114,11 +114,22 @@ class StatementService @Inject constructor(
         }
     }
 
+    fun loadStatementSummary(statementId: UUID) = db.txnSafe {
+        loadStatementSummaries { BankStatementsTable.id eq statementId }.singleOrNull()
+            ?: throw EntityNotFoundException(EntityType.Statement, statementId).also {
+                logger.debug { "Statement not found in MySQL: $statementId" }
+            }
+    }
+
     /**
      * List statements with metadata aggregations, suspicious reasons, and missing checks.
      * Transactions are batch-loaded in a single follow-up query to avoid N+1.
      */
     fun listBankStatements(clientId: UUID): List<StatementSummary> = db.txnSafe {
+        loadStatementSummaries { ClientsTable.id eq clientId }
+    }
+
+    private fun loadStatementSummaries(where: SqlExpressionBuilder.() -> Op<Boolean>): List<StatementSummary> {
         val zeroLiteral = decimalLiteral(ZERO) as Expression<BigDecimal?>
         val spendingAlias = Case()
             .When(TransactionsTable.amount less BigDecimal.ZERO, TransactionsTable.amount)
@@ -138,21 +149,22 @@ class StatementService @Inject constructor(
             .select(ClientsTable.columns + FilesTable.columns + ClassificationsTable.columns + BankStatementsTable.columns +
                     listOf(spendingAlias, incomeAlias, numTransactions)
             )
-            .where { ClientsTable.id eq clientId }
+            .where(where)
             .groupBy(BankStatementsTable.id)
             .orderBy(
-                FilesTable.id to SortOrder.ASC,
+                BankStatementsTable.accountNumber to SortOrder.ASC,
                 BankStatementsTable.date to SortOrder.ASC,
+                FilesTable.id to SortOrder.ASC,
                 BankStatementsTable.createdAt to SortOrder.DESC
             )
             .toList()
 
-        if (statementRows.isEmpty()) return@txnSafe emptyList()
+        if (statementRows.isEmpty()) return emptyList()
 
         val statementIds = statementRows.map { it[BankStatementsTable.id].value }
         val transactionsByStatement = transactionService.loadTransactionsByStatement(statementIds)
 
-        statementRows.map { row ->
+        return statementRows.map { row ->
             val statementDetails = StatementDetails.fromRow(row)
             val classification = Classification.fromRow(row)
             val transactions = transactionsByStatement[statementDetails.statementId] ?: emptyList()

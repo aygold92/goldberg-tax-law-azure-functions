@@ -6,6 +6,7 @@ import com.goldberg.law.function.activity.ProcessDataModelActivity
 import com.goldberg.law.function.activity.model.ProcessDataModelActivityInput
 import com.goldberg.law.function.api.model.ApiResult
 import com.goldberg.law.function.api.model.AnalyzePagesRequest
+import com.goldberg.law.function.model.ExtractedDocumentIds
 import com.goldberg.law.util.OBJECT_MAPPER
 import com.goldberg.law.util.mapAsync
 import com.google.inject.Inject
@@ -16,6 +17,8 @@ import com.microsoft.azure.functions.annotation.FunctionName
 import com.microsoft.azure.functions.annotation.HttpTrigger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.util.*
+import kotlin.collections.component1
+import kotlin.collections.component2
 
 class AnalyzePageFunction @Inject constructor(
     private val classificationService: ClassificationService,
@@ -40,7 +43,11 @@ class AnalyzePageFunction @Inject constructor(
             }
 
         request!!.createResponseBuilder(HttpStatus.OK)
-            .body(results)
+            .body(results.groupBy({ it.fileId }, { it.extractedDocumentIds })
+                .map { (fileId, extractedDocuments) -> fileId to ExtractedDocumentIds(
+                    statementIds = extractedDocuments.flatMap { it.statementIds }.toSet(),
+                    checkIds = extractedDocuments.flatMap { it.checkIds }.toSet(),
+                )}.toMap())
             .build()
     } catch (ex: Exception) {
         // TODO: different error codes

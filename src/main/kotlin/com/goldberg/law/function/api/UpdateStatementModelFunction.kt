@@ -4,6 +4,7 @@ import com.goldberg.law.database.DbExec.txnSafe
 import com.goldberg.law.database.service.ClassificationService
 import com.goldberg.law.database.service.StatementService
 import com.goldberg.law.database.service.TransactionService
+import com.goldberg.law.entity.StatementSummary
 import com.goldberg.law.function.api.model.ApiResult
 import com.goldberg.law.function.api.model.UpdateStatementModelRequest
 import com.goldberg.law.util.OBJECT_MAPPER
@@ -46,7 +47,7 @@ class UpdateStatementModelFunction @Inject constructor(
         }
 
         request!!.createResponseBuilder(HttpStatus.OK)
-//            .body()
+            .body(statementService.loadStatementSummary(req.statementDetails.statementId))
             .build()
     } catch (ex: Exception) {
         // TODO: different error codes
