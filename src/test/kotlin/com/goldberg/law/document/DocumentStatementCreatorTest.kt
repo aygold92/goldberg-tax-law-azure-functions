@@ -8,19 +8,19 @@ import com.goldberg.law.document.model.input.tables.BatesStampTableRow
 import com.goldberg.law.document.model.input.tables.TransactionTableDepositWithdrawal
 import com.goldberg.law.document.model.input.tables.TransactionTableDepositWithdrawalRecord
 import com.goldberg.law.document.model.pdf.DocumentType
+import com.goldberg.law.entity.Classification
 import com.goldberg.law.entity.EntityValues.DEFAULT_BATES_STAMP
 import com.goldberg.law.entity.EntityValues.DEFAULT_BEGINNING_BALANCE
 import com.goldberg.law.entity.EntityValues.DEFAULT_DATE
 import com.goldberg.law.entity.EntityValues.DEFAULT_ENDING_BALANCE
 import com.goldberg.law.entity.EntityValues.DEFAULT_STATEMENT_DATE_STRING
-import com.goldberg.law.entity.Classification
 import com.goldberg.law.entity.EntityValues.entityCompare
 import com.goldberg.law.entity.EntityValues.newClassification
-import com.goldberg.law.entity.StatementDetails
-import com.goldberg.law.entity.TransactionDetails
 import com.goldberg.law.entity.EntityValues.newStatement
 import com.goldberg.law.entity.EntityValues.newStatementDetails
 import com.goldberg.law.entity.EntityValues.newTransactionDetails
+import com.goldberg.law.entity.StatementDetails
+import com.goldberg.law.entity.TransactionDetails
 import com.goldberg.law.util.asCurrency
 import com.goldberg.law.util.bd
 import com.goldberg.law.verify.BankStatementVerifier
@@ -29,6 +29,8 @@ import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import org.mockito.Mock
 import org.mockito.kotlin.*
 import java.math.BigDecimal
@@ -41,6 +43,44 @@ class DocumentStatementCreatorTest {
     @BeforeEach
     fun setup() {
         whenever(bankStatementVerifier.getSuspiciousReasons(any(), any(), any())).thenReturn(emptyList())
+    }
+
+    @ParameterizedTest
+    @CsvSource(
+        "12/01/2023 - 12/31/2023, 2023-12-31",
+        "01/01/2024 - 01/31/2024, 2024-01-31",
+        "March 1 2024 - March 31 2024, 2024-03-31",
+        "2023-12-31, 2023-12-31",
+        "01/15/2024, 2024-01-15",
+        "March 31 2024, 2024-03-31",
+    )
+    fun `extracts date with and without Citi format`(input: String, expectedRaw: String) {
+        val model = newStatementModel(date = input)
+
+        val result = statementCreator.createBankStatements(newClassification(), model)
+
+        val statement = result.single()
+
+        assertThat(statement.date).isEqualTo(expectedRaw)
+        assertThat(statement.statementDetails.statementDate()).isNotNull()
+    }
+
+    @ParameterizedTest
+    @CsvSource(
+        "1234567890, 7890",
+        "****1234, 1234",
+        "12-3456-7890, 7890",
+        "9876, 9876",
+        "9876*@(*, 9876",
+        "123, 123",
+    )
+    fun `extracts last 4 digits of account number`(input: String, expected: String) {
+        val model = newStatementModel(accountNumber = input)
+
+        val result = statementCreator.createBankStatements(newClassification(), model)
+        val statement = result.single()
+
+        assertThat(statement.accountNumber).isEqualTo(expected)
     }
 
     @Test

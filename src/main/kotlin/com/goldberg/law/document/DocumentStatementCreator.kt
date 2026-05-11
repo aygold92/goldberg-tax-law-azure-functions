@@ -19,10 +19,11 @@ class DocumentStatementCreator @Inject constructor(private val bankStatementVeri
     private val logger = KotlinLogging.logger {}
 
     fun createBankStatements(classification: Classification, model: StatementDataModel): List<Statement> {
-        // for citi credit cards, the date field captures both the start and end
-        val statementDate = normalizeDate(model.date?.let {
-            if (it.contains("-")) it.substringAfter("-").trim()
-            else it
+        val statementDate = normalizeDate(model.date?.let { modelDate ->
+            // for citi credit cards, the date field captures both the start and end
+            val dashedParts = modelDate.split("-")
+            if (!dashedParts.map { normalizeDate(it) }.contains(null)) modelDate.substringAfter("-").trim()
+            else modelDate
         })
 
         return if (DocumentType.hasMultipleStatements(classification.classificationType)) {

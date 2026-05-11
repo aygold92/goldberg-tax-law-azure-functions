@@ -163,52 +163,6 @@ class StatementDataModelTest {
             ))
         }
 
-        @ParameterizedTest
-        @CsvSource(
-            "12/01/2023 - 12/31/2023, 12/31/2023",
-            "01/01/2024 - 01/31/2024, 01/31/2024",
-            "March 1 2024 - March 31 2024, March 31 2024",
-        )
-        fun `toBankDocument extracts date after dash for Citi format`(input: String, expectedRaw: String) {
-            val model = AD(mapOf(
-                Keys.STATEMENT_DATE to DF.of(input)
-            )).create().toBankDocument(newClassification())
-
-            assertThat(model.date).isEqualTo(normalizeDate(expectedRaw))
-            assertThat(model.statementDate).isNotNull()
-        }
-
-        @ParameterizedTest
-        @CsvSource(
-            "01/15/2024",
-            "March 31 2024",
-            "12/31/2023",
-        )
-        fun `toBankDocument uses date as-is when no dash present`(dateStr: String) {
-            val model = AD(mapOf(
-                Keys.STATEMENT_DATE to DF.of(dateStr)
-            )).create().toBankDocument(newClassification())
-
-            assertThat(model.date).isEqualTo(normalizeDate(dateStr))
-            assertThat(model.statementDate).isNotNull()
-        }
-
-        @ParameterizedTest
-        @CsvSource(
-            "1234567890, 7890",
-            "****1234, 1234",
-            "12-3456-7890, 7890",
-            "9876, 9876",
-            "123, 123",
-        )
-        fun `toBankDocument extracts last 4 digits of account number`(input: String, expected: String) {
-            val model = AD(mapOf(
-                Keys.ACCOUNT_NUMBER to DF.of(input)
-            )).create().toBankDocument(newClassification())
-
-            assertThat(model.accountNumber).isEqualTo(expected)
-        }
-
         @Test
         fun `toBankDocument parses beginning and ending balance`() {
             val model = AD(mapOf(
@@ -236,10 +190,11 @@ class StatementDataModelTest {
 
         @Test
         fun `toBankDocument populates all fields from a complete document`() {
+            val accountNumber = "9876543210"
             val classification = newClassification()
             val model = AD(mapOf(
                 Keys.STATEMENT_DATE to DF.of("01/15/2024"),
-                Keys.ACCOUNT_NUMBER to DF.of("9876543210"),
+                Keys.ACCOUNT_NUMBER to DF.of(accountNumber),
                 Keys.BEGINNING_BALANCE to DF.of(5000.00, content = "$5,000.00"),
                 Keys.ENDING_BALANCE to DF.of(4500.00, content = "$4,500.00"),
                 Keys.FEES_CHARGED to DF.of(25.00, content = "$25.00"),
@@ -247,7 +202,7 @@ class StatementDataModelTest {
                 // SummaryOfAccounts table
                 Keys.ACCOUNT_SUMMARY_TABLE to DF.of(
                     DF.of(
-                        SummaryOfAccountsTableRecord.Keys.ACCOUNT_NUMBER to DF.of("9876543210"),
+                        SummaryOfAccountsTableRecord.Keys.ACCOUNT_NUMBER to DF.of(accountNumber),
                         SummaryOfAccountsTableRecord.Keys.BEGINNING_BALANCE to DF.of(5000.00, content = "$5,000.00"),
                         SummaryOfAccountsTableRecord.Keys.ENDING_BALANCE to DF.of(4500.00, content = "$4,500.00"),
                     ),
@@ -310,15 +265,15 @@ class StatementDataModelTest {
 
             val expected = StatementDataModel(
                 documentType = "custom:bank:eagle",
-                date = normalizeDate("01/15/2024"),
-                accountNumber = "3210",
+                date = "01/15/2024",
+                accountNumber = accountNumber,
                 beginningBalance = 5000.00.asCurrency(),
                 endingBalance = 4500.00.asCurrency(),
                 feesCharged = 25.00.asCurrency(),
                 interestCharged = 10.00.asCurrency(),
                 summaryOfAccountsTable = SummaryOfAccountsTable(listOf(
                     SummaryOfAccountsTableRecord(
-                        accountNumber = "3210",
+                        accountNumber = accountNumber,
                         beginningBalance = 5000.00.asCurrency(),
                         endingBalance = 4500.00.asCurrency(),
                     ),

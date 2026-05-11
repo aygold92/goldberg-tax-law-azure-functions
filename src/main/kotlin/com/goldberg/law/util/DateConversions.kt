@@ -3,10 +3,8 @@ package com.goldberg.law.util
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.time.temporal.TemporalField
 import java.util.*
 
 private val logger = KotlinLogging.logger {}
@@ -30,10 +28,10 @@ private val acceptedDateFormats = listOf(
     "yyyy MMM dd", // 2020 Apr 07
 )
 
-private val TRANSACTION_DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd")
-fun Date.toTransactionDate(): String = TRANSACTION_DATE_FORMAT.format(this)
-private val MONTH_YEAR_FORMAT = SimpleDateFormat("M/yyyy")
-fun Date.toMonthYear(): String = MONTH_YEAR_FORMAT.format(this)
+private val TRANSACTION_DATE_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+fun Date.toTransactionDate(): String = TRANSACTION_DATE_FORMAT.format(toInstant().atZone(ZoneId.systemDefault()).toLocalDate())
+private val MONTH_YEAR_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("M/yyyy")
+fun Date.toMonthYear(): String = MONTH_YEAR_FORMAT.format(toInstant().atZone(ZoneId.systemDefault()).toLocalDate())
 fun Date.getYearSafe(): String = getYearInt().toString()
 fun Date.getYearInt(): Int = Calendar.getInstance().apply { time = this@getYearInt }.get(Calendar.YEAR)
 fun Date.getMonthInt(): Int = Calendar.getInstance().apply { time = this@getMonthInt }.get(Calendar.MONTH)

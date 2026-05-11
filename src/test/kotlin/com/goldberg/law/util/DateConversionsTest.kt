@@ -12,7 +12,7 @@ class DateConversionsTest {
         "Apr 7, 2020","Apr07, 2020","Apr7, 2020",
         "4/7/2020", "04/07/2020", "4/7/20", "04/07/20", " .-4/7. 2020 ; ",
         // these dates were found on checks
-        "20200407", "2020 Apr 7",
+        "20200407", "2020 Apr 7", "2020-04-07",
         // on TFCU Bank (Old) type
         "040720"
     ])
@@ -40,7 +40,7 @@ class DateConversionsTest {
     @ValueSource(strings = ["2012-12-31", "December 31 2012", "December 31, 2012", "December 31,2012", ".December 31, 2012", "December 31,  2012", "Dec 31, 2012",
         "12/31/2012", "12/31/2012", "12/31/12", "12/31/12", " .-12/31. 2012 ; ",
         // these dates were found on checks
-        "20121231", "2012 Dec 31",
+        "20121231", "2012 Dec 31", "2012-12-31",
         // on TFCU Bank (Old) type
         "123112"
     ])
