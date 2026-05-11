@@ -1,10 +1,12 @@
 package com.goldberg.law.database.service
 
 import com.goldberg.law.database.DbExec.txnSafe
+import com.goldberg.law.database.tables.BankStatementsTable
 import com.goldberg.law.database.tables.ChecksTable
 import com.goldberg.law.database.tables.ClassificationsTable
 import com.goldberg.law.database.tables.ClientsTable
 import com.goldberg.law.database.tables.FilesTable
+import com.goldberg.law.database.tables.TransactionsTable
 import com.goldberg.law.document.exception.EntityNotFoundException
 import com.goldberg.law.entity.Check
 import com.goldberg.law.entity.CheckDetails
@@ -17,6 +19,7 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.innerJoin
+import org.jetbrains.exposed.sql.leftJoin
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import java.util.*
@@ -44,12 +47,17 @@ class CheckService @Inject constructor(
         newCheckId
     }
 
+    fun listChecks(clientId: UUID): List<Check> = db.txnSafe {
+        ChecksTable.fullJoin()
+            .selectAll().where { ClientsTable.id eq clientId }
+            .map { Check.fromRow(it) }
+    }
+
     fun loadCheck(id: UUID) = db.txnSafe {
-        ChecksTable.classificationsJoin()
+        ChecksTable.fullJoin()
             .selectAll().where { ChecksTable.id eq id }
             .map { row -> Check.fromRow(row) }
             .singleOrNull() ?: throw EntityNotFoundException(EntityType.Check, id)
-
     }
 
     fun deleteCheck(id: UUID) = db.txnSafe {
@@ -79,5 +87,8 @@ class CheckService @Inject constructor(
             .innerJoin(FilesTable, { ClassificationsTable.fileId }, { id })
             .innerJoin(ClientsTable, { FilesTable.clientId }, { id })
 
+        fun ChecksTable.fullJoin() = classificationsJoin()
+            .leftJoin(TransactionsTable, { TransactionsTable.checkId }, { ChecksTable.id })
+            .leftJoin(BankStatementsTable, { TransactionsTable.statementId }, { BankStatementsTable.id })
     }
 }

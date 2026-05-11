@@ -8,7 +8,9 @@ import com.goldberg.law.database.service.ClientService
 import com.goldberg.law.database.service.FileService
 import com.goldberg.law.database.service.StatementService
 import com.goldberg.law.database.service.TransactionService
+import com.goldberg.law.database.tables.BankStatementsTable
 import com.goldberg.law.database.tables.ChecksTable
+import com.goldberg.law.database.tables.TransactionsTable
 import com.goldberg.law.document.exception.EntityNotFoundException
 import com.goldberg.law.entity.Check
 import com.goldberg.law.entity.ClassifiedCheck
@@ -68,12 +70,19 @@ class CheckServiceTest : DatabaseTest() {
 
             // Verify stored fields
             val actualCheck = checkService.loadCheck(checkId)
-
             assertThat(actualCheck).entityCompare().isEqualTo(Check(classification, checkDetails))
+
+            // Verify appears in list
+            val listed = checkService.listChecks(clientId)
+            assertThat(listed).hasSize(1)
+            assertThat(listed.single()).entityCompare().isEqualTo(Check(classification, checkDetails))
 
             // Delete
             val deletedCount = checkService.deleteCheck(checkId)
             assertThat(deletedCount).isEqualTo(1)
+
+            // Verify gone from list
+            assertThat(checkService.listChecks(clientId)).isEmpty()
 
             // Verify gone — loadFilesToProcess now returns the bare classification, not a check
             assertThatThrownBy {
@@ -123,6 +132,42 @@ class CheckServiceTest : DatabaseTest() {
             assertThat(loaded.checkNumber).isNull()
             assertThat(loaded.amount).isNull()
             assertThat(loaded.date).isNull()
+        }
+    }
+
+    @Nested
+    inner class ListChecks {
+        private val transactionService = TransactionService(db)
+        private val statementService = StatementService(transactionService, BankStatementVerifier(TransactionVerifier()), db)
+
+        @BeforeEach
+        fun clearStatements() {
+            db.txnSafe { BankStatementsTable.deleteAll() } // cascades to TransactionsTable
+        }
+
+        @Test
+        fun `matched check includes transactionDetails and statementDetails, unmatched check has both null`() {
+            val matchedCheckId = checkService.insertCheck(classification, EntityValues.newCheckDetails(checkNumber = 1001))
+            val unmatchedCheckId = checkService.insertCheck(classification, EntityValues.newCheckDetails(checkNumber = 1002))
+
+            val statementId = statementService.insertBankStatementWithTransactions(
+                EntityValues.newStatement(classification = classification, transactions = emptyList())
+            )
+            transactionService.upsertTransactions(
+                statementId,
+                listOf(EntityValues.newTransactionDetails(checkNumber = 1001, checkId = matchedCheckId, transactionId = UUID.randomUUID()))
+            )
+
+            val checks = checkService.listChecks(clientId)
+
+            assertThat(checks).hasSize(2)
+            val matched = checks.single { it.checkId == matchedCheckId }
+            val unmatched = checks.single { it.checkId == unmatchedCheckId }
+
+            assertThat(matched.transactionDetails).isNotNull
+            assertThat(matched.statementDetails).isNotNull
+            assertThat(unmatched.transactionDetails).isNull()
+            assertThat(unmatched.statementDetails).isNull()
         }
     }
 

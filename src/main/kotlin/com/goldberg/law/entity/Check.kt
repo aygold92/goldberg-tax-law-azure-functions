@@ -6,16 +6,20 @@ import com.goldberg.law.database.tables.TransactionsTable
 import org.jetbrains.exposed.sql.ResultRow
 import java.math.BigDecimal
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 
 data class Check(
     val classification: Classification,
     val checkDetails: CheckDetails,
+    val statementDetails: StatementDetails? = null,
+    val transactionDetails: TransactionDetails? = null
 ): IClassification by classification, IInputFile by classification.inputFile, ICheck by checkDetails {
     companion object {
         fun fromRow(row: ResultRow): Check = Check(
             classification = Classification.fromRow(row),
-            checkDetails = CheckDetails.fromRow(row)
+            checkDetails = CheckDetails.fromRow(row),
+            statementDetails = row[BankStatementsTable.id]?.let { StatementDetails.fromRow(row) },
+            transactionDetails = row[TransactionsTable.id]?.let { TransactionDetails.fromRow(row) }
         )
     }
 }
