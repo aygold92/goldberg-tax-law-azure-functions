@@ -45,9 +45,14 @@ class AppModule: AbstractModule() {
     @Singleton
     fun documentDataExtractor(): DocumentDataExtractor =
         if (isProxyMode()) ProxyDocumentDataExtractor()
-        else Pair(getEnvStrict(STATEMENT_EXTRACTOR_MODEL_ID), getEnvStrict(CHECK_EXTRACTOR_MODEL_ID)).let { (statementExtractorModel, checkExtractorModel) ->
-            logger.info { "Using statement extractor model [$statementExtractorModel] and check extractor model [$checkExtractorModel]"}
-            AzureDocumentDataExtractor(buildAzureClient(), statementExtractorModel, checkExtractorModel)
+        else {
+            val extractorModelMap = System.getenv()
+                .filterKeys { it.startsWith(EXTRACTOR_MODEL_PREFIX) }
+                .mapKeys { (key, _) -> key.removePrefix(EXTRACTOR_MODEL_PREFIX) }
+            val checkExtractorModel = getEnvStrict(CHECK_EXTRACTOR_MODEL_ID)
+            logger.info { "Loaded ${extractorModelMap.size} statement extractor models: ${extractorModelMap.keys}" }
+            logger.info { "Using check extractor model [$checkExtractorModel]" }
+            AzureDocumentDataExtractor(buildAzureClient(), extractorModelMap, checkExtractorModel)
         }
 
     @Provides
@@ -92,8 +97,8 @@ class AppModule: AbstractModule() {
 
     companion object {
         const val CLASSIFIER_MODEL_ID = "DocumentIntelligence.ClassifierModel"
-        const val STATEMENT_EXTRACTOR_MODEL_ID = "DocumentIntelligence.ExtractorModel"
         const val CHECK_EXTRACTOR_MODEL_ID = "DocumentIntelligence.CheckExtractorModel"
         const val NUM_FUNCTION_WORKERS = "NumFunctionWorkers"
+        private const val EXTRACTOR_MODEL_PREFIX = "DocumentIntelligence.ExtractorModel."
     }
 }

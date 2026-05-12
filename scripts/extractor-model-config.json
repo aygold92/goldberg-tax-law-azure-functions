@@ -1,5 +1,5 @@
 {
-  "modelId": "CompositeExtractor_V18",
+  "modelId": "CompositeExtractor_V19",
   "classifierId": "CompositeExtractorClassifier",
   "docTypes": {
     "Ally CC":                  { "modelId": "AllyCCExtractor" },

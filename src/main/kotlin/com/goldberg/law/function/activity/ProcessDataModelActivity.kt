@@ -40,13 +40,13 @@ class ProcessDataModelActivity @Inject constructor(
         val opts = input.processingOptions
         val classificationId = input.classification.classificationId
 
-        logger.info { "[${input.requestId}][${context.invocationId}] processing ${input.classification} (options=$opts)" }
+        logger.info { "[${input.requestId}][${context.invocationId}] processing ${input.classification.info} (options=$opts)" }
 
         val shouldAnalyze = opts.forceReanalysis || !input.classification.isAnalyzed()
 
         val documentIds = if (shouldAnalyze) {
             // analyze and create statements
-            logger.info { "[${input.requestId}][${context.invocationId}] analyzing document for ${input.classification}" }
+            logger.info { "[${input.requestId}][${context.invocationId}] analyzing document for ${input.classification.info}" }
             val dataModel = analyzeModel(input.classification)
             createStatementsAndChecks(dataModel, input.classification, opts.replaceOnRecreate)
         } else {

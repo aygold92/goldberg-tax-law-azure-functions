@@ -3,7 +3,6 @@ package com.goldberg.law.document
 import com.azure.ai.documentintelligence.DocumentIntelligenceClient
 import com.azure.ai.documentintelligence.models.AnalyzeDocumentOptions
 import com.azure.ai.documentintelligence.models.AnalyzedDocument
-import com.goldberg.law.AppModule
 import com.goldberg.law.document.model.input.CheckDataModel
 import com.goldberg.law.document.model.input.CheckDataModel.Companion.toCheckDataModel
 import com.goldberg.law.document.model.input.StatementDataModel
@@ -12,21 +11,24 @@ import com.goldberg.law.document.model.pdf.ClassifiedPdfDocument
 import com.goldberg.law.util.isAzureThrottlingError
 import com.goldberg.law.util.retryWithBackoff
 import com.goldberg.law.util.toStringDetailed
-import com.google.inject.Inject
-import com.google.inject.name.Named
 import io.github.oshai.kotlinlogging.KotlinLogging
 
-class AzureDocumentDataExtractor @Inject constructor(
+class AzureDocumentDataExtractor(
     private val client: DocumentIntelligenceClient,
-    @Named(AppModule.STATEMENT_EXTRACTOR_MODEL_ID) private val statementExtractorModelId: String,
-    @Named(AppModule.CHECK_EXTRACTOR_MODEL_ID) private val checkExtractorModelId: String,
+    private val statementExtractorModelMap: Map<String, String>,
+    private val checkExtractorModelId: String,
 ) : DocumentDataExtractor() {
     private val logger = KotlinLogging.logger {}
 
     override fun extractStatementData(classifiedDocument: ClassifiedPdfDocument): StatementDataModel {
-        logger.info { "[Data Extractor] Processing $classifiedDocument" }
+        logger.info { "[Data Extractor] Processing ${classifiedDocument.classification.info}" }
+        val modelId = statementExtractorModelMap[classifiedDocument.classification.classificationType]
+        if (modelId == null) {
+            logger.error { "No extractor model configured for type: ${classifiedDocument.classification.classificationType}" }
+            return StatementDataModel.blankModel(classifiedDocument.classification)
+        }
         return try {
-            extractData(classifiedDocument, statementExtractorModelId).toBankDocument(classifiedDocument.classification).also {
+            extractData(classifiedDocument, modelId).toBankDocument(classifiedDocument.classification).also {
                 logger.debug { "[Data Extractor]: Processed $classifiedDocument to ${it.toStringDetailed()}" }
             }
         } catch (ex: Exception) {
