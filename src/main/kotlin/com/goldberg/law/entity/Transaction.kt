@@ -45,6 +45,7 @@ data class TransactionDetails(
     override val amount: BigDecimal?,
     override val checkNumber: Int?,
     override val filePageNumber: Int,
+    override val statementIndex: Int = 0,
     override val checkId: UUID?,
     val createdAt: Long = Instant.now().toEpochMilli(),
     val updatedAt: Long = Instant.now().toEpochMilli(),
@@ -59,6 +60,7 @@ data class TransactionDetails(
             amount = row[TransactionsTable.amount],
             checkNumber = row[TransactionsTable.checkNumber],
             filePageNumber = row[TransactionsTable.filePageNumber],
+            statementIndex = row[TransactionsTable.statementIndex],
             checkId = row[TransactionsTable.checkId]?.value,
             createdAt = row[TransactionsTable.createdAt].toEpochMilli(),
             updatedAt = row[TransactionsTable.updatedAt].toEpochMilli(),
@@ -73,6 +75,7 @@ interface ITransaction {
     val amount: BigDecimal?
     val checkNumber: Int?
     val filePageNumber: Int
+    val statementIndex: Int
     val checkId: UUID?
 
     @get:JsonIgnore

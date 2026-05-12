@@ -23,17 +23,20 @@ class TransactionService @Inject constructor(
     private val logger = KotlinLogging.logger {}
 
     fun batchInsert(statementId: UUID, transactions: List<TransactionDetails>) {
-        transactions.chunked(DbExec.DEFAULT_BATCH_SIZE).forEach { batch ->
-            TransactionsTable.batchInsert(batch) { transaction ->
-                this[TransactionsTable.statementId] = statementId
-                this[TransactionsTable.checkId] = null as EntityID<UUID>? // Will be linked later if applicable
-                this[TransactionsTable.date] = transaction.date
-                this[TransactionsTable.checkNumber] = transaction.checkNumber
-                this[TransactionsTable.description] = transaction.description
-                this[TransactionsTable.amount] = transaction.amount
-                this[TransactionsTable.filePageNumber] = transaction.filePageNumber
+        transactions.mapIndexed { index, t -> index to t }
+            .chunked(DbExec.DEFAULT_BATCH_SIZE)
+            .forEach { batch ->
+                TransactionsTable.batchInsert(batch) { (index, transaction) ->
+                    this[TransactionsTable.statementId] = statementId
+                    this[TransactionsTable.checkId] = null as EntityID<UUID>? // Will be linked later if applicable
+                    this[TransactionsTable.date] = transaction.date
+                    this[TransactionsTable.checkNumber] = transaction.checkNumber
+                    this[TransactionsTable.description] = transaction.description
+                    this[TransactionsTable.amount] = transaction.amount
+                    this[TransactionsTable.filePageNumber] = transaction.filePageNumber
+                    this[TransactionsTable.statementIndex] = index
+                }
             }
-        }
         logger.info { "Inserting ${transactions.size} for: $statementId" }
     }
 
@@ -48,6 +51,7 @@ class TransactionService @Inject constructor(
             this[TransactionsTable.description] = transaction.description
             this[TransactionsTable.amount] = transaction.amount
             this[TransactionsTable.filePageNumber] = transaction.filePageNumber
+            this[TransactionsTable.statementIndex] = transaction.statementIndex
             this[TransactionsTable.createdAt] = now
             this[TransactionsTable.updatedAt] = now
         }
@@ -56,7 +60,7 @@ class TransactionService @Inject constructor(
     fun loadTransactionsByStatement(statementIds: List<UUID>): Map<UUID, List<TransactionDetails>> = db.txnSafe {
         TransactionsTable
             .selectAll().where { TransactionsTable.statementId inList statementIds }
-            .orderBy(TransactionsTable.filePageNumber to SortOrder.ASC, TransactionsTable.date to SortOrder.ASC)
+            .orderBy(TransactionsTable.statementIndex to SortOrder.ASC, TransactionsTable.filePageNumber to SortOrder.ASC, TransactionsTable.date to SortOrder.ASC)
             .map { row -> row[TransactionsTable.statementId].value to TransactionDetails.fromRow(row) }
             .groupBy({ it.first }, { it.second })
     }
@@ -64,7 +68,7 @@ class TransactionService @Inject constructor(
     fun loadTransactions(statementId: UUID): List<TransactionDetails> = db.txnSafe {
         TransactionsTable
             .selectAll().where { TransactionsTable.statementId eq statementId }
-            .orderBy(TransactionsTable.filePageNumber to SortOrder.ASC, TransactionsTable.date to SortOrder.ASC)
+            .orderBy(TransactionsTable.statementIndex to SortOrder.ASC, TransactionsTable.filePageNumber to SortOrder.ASC, TransactionsTable.date to SortOrder.ASC)
             .map { TransactionDetails.fromRow(it) }
     }
 
@@ -103,6 +107,18 @@ class TransactionService @Inject constructor(
         }
 
         logger.info { "Saved checkId for ${transactionCheckMatches.size} transactions" }
+    }
+
+    fun reorderTransactions(statementId: UUID, orderedTransactionIds: List<UUID>) = db.txnSafe {
+        val now = Instant.now()
+        orderedTransactionIds.forEachIndexed { index, transactionId ->
+            TransactionsTable.update({
+                (TransactionsTable.id eq transactionId) and (TransactionsTable.statementId eq statementId)
+            }) {
+                it[TransactionsTable.statementIndex] = index
+                it[updatedAt] = now
+            }
+        }
     }
 
 }

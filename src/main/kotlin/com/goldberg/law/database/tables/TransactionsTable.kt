@@ -13,6 +13,7 @@ object TransactionsTable : UUIDTable("transactions", "transaction_id") {
     val description = text("description").nullable()
     val amount = decimal("amount", 15, 2).nullable()
     val filePageNumber = integer("file_page_number")
+    val statementIndex = integer("statement_index")
     val createdAt = timestamp("created_at").defaultExpression(CurrentTimestamp)
     val updatedAt = timestamp("updated_at").defaultExpression(CurrentTimestamp)
     
