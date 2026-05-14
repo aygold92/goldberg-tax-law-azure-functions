@@ -72,6 +72,22 @@ class TransactionService @Inject constructor(
             .map { TransactionDetails.fromRow(it) }
     }
 
+    fun listTransactions(clientId: UUID): List<Transaction> = db.txnSafe {
+        TransactionsTable
+            .innerJoin(BankStatementsTable, { TransactionsTable.statementId }, { BankStatementsTable.id })
+            .innerJoin(ClassificationsTable, { BankStatementsTable.classificationId }, { ClassificationsTable.id })
+            .innerJoin(FilesTable, { ClassificationsTable.fileId }, { FilesTable.id })
+            .leftJoin(ChecksTable, { TransactionsTable.checkId }, { ChecksTable.id })
+            .selectAll().where { FilesTable.clientId eq clientId }
+            .orderBy(
+                TransactionsTable.date to SortOrder.ASC,
+                BankStatementsTable.id to SortOrder.ASC,
+                TransactionsTable.statementIndex to SortOrder.ASC,
+                TransactionsTable.filePageNumber to SortOrder.ASC
+            )
+            .map { Transaction.fromRow(it) }
+    }
+
     fun loadTransaction(transactionId: UUID): TransactionDetails = db.txnSafe {
         TransactionsTable
             .selectAll().where { TransactionsTable.id eq transactionId }

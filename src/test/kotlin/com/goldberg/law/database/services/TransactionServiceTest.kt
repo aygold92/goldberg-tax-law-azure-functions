@@ -269,6 +269,49 @@ class TransactionServiceTest : DatabaseTest() {
     }
 
     @Nested
+    inner class ListTransactions {
+
+        @Test
+        fun `returns all transactions for clientId`() {
+            val tx1 = EntityValues.newTransactionDetails()
+            val tx2 = EntityValues.newTransactionDetails(transactionId = UUID.randomUUID())
+            transactionService.upsertTransactions(statementId, listOf(tx1, tx2))
+
+            val result = transactionService.listTransactions(clientId)
+
+            assertThat(result).hasSize(2)
+            assertThat(result.map { it.transactionDetails.transactionId })
+                .containsExactlyInAnyOrder(tx1.transactionId, tx2.transactionId)
+        }
+
+        @Test
+        fun `returns empty list when client has no transactions`() {
+            val result = transactionService.listTransactions(clientId)
+            assertThat(result).isEmpty()
+        }
+
+        @Test
+        fun `does not return transactions belonging to a different client`() {
+            transactionService.upsertTransactions(statementId, listOf(EntityValues.newTransactionDetails()))
+
+            val otherClientId = clientService.insertClient(UUID.randomUUID().toString(), UUID.randomUUID())
+            val result = transactionService.listTransactions(otherClientId)
+
+            assertThat(result).isEmpty()
+        }
+
+        @Test
+        fun `transactions are returned with correct statementId`() {
+            val tx = EntityValues.newTransactionDetails()
+            transactionService.upsertTransactions(statementId, listOf(tx))
+
+            val result = transactionService.listTransactions(clientId)
+
+            assertThat(result.single().statementId).isEqualTo(statementId)
+        }
+    }
+
+    @Nested
     inner class LinkTransactionsWithChecks {
 
         @Test
