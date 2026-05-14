@@ -23,9 +23,12 @@ class ListStatementsFunction @Inject constructor(
     ): HttpResponseMessage = try {
         val clientId = UUID.fromString(request!!.queryParameters["clientId"]
             ?: throw IllegalArgumentException("Missing required query parameter: clientId"))
-        logger.info { "[${ctx.invocationId}] listing statements for clientId=$clientId" }
+        val statementIds = request.queryParameters["statementIds"]
+            ?.split(",")
+            ?.map { UUID.fromString(it.trim()) }
+        logger.info { "[${ctx.invocationId}] listing statements for clientId=$clientId statementIds=$statementIds" }
 
-        val statements = statementService.listBankStatements(clientId)
+        val statements = statementService.listBankStatements(clientId, statementIds)
 
         request.createResponseBuilder(HttpStatus.OK)
             .body(statements)

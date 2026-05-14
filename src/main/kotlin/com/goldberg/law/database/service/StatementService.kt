@@ -125,8 +125,12 @@ class StatementService @Inject constructor(
      * List statements with metadata aggregations, suspicious reasons, and missing checks.
      * Transactions are batch-loaded in a single follow-up query to avoid N+1.
      */
-    fun listBankStatements(clientId: UUID): List<StatementSummary> = db.txnSafe {
-        loadStatementSummaries { ClientsTable.id eq clientId }
+    fun listBankStatements(clientId: UUID, statementIds: List<UUID>? = null): List<StatementSummary> = db.txnSafe {
+        loadStatementSummaries {
+            var condition: Op<Boolean> = ClientsTable.id eq clientId
+            if (!statementIds.isNullOrEmpty()) condition = condition and (BankStatementsTable.id inList statementIds)
+            condition
+        }
     }
 
     private fun loadStatementSummaries(where: SqlExpressionBuilder.() -> Op<Boolean>): List<StatementSummary> {

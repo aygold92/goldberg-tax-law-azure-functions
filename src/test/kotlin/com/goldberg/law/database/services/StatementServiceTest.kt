@@ -424,6 +424,26 @@ class StatementServiceTest : DatabaseTest() {
         }
 
         @Test
+        fun `statementIds filter returns only requested statements`() {
+            val stmtId1 = statementService.insertBankStatementWithTransactions(
+                EntityValues.newStatement(classification = classification, transactions = emptyList())
+            )
+            val stmtId2 = statementService.insertBankStatementWithTransactions(
+                EntityValues.newStatement(classification = classification, transactions = emptyList())
+            )
+            val stmtId3 = statementService.insertBankStatementWithTransactions(
+                EntityValues.newStatement(classification = classification, transactions = emptyList())
+            )
+
+            val results = statementService.listBankStatements(clientId, listOf(stmtId1, stmtId3))
+
+            assertThat(results).hasSize(2)
+            assertThat(results.map { it.statementDetails.statementId })
+                .containsExactlyInAnyOrder(stmtId1, stmtId3)
+                .doesNotContain(stmtId2)
+        }
+
+        @Test
         fun `does not return statements belonging to other clients`() {
             statementService.insertBankStatementWithTransactions(
                 EntityValues.newStatement(
