@@ -15,13 +15,9 @@ import com.goldberg.law.entity.EntityType
 import com.google.inject.Inject
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.innerJoin
-import org.jetbrains.exposed.sql.leftJoin
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
+import java.time.Instant
 import java.util.*
 
 class CheckService @Inject constructor(
@@ -50,6 +46,11 @@ class CheckService @Inject constructor(
     fun listChecks(clientId: UUID): List<Check> = db.txnSafe {
         ChecksTable.fullJoin()
             .selectAll().where { ClientsTable.id eq clientId }
+            .orderBy(
+                ChecksTable.accountNumber to SortOrder.ASC,
+                ChecksTable.checkNumber to SortOrder.ASC,
+                FilesTable.id to SortOrder.ASC,
+            )
             .map { Check.fromRow(it) }
     }
 
@@ -74,6 +75,23 @@ class CheckService @Inject constructor(
     fun deleteChecksByClassificationId(classificationId: UUID): Int = db.txnSafe {
         ChecksTable.deleteWhere { ChecksTable.classificationId eq classificationId }
             .also { logger.info { "Deleted $it check(s) for classification $classificationId" } }
+    }
+
+    fun updateChecks(checks: List<CheckDetails>, classificationIds: Map<UUID, UUID>) = db.txnSafe {
+        val now = Instant.now()
+        ChecksTable.batchUpsert(checks, onUpdateExclude = listOf(ChecksTable.createdAt)) { check ->
+            this[ChecksTable.id] = check.checkId
+            this[ChecksTable.classificationId] = EntityID(classificationIds.getValue(check.checkId), ClassificationsTable)
+            this[ChecksTable.checkNumber] = check.checkNumber
+            this[ChecksTable.accountNumber] = check.accountNumber
+            this[ChecksTable.to] = check.to
+            this[ChecksTable.description] = check.description
+            this[ChecksTable.date] = check.date
+            this[ChecksTable.amount] = check.amount
+            this[ChecksTable.batesStamp] = check.batesStamp
+            this[ChecksTable.createdAt] = now
+            this[ChecksTable.updatedAt] = now
+        }
     }
 
     /** Deletes existing checks then inserts new ones atomically. Returns the new check IDs. */

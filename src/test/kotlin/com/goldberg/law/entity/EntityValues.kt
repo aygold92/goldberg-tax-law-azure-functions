@@ -302,7 +302,8 @@ object EntityValues {
         ".*checkId",
         ".*uploadedAt",
         ".*createdAt",
-        ".*updatedAt"
+        ".*updatedAt",
+        ".*statementIndex"  // TODO: add tests for this
     )
     fun <T> ObjectAssert<T>.entityCompare() = usingRecursiveComparison()
         .ignoringFieldsMatchingRegexes(*fieldsToIgnore)

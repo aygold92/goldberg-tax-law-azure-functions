@@ -112,6 +112,15 @@ class TransactionService @Inject constructor(
             .map { row -> Transaction.fromRow(row) }
     }
 
+    fun unlinkChecks(checkIds: List<UUID>) = db.txnSafe {
+        if (checkIds.isEmpty()) return@txnSafe
+        val now = Instant.now()
+        TransactionsTable.update({ TransactionsTable.checkId inList checkIds }) {
+            it[TransactionsTable.checkId] = null
+            it[updatedAt] = now
+        }.also { logger.info { "Unlinked $it transaction(s) from ${checkIds.size} check(s)" } }
+    }
+
     fun linkTransactionsWithChecks(transactionCheckMatches: List<TransactionCheckMatch>) = db.txnSafe {
         // Batch insert all transactions in batches of 500
         val now = Instant.now()

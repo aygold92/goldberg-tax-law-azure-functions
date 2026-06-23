@@ -2,9 +2,11 @@ package com.goldberg.law.database.services
 
 import com.goldberg.law.database.DatabaseTest
 import com.goldberg.law.database.DbExec.txnSafe
+import com.goldberg.law.database.service.CheckService
 import com.goldberg.law.database.service.ClassificationService
 import com.goldberg.law.database.service.ClientService
 import com.goldberg.law.database.service.FileService
+import com.goldberg.law.database.tables.ChecksTable
 import com.goldberg.law.database.tables.ClassificationsTable
 import com.goldberg.law.document.exception.EntityNotFoundException
 import com.goldberg.law.document.model.pdf.DocumentType
@@ -306,6 +308,55 @@ class ClassificationServiceTest : DatabaseTest() {
         @Test
         fun `no classifications for file returns empty list`() {
             assertThat(classificationService.loadClassifications(fileId)).isEmpty()
+        }
+    }
+
+    @Nested
+    inner class LoadClassificationIdsForChecks {
+        private val checkService = CheckService(db)
+
+        @BeforeEach
+        fun clearChecks() {
+            db.txnSafe { ChecksTable.deleteAll() }
+        }
+
+        @Test
+        fun `empty list returns empty map`() {
+            assertThat(classificationService.loadClassificationIdsForChecks(emptyList())).isEmpty()
+        }
+
+        @Test
+        fun `unknown checkId is not included in result`() {
+            val result = classificationService.loadClassificationIdsForChecks(listOf(UUID.randomUUID()))
+            assertThat(result).isEmpty()
+        }
+
+        @Test
+        fun `returns correct classificationId for a known check`() {
+            val infos = classificationService.insertClassifications(EntityValues.newClassifiedFile(fileId = fileId))
+            val classification = classificationService.loadClassification(infos.single().classificationId)
+            val checkId = checkService.insertCheck(classification, EntityValues.newCheckDetails())
+
+            val result = classificationService.loadClassificationIdsForChecks(listOf(checkId))
+
+            assertThat(result).hasSize(1)
+            assertThat(result[checkId]).isEqualTo(classification.classificationId)
+        }
+
+        @Test
+        fun `returns entries for all matching checks and omits unknown ids`() {
+            val infos = classificationService.insertClassifications(EntityValues.newClassifiedFile(fileId = fileId))
+            val classification = classificationService.loadClassification(infos.single().classificationId)
+            val checkId1 = checkService.insertCheck(classification, EntityValues.newCheckDetails(checkNumber = 1))
+            val checkId2 = checkService.insertCheck(classification, EntityValues.newCheckDetails(checkNumber = 2))
+            val unknownId = UUID.randomUUID()
+
+            val result = classificationService.loadClassificationIdsForChecks(listOf(checkId1, checkId2, unknownId))
+
+            assertThat(result).hasSize(2)
+            assertThat(result[checkId1]).isEqualTo(classification.classificationId)
+            assertThat(result[checkId2]).isEqualTo(classification.classificationId)
+            assertThat(result).doesNotContainKey(unknownId)
         }
     }
 

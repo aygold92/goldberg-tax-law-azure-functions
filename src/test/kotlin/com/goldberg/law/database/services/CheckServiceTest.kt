@@ -180,4 +180,63 @@ class CheckServiceTest : DatabaseTest() {
                 .isInstanceOf(EntityNotFoundException::class.java)
         }
     }
+
+    @Nested
+    inner class UpdateChecks {
+
+        @Test
+        fun `updates all mutable fields and nulls out fields set to null`() {
+            val checkId = checkService.insertCheck(
+                classification,
+                EntityValues.newCheckDetails(checkNumber = 1001, accountNumber = "acct-1", to = "Alice", description = "original"),
+            )
+            val updated = EntityValues.newCheckDetails(
+                checkId = checkId,
+                checkNumber = 2002,
+                accountNumber = null,
+                to = "Bob",
+                description = "updated",
+            )
+            val classificationIds = classificationService.loadClassificationIdsForChecks(listOf(checkId))
+            checkService.updateChecks(listOf(updated), classificationIds)
+
+            val loaded = checkService.loadCheck(checkId)
+            assertThat(loaded.checkNumber).isEqualTo(2002)
+            assertThat(loaded.accountNumber).isNull()
+            assertThat(loaded.to).isEqualTo("Bob")
+            assertThat(loaded.description).isEqualTo("updated")
+        }
+
+        @Test
+        fun `updates multiple checks atomically`() {
+            val checkId1 = checkService.insertCheck(classification, EntityValues.newCheckDetails(checkNumber = 1001))
+            val checkId2 = checkService.insertCheck(classification, EntityValues.newCheckDetails(checkNumber = 1002))
+
+            val updated1 = EntityValues.newCheckDetails(checkId = checkId1, checkNumber = 9001)
+            val updated2 = EntityValues.newCheckDetails(checkId = checkId2, checkNumber = 9002)
+            val classificationIds = classificationService.loadClassificationIdsForChecks(listOf(checkId1, checkId2))
+            checkService.updateChecks(listOf(updated1, updated2), classificationIds)
+
+            assertThat(checkService.loadCheck(checkId1).checkNumber).isEqualTo(9001)
+            assertThat(checkService.loadCheck(checkId2).checkNumber).isEqualTo(9002)
+        }
+
+        @Test
+        fun `empty list is a no-op`() {
+            val checkId = checkService.insertCheck(classification, EntityValues.newCheckDetails(checkNumber = 1001))
+            checkService.updateChecks(emptyList(), emptyMap())
+            assertThat(checkService.loadCheck(checkId).checkNumber).isEqualTo(1001)
+        }
+
+        @Test
+        fun `unknown checkId throws because it is missing from classificationIds map`() {
+            val unknownId = UUID.randomUUID()
+            assertThatThrownBy {
+                checkService.updateChecks(
+                    listOf(EntityValues.newCheckDetails(checkId = unknownId)),
+                    emptyMap(),
+                )
+            }.isInstanceOf(NoSuchElementException::class.java)
+        }
+    }
 }

@@ -75,5 +75,5 @@ Environment variables are loaded from `local.settings.json` (local dev) or Azure
 
 ## Testing Philosophy
 
-**IMPORTANT:** Do not write tests to match the code as written. The purpose of unit tests is to catch bugs. 
-Write tests to what the code *should* be doing. When a test fails, we fix the code — not the test.
+- **Unit tests are required for all new or modified functions in `database/service/` classes** (e.g., `CheckService`, `StatementService`, `TransactionService`, etc.).
+- Do not write tests to match the code as written — write tests against what the function *should* do. When a test fails, fix the code, not the test.

@@ -15,6 +15,7 @@ import com.goldberg.law.entity.ClassifiedPages
 import com.goldberg.law.util.OBJECT_MAPPER
 import com.google.inject.Inject
 import io.github.oshai.kotlinlogging.KotlinLogging
+import com.goldberg.law.database.tables.ChecksTable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import java.time.Instant
@@ -95,6 +96,14 @@ class ClassificationService @Inject constructor(
             .map { Classification.fromRow(it) }
             .sortedBy { it.pagesOrdered.firstOrNull() }
     }
+
+    fun loadClassificationIdsForChecks(checkIds: List<UUID>): Map<UUID, UUID> =
+        if (checkIds.isEmpty()) emptyMap()
+        else db.txnSafe {
+            ChecksTable
+                .selectAll().where { ChecksTable.id inList checkIds }
+                .associate { it[ChecksTable.id].value to it[ChecksTable.classificationId].value }
+        }
 
     /**
      * Delete classifications and all related data

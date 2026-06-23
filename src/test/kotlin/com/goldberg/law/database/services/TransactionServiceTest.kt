@@ -312,6 +312,62 @@ class TransactionServiceTest : DatabaseTest() {
     }
 
     @Nested
+    inner class UnlinkChecks {
+
+        @Test
+        fun `clears checkId on all transactions linked to the given check`() {
+            val checkId = checkService.insertCheck(classification, EntityValues.newCheckDetails())
+            transactionService.upsertTransactions(
+                statementId,
+                listOf(EntityValues.newTransactionDetails(checkId = checkId)),
+            )
+            val txId = transactionService.loadTransactions(statementId).single().transactionId
+
+            transactionService.unlinkChecks(listOf(checkId))
+
+            assertThat(transactionService.loadTransaction(txId).checkId).isNull()
+        }
+
+        @Test
+        fun `does not affect transactions linked to a different check`() {
+            val checkId1 = checkService.insertCheck(classification, EntityValues.newCheckDetails(checkNumber = 1))
+            val checkId2 = checkService.insertCheck(classification, EntityValues.newCheckDetails(checkNumber = 2))
+            val tx1 = EntityValues.newTransactionDetails(checkId = checkId1)
+            val tx2 = EntityValues.newTransactionDetails(transactionId = UUID.randomUUID(), checkId = checkId2)
+            transactionService.upsertTransactions(statementId, listOf(tx1, tx2))
+
+            transactionService.unlinkChecks(listOf(checkId1))
+
+            assertThat(transactionService.loadTransaction(tx1.transactionId).checkId).isNull()
+            assertThat(transactionService.loadTransaction(tx2.transactionId).checkId).isEqualTo(checkId2)
+        }
+
+        @Test
+        fun `empty list is a no-op`() {
+            val checkId = checkService.insertCheck(classification, EntityValues.newCheckDetails())
+            transactionService.upsertTransactions(
+                statementId,
+                listOf(EntityValues.newTransactionDetails(checkId = checkId)),
+            )
+            val txId = transactionService.loadTransactions(statementId).single().transactionId
+
+            transactionService.unlinkChecks(emptyList())
+
+            assertThat(transactionService.loadTransaction(txId).checkId).isEqualTo(checkId)
+        }
+
+        @Test
+        fun `unknown checkId with no linked transactions is a no-op`() {
+            transactionService.upsertTransactions(statementId, listOf(EntityValues.newTransactionDetails()))
+            val txId = transactionService.loadTransactions(statementId).single().transactionId
+
+            transactionService.unlinkChecks(listOf(UUID.randomUUID()))
+
+            assertThat(transactionService.loadTransaction(txId).checkId).isNull()
+        }
+    }
+
+    @Nested
     inner class LinkTransactionsWithChecks {
 
         @Test

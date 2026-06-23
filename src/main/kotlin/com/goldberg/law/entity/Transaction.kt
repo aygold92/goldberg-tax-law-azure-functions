@@ -2,6 +2,7 @@ package com.goldberg.law.entity
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.goldberg.law.database.tables.BankStatementsTable
+import com.goldberg.law.database.tables.ChecksTable
 import com.goldberg.law.database.tables.TransactionsTable
 import com.goldberg.law.util.fromWrittenDate
 import org.jetbrains.exposed.sql.ResultRow
@@ -33,7 +34,7 @@ data class Transaction(
         fun fromRow(row: ResultRow) = Transaction(
             statementId = row[BankStatementsTable.id].value,
             transactionDetails = TransactionDetails.fromRow(row),
-            checkDetails = row[TransactionsTable.checkId]?.let { CheckDetails.fromRow(row) }
+            checkDetails = row[ChecksTable.id]?.let { CheckDetails.fromRow(row) }
         )
     }
 }
