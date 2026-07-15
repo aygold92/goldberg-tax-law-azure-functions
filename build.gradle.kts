@@ -109,6 +109,9 @@ dependencies {
     // csv parsing
     implementation("org.apache.commons:commons-csv:1.14.1")
 
+    // Anthropic SDK (managed-agent integration + skill publishing)
+    implementation("com.anthropic:anthropic-java:2.48.0")
+
     // Test
     testImplementation("org.jetbrains.kotlin:kotlin-test:2.0.0")
     testImplementation("com.h2database:h2:2.4.240")
@@ -189,6 +192,30 @@ tasks.register<JavaExec>("splitPdf") {
         "-agentlib:jdwp=transport=dt_socket,server=y,suspend=$suspend,address=5050"
     )
     workingDir = projectDir
+}
+
+// Publishes each agent's skill (managed-agents/<agent>/skill/) to the Anthropic Skills API,
+// creating a new version (or the skill itself on first publish).
+tasks.register<JavaExec>("updateSkill") {
+    group = "application"
+    description = "Publishes managed-agents/<agent>/skill to the Anthropic Skills API"
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass = "com.goldberg.law.skilltool.SkillUploaderMainKt"
+
+    val properties = mutableListOf("--agents-root", project.file("managed-agents").absolutePath)
+    project.findProperty("agents")?.toString()?.let { properties.addAll(listOf("--agents", it)) }
+    if (project.findProperty("dryRun")?.toString()?.toBoolean() == true) properties.add("--dry-run")
+
+    args = properties
+    workingDir = projectDir
+
+    doFirst {
+        // Inject env vars from local.settings.json (Values block) so ANTHROPIC_API_KEY is available
+        // without exporting it. Tolerant of a missing/empty settings file — then we use the shell env.
+        runCatching { setEnvironmentVariablesFromJson() }
+            .onSuccess { environment(it) }
+            .onFailure { println("updateSkill: no local settings env found; using inherited environment") }
+    }
 }
 
 tasks.named<Test>("test") {

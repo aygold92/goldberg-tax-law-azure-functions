@@ -1,0 +1,1 @@
+Bank statement extraction patterns and rules, including but not limited to: where the summary box and totals live, the register layout, sign and date conventions, multi-account structure, and known traps. One file per bank type (e.g. /bank_of_america.md).

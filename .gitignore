@@ -49,4 +49,7 @@ build
 # used for git cleaning
 replacements.txt
 
+# generated zip files
+managed-agents/dist
+
 META-INF

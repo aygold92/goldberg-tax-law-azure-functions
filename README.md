@@ -124,6 +124,52 @@ Instead of -p you can use:
 
 To debug, add `Pdebug=true`, then listen to localhost on port 5050
 
+# Managed Agent Skills
+Publishes the [Agent Skills](https://platform.claude.com/docs/en/build-with-claude/skills-guide) under `managed-agents/` to the Anthropic Skills API using the `com.anthropic:anthropic-java` SDK.
+
+### Directory layout
+One directory per agent, with the skill bundle nested under `skill/`:
+```
+managed-agents/
+  bank-statement-extraction/
+    system-prompt.md
+    user-prompt.md
+    mem-store-config.md
+    skill/
+      SKILL.md            # frontmatter `name` must equal the agent directory name
+      references/...
+```
+Only the `skill/` directory is published. The agent directory name is used as the skill's `display_title`, so re-publishing the same name creates a **new version** of that skill rather than a duplicate. A mismatch between the directory name and the SKILL.md frontmatter `name` fails the command (this prevents a typo from silently creating a second skill).
+
+### API key
+The `updateSkill` task injects the merged settings `Values` into the process (the same mechanism as `gradle run`), so `ANTHROPIC_API_KEY` is picked up without exporting it in your shell. Add it to the `Values` block of `common.local.settings.json` (the base file the tasks read; pass `-Penv=<name>` to also merge `<name>.local.settings.json`):
+```json
+"Values": {
+  "ANTHROPIC_API_KEY": "sk-ant-..."
+}
+```
+If no settings file is present it falls back to the inherited shell environment.
+
+### Usage
+```bash
+# Preview what would be published (lints + lists files, no upload)
+gradle updateSkill -PdryRun=true
+
+# Publish all skills
+gradle updateSkill
+
+# Publish specific agents only (comma-separated, by directory name)
+gradle updateSkill -Pagents="bank-statement-extraction,bank-statement-splitting"
+```
+
+### Manual upload (alternative)
+To upload via the claude.ai UI (Settings > Capabilities > Skills) instead of the API, build zips with:
+```bash
+./managed-agents/package-skills.sh                            # all
+./managed-agents/package-skills.sh bank-statement-extraction  # one
+```
+Zips are written to `managed-agents/dist/` (gitignored).
+
 # Troubleshooting
 ### Unable to start AzureFunctionsRun: GRPC error on Mac
 If you see the error

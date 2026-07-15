@@ -1,0 +1,1 @@
+Bank statement identification patterns and boundary detection rules. One file per bank type (e.g. /bank_of_america.md). Each file describes how to identify that bank and how to find statement boundaries within it.

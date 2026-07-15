@@ -23,6 +23,11 @@ gradle azureFunctionsDeploy -Pprod=true
 # Split PDF tool
 gradle splitPdf -Pfilename="./testInput/example.pdf" -Pargs='-p 1,3,5 -od ./testOutput -sep'
 
+# Publish managed-agent skills to the Anthropic Skills API
+gradle updateSkill                                       # all skills
+gradle updateSkill -Pagents="bank-statement-extraction"  # specific agents (comma-separated)
+gradle updateSkill -PdryRun=true                         # lint + list files, no upload
+
 # Debug locally: attach to port 5005 (Azure Functions) or 5050 (splitPdf)
 # Add -Pdebug=true to enable suspend-on-start
 ```
@@ -58,6 +63,11 @@ PDF Upload → Document Classification (AI classifies pages as bank/credit/check
 - **`datamanager/`** — `AzureStorageDataManager` handles all Azure Blob operations (PDFs, models, CSVs).
 - **`categorization/`** — Transaction categorization via ChatGPT integration.
 - **`splitpdftool/`** — Standalone CLI utility for splitting PDFs into single pages.
+- **`skilltool/`** — Standalone CLI (`gradle updateSkill`) that publishes managed-agent skills to the Anthropic Skills API. Uses the `com.anthropic:anthropic-java` SDK.
+
+### Managed Agents
+
+Each managed agent lives in its own directory under `managed-agents/<agent>/`, holding its prompts (`system-prompt.md`, `user-prompt.md`), memory-store config (`mem-store-config.md`), and a `skill/` subdirectory (`SKILL.md` + `references/`). The `skilltool` publisher reads only the `skill/` bundle; the agent directory name must match the SKILL.md frontmatter `name`.
 
 ### Dependency Injection
 
