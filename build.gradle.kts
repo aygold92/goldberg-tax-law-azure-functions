@@ -104,6 +104,7 @@ dependencies {
 
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.21.0")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.21.0")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.21.0")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.21.0")
 
     // csv parsing
@@ -194,16 +195,18 @@ tasks.register<JavaExec>("splitPdf") {
     workingDir = projectDir
 }
 
-// Publishes each agent's skill (managed-agents/<agent>/skill/) to the Anthropic Skills API,
-// creating a new version (or the skill itself on first publish).
-tasks.register<JavaExec>("updateSkill") {
+// Reconciles the Anthropic workspace with managed-agents/: publishes skills, memory stores,
+// environments, agents and deployments, skipping anything whose content hasn't changed.
+tasks.register<JavaExec>("applyAgents") {
     group = "application"
-    description = "Publishes managed-agents/<agent>/skill to the Anthropic Skills API"
+    description = "Applies managed-agents/ to the Anthropic Managed Agents API"
     classpath = sourceSets["main"].runtimeClasspath
-    mainClass = "com.goldberg.law.skilltool.SkillUploaderMainKt"
+    mainClass = "com.goldberg.law.managedagents.ManagedAgentsMainKt"
 
-    val properties = mutableListOf("--agents-root", project.file("managed-agents").absolutePath)
+    val properties = mutableListOf("--root", project.file("managed-agents").absolutePath)
     project.findProperty("agents")?.toString()?.let { properties.addAll(listOf("--agents", it)) }
+    project.findProperty("resourceTypes")?.toString()
+        ?.let { properties.addAll(listOf("--resource-types", it)) }
     if (project.findProperty("dryRun")?.toString()?.toBoolean() == true) properties.add("--dry-run")
 
     args = properties
@@ -212,6 +215,31 @@ tasks.register<JavaExec>("updateSkill") {
     doFirst {
         // Inject env vars from local.settings.json (Values block) so ANTHROPIC_API_KEY is available
         // without exporting it. Tolerant of a missing/empty settings file — then we use the shell env.
+        runCatching { setEnvironmentVariablesFromJson() }
+            .onSuccess { environment(it) }
+            .onFailure { println("applyAgents: no local settings env found; using inherited environment") }
+    }
+}
+
+// Kept for muscle memory: the skills-only slice of applyAgents.
+tasks.register<JavaExec>("updateSkill") {
+    group = "application"
+    description = "Publishes managed-agents/skills/ to the Anthropic Skills API " +
+        "(applyAgents -PresourceTypes=skill)"
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass = "com.goldberg.law.managedagents.ManagedAgentsMainKt"
+
+    val properties = mutableListOf(
+        "--root", project.file("managed-agents").absolutePath,
+        "--resource-types", "skill",
+    )
+    project.findProperty("agents")?.toString()?.let { properties.addAll(listOf("--agents", it)) }
+    if (project.findProperty("dryRun")?.toString()?.toBoolean() == true) properties.add("--dry-run")
+
+    args = properties
+    workingDir = projectDir
+
+    doFirst {
         runCatching { setEnvironmentVariablesFromJson() }
             .onSuccess { environment(it) }
             .onFailure { println("updateSkill: no local settings env found; using inherited environment") }

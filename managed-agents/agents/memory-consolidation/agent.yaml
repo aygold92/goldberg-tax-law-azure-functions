@@ -1,0 +1,10 @@
+# Deployment-driven: runs on a schedule with no per-run input, so it has a deployments/ entry
+# rather than being started as a session. It has no skill — the system prompt is the whole job.
+name: memory-consolidation
+model: claude-opus-5
+description: >
+  Tidies the per-bank memory stores the extraction and splitting agents write to: merges duplicate
+  notes, resolves contradictions, and drops entries that no longer hold.
+system: {file: system-prompt.md}
+tools:
+  - {type: agent_toolset_20260401}

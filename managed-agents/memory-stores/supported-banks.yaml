@@ -1,0 +1,4 @@
+# The name drives the mount path the skill reads: /mnt/memory/supported-banks/
+# read by bank-statement-extraction and bank-statement-splitting
+name: supported-banks
+description: "A database of the banks types that are supported, keyed by bank_id"

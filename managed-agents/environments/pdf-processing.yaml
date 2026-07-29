@@ -1,0 +1,19 @@
+# Sandbox the agents run in.
+#
+# Networking is unrestricted so the sandbox can reach the package registries it installs from.
+# The packages below are the PDF toolchain the agents need on top of the base image:
+#   pymupdf        — read page text and layout without shelling out
+#   poppler-utils  — pdftotext/pdftoppm for page rendering and extraction
+#   tesseract-ocr  — OCR for scanned statements that carry no text layer
+name: pdf-processing
+config:
+  type: cloud
+  networking:
+    type: unrestricted
+  packages:
+    type: packages
+    pip:
+      - pymupdf
+    apt:
+      - poppler-utils
+      - tesseract-ocr

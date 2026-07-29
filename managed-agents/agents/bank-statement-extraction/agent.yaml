@@ -1,0 +1,16 @@
+# Session-driven: invoked per statement by the Kotlin session layer, which fills the
+# placeholders in user-prompt.md and attaches the extraction-notes memory store.
+name: bank-statement-extraction
+model:
+  effort:
+    type: max
+  id: claude-opus-4-6
+  speed: standard
+description: "Extracts account summary data and every transaction from a single bank statement within a mounted PDF bundle, as structured JSON."
+system: {file: system-prompt.md}
+skills:
+  - type: custom
+    skill_id: {resource: skill, name: bank-statement-extraction}
+    version: latest
+tools:
+  - {type: agent_toolset_20260401}

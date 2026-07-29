@@ -1,0 +1,16 @@
+# Session-driven: invoked per bundle by the Kotlin session layer, which attaches the
+# bank-patterns memory store.
+name: bank-statement-splitting
+model:
+  effort:
+    type: max
+  id: claude-opus-4-6
+  speed: standard
+description: "Identifies where individual bank statements begin and end within a multi-statement PDF bundle"
+system: {file: system-prompt.md}
+skills:
+  - type: custom
+    skill_id: {resource: skill, name: bank-statement-splitting}
+    version: latest
+tools:
+  - type: agent_toolset_20260401

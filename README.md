@@ -124,51 +124,142 @@ Instead of -p you can use:
 
 To debug, add `Pdebug=true`, then listen to localhost on port 5050
 
-# Managed Agent Skills
-Publishes the [Agent Skills](https://platform.claude.com/docs/en/build-with-claude/skills-guide) under `managed-agents/` to the Anthropic Skills API using the `com.anthropic:anthropic-java` SDK.
+# Managed Agents
+The entire managed-agent environment — skills, memory stores, sandbox environments, agents and deployments — is declared under `managed-agents/` and applied to the Anthropic API with one command, using the `com.anthropic:anthropic-java` SDK.
+
+```bash
+gradle applyAgents
+```
 
 ### Directory layout
-One directory per agent, with the skill bundle nested under `skill/`:
+One top-level directory per resource type. Nothing is nested inside anything else, because nothing is nested server-side either — every resource is independent and refers to the others by id. The one exception is `shared/`, which isn't a resource type at all: it holds source material symlinked *into* the resource directories, and is never published on its own.
+
 ```
 managed-agents/
-  bank-statement-extraction/
-    system-prompt.md
-    user-prompt.md
-    mem-store-config.md
-    skill/
-      SKILL.md            # frontmatter `name` must equal the agent directory name
-      references/...
+  agents/
+    bank-statement-extraction/
+      agent.yaml            # `name` must equal the directory name
+      system-prompt.md
+      user-prompt.md        # runtime template — never published (see below)
+    memory-consolidation/
+      agent.yaml
+      system-prompt.md
+      consolidation-request.md
+  skills/
+    bank-statement-extraction/
+      SKILL.md              # frontmatter `name` must equal the directory name
+      references/
+        output-schema.md
+        supported-banks-store.md -> ../../../shared/skills/supported-banks-store.md
+  memory-stores/
+    bank-patterns.yaml      # file stem must equal `name`
+    extraction-notes.yaml
+    supported-banks.yaml
+  environments/
+    pdf-processing.yaml
+  deployments/
+    memory-consolidation-task.yaml
+  shared/
+    skills/
+      supported-banks-store.md   # symlinked into every skill that needs it
 ```
-Only the `skill/` directory is published. The agent directory name is used as the skill's `display_title`, so re-publishing the same name creates a **new version** of that skill rather than a duplicate. A mismatch between the directory name and the SKILL.md frontmatter `name` fails the command (this prevents a typo from silently creating a second skill).
+
+Resources are looked up by name, so re-applying updates the existing resource rather than creating a duplicate — there is no id lockfile to commit. A mismatch between a name and its directory or filename fails the command, since that would quietly create a second resource.
+
+`user-prompt.md` is never published. It is a runtime template holding `{START}` / `{BANK_ID}` placeholders, filled in by the session layer at call time.
+
+### Shared skill files
+A published skill bundle has to be self-contained — the API has no cross-skill file sharing — so markdown that two skills share lives in `shared/skills/` and is symlinked into each skill's `references/`:
+
+```bash
+ln -s ../../../shared/skills/supported-banks-store.md \
+  managed-agents/skills/bank-statement-splitting/references/supported-banks-store.md
+```
+
+No code special-cases this: the loader's walk follows the link, so a shared file is hashed and uploaded like a real one, and editing it republishes every skill that links to it. Four things to know:
+
+- **Link individual files, never directories.** The walk deliberately doesn't descend symlinked directories, so a directory link publishes nothing. Both that and a broken link fail the run rather than quietly shrinking the bundle.
+- **Use a relative target**, so the link survives a fresh clone at any path.
+- **A shared file arrives as an ordinary `references/` file**, which each `SKILL.md` has to point the agent at. So shared content must read as a standalone document — this mechanism suits whole sections and schema/format references, not a paragraph excised from mid-section.
+- **macOS/Linux only.** A Windows checkout without `core.symlinks` materializes links as text files containing the path.
+
+Files in `shared/` are grouped by what consumes them (`shared/skills/`), so a file's admission rule is "some bundle links to it" rather than "it seemed shared".
+
+### Two kinds of agent
+| | Session-driven | Deployment-driven |
+|---|---|---|
+| Examples | `bank-statement-extraction`, `bank-statement-splitting` | `memory-consolidation` |
+| Trigger | a session created per PDF | cron schedule, or `deployments().run(id)` |
+| Per-run input | yes, via `user-prompt.md` | none — deployments take no per-run input |
+| Memory stores attached | at runtime, per session | declaratively, in the deployment's `resources` |
+| Has a `deployments/` entry | no | yes |
+
+### YAML constructs
+Config files are the API's own JSON schema written as YAML, so they copy-paste to and from the Console. Two constructs fill in values that aren't known when the file is written. Both work in any config file, at any depth.
+
+| Construct | Replaced with |
+|---|---|
+| `{file: system-prompt.md}` | the file's text, read relative to the containing YAML |
+| `{resource: skill, name: bank-statement-extraction}` | that resource's id, resolved at publish time |
+
+`{resource: …}` types are `skill`, `memory-store`, `environment`, `agent`. Because the id is supplied as a *value*, the surrounding field keeps its real API name:
+
+```yaml
+environment_id: {resource: environment, name: pdf-processing}
+```
+
+### Adding an agent
+1. `mkdir managed-agents/agents/<name>` and write `agent.yaml` (with `name:` matching the directory) plus `system-prompt.md`.
+2. Optionally add `managed-agents/skills/<name>/SKILL.md`, and reference it from `agent.yaml`.
+3. If it should run on a schedule rather than per request, add a `managed-agents/deployments/<name>.yaml`.
+4. `gradle applyAgents -Pagents=<name> -PdryRun=true`, then drop `-PdryRun`.
+
+No code changes and no registration step — discovery is directory-driven.
+
+### Applying
+Everything is loaded and linted before the first network call, so a typo fails the run rather than leaving the workspace half-updated. Resources are then applied in dependency order: skills → memory stores → environments → agents → deployments.
+
+Anything whose content hasn't changed is skipped, so re-running is a no-op and doesn't stack up identical versions.
+
+```bash
+# Preview: lints, resolves every reference, prints the plan, publishes nothing
+gradle applyAgents -PdryRun=true
+
+# Apply everything
+gradle applyAgents
+
+# Apply one agent and everything it references (its skill, deployment, stores, environment)
+gradle applyAgents -Pagents="memory-consolidation"
+
+# Apply only certain resource types (singular names: skill, memory-store, environment, agent, deployment)
+gradle applyAgents -PresourceTypes="skill,agent"
+
+# Skills only — equivalent to -PresourceTypes=skill
+gradle updateSkill
+```
+
+### Lints
+Run before anything is published:
+- each `name` matches its directory or filename
+- every `{file: …}` target exists and stays inside `managed-agents/`
+- every `{resource: …}` resolves to something defined on disk
+- every symlink inside a skill resolves to a regular file — a broken link, or a link to a directory, would otherwise drop a shared file from the bundle without a word
+- every `/mnt/memory/<store>/` path mentioned in a skill or prompt matches a defined memory store — a store's name determines its mount path, so renaming one would otherwise silently detach it from the skill that reads it
 
 ### API key
-The `updateSkill` task injects the merged settings `Values` into the process (the same mechanism as `gradle run`), so `ANTHROPIC_API_KEY` is picked up without exporting it in your shell. Add it to the `Values` block of `common.local.settings.json` (the base file the tasks read; pass `-Penv=<name>` to also merge `<name>.local.settings.json`):
+The tasks inject the merged settings `Values` into the process (the same mechanism as `gradle run`), so `ANTHROPIC_API_KEY` is picked up without exporting it in your shell. Add it to the `Values` block of `common.local.settings.json` (pass `-Penv=<name>` to also merge `<name>.local.settings.json`):
 ```json
 "Values": {
   "ANTHROPIC_API_KEY": "sk-ant-..."
 }
 ```
-If no settings file is present it falls back to the inherited shell environment.
+If no settings file is present it falls back to the inherited shell environment — which is what a CI pipeline would use.
 
-### Usage
-```bash
-# Preview what would be published (lints + lists files, no upload)
-gradle updateSkill -PdryRun=true
-
-# Publish all skills
-gradle updateSkill
-
-# Publish specific agents only (comma-separated, by directory name)
-gradle updateSkill -Pagents="bank-statement-extraction,bank-statement-splitting"
-```
-
-### Manual upload (alternative)
-To upload via the claude.ai UI (Settings > Capabilities > Skills) instead of the API, build zips with:
-```bash
-./managed-agents/package-skills.sh                            # all
-./managed-agents/package-skills.sh bank-statement-extraction  # one
-```
-Zips are written to `managed-agents/dist/` (gitignored).
+### Not handled yet
+- **No test/prod split.** Resources are scoped to whichever workspace the API key belongs to.
+- **No pruning.** Deleting a file or directory doesn't archive the remote resource.
+- **No rollback.** A mid-run failure leaves earlier stages applied; every stage is idempotent, so the fix is to re-run.
+- **Deployment pause state isn't managed.** If the API pauses a deployment, `applyAgents` won't notice or unpause it.
 
 # Troubleshooting
 ### Unable to start AzureFunctionsRun: GRPC error on Mac

@@ -1,0 +1,17 @@
+name: memory-consolidation-task
+agent: {resource: agent, name: memory-consolidation}
+environment_id: {resource: environment, name: pdf-processing}
+schedule:
+  type: manual
+initial_events:
+  - type: user.message
+    content:
+      - type: text
+        text: {file: ./consolidation-request.md}
+resources:
+  - type: memory_store
+    memory_store_id: {resource: memory-store, name: bank-patterns}
+    access: read_write
+  - type: memory_store
+    memory_store_id: {resource: memory-store, name: extraction-notes}
+    access: read_write

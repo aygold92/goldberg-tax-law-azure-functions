@@ -23,10 +23,12 @@ gradle azureFunctionsDeploy -Pprod=true
 # Split PDF tool
 gradle splitPdf -Pfilename="./testInput/example.pdf" -Pargs='-p 1,3,5 -od ./testOutput -sep'
 
-# Publish managed-agent skills to the Anthropic Skills API
-gradle updateSkill                                       # all skills
-gradle updateSkill -Pagents="bank-statement-extraction"  # specific agents (comma-separated)
-gradle updateSkill -PdryRun=true                         # lint + list files, no upload
+# Apply managed-agents/ to the Anthropic API (skills, memory stores, environments, agents, deployments)
+gradle applyAgents                                        # everything
+gradle applyAgents -Pagents="bank-statement-extraction"   # an agent + everything it references
+gradle applyAgents -PresourceTypes="skill,agent"          # only these resource types (singular names)
+gradle applyAgents -PdryRun=true                          # lint + print the plan, publish nothing
+gradle updateSkill                                        # alias for -PresourceTypes=skill
 
 # Debug locally: attach to port 5005 (Azure Functions) or 5050 (splitPdf)
 # Add -Pdebug=true to enable suspend-on-start
@@ -63,11 +65,23 @@ PDF Upload → Document Classification (AI classifies pages as bank/credit/check
 - **`datamanager/`** — `AzureStorageDataManager` handles all Azure Blob operations (PDFs, models, CSVs).
 - **`categorization/`** — Transaction categorization via ChatGPT integration.
 - **`splitpdftool/`** — Standalone CLI utility for splitting PDFs into single pages.
-- **`skilltool/`** — Standalone CLI (`gradle updateSkill`) that publishes managed-agent skills to the Anthropic Skills API. Uses the `com.anthropic:anthropic-java` SDK.
+- **`managedagents/`** — Standalone CLI (`gradle applyAgents`) that applies `managed-agents/` to the Anthropic Managed Agents API. Uses the `com.anthropic:anthropic-java` SDK. Sub-packages `skill/`, `memorystore/`, `environment/`, `agent/`, `deployment/` hold one publisher each; the shared create-or-update logic lives in `ResourcePublisher`.
 
 ### Managed Agents
 
-Each managed agent lives in its own directory under `managed-agents/<agent>/`, holding its prompts (`system-prompt.md`, `user-prompt.md`), memory-store config (`mem-store-config.md`), and a `skill/` subdirectory (`SKILL.md` + `references/`). The `skilltool` publisher reads only the `skill/` bundle; the agent directory name must match the SKILL.md frontmatter `name`.
+`managed-agents/` holds one top-level directory per Anthropic resource type — `agents/`, `skills/`, `memory-stores/`, `environments/`, `deployments/` — mirroring the API's flat model, where every resource is independent and refers to the others by id. Nothing is nested inside an agent directory except that agent's own prompts. `shared/` is the exception: not a resource type, just source material symlinked into the resource directories.
+
+Key invariants:
+
+- A resource's `name` must equal its directory name (agents, skills) or filename stem (everything else). Names are the identity used to find an existing resource for update, so a mismatch would silently create a duplicate.
+- Configs are the API's own JSON schema written as YAML. Two constructs defer values: `{file: <path>}` splices in a file's text, and `{resource: <type>, name: <name>}` resolves to a resource id at publish time. Both work in any config, at any depth — the loader does not hardcode which fields hold them.
+- Configs pass through to the SDK unmapped (`jsonMapper().convertValue(node, …CreateParams.Body::class)`), so fields the API adds later need no code change here.
+- Resources are applied in dependency order: skills → memory stores → environments → agents → deployments. Everything is loaded and linted before the first network call.
+- A `config_sha256` in each resource's `metadata` makes re-runs no-ops. Skills have no metadata, so their published zip is downloaded and hashed instead.
+- A memory store's mount path (`/mnt/memory/<name>/`) derives from its name, and skills reference those paths as literal strings. The loader lints every mount path against the defined stores.
+- A published skill bundle must be self-contained, so markdown shared by two skills lives in `shared/skills/` and is symlinked into each skill's `references/`. The walk follows file symlinks, so no code special-cases this; link individual files, not directories, and a link that doesn't resolve fails the run.
+
+Agents come in two kinds: **session-driven** (per-request, parameters filled into `user-prompt.md` at call time — no deployment file) and **deployment-driven** (scheduled, no per-run input, memory stores attached declaratively in `deployments/*.yaml`). See README.md for the full reference.
 
 ### Dependency Injection
 
