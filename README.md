@@ -141,39 +141,41 @@ managed-agents/
       agent.yaml            # `name` must equal the directory name
       system-prompt.md
       user-prompt.md        # runtime template — never published (see below)
-    memory-consolidation/
-      agent.yaml
-      system-prompt.md
-      consolidation-request.md
   skills/
     bank-statement-extraction/
       SKILL.md              # frontmatter `name` must equal the directory name
       references/
         output-schema.md
-        supported-banks-store.md -> ../../../shared/skills/supported-banks-store.md
-  memory-stores/
-    bank-patterns.yaml      # file stem must equal `name`
-    extraction-notes.yaml
-    supported-banks.yaml
+        extraction-notes-format.md
+  memory-stores/ 
   environments/
-    pdf-processing.yaml
   deployments/
-    memory-consolidation-task.yaml
   shared/
-    skills/
-      supported-banks-store.md   # symlinked into every skill that needs it
 ```
 
+`shared/` [Shared skill files](#shared-skill-files) for when to add shared files
+
+besides agents and skills, each directory will deploy one resource per YAML file.  You may put any other file (such as a `.md` file) and reference it in the YAML (see [yaml-constructs](#yaml-constructs)) 
 Resources are looked up by name, so re-applying updates the existing resource rather than creating a duplicate — there is no id lockfile to commit. A mismatch between a name and its directory or filename fails the command, since that would quietly create a second resource.
 
-`user-prompt.md` is never published. It is a runtime template holding `{START}` / `{BANK_ID}` placeholders, filled in by the session layer at call time.
+### Memory store layout
+The two writable stores (`bank-patterns`, `extraction-notes`) hold **one folder per bank type**, not one file:
+
+```
+/mnt/memory/bank-patterns/bank_of_america/
+  main.md                  # consolidated; only memory-consolidation writes it
+  sesn_011CZxAbc123.md     # one per session, named for the session id
+```
+
+Session-driven agents run concurrently against the same store, so they never edit a shared file: each run reads `main.md` plus every session file, then writes at most one new file named for its own session id containing only what was new or different. The scheduled `memory-consolidation` deployments fold those session files back into `main.md` and delete the ones they consumed — without that pass the file count grows until it hits the store's 2,000-memory cap.
+
 
 ### Shared skill files
-A published skill bundle has to be self-contained — the API has no cross-skill file sharing — so markdown that two skills share lives in `shared/skills/` and is symlinked into each skill's `references/`:
+A published skill bundle has to be self-contained — the API has no cross-skill file sharing — so markdown that two skills share lives in `shared/skills/` and is symlinked into each skill's `references/`. **Nothing uses this today** — the mechanism is supported and tested, but `shared/` is currently absent; the file name below is illustrative:
 
 ```bash
-ln -s ../../../shared/skills/supported-banks-store.md \
-  managed-agents/skills/bank-statement-splitting/references/supported-banks-store.md
+ln -s ../../../shared/skills/some-shared-reference.md \
+  managed-agents/skills/bank-statement-splitting/references/some-shared-reference.md
 ```
 
 No code special-cases this: the loader's walk follows the link, so a shared file is hashed and uploaded like a real one, and editing it republishes every skill that links to it. Four things to know:

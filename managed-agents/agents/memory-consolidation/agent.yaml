@@ -3,8 +3,9 @@
 name: memory-consolidation
 model: claude-opus-5
 description: >
-  Tidies the per-bank memory stores the extraction and splitting agents write to: merges duplicate
-  notes, resolves contradictions, and drops entries that no longer hold.
+  Tidies a per-bank memory store the extraction or splitting agents write to: folds each bank's
+  per-session files into its consolidated main.md, merging duplicate notes and recording
+  conflicting ones as conflicts, then deletes the session files it consumed.
 system: {file: system-prompt.md}
 tools:
   - {type: agent_toolset_20260401}

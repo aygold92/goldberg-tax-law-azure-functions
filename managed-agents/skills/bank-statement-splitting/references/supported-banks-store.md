@@ -1,1 +1,0 @@
-../../../shared/skills/supported-banks-store.md

@@ -11,10 +11,10 @@ Identify where individual bank statements begin and end within a multi-statement
 
 1. Locate and read the PDF bundle (see Reading the PDF).
 2. For each page, examine the content (text, layout, headers, footers).
-3. Determine which bank each section belongs to, and whether it's a credit card (`isCreditCard`) — CHECK MEMORY FIRST.
+3. Determine which bank each section belongs to, including whether it's a credit card — which decides the `_cc` suffix on the `bank_id`. CHECK MEMORY FIRST.
 4. For that bank, determine statement boundaries using known patterns or by analysis.
 5. Verify the boundaries before trusting them (see Verifying boundaries).
-6. If you discovered or updated any patterns, write them to memory.
+6. If you discovered or corrected any patterns, write a session file to that bank's memory folder.
 7. Return the boundary results per `references/output-schema.md`.
 
 ## Reading the PDF
@@ -33,30 +33,40 @@ Heads-up on scale: bash commands are killed at ~295s of wall-clock. For large sc
 
 Beyond that, use your judgment on the most effective way to extract what you need for boundary detection.
 
-## Determining if the statement is a credit card
+## Bank ids and account type
 
-Set `isCreditCard` on each bank — `true` for a credit-card statement, `false` for a deposit account (checking/savings/money market/etc.).
+A `bank_id` names a **distinct statement format**, not an institution. One institution routinely warrants several — `bank_of_america`, `bank_of_america_business`, and `bank_of_america_combined` are three different layouts from one bank, each needing its own patterns. Coin a new `bank_id` whenever a layout differs enough that the existing patterns don't cleanly apply.
 
-A bank's identification signals (see pattern file) usually make this obvious: account numbers vs. card numbers, "Statement of Account" vs. "Credit Card Statement", a payment-due/minimum-payment box, a rewards summary.
+The one hard rule: **a credit-card `bank_id` must end in `_cc`** (e.g. `chase_cc`); a deposit account (checking/savings/money market/etc.) must not. There is no separate flag for account type — every later step reads it off that suffix, so getting it right matters as much as any boundary. An institution issuing both gets two ids with two pattern folders (`chase` and `chase_cc`), the same as any other pair of layouts.
 
-A single institution can issue both (e.g. `chase_checking` vs. `chase_credit`) — treat them as distinct bank patterns with distinct `bank_id`s, each with its own `isCreditCard`, rather than one pattern covering both.
+The document signals that settle card-vs-deposit, and the ones that separate sibling ids, are what you record per bank under `## Account Type Evidence` and `## Identification Signals` — see `references/pattern-file-format.md`.
 
 ## Memory: Bank Pattern Library
 
-You have a persistent memory store mounted at /mnt/memory/bank-patterns/. This is your knowledge base of bank-specific patterns that persists across sessions.
+You have a persistent memory store mounted at /mnt/memory/bank-patterns/. This is your knowledge base of bank-specific patterns that persists across sessions. It holds one **folder** per bank type — `/mnt/memory/bank-patterns/{bank_id}/` — containing a consolidated `main.md` plus one file per session that has touched that bank:
 
-Before analyzing any pages from scratch:
-1. Check what files exist in /mnt/memory/bank-patterns/ (use ls or glob)
-2. If files exist, read them — each file describes one bank type
-3. Try to match the pages you're analyzing against known patterns FIRST
+```
+/mnt/memory/bank-patterns/
+  bank_of_america/
+    main.md
+    sesn_011CZxAbc123.md
+    sesn_011CZyDef456.md
+  chase_cc/
+    main.md
+```
 
-If you encounter a bank type you don't have patterns for:
-1. Analyze the pages to determine the bank and its boundary indicators
-2. Write a new file to /mnt/memory/bank-patterns/{bank_id}.md
-3. Use the format in `references/pattern-file-format.md`
+**Reading.** Before analyzing any pages from scratch:
+1. List the folders in /mnt/memory/bank-patterns/ (ls or glob) — each is one bank type.
+2. For a folder that looks relevant, read `main.md` **and every other `.md` file in it**. The session files are deltas recorded by earlier runs; they add to `main.md` and sometimes contradict it. You need all of them for the full picture.
+3. Try to match the pages you're analyzing against those known patterns FIRST.
+4. When a folder's `## Institution Name` exists, report it verbatim as `banks[].name`. Don't re-derive or re-word the institution's name per run — consistency across runs is the point of storing it.
 
-If you encounter a known bank type but notice new signals or corrections:
-1. Update the existing file with the new information using edit (not write, to avoid overwriting the whole file)
+**Writing.** Multiple agents run against this store concurrently, so writes must never overlap:
+- **Never `write` or `edit` `main.md`, and never touch another session's file.** `main.md` belongs to the consolidation agent. Editing shared files is what corrupts the store when two runs overlap.
+- Write exactly one file per bank: `/mnt/memory/bank-patterns/{bank_id}/{session_id}.md`, using the session id you were given in the task message. Create the folder if this is a bank type you've never seen.
+- Put in it **only what is new or different** from everything you read. Use the format in `references/pattern-file-format.md`.
+- The bundle is always mounted as `bundle.pdf`, so a Discovery Log entry naming it says nothing. Use the source file name from the task message instead.
+- If you learned nothing new about a bank, write no file for it.
 
 ### Memory Store Patterns Guidance
 **The length of a statement will ALWAYS vary based on the number of transactions**
