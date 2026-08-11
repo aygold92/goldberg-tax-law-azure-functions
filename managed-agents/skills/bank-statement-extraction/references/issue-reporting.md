@@ -22,7 +22,7 @@ You should label a field or transaction `review_required` when:
 2. You're confident about a reading but it doesn't make sense — an "Interest Payment" for a large negative, a check numbered eight digits, a figure an order of magnitude off its neighbors. Report the reading as printed, and point at it.
 3. A description whose identifying substance is gone. The line is **identity and magnitude, not character accuracy**.
 
-**Which scope.** An issue confined to one account goes on that account. An issue that spans accounts, or that sits above them — which account a figure belongs to, a period that disagrees with the task message, a structure that doesn't parse — goes at statement level.
+**Which scope.** An issue confined to one account goes on that account. An issue that spans accounts, or that sits above them — which account a figure belongs to, a statement date you can't read, a structure that doesn't parse — goes at statement level.
 
 ### `notes`
 

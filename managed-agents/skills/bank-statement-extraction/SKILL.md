@@ -7,7 +7,7 @@ description: Extract structured transaction and summary data from a single bank 
 
 Pull structured data out of one statement — account summaries and every transaction — exactly as the statement reports it, and keep a per-bank notes library in memory so later runs are faster and avoid known traps.
 
-You'll be told which pages to read, which bank it is (`bank_id`), and the statement period. Stay inside that page range; don't try to re-detect boundaries or read other statements.
+You'll be told which pages to read and which bank it is (`bank_id`). Stay inside that page range; don't try to re-detect boundaries or read other statements.
 
 **The `bank_id` tells you the account type.** A `bank_id` ending in `_cc` is a credit card; anything else is a deposit account (checking/savings/money market/etc.). That distinction decides the sign convention and the balance identity you reconcile against, so read the suffix before you read the statement.
 
@@ -24,7 +24,7 @@ You'll be told which pages to read, which bank it is (`bank_id`), and the statem
 
 ## Reading the PDF
 
-The bundle is normally mounted at `/mnt/session/uploads/workspace/bundle.pdf`. The task message gives you a **start page, end page, bank, and statement period** — read only those pages. If the file isn't where you expect:
+The bundle is normally mounted at `/mnt/session/uploads/workspace/bundle.pdf`. The task message gives you a **start page, end page, and bank** — read only those pages. If the file isn't where you expect:
 
 ```bash
 find /mnt/session/uploads -name '*.pdf' -type f
@@ -42,6 +42,21 @@ Tool output over ~100,000 characters is written to a file and you get a truncate
 
 Beyond that, use your judgment on the most effective way to get clean values out.
 
+### Document expectations
+Document bundles are initially sent from clients; they may be clean copies straight from the bank or manual scans of varying quality.
+The client may or may not have included the marketing and information pages, and may make mistakes.
+
+The document will then be processed by a splitter agent who tells you the statement boundaries within the bundle, of which you are responsible for the extraction on one of those statements.
+
+In the end, for the statement boundaries you are given, you should expect:
+
+- Every page carrying summary or transaction data is present.
+- Pages keep their original relative order — even when some are missing.
+- The bundle holds a single bank type and a single account, or one consolidated set. 
+
+**But expect the unexpected** — redactions, accidental omissions, duplications, pages genuinely out of order, or boundaries that were split incorrectly are possible.
+In these situations, you should process the statement using the data that you have.  If in the end it doesn't reconcile, it will be flagged for human review (see Reconciliation).
+
 ## What to Extract
 
 The full shape is in `references/output-schema.md`. The principles that decide the hard cases:
@@ -56,7 +71,7 @@ The full shape is in `references/output-schema.md`. The principles that decide t
 
 Statements print this inconsistently — sometimes the sign is shown, sometimes it's only implied by which column or section the line sits in. Assign the sign from the line's role, then let Reconciliation confirm you got it right. The balance identity that confirms it is **different for a deposit account vs a credit card** (see Reconciliation), because a card's balance is debt, not cash.
 
-**Year derivation.** Many registers print month/day only. Take the year from the statement period. Watch the boundary: a statement closing in January can carry December lines from the prior year.
+**Year derivation.** Many registers print month/day only. Take the year from the statement's own period — the closing date in the summary box is enough to fix it. Watch the boundary: a statement closing in January can carry December lines from the prior year.
 
 **`check`** is populated when the line is a check and a number is shown (sometimes a normal transaction line item, sometimes a dedicated Checks section, sometimes both).
 
