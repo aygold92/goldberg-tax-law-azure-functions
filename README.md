@@ -167,7 +167,7 @@ The two writable stores (`bank-patterns`, `extraction-notes`) hold **one folder 
   sesn_011CZxAbc123.md     # one per session, named for the session id
 ```
 
-Session-driven agents run concurrently against the same store, so they never edit a shared file: each run reads `main.md` plus every session file, then writes at most one new file named for its own session id containing only what was new or different. The scheduled `memory-consolidation` deployments fold those session files back into `main.md` and delete the ones they consumed — without that pass the file count grows until it hits the store's 2,000-memory cap.
+Session-driven agents run concurrently against the same store, so they never edit a shared file: each run reads `main.md` plus every session file, then writes at most one new file named for its own session id containing only what was new or different. The `memory-consolidation` deployments — triggered with `deployments().run(id)`, or by adding a `schedule` block — fold those session files back into `main.md` and delete the ones they consumed — without that pass the file count grows until it hits the store's 2,000-memory cap.
 
 
 ### Shared skill files

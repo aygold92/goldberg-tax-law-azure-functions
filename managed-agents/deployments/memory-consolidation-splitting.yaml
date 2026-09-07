@@ -1,8 +1,6 @@
 name: memory-consolidation-splitting
 agent: {resource: agent, name: memory-consolidation}
 environment_id: {resource: environment, name: pdf-processing}
-schedule:
-  type: manual
 initial_events:
   - type: user.message
     content:

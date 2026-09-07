@@ -1,4 +1,4 @@
-# Deployment-driven: runs on a schedule with no per-run input, so it has a deployments/ entry
+# Deployment-driven: runs with no per-run input, so it has a deployments/ entry
 # rather than being started as a session. It has no skill — the system prompt is the whole job.
 name: memory-consolidation
 model: claude-opus-5
