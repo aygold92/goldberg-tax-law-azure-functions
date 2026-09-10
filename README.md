@@ -127,8 +127,15 @@ To debug, add `Pdebug=true`, then listen to localhost on port 5050
 # Managed Agents
 The entire managed-agent environment — skills, memory stores, sandbox environments, agents and deployments — is declared under `managed-agents/` and applied to the Anthropic API with one command, using the `com.anthropic:anthropic-java` SDK.
 
-```bash
-gradle applyAgents
+### The document pipeline
+
+The three session-driven agents run in this order.
+
+```
+bank-statement-splitting   one session per bundle
+│  boundaries[] ── one statement each ──▶  bank-statement-extraction
+│  check_pages[] ── the check-image pages ──▶  check-extraction
+└─ bates{}, unassigned_pages[], review_required[]
 ```
 
 ### Directory layout
@@ -158,18 +165,6 @@ managed-agents/
 besides agents and skills, each directory will deploy one resource per YAML file.  You may put any other file (such as a `.md` file) and reference it in the YAML (see [yaml-constructs](#yaml-constructs)) 
 Resources are looked up by name, so re-applying updates the existing resource rather than creating a duplicate — there is no id lockfile to commit. A mismatch between a name and its directory or filename fails the command, since that would quietly create a second resource.
 
-### Memory store layout
-The two writable stores (`bank-patterns`, `extraction-notes`) hold **one folder per bank type**, not one file:
-
-```
-/mnt/memory/bank-patterns/bank_of_america/
-  main.md                  # consolidated; only memory-consolidation writes it
-  sesn_011CZxAbc123.md     # one per session, named for the session id
-```
-
-Session-driven agents run concurrently against the same store, so they never edit a shared file: each run reads `main.md` plus every session file, then writes at most one new file named for its own session id containing only what was new or different. The `memory-consolidation` deployments — triggered with `deployments().run(id)`, or by adding a `schedule` block — fold those session files back into `main.md` and delete the ones they consumed — without that pass the file count grows until it hits the store's 2,000-memory cap.
-
-
 ### Shared skill files
 A published skill bundle has to be self-contained — the API has no cross-skill file sharing — so markdown that two skills share lives in `shared/skills/` and is symlinked into each skill's `references/`. **Nothing uses this today** — the mechanism is supported and tested, but `shared/` is currently absent; the file name below is illustrative:
 
@@ -190,11 +185,14 @@ Files in `shared/` are grouped by what consumes them (`shared/skills/`), so a fi
 ### Two kinds of agent
 | | Session-driven | Deployment-driven |
 |---|---|---|
-| Examples | `bank-statement-extraction`, `bank-statement-splitting` | `memory-consolidation` |
+| Examples | `bank-statement-extraction`, `bank-statement-splitting`, `check-extraction` | `memory-consolidation` |
 | Trigger | a session created per PDF | cron schedule, or `deployments().run(id)` |
 | Per-run input | yes, via `user-prompt.md` | none — deployments take no per-run input |
 | Memory stores attached | at runtime, per session | declaratively, in the deployment's `resources` |
 | Has a `deployments/` entry | no | yes |
+
+`check-extraction` is session-driven but stateless — no memory store is attached to it.
+
 
 ### YAML constructs
 Config files are the API's own JSON schema written as YAML, so they copy-paste to and from the Console. Two constructs fill in values that aren't known when the file is written. Both work in any config file, at any depth.
@@ -240,14 +238,6 @@ gradle applyAgents -PresourceTypes="skill,agent"
 gradle updateSkill
 ```
 
-### Lints
-Run before anything is published:
-- each `name` matches its directory or filename
-- every `{file: …}` target exists and stays inside `managed-agents/`
-- every `{resource: …}` resolves to something defined on disk
-- every symlink inside a skill resolves to a regular file — a broken link, or a link to a directory, would otherwise drop a shared file from the bundle without a word
-- every `/mnt/memory/<store>/` path mentioned in a skill or prompt matches a defined memory store — a store's name determines its mount path, so renaming one would otherwise silently detach it from the skill that reads it
-
 ### API key
 The tasks inject the merged settings `Values` into the process (the same mechanism as `gradle run`), so `ANTHROPIC_API_KEY` is picked up without exporting it in your shell. Add it to the `Values` block of `common.local.settings.json` (pass `-Penv=<name>` to also merge `<name>.local.settings.json`):
 ```json
@@ -257,7 +247,7 @@ The tasks inject the merged settings `Values` into the process (the same mechani
 ```
 If no settings file is present it falls back to the inherited shell environment — which is what a CI pipeline would use.
 
-### Not handled yet
+### Not handled
 - **No test/prod split.** Resources are scoped to whichever workspace the API key belongs to.
 - **No pruning.** Deleting a file or directory doesn't archive the remote resource.
 - **No rollback.** A mid-run failure leaves earlier stages applied; every stage is idempotent, so the fix is to re-run.
@@ -270,6 +260,7 @@ If you see the error
 
 From googling, it appears to be a weird issue on mac. Just download the file from [github](https://github.com/einari/Grpc.Core.M1/blob/main/libgrpc_csharp_ext.arm64.dylib) and then symlink into the appropriate directory like
 ```bash
+# make sure the version is correct -- seen as 4.21.0 here
 ln -s ~/Downloads/libgrpc_csharp_ext.arm64.dylib ~/.azure-functions-core-tools/Functions/ExtensionBundles/Microsoft.Azure.Functions.ExtensionBundle/4.21.0/bin/libgrpc_csharp_ext.arm64.dylib
 ```
 

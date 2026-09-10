@@ -1,0 +1,20 @@
+# Session-driven: invoked by the Kotlin session layer for the pages the splitter reported
+# in `check_pages`. Stateless — no memory store is attached, because a check is a near-
+# universal form and a check image often doesn't identify its bank at all.
+#
+# The page set is the caller's choice: checks are independent of each other, so one session
+# may carry a single page or a whole run of them without the agent behaving differently.
+name: check-extraction
+model:
+  effort:
+    type: max
+  id: claude-opus-4-6
+  speed: standard
+description: "Extracts the details of every check image depicted on a given set of pages within a mounted PDF bundle, as structured JSON."
+system: {file: system-prompt.md}
+skills:
+  - type: custom
+    skill_id: {resource: skill, name: check-extraction}
+    version: latest
+tools:
+  - {type: agent_toolset_20260401}

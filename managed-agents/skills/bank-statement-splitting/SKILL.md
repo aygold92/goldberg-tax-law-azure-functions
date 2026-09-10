@@ -5,7 +5,7 @@ description: Identify boundaries of individual bank statements within a multi-st
 
 # Bank Statement Splitting
 
-Your outputs are the page range of every statement in the bundle, the bank each one belongs to, and the Bates stamp on each page — plus a per-bank pattern library in memory that makes later runs faster.
+Your outputs are the page range of every statement in the bundle, the bank each one belongs to, which pages carry images of checks, and the Bates stamp on each page — plus a per-bank pattern library in memory that makes later runs faster.
 
 ## Process
 
@@ -13,9 +13,10 @@ Your outputs are the page range of every statement in the bundle, the bank each 
 2. Locate and read the PDF bundle (see Reading the PDF).
 3. Work out the banks and their statement boundaries together — the two questions answer each other. For any bank you recognize, read its memory files in full before analyzing its pages from scratch.
 4. Verify the boundaries before trusting them, and decide whether anything needs review (see Verifying and Flagging).
-5. Collect the Bates stamp on each page, if the bundle carries them (see Bates stamps).
-6. If you discovered or corrected any patterns, write a session file to that bank's memory folder.
-7. Return the results per `references/output-schema.md`.
+5. Note which pages carry images of checks (see Check image pages).
+6. Collect the Bates stamp on each page (see Bates stamps).
+7. If you discovered or corrected any patterns, write a session file to that bank's memory folder.
+8. Return the results per `references/output-schema.md`.
 
 ## Reading the PDF
 
@@ -41,18 +42,17 @@ Beyond that, use your judgment on the most effective way to extract what you nee
 Documents are sent from clients; they may be clean copies straight from the bank or manual scans of varying quality.
 The client may or may not have included the marketing and information pages, and may make mistakes.
 
-
 For the following rules, you can and treat them as always true:
 - A statement is always one consecutive run of pages. 
 - Every page carrying summary or transaction data is present. 
 - Within a single statement, pages keep their original relative order — even when some are missing
 If the document doesn't follow any of these, it's a mistake in the submission and not your job to flag or repair — split on the seams you can see and let the order stand.
 
-
 These are common patterns, but it is not unusual for them to not hold:
 - A statement covers a single account, or one consolidated set.
 - Statements run in ascending date order without skipping
 - Bates stamps run in order without skipping.
+- A document containing check images only
 
 **Expect the unexpected** — redactions, accidental omissions, duplications, pages genuinely out of order.
 These are priors, not rules. Where a bundle breaks one, that's a reason to look harder at that spot; on its own it is never evidence you got something wrong.
@@ -65,19 +65,39 @@ Coin a new `bank_id` whenever a layout differs enough that the existing patterns
 The one hard rule: **a credit-card `bank_id` must end in `_cc`** (e.g. `chase_cc`); a deposit account (checking/savings/money market/etc.) must not. Every later step reads it off that suffix, so getting it right matters as much as any boundary.
 An institution issuing both gets two ids with two pattern folders (`chase` and `chase_cc`), the same as any other pair of layouts.
 
-The signals that settle card-vs-deposit, and the ones that separate sibling ids, are listed under `## Account Type Evidence` and `## Bank Identification Signals` in `references/pattern-file-format.md` — read them when the bank is new to you.
+The signals that settle card-vs-deposit, and the ones that separate sibling ids, are listed in `references/pattern-file-format.md` — read them when the bank is new to you.
+
+## Check image pages
+
+Some pages are images of checks rather than statement text — a grid of several check images, or a single check.
+A separate agent extracts the data off them. Your job is only to say which pages they are, in `check_pages`.
+
+They turn up in three places, all of them ordinary:
+- inside a statement, where the bank prints the period's cleared checks alongside the register
+- in a run of their own between two statements
+- as a single check page anywhere in the bundle
+
+What they should never do is appear at random inside an unrelated statement, so a check page landing mid-statement is evidence about that statement, not noise.
+
+A check page inside a statement stays inside that statement's range and is also listed in `check_pages`. 
+A check page belonging to no statement does NOT go in `unassigned_pages`, it goes only in `check_pages`.
+
+The backs of checks may or may not be included, but we only care about the fronts of checks. A page should only be marked in `check_pages` if it contains at least 1 front. 
+A page containing only the back of a check is a non-content page.
+
+**When you can't tell, include the page.** The costs are lopsided. A page you wrongly include costs one agent run that finds no checks and says so. A page you leave out loses every check on it, with nothing downstream to notice. 
+So the bar is "this could be check images", not "this is" — and an uncertain check page is never worth a `review_required` entry, because including it *is* the resolution.
 
 ## Bates stamps
 
 A Bates stamp is a per-page identifier applied by whoever produced the PDF — not by the bank. You collect them because you're the only agent that sees the whole bundle.
 
-**Get them from the text layer if there is one.** Production tools normally stamp digitally, so the stamp is real text sitting in a fixed spot in the page margin — extract it per page programmatically and you have it exactly, for every page, at no reading cost.
-Render and OCR only for pages where that comes up empty. Once you've located the field on one page it's usually in the same spot on the rest, though a bundle assembled from two productions can change position partway through, the same way it can change format.
+Production tools normally stamp digitally, so the stamp is often real text sitting in a fixed spot in the page margin — extract it per page programmatically and you have it exactly, for every page, at no reading cost. 
 
 Formats vary widely between productions — separators, padding, embedded dates, suffixed segments. Don't assume a shape; report what's on the page.
+Once you've located the field on one page it's usually in the same spot and in the same format on the rest, though a bundle assembled from two productions can change position and/or format partway through.
 
-**A sequence is a claim, and an explicit list is always correct.** Reporting a span as a sequence asserts that the pages between its endpoints follow from them — get that wrong and you've produced stamps for pages nobody looked at.
-So if you can't tell whether a span runs uninterrupted, don't call it a sequence; list those pages individually instead. There's no penalty for a long `non_sequenced` map, and a chaotic bundle should produce one. A break in the run isn't yours to explain; just don't report across it.
+When reporting the output, there's no penalty for a long `non_sequenced` map, and a chaotic bundle should produce one. A break in the run isn't yours to explain; just don't report across it.
 
 ## Memory: Bank Pattern Library
 
@@ -111,8 +131,9 @@ It holds one **folder** per bank type — `/mnt/memory/bank-patterns/{bank_id}/`
 ## Verifying and Flagging
 
 ### Your role in the pipeline
-The bundle is split on your boundaries, and an extraction agent then processes each statement alone, pulling out its summary and transaction data.
-**Where a statement starts and ends, and which bank it is — those are your outputs, and the only things you should flag.**
+The bundle is split on your boundaries, and an extraction agent then processes each statement alone, pulling out its summary and transaction data. 
+Separately, every page you list in `check_pages` goes to a check agent — including the ones that also sit inside a statement, which that statement's extraction run is told to skip.
+**Where a statement starts and ends, and which bank it is — those are your outputs, and the only things you should flag.** A check page you're unsure about is settled by including it, not by flagging it.
 
 That agent reconciles each statement against its own printed totals, so missing pages, unreadable figures, and redacted data surface there.
 Don't spend a flag on them; flag them only when they stop *you* from placing a boundary.
@@ -120,7 +141,8 @@ Don't spend a flag on them; flag them only when they stop *you* from placing a b
 ### Verifying your boundaries
 Your boundaries fail in two ways: you called a start that isn't one, splitting a statement across two ranges; or you missed one, merging two statements into a single range.
 
-Page accounting catches both cheaply: every page belongs to exactly one range or to `unassigned_pages`. Add up your ranges and see what's left over. Leftovers are normally none, so re-verify any you find — but a bundle can genuinely carry pages that belong to no statement, and leaving those unassigned is correct.
+Page accounting catches both cheaply: every page belongs to a range, to `check_pages`, or to `unassigned_pages` — and a check page inside a statement belongs to both a range and `check_pages`.
+Add up your ranges and see what's left over. Re-verify any leftover you can't account for — but a bundle can genuinely carry pages that belong to no statement, and leaving those unassigned is correct. 
 
 The following issues should raise **suspicion**, but do not prove anything is wrong:
 - **The section order restarts** — a section you've already passed reappears, and it isn't marked as a continuation of it.

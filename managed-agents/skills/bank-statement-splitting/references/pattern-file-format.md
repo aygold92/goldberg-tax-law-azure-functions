@@ -63,8 +63,12 @@ Instead record fixed structure — "The structure order goes: summary data, with
   summary box. Quote it — this is what you read to check the run of periods for gaps]
 
 ## Non-content Pages
-- [Inserts, disclosures, marketing, check-image grids: how many, where they sit, and
-  what text identifies them.]
+- [Inserts, disclosures, marketing: how many, where they sit, and what text identifies
+  them. Check-image pages are content, not inserts — see Check Image Pages.]
+
+## Check Image Pages
+- [If/where this bank prints images of cleared checks within a statement and how they're
+  laid out. Quote any heading that introduces them.]
 
 ## Multi-account Layout
 - [If this bank issues consolidated statements: how several accounts appear inside ONE
@@ -97,7 +101,7 @@ Instead of `First seen` / `Last confirmed`, use a single `- Observed:` line.
 ## Statement Start Signals
 - At the top of the page, "Your combined statement" appears above the account list
 
-## Notes
+## Check Image Pages
 - Pages 3–4 of each statement are a check-images grid, two rows of three
 
 ## Discovery Log

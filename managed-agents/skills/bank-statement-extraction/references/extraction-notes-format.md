@@ -32,7 +32,8 @@ A duplicated or missing page, a poor-quality scan, a redaction, or information a
 - [How transactions are laid out: single signed amount column, separate debit/credit sections, separate Payments vs Charges sections, etc.]
 - [How signs are shown or implied — which section/column means which sign]
 - [Date format in the register, and how the year is determined]
-- [Check handling: dedicated section? check-images page? where check numbers come from]
+- [Check handling: is there a dedicated checks section in the transaction register, and where do check numbers come from? 
+  Note: Images of checks are extracted by another agent — record only if they affect reading the register, e.g. that they interrupt it between two of its pages]
 - [Any sub-account / card sub-thread structure that rolls into a parent account]
 
 ## Reconciliation conventions

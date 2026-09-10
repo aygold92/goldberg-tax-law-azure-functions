@@ -36,7 +36,7 @@ When there's a text layer, `pdftotext -layout` preserves column alignment, which
 
 Note: the native `read` tool ERRORS on PDF/image files when given `view_range`. Never call `read` on a PDF with a page range. Render the page you want to a PNG (fitz or pdftoppm) and `read` the PNG.
 
-Heads-up on scale: bash commands are killed at ~295s. If you're rendering or OCR'ing the whole range at full resolution in one command, batch it across commands or downsample. Read the summary box and the register; you don't need to re-render disclosure/marketing pages.
+Heads-up on scale: bash commands are killed at ~295s. If you're rendering or OCR'ing the whole range at full resolution in one command, batch it across commands or downsample. Read the summary box and the register; you don't need to re-render disclosure/marketing pages, or the check-image pages the task message names.
 
 Tool output over ~100,000 characters is written to a file and you get a truncated preview plus its path. A long `pdftotext` dump will hit this — read the file rather than working from the preview, or extract fewer pages per command.
 
@@ -52,7 +52,8 @@ In the end, for the statement boundaries you are given, you should expect:
 
 - Every page carrying summary or transaction data is present.
 - Pages keep their original relative order — even when some are missing.
-- The bundle holds a single bank type and a single account, or one consolidated set. 
+- The bundle holds a single bank type and a single account, or one consolidated set.
+- Some pages in your range may be images of cleared checks. The task message names them; they hold no transactions of their own (see Transaction Edge Cases). 
 
 **But expect the unexpected** — redactions, accidental omissions, duplications, pages genuinely out of order, or boundaries that were split incorrectly are possible.
 In these situations, you should process the statement using the data that you have.  If in the end it doesn't reconcile, it will be flagged for human review (see Reconciliation).
@@ -81,6 +82,7 @@ These get mistaken for transactions constantly. None of them are:
 - **Subtotal / total lines** — "Total deposits and other credits", "Total checks", "Subtotal for card account …", "Total Payments and Credits". Summaries, not activity.
 - **Beginning / ending balance rows** inside the register — boundaries, not activity.
 - **Running-balance columns** ("Ending Daily Balance") and **Daily ledger balances** tables — reconciliation aids, not transactions. Do read the daily ledger and capture it in `daily_balances`: it's the only check that localizes a failure to a specific day, so it's worth rendering the page for even though it produces no transactions.
+- **Check images.** Pages of check photographs printed inside the statement, named for you in the task message. A separate agent extracts those -- take check numbers and amounts from the printed register, never from an image.
 
 A fee or interest line that appears in the register IS a transaction (it moved the balance). It may also be reflected in the summary's `fees_charged` / `interest_*` field. Capture both; don't collapse it into one or the other.  If no date is shown, use the statement date.
 
