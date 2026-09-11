@@ -1,6 +1,7 @@
-Extract the statement data on pages {START}–{END} of the mounted bundle.
+Extract the statement data for the given pages of the mounted bundle.
+Pages: {START}–{END} 
 Bank: `{BANK_ID}`.
-Check-image pages in this range: {CHECK_PAGES}
-Source file: `{FILE_NAME}` — the bundle is always mounted as bundle.pdf, so use this original name when a memory Discovery Log entry needs file context.
-Session id: `{SESSION_ID}` — name any memory file you write after it.
+Check-image pages: {CHECK_PAGES}
+Source filename: `{FILE_NAME}`
+Session id: `{SESSION_ID}`
 Return the JSON output per your skill instructions.
