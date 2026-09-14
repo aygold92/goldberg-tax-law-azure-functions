@@ -3,7 +3,7 @@
 name: bank-statement-splitting
 model:
   effort:
-    type: max
+    type: high
   id: claude-opus-4-6
   speed: standard
 description: "Identifies where individual bank statements begin and end within a multi-statement PDF bundle"

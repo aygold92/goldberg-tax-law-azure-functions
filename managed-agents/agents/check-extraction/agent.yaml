@@ -7,7 +7,7 @@
 name: check-extraction
 model:
   effort:
-    type: max
+    type: high
   id: claude-opus-4-6
   speed: standard
 description: "Extracts the details of every check image depicted on a given set of pages within a mounted PDF bundle, as structured JSON."

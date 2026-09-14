@@ -160,4 +160,4 @@ It holds one **folder** per bank type — `/mnt/memory/extraction-notes/{bank_id
   - When no `main.md` exists yet, an earlier session file may already be filled in completely and can serve as your base; if none is, your session file should carry the full contents.
 - If you learned nothing bank-specific this run, write no file.
 
-**Never store client personally identifying information** — no client names, account numbers, or addresses. Record the structural observation, not the data that illustrated it.
+**Never store client personally identifying information** — no client names, addresses, or account numbers, including partial ones like the last four digits. Record the structural observation, not the data that illustrated it.

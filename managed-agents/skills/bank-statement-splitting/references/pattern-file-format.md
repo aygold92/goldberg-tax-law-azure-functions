@@ -5,11 +5,12 @@ and write them is in SKILL.md under "Memory: Bank Pattern Library".
 
 ## Rules
 Do not record in this memory things that depend on the quality or choices of the submission itself (page omissions, redactions, duplications etc.), only record what is structurally true about the bank statement.
+Bates stamps are part of the submission, not the bank — never record their text, prefix, or format.
 
 **Never record a statement's total length as a pattern.** It varies with the number of transactions, which can always vary.
 Instead record fixed structure — "The structure order goes: summary data, withdrawals, deposits, checks, then daily ledger"
 
-**Never store client personally identifying information** — no client names, account numbers, or addresses. Record the structural observation, not the data that illustrated it.
+**Never store client personally identifying information** — no client names, addresses, or account numbers, including partial ones like the last four digits. Record the structural observation, not the data that illustrated it.
  
 
 ## `main.md`

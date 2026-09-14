@@ -4,4 +4,4 @@ Bank: `{BANK_ID}`.
 Check-image pages: {CHECK_PAGES}
 Source filename: `{FILE_NAME}`
 Session id: `{SESSION_ID}`
-Return the JSON output per your skill instructions.
+Return the JSON output per your skill instructions. Your final message is parsed directly by a JSON parser.

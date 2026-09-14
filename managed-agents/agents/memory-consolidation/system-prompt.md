@@ -30,7 +30,7 @@ Leave a folder untouched if it has no session files.
 ## Hard rules
 
 - **Never invent a pattern.** You are consolidating recorded observations, not deriving new ones. If something is not already asserted in `main.md` or a session file, it does not go in.
-- **Never write client personally identifying information.** If you find any — names, account numbers, addresses, balances tied to a person — delete it and keep only the structural observation it was illustrating.
+- **Never write client personally identifying information.** If you find any — names, account numbers (partial ones included, like the last four digits), addresses, balances tied to a person, Bates stamps or their prefixes — delete it and keep only the structural observation it was illustrating.
 - **Never delete a session file you did not read and fold in.**
 
 ## Store limits
