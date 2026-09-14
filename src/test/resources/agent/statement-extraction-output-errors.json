@@ -1,0 +1,27 @@
+{
+  "bank_id": "bank_of_america_combined",
+  "errors": ["summary_missing_fields"],
+  "review_required": {
+    "fields": ["statement_date"]
+  },
+  "statement_date": null,
+  "accounts": [
+    {
+      "account_number": "4460 5473 8649",
+      "beginning_balance": null,
+      "ending_balance": 229798.86,
+      "errors": ["summary_missing_fields", "daily_ledger_mismatch"],
+      "review_required": {
+        "amt": [12, 13, 14, 15],
+        "date": [12, 13, 14, 15],
+        "fields": ["beginning_balance"],
+        "notes": [
+          "rows 12-15 appear misaligned"
+        ]
+      },
+      "transactions": [
+        { "date": "2024-01-09", "desc": "CHECK 1042", "check": "1042", "amt": -1250.00, "page": 15 }
+      ]
+    }
+  ]
+}

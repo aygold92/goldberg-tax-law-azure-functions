@@ -246,6 +246,14 @@ tasks.register<JavaExec>("updateSkill") {
     }
 }
 
+// The agents' user prompts ship in the jar so the runtime can fill them in; managed-agents/ stays the one copy.
+tasks.named<ProcessResources>("processResources") {
+    from("managed-agents/agents") {
+        include("*/user-prompt.md")
+        into("managed-agents/agents")
+    }
+}
+
 tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
@@ -257,8 +265,16 @@ tasks.named("azureFunctionsRun") {
         val sources = listOfNotNull("common.local.settings.json", env?.let { "$it.local.settings.json" })
         println("Merging settings from: ${sources.joinToString(" + ")}")
         val merged = mergedSettings()
-        ObjectMapper().writerWithDefaultPrettyPrinter().writeValue(project.file("local.settings.json"), merged)
+        val writer = ObjectMapper().writerWithDefaultPrettyPrinter()
+        writer.writeValue(project.file("local.settings.json"), merged)
         @Suppress("UNCHECKED_CAST")
         println("Written merged local.settings.json (${(merged["Values"] as Map<String, String>).size} Values keys)")
+
+        // The host actually reads the copy in the staging dir, and the plugin only puts one there when it's
+        // missing — so a setting added after that first copy never reaches the running host. Refresh them all.
+        project.file("build/azure-functions").listFiles()?.filter { it.isDirectory }?.forEach { staging ->
+            writer.writeValue(File(staging, "local.settings.json"), merged)
+            println("Written ${staging.name}/local.settings.json")
+        }
     }
 }

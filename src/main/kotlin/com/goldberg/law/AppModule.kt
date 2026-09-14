@@ -1,5 +1,7 @@
 package com.goldberg.law
 
+import com.anthropic.client.AnthropicClient
+import com.anthropic.client.okhttp.AnthropicOkHttpClient
 import com.azure.ai.documentintelligence.DocumentIntelligenceClient
 import com.azure.ai.documentintelligence.DocumentIntelligenceClientBuilder
 import com.azure.core.credential.AzureKeyCredential
@@ -62,6 +64,12 @@ class AppModule: AbstractModule() {
         .buildClient()
 
     @Provides
+    @Singleton
+    fun anthropicClient(): AnthropicClient = AnthropicOkHttpClient.builder()
+        .apiKey(getEnvStrict(EnvVars.ANTHROPIC_API_KEY))
+        .build()
+
+    @Provides
     @Named(NUM_FUNCTION_WORKERS)
     fun provideNumWorkers(): Int = getEnvStrict(NUM_FUNCTION_WORKERS).toInt()
 
@@ -93,6 +101,7 @@ class AppModule: AbstractModule() {
         const val AZURE_STORAGE_ACCOUNT_NAME = "AzureStorage.AccountName"
         const val AZURE_STORAGE_ACCOUNT_KEY = "AzureStorage.AccountKey"
         const val USE_PROXY_DOCUMENT_INTELLIGENCE = "UseProxyDocumentIntelligence"
+        const val ANTHROPIC_API_KEY = "ANTHROPIC_API_KEY"
     }
 
     companion object {

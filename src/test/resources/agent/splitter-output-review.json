@@ -1,0 +1,12 @@
+{
+  "banks": {
+    "bank_of_america": { "name": "Bank of America", "source": "memory" }
+  },
+  "boundaries": [ { "start": 1, "end": 7, "bank_id": "bank_of_america" } ],
+  "check_pages": [5, 6, 8, 9],
+  "unassigned_pages": [10],
+  "review_required": [
+    { "pages": [47, 48], "reason": "two Bank of America statements run together with no header on 48; the seam could be 47/48 or 48/49" },
+    { "reason": "pages 82-90 look like a statement but no institution is named anywhere in them" }
+  ]
+}

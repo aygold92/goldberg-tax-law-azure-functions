@@ -1,0 +1,32 @@
+{
+  "bank_id": "bank_of_america_combined",
+  "statement_date": "2024-01-31",
+  "statement_start": "2024-01-01",
+  "accounts": [
+    {
+      "account_name": "Business Advantage Relationship Banking",
+      "account_number": "4460 5473 8649",
+      "beginning_balance": 215871.68,
+      "ending_balance": 229798.86,
+      "total_credits": 250678.39,
+      "total_debits": 236718.71,
+      "txn_count_credit": 5,
+      "txn_count_debit": 47,
+      "txn_count": null,
+      "checks_total": 0.00,
+      "fees_charged": 32.50,
+      "interest_received": null,
+      "interest_charged": null,
+      "daily_balances": { "2024-01-04": 365871.68, "2024-01-05": 365821.68 },
+      "transactions": [
+        {
+          "date": "2024-01-04",
+          "desc": "BKOFAMERICA ATM 01/03 #000004063 DEPOSIT ANNAPOLIS MALL ANNAPOLIS MD",
+          "check": null,
+          "amt": 150000.00,
+          "page": 14
+        }
+      ]
+    }
+  ]
+}
