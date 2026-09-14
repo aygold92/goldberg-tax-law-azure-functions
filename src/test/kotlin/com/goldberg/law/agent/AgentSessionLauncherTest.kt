@@ -229,4 +229,32 @@ class AgentSessionLauncherTest {
         assertThat(result.error).contains("some-other-agent")
         assertThat(result.rawOutput).isEqualTo(checkJson)
     }
+
+    // ---- cancelling ---------------------------------------------------------
+
+    @Test
+    fun `cancelling reports whether there was a running session to interrupt`() {
+        whenever(agentClient.interruptIfRunning(sessionId)).thenReturn(true, false)
+
+        assertThat(launcher.cancelSession(sessionId)).isTrue()
+        assertThat(launcher.cancelSession(sessionId)).isFalse()
+    }
+
+    @Test
+    fun `an interrupted session is cancelled, even when its last message would parse`() {
+        givenSnapshot(finished(ManagedAgent.CHECK_EXTRACTION, checkJson).copy(interrupted = true))
+
+        val result = launcher.fetchResult(sessionId)
+
+        assertThat(result.status).isEqualTo(AgentSessionResult.Status.CANCELLED)
+        assertThat(result.output).isNull()
+        assertThat(result.rawOutput).isEqualTo(checkJson)
+    }
+
+    @Test
+    fun `a session still winding down after an interrupt is running`() {
+        givenSnapshot(SessionSnapshot(SessionStatus.RUNNING, ManagedAgent.SPLITTER.agentName))
+
+        assertThat(launcher.fetchResult(sessionId).status).isEqualTo(AgentSessionResult.Status.RUNNING)
+    }
 }

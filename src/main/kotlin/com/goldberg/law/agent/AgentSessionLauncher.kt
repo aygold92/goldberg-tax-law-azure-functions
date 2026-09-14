@@ -70,6 +70,12 @@ class AgentSessionLauncher @Inject constructor(
     fun startMemoryConsolidation(memory: MemoryConsolidation): DeploymentLaunch =
         agentClient.runDeployment(memory.deploymentName)
 
+    /**
+     * Interrupts a running session. Returns whether it was running; the session reaches idle at its next safe
+     * boundary, so [fetchResult] can still report it as running for a short while before [AgentSessionResult.Status.CANCELLED].
+     */
+    fun cancelSession(sessionId: String): Boolean = agentClient.interruptIfRunning(sessionId)
+
     fun fetchResult(sessionId: String): AgentSessionResult {
         val snapshot = agentClient.getSessionSnapshot(sessionId)
         val agent = ManagedAgent.byAgentName(snapshot.agent)
@@ -82,6 +88,8 @@ class AgentSessionLauncher @Inject constructor(
             snapshot.status == SessionStatus.RUNNING -> result(AgentSessionResult.Status.RUNNING)
             snapshot.status == SessionStatus.TERMINATED ->
                 result(AgentSessionResult.Status.FAILED, error = "Session terminated${snapshot.error?.let { ": $it" }.orEmpty()}")
+            // Checked before the stop reason: an interrupted turn ends with end_turn like a finished one
+            snapshot.interrupted -> result(AgentSessionResult.Status.CANCELLED)
             snapshot.stopReason != StopReason.END_TURN ->
                 result(AgentSessionResult.Status.FAILED, error = "Session stopped (${snapshot.stopReason})${snapshot.error?.let { ": $it" }.orEmpty()}")
             snapshot.error != null -> result(AgentSessionResult.Status.FAILED, error = snapshot.error)
@@ -137,6 +145,8 @@ data class AgentSessionResult(
         COMPLETED,
         /** The agent finished but reported the task impossible (the schema's `{"error": …}` shape). */
         AGENT_ERROR,
+        /** Interrupted before it finished; any `rawOutput` is the last thing it said, not a result. */
+        CANCELLED,
         FAILED,
     }
 }

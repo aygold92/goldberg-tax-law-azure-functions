@@ -68,11 +68,11 @@ class AnthropicAgentClientTest {
     private fun createdParams(): SessionCreateParams =
         argumentCaptor<SessionCreateParams>().apply { verify(sessions).create(capture()) }.firstValue
 
-    private fun sentPrompt(): String {
-        val params = argumentCaptor<EventSendParams>().apply { verify(events).send(capture()) }.firstValue
-        assertThat(params.sessionId()).contains(sessionId)
-        return params.events().single().asUserMessage().content().single().asText().text()
-    }
+    private fun sentEvents(): EventSendParams =
+        argumentCaptor<EventSendParams>().apply { verify(events).send(capture()) }.firstValue
+            .also { assertThat(it.sessionId()).contains(sessionId) }
+
+    private fun sentPrompt(): String = sentEvents().events().single().asUserMessage().content().single().asText().text()
 
     // ---- startSession -------------------------------------------------------
 
@@ -98,14 +98,22 @@ class AnthropicAgentClientTest {
     }
 
     @Test
-    fun `session metadata names the agent alongside the caller's metadata`() {
+    fun `session metadata is exactly the caller's metadata`() {
         givenSessionCreated()
 
         agentClient.startSession(ManagedAgent.SPLITTER, "file_1", mapOf("FILE_NAME" to "a.pdf"), "t", mapOf("fileId" to "f1"))
 
-        assertThat(createdParams().metadata().get()._additionalProperties()).containsExactlyInAnyOrderEntriesOf(
-            mapOf("agent" to JsonValue.from("SPLITTER"), "fileId" to JsonValue.from("f1"))
-        )
+        assertThat(createdParams().metadata().get()._additionalProperties())
+            .containsExactlyEntriesOf(mapOf("fileId" to JsonValue.from("f1")))
+    }
+
+    @Test
+    fun `a session without caller metadata sends none`() {
+        givenSessionCreated()
+
+        agentClient.startSession(ManagedAgent.CHECK_EXTRACTION, "file_1", mapOf("PAGES" to listOf(5)), "t")
+
+        assertThat(createdParams().metadata()).isEmpty()
     }
 
     @Test
@@ -214,6 +222,35 @@ class AnthropicAgentClientTest {
         assertThat(agentClient.runDeployment("memory-consolidation-extraction")).isEqualTo(DeploymentLaunch("run_1", null))
     }
 
+    // ---- interruptIfRunning -------------------------------------------------
+
+    @Test
+    fun `interrupting a running session sends a user interrupt`() {
+        givenSession(BetaManagedAgentsSession.Status.RUNNING)
+
+        assertThat(agentClient.interruptIfRunning(sessionId)).isTrue()
+
+        assertThat(sentEvents().events().single().isUserInterrupt()).isTrue()
+    }
+
+    @Test
+    fun `a rescheduling session is running, so it is interrupted`() {
+        givenSession(BetaManagedAgentsSession.Status.RESCHEDULING)
+
+        assertThat(agentClient.interruptIfRunning(sessionId)).isTrue()
+    }
+
+    @Test
+    fun `an idle or terminated session is left alone, so a finished session never reads as cancelled`() {
+        givenSession(BetaManagedAgentsSession.Status.IDLE)
+        assertThat(agentClient.interruptIfRunning(sessionId)).isFalse()
+
+        givenSession(BetaManagedAgentsSession.Status.TERMINATED)
+        assertThat(agentClient.interruptIfRunning(sessionId)).isFalse()
+
+        verify(events, never()).send(any<EventSendParams>())
+    }
+
     // ---- getSessionSnapshot -------------------------------------------------
 
     private fun givenSession(status: BetaManagedAgentsSession.Status, agentName: String = "bank-statement-splitting") {
@@ -261,6 +298,8 @@ class AnthropicAgentClientTest {
         }
     }
 
+    private fun userInterrupt(): BetaManagedAgentsSessionEvent = mock { on { isUserInterrupt() } doReturn true }
+
     @Test
     fun `a running session is reported without reading its events`() {
         givenSession(BetaManagedAgentsSession.Status.RUNNING)
@@ -297,6 +336,7 @@ class AnthropicAgentClientTest {
         assertThat(snapshot.stopReason).isEqualTo(StopReason.END_TURN)
         assertThat(snapshot.finalMessage).isEqualTo("{\"checks\": []}")
         assertThat(snapshot.error).isNull()
+        assertThat(snapshot.interrupted).isFalse()
     }
 
     @Test
@@ -309,5 +349,36 @@ class AnthropicAgentClientTest {
         assertThat(snapshot.stopReason).isEqualTo(StopReason.RETRIES_EXHAUSTED)
         assertThat(snapshot.error).isNotNull()
         assertThat(snapshot.finalMessage).isEqualTo("partial")
+    }
+
+    @Test
+    fun `an interrupt after the final message marks the session interrupted, though it ended with end_turn`() {
+        givenSession(BetaManagedAgentsSession.Status.IDLE)
+        givenEvents(idle(), userInterrupt(), agentMessage("Reading page 4 now"))
+
+        val snapshot = agentClient.getSessionSnapshot(sessionId)
+
+        assertThat(snapshot.interrupted).isTrue()
+        assertThat(snapshot.stopReason).isEqualTo(StopReason.END_TURN)
+        assertThat(snapshot.finalMessage).isEqualTo("Reading page 4 now")
+    }
+
+    @Test
+    fun `an interrupt the session later moved past does not mark it interrupted`() {
+        givenSession(BetaManagedAgentsSession.Status.IDLE)
+        givenEvents(idle(), agentMessage("{\"checks\": []}"), userInterrupt(), agentMessage("earlier"))
+
+        assertThat(agentClient.getSessionSnapshot(sessionId).interrupted).isFalse()
+    }
+
+    @Test
+    fun `an interrupt before the agent said anything still marks the session interrupted`() {
+        givenSession(BetaManagedAgentsSession.Status.IDLE)
+        givenEvents(idle(), userInterrupt())
+
+        val snapshot = agentClient.getSessionSnapshot(sessionId)
+
+        assertThat(snapshot.interrupted).isTrue()
+        assertThat(snapshot.finalMessage).isNull()
     }
 }

@@ -13,6 +13,7 @@ import com.anthropic.models.beta.sessions.BetaManagedAgentsSession
 import com.anthropic.models.beta.sessions.SessionCreateParams
 import com.anthropic.models.beta.sessions.SessionDeleteParams
 import com.anthropic.models.beta.sessions.SessionRetrieveParams
+import com.anthropic.models.beta.sessions.events.BetaManagedAgentsUserInterruptEventParams
 import com.anthropic.models.beta.sessions.events.BetaManagedAgentsUserMessageEventParams
 import com.anthropic.models.beta.sessions.events.EventListParams
 import com.anthropic.models.beta.sessions.events.EventSendParams
@@ -51,6 +52,9 @@ class AnthropicAgentClient @Inject constructor(
      * Two calls, because the prompt needs the session id (`{SESSION_ID}` names the agent's memory files) and
      * that only exists once the session does. If the kickoff message fails, the session is deleted rather
      * than left idle with nothing to do.
+     *
+     * [metadata] ties the session back to this app's records (visible in the Console, and on the session for
+     * later lookups); nothing here depends on it — a session's agent is read from the session itself.
      */
     fun startSession(
         agent: ManagedAgent,
@@ -66,13 +70,6 @@ class AnthropicAgentClient @Inject constructor(
             .agent(resolver.agentId(agent))
             .environmentId(resolver.environmentId())
             .title(title)
-            .metadata(
-                SessionCreateParams.Metadata.builder()
-                    .putAllAdditionalProperties(
-                        (metadata + (AGENT_METADATA_KEY to agent.name)).mapValues { JsonValue.from(it.value) }
-                    )
-                    .build()
-            )
             .addResource(
                 BetaManagedAgentsFileResourceParams.builder()
                     .type(BetaManagedAgentsFileResourceParams.Type.FILE)
@@ -80,6 +77,13 @@ class AnthropicAgentClient @Inject constructor(
                     .mountPath(ManagedAgent.BUNDLE_MOUNT_PATH)
                     .build()
             )
+        if (metadata.isNotEmpty()) {
+            params.metadata(
+                SessionCreateParams.Metadata.builder()
+                    .putAllAdditionalProperties(metadata.mapValues { JsonValue.from(it.value) })
+                    .build()
+            )
+        }
         agent.memoryStore?.let { store ->
             params.addResource(
                 BetaManagedAgentsMemoryStoreResourceParam.builder()
@@ -140,24 +144,46 @@ class AnthropicAgentClient @Inject constructor(
     }
 
     /**
+     * Stops a running session by sending `user.interrupt`, which jumps the queue and idles the session at its
+     * next safe boundary. Returns false, sending nothing, when the session isn't running: an interrupt against
+     * an idle session does nothing, but it would still land in the history and make a finished session read
+     * as cancelled in [getSessionSnapshot].
+     */
+    fun interruptIfRunning(sessionId: String): Boolean {
+        if (retrieve(sessionId).toSessionStatus() != SessionStatus.RUNNING) {
+            logger.info { "Session $sessionId is not running; nothing to interrupt" }
+            return false
+        }
+        client.beta().sessions().events().send(
+            EventSendParams.builder()
+                .addBeta(beta)
+                .sessionId(sessionId)
+                .addEvent(
+                    BetaManagedAgentsUserInterruptEventParams.builder()
+                        .type(BetaManagedAgentsUserInterruptEventParams.Type.USER_INTERRUPT)
+                        .build()
+                )
+                .build()
+        )
+        logger.info { "Interrupted session $sessionId" }
+        return true
+    }
+
+    /**
      * The session's status and, once it has stopped, how: the latest idle stop reason, the final
-     * `agent.message`, and any error raised after it. Errors before the final message were recovered from.
+     * `agent.message`, and anything that happened after it — an error, or an interrupt. Errors and interrupts
+     * before the final message were recovered from.
      */
     fun getSessionSnapshot(sessionId: String): SessionSnapshot {
-        val session = client.beta().sessions().retrieve(
-            SessionRetrieveParams.builder().addBeta(beta).sessionId(sessionId).build()
-        )
+        val session = retrieve(sessionId)
         // The session's own agent snapshot, so deployment-started sessions (which carry no metadata) resolve too
         val agent = session.agent().name()
-        val status = when (session.status()) {
-            BetaManagedAgentsSession.Status.IDLE -> SessionStatus.IDLE
-            BetaManagedAgentsSession.Status.TERMINATED -> SessionStatus.TERMINATED
-            else -> SessionStatus.RUNNING
-        }
+        val status = session.toSessionStatus()
         if (status == SessionStatus.RUNNING) return SessionSnapshot(status, agent)
 
         var stopReason: StopReason? = null
         var error: String? = null
+        var interrupted = false
         var finalMessage: String? = null
         val newestFirst = client.beta().sessions().events()
             .list(sessionId, EventListParams.builder().addBeta(beta).order(EventListParams.Order.DESC).build())
@@ -173,13 +199,15 @@ class AnthropicAgentClient @Inject constructor(
                     }
                 }
                 event.isSessionError() && error == null -> error = event.asSessionError().error().toString()
+                // An interrupted turn still ends with end_turn, so the interrupt event is the only sign of it
+                event.isUserInterrupt() -> interrupted = true
                 event.isAgentMessage() -> {
                     finalMessage = event.asAgentMessage().content().joinToString("") { it.text() }
                     break
                 }
             }
         }
-        return SessionSnapshot(status, agent, stopReason, error, finalMessage)
+        return SessionSnapshot(status, agent, stopReason, error, finalMessage, interrupted)
     }
 
     /** Reads a file the agent wrote to `/mnt/session/outputs/`, which the Files API captures per session. */
@@ -192,9 +220,18 @@ class AnthropicAgentClient @Inject constructor(
         return client.beta().files().download(file.id()).use { it.body().readBytes().decodeToString() }
     }
 
+    private fun retrieve(sessionId: String): BetaManagedAgentsSession = client.beta().sessions().retrieve(
+        SessionRetrieveParams.builder().addBeta(beta).sessionId(sessionId).build()
+    )
+
+    private fun BetaManagedAgentsSession.toSessionStatus() = when (status()) {
+        BetaManagedAgentsSession.Status.IDLE -> SessionStatus.IDLE
+        BetaManagedAgentsSession.Status.TERMINATED -> SessionStatus.TERMINATED
+        else -> SessionStatus.RUNNING
+    }
+
     companion object {
         const val SESSION_ID = "SESSION_ID"
-        const val AGENT_METADATA_KEY = "agent"
     }
 }
 
@@ -209,6 +246,8 @@ data class SessionSnapshot(
     val stopReason: StopReason? = null,
     val error: String? = null,
     val finalMessage: String? = null,
+    /** An interrupt arrived after the final message: the session was cancelled, not finished. */
+    val interrupted: Boolean = false,
 )
 
 /** [sessionId] is null only if the platform reported neither a session nor an error for the run. */
