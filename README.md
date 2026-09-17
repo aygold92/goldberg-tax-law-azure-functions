@@ -166,11 +166,11 @@ besides agents and skills, each directory will deploy one resource per YAML file
 Resources are looked up by name, so re-applying updates the existing resource rather than creating a duplicate — there is no id lockfile to commit. A mismatch between a name and its directory or filename fails the command, since that would quietly create a second resource.
 
 ### Shared skill files
-A published skill bundle has to be self-contained — the API has no cross-skill file sharing — so markdown that two skills share lives in `shared/skills/` and is symlinked into each skill's `references/`. **Nothing uses this today** — the mechanism is supported and tested, but `shared/` is currently absent; the file name below is illustrative:
+A published skill bundle has to be self-contained — the API has no cross-skill file sharing — so markdown that two skills share lives in `shared/skills/` and is symlinked into each skill's `references/`. Today that's `pdf-reading.md` (sandbox, tool, and OCR facts), linked into all three PDF-reading skills:
 
 ```bash
-ln -s ../../../shared/skills/some-shared-reference.md \
-  managed-agents/skills/bank-statement-splitting/references/some-shared-reference.md
+ln -s ../../../shared/skills/pdf-reading.md \
+  managed-agents/skills/bank-statement-splitting/references/pdf-reading.md
 ```
 
 No code special-cases this: the loader's walk follows the link, so a shared file is hashed and uploaded like a real one, and editing it republishes every skill that links to it. Four things to know:

@@ -21,11 +21,9 @@ Don't look for a statement period, a running balance, or an ordering; there isn'
 
 ## Reading the pages
 
-The bundle is normally mounted at `/mnt/session/uploads/workspace/bundle.pdf`. The task message gives you the pages — read only those. If the file isn't where you expect:
+Read `references/pdf-reading.md` before opening the bundle: where it's mounted, the installed tools, the sandbox's time and output limits, and OCR notes.
 
-```bash
-find /mnt/session/uploads -name '*.pdf' -type f
-```
+The task message gives you the pages — read only those.
 
 **The checks are images, so you'll end up rendering.** Whatever a text layer gives you, reading a check means looking at it — render each page to a PNG and read it visually.
 
@@ -35,11 +33,7 @@ Render generously. The fields that matter are small and often handwritten, and a
 
 Images aren't always upright. A check can sit rotated ninety degrees or inverted on an otherwise ordinary page — rotate it and read it straight rather than reading it sideways.
 
-Note: the native `read` tool ERRORS on PDF/image files when given `view_range`. Never call `read` on a PDF with a page range.
-
-Heads-up on scale: bash commands are killed at ~295s of wall clock, and tool output over ~100,000 characters is written to a file and returned as a truncated preview. Rendering a dozen pages at high DPI in one command can hit the time limit — batch across commands.
-
-The environment has `poppler-utils` (pdftotext, pdftoppm), `tesseract-ocr`, and `pymupdf` pre-installed; don't install anything. Tesseract is built for print, not handwriting.
+Rendering a dozen pages at high DPI in one command can hit the time limit — batch across commands.
 
 ## What counts as a check
 

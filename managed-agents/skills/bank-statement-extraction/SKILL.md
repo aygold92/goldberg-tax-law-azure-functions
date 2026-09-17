@@ -24,21 +24,15 @@ You'll be told which pages to read and which bank it is (`bank_id`). Stay inside
 
 ## Reading the PDF
 
-The bundle is normally mounted at `/mnt/session/uploads/workspace/bundle.pdf`. The task message gives you a **start page, end page, and bank** — read only those pages. If the file isn't where you expect:
+Read `references/pdf-reading.md` before opening the bundle: where it's mounted, the installed tools, the sandbox's time and output limits, and OCR notes.
 
-```bash
-find /mnt/session/uploads -name '*.pdf' -type f
-```
+The task message gives you a **start page, end page, and bank** — read only those pages.
 
-First check whether your pages have an extractable text layer or are image-based (scanned) — it changes the approach. The environment has `poppler-utils` (pdftotext, pdftoppm), `tesseract-ocr`, and `pymupdf` pre-installed; don't install anything.
+When there's a text layer, `pdftotext -layout` preserves column alignment (especially helpful for transaction tables) 
+When it's scanned, or when a column is ambiguous, render the page to PNG and read it visually. 
+When a single number looks off, cross-check the rendered image against the text layer.
 
-When there's a text layer, `pdftotext -layout` preserves column alignment, which matters a lot for transaction tables — amounts, dates, and check numbers stay in their columns. When it's scanned, or when a column is ambiguous, render the page to PNG and read it visually. When a single number looks off, cross-check the rendered image against the text layer rather than guessing.
-
-Note: the native `read` tool ERRORS on PDF/image files when given `view_range`. Never call `read` on a PDF with a page range. Render the page you want to a PNG (fitz or pdftoppm) and `read` the PNG.
-
-Heads-up on scale: bash commands are killed at ~295s. If you're rendering or OCR'ing the whole range at full resolution in one command, batch it across commands or downsample. Read the summary box and the register; you don't need to re-render disclosure/marketing pages, or the check-image pages the task message names.
-
-Tool output over ~100,000 characters is written to a file and you get a truncated preview plus its path. A long `pdftotext` dump will hit this — read the file rather than working from the preview, or extract fewer pages per command.
+Read the summary box and the register; you don't need to re-render disclosure/marketing pages, or the check-image pages the task message names.
 
 Beyond that, use your judgment on the most effective way to get clean values out.
 

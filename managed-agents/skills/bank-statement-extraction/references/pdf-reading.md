@@ -1,0 +1,1 @@
+../../../shared/skills/pdf-reading.md

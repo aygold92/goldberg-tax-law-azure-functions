@@ -1,17 +1,20 @@
 # Pattern file format
 
-The shape of the two kinds of file in `/mnt/memory/bank-patterns/<bank_id>/`. When to read
-and write them is in SKILL.md under "Memory: Bank Pattern Library".
+The two kinds of file in `/mnt/memory/bank-patterns/<bank_id>/`. When to read and write them is in SKILL.md under "Memory: Bank Pattern Library". 
+A complete example of both is in `references/pattern-file-example.md`.
 
 ## Rules
-Do not record in this memory things that depend on the quality or choices of the submission itself (page omissions, redactions, duplications etc.), only record what is structurally true about the bank statement.
-Bates stamps are part of the submission, not the bank — never record their text, prefix, or format.
+- Record what is structurally true of the bank's format. Leave out anything that depends on this submission: missing, redacted, or duplicated pages, scan quality, Bates stamps.
+- Record only what this bundle's pages showed, not what you expect of the bank in general.
+- No statement lengths or page counts; they vary with the number of transactions. Record fixed structure instead, like section order.
+- No client personally identifying information: names, addresses, or account numbers, including partial ones like the last four digits.
 
-**Never record a statement's total length as a pattern.** It varies with the number of transactions, which can always vary.
-Instead record fixed structure — "The structure order goes: summary data, withdrawals, deposits, checks, then daily ledger"
-
-**Never store client personally identifying information** — no client names, addresses, or account numbers, including partial ones like the last four digits. Record the structural observation, not the data that illustrated it.
- 
+## Style
+The reader is a later run with this same skill. Give it the observations; it already knows what to do with them.
+- One observation per bullet: the signal, quoted, and where it appears.
+- Quote exact text rather than paraphrasing. Add words only where the quote alone would be ambiguous.
+- Leave out why a signal matters, how to use it, and warnings about what not to confuse it with.
+- Don't restate the section heading or the task.
 
 ## `main.md`
 
@@ -19,28 +22,14 @@ Instead record fixed structure — "The structure order goes: summary data, with
 # {bank_id}
 
 ## Institution Name
-- [The friendly name of the institution, e.g. "Bank of America", "Chase", "Citi",
-  "American Express". Several bank_ids may share one institution name. Prefer the name
-  on the statement over the underlying issuer — e.g. a Macy's card that partners with
-  American Express should say "Macy's".]
+- [Name as printed on the statement, not the underlying issuer. Several bank_ids can share one name]
 
 ## Account Type Evidence
-- [The concrete signals on the document that settle what kind of statement this is,
-  quoted where possible.]
-- [For a `_cc` bank_id — proof it's a credit card: a "Credit Card Statement" or
-  card-network title, a masked 15–16 digit card number, a Payment Information /
-  minimum-payment-due / payment-due-date box, credit-limit or available-credit figures,
-  "Previous Balance" → "New Balance", a rewards/points summary, an APR or
-  interest-charge table.]
-- [For a non-`_cc` bank_id — proof it's a deposit account: "Statement of Account", a
-  routing/account number, "Beginning Balance"/"Ending Balance" or "Balance on M/D",
-  deposits & withdrawals sections, a checks-paid section, no credit limit or
-  payment-due box.]
+- [The quoted signals that settle credit card vs deposit account]
 
 ## Bank Identification Signals
-- [List the specific text, headers, URLs, formatting that identify this bank]
-- [Be precise — quote exact text patterns when possible]
-- [What distinguishes this bank_id from a sibling id at the same institution]
+- [Quoted text, headers, URLs, and layout features that identify this format]
+- [What separates it from sibling ids at the same institution]
 
 ## Statement Start Signals
 - [What indicates a new statement begins]
@@ -49,70 +38,36 @@ Instead record fixed structure — "The structure order goes: summary data, with
 - [What indicates a statement ends]
 
 ## Section Order
-- [The order this bank's sections run in, e.g. "summary, withdrawals, deposits, checks,
-  daily ledger". Quote the section headings. A section reappearing out of this order is
-  one of the cheapest signals that a new statement started, so the order is worth having
-  even when nothing else about the layout is remarkable]
-- [How a section that spans pages marks its continuation, e.g. "Withdrawals (continued)"]
+- [Section headings in order, quoted]
+- [How a section continued across pages is marked]
 
 ## Page Numbering
-- [Format used, e.g. "Page X of Y" in footer]
+- [Format and position, quoted]
 
 ## Statement Period
-- [Where the period or closing date appears and how it's written, e.g. "Statement
-  Period 10/01/13 - 10/31/13" top-right of page 1, or "Closing Date 01/15/14" in the
-  summary box. Quote it — this is what you read to check the run of periods for gaps]
+- [Format and position of the period or closing date, quoted]
 
 ## Non-content Pages
-- [Inserts, disclosures, marketing: how many, where they sit, and what text identifies
-  them. Check-image pages are content, not inserts — see Check Image Pages.]
+- [Inserts, disclosures, marketing: where they sit and the text that identifies them. Check-image pages are not inserts]
 
 ## Check Image Pages
-- [If/where this bank prints images of cleared checks within a statement and how they're
-  laid out. Quote any heading that introduces them.]
+- [Whether and where check images appear inside a statement, their layout, and any heading, quoted]
 
 ## Multi-account Layout
-- [If this bank issues consolidated statements: how several accounts appear inside ONE
-  statement, and what distinguishes that from two separate statements printed back to
-  back. Quote the headings that separate accounts within a statement]
+- [How several accounts appear in one statement, and what distinguishes that from two statements back to back. Quote the headings that separate accounts]
 
 ## Notes
-- [Anything else about this bank's structure that doesn't fit the headings above]
+- [Structure that fits no other heading]
 
 ## Discovery Log
-- First seen: [ISO datetime / source file name, page range, other context if useful]
-- Last confirmed: [ISO datetime / source file name, page range, other context if useful]
+- First seen: [datetime, source file name, page range]
+- Last confirmed: [datetime, source file name, page range]
 ```
 
-In the Discovery Log, take the datetime from `date -u` rather than assuming one, and the source
-file name from the user prompt, since the bundle is always mounted with the same name.
-
-Be precise — quote exact text patterns rather than paraphrasing them. The point is that
-next time, the boundaries fall out of the patterns instead of being re-derived.
+Take the datetime from `date -u`, and the source file name from the user prompt (the mounted file is always named `bundle.pdf`).
 
 ## Session files
 
-Same headings, but include only the sections you actually have something to add to — don't
-restate what `main.md` already says or copy sections forward to keep the shape intact.
-Instead of `First seen` / `Last confirmed`, use a single `- Observed:` line.
+Same headings, but only the sections you have something new for. Don't restate `main.md`. Replace `First seen` / `Last confirmed` with one `- Observed:` line.
 
-```
-# bank_of_america
-
-## Statement Start Signals
-- At the top of the page, "Your combined statement" appears above the account list
-
-## Check Image Pages
-- Pages 3–4 of each statement are a check-images grid, two rows of three
-
-## Discovery Log
-- Observed: 2026-07-30T14:22:00Z, smith_2013_bundle.pdf, pages 3–7 of 84
-```
-
-Where you contradict `main.md`, say so plainly rather than hedging — the consolidation
-agent records the disagreement rather than silently picking a side:
-
-```
-## Page Numbering
-- No "Page X of Y" footer on any page of this bundle, though main.md records one
-```
+Where you contradict `main.md`, say so plainly; the consolidation agent records the disagreement.
