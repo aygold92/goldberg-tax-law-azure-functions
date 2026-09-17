@@ -101,7 +101,8 @@ The store at `/mnt/memory/bank-patterns/` holds one folder per `bank_id`: a cons
 **Writing.** Other runs write to this store at the same time:
 - Never write or edit `main.md` (the consolidation agent owns it) or another session's file.
 - Write one file per bank you learned something new about: `/mnt/memory/bank-patterns/{bank_id}/{session_id}.md`, using the session id from the task message. Create the folder for a new bank.
-- Include only what's new or different from what you read, in the format in `references/pattern-file-format.md`.
+- Before writing, read `references/pattern-file-format.md` and `references/pattern-file-example.md`. Include only what's new or different from what you read.
+- Write memory only for a `bank_id` in your `boundaries`, and not for a range you flagged because you couldn't tell what it is or which bank it's from.
 
 ## Verifying and Flagging
 

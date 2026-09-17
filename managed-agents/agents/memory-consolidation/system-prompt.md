@@ -30,7 +30,8 @@ Leave a folder untouched if it has no session files.
 ## Hard rules
 
 - **Never invent a pattern.** You are consolidating recorded observations, not deriving new ones. If something is not already asserted in `main.md` or a session file, it does not go in.
-- **Never write client personally identifying information.** If you find any — names, account numbers (partial ones included, like the last four digits), addresses, balances tied to a person, Bates stamps or their prefixes — delete it and keep only the structural observation it was illustrating.
+- **Never write client personally identifying information.** If you find any — names, account numbers (partial ones included, like the last four digits), addresses, balances tied to a person, Bates stamps or their prefixes — delete it, or replace it with a placeholder like `{account number}` or `{amount}`, and keep only the structural observation it was illustrating.
+- **Keep only what's true of the bank's format.** Delete remarks about a specific session or folder ("New folder…", "Re-run of…"), about a specific submission (missing, redacted, or duplicated pages, scan or text-layer quality), and about what a specific run found or how sure it was.
 - **Never delete a session file you did not read and fold in.**
 
 ## Store limits

@@ -5,14 +5,16 @@ A complete example of both is in `references/pattern-file-example.md`.
 
 ## Rules
 - Record what is structurally true of the bank's format. Leave out anything that depends on this submission: missing, redacted, or duplicated pages, scan quality, Bates stamps.
-- Record only what this bundle's pages showed, not what you expect of the bank in general.
+- Leave out anything about this run (what you found, how sure you were) and about reading the PDF (tools, OCR, text extraction, image sizes).
+- Record only what this bundle's pages showed, not the filename or what you expect of the bank in general.
 - No statement lengths or page counts; they vary with the number of transactions. Record fixed structure instead, like section order.
 - No client personally identifying information: names, addresses, or account numbers, including partial ones like the last four digits.
 
 ## Style
 The reader is a later run with this same skill. Give it the observations; it already knows what to do with them.
+- Start with `# {bank_id}` and go straight into the sections. Nothing about this session, the store, or whether the folder is new.
 - One observation per bullet: the signal, quoted, and where it appears.
-- Quote exact text rather than paraphrasing. Add words only where the quote alone would be ambiguous.
+- Quote exact text rather than paraphrasing, with client values replaced by placeholders: `{account number}`, `{amount}`, `{date}`, `{check number}`. Add words only where the quote alone would be ambiguous.
 - Leave out why a signal matters, how to use it, and warnings about what not to confuse it with.
 - Don't restate the section heading or the task.
 
@@ -68,6 +70,6 @@ Take the datetime from `date -u`, and the source file name from the user prompt 
 
 ## Session files
 
-Same headings, but only the sections you have something new for. Don't restate `main.md`. Replace `First seen` / `Last confirmed` with one `- Observed:` line.
+Same headings, but only the sections you have something new for: what's new or different from `main.md` and the other session files. Replace `First seen` / `Last confirmed` with one `- Observed:` line.
 
-Where you contradict `main.md`, say so plainly; the consolidation agent records the disagreement.
+Where you contradict `main.md` or a session file, name the file and say so plainly; the consolidation agent records the disagreement.
