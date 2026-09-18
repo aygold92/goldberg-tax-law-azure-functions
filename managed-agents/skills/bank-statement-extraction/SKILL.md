@@ -5,130 +5,121 @@ description: Extract structured transaction and summary data from a single bank 
 
 # Bank Statement Extraction
 
-Pull structured data out of one statement — account summaries and every transaction — exactly as the statement reports it, and keep a per-bank notes library in memory so later runs are faster and avoid known traps.
+Extract one statement's account summaries and every transaction, exactly as printed. Keep per-bank extraction notes in memory.
 
-You'll be told which pages to read and which bank it is (`bank_id`). Stay inside that page range; don't try to re-detect boundaries or read other statements.
+You're given the page range and `bank_id`. Read only those pages; the boundaries and bank are already decided.
 
-**The `bank_id` tells you the account type.** A `bank_id` ending in `_cc` is a credit card; anything else is a deposit account (checking/savings/money market/etc.). That distinction decides the sign convention and the balance identity you reconcile against, so read the suffix before you read the statement.
+A `bank_id` ending in `_cc` is a credit card; anything else is a deposit account. The suffix decides the sign convention and the balance identity, so read it first.
 
 ## Process
 
-1. Read your memory notes for this `bank_id` — before you open the PDF, so you know where to look and what has bitten you before (see Memory).
-2. Locate and read the PDF for your page range (see Reading the PDF).
-3. Read each account's summary box, then its transaction register(s).
-4. Extract the desired data (see What to Extract)
-5. Reconcile what you extracted (see Reconciliation).
-6. If something doesn't tie, re-inspect the page before trusting your first read; fix misreads, and report what survives re-inspection per `references/issue-reporting.md`.
-7. If you learned anything bank-specific, write it to memory.
+1. Read your memory notes for this `bank_id` (see Memory).
+2. Read the pages (see Reading the PDF).
+3. Read each account's summary box, then its register(s).
+4. Extract (see What to Extract).
+5. Reconcile (see Reconciliation).
+6. Where something doesn't tie, re-inspect before trusting your first read. Fix misreads, and report what survives per `references/issue-reporting.md`.
+7. If you learned something bank-specific, write a session file (see Memory).
 8. Return the JSON per `references/output-schema.md`.
 
 ## Reading the PDF
 
-Read `references/pdf-reading.md` before opening the bundle: where it's mounted, the installed tools, the sandbox's time and output limits, and OCR notes.
+Read `references/pdf-reading.md` before opening the bundle.
 
-The task message gives you a **start page, end page, and bank** — read only those pages.
+- With a text layer, `pdftotext -layout` keeps columns aligned, which matters for transaction tables.
+- When the page is scanned or a column is ambiguous, look at the rendered page.
+- When a single number looks off, compare the text layer against the rendered page.
+- Skip disclosure and marketing pages, and the check-image pages named in the task message.
 
-When there's a text layer, `pdftotext -layout` preserves column alignment (especially helpful for transaction tables) 
-When it's scanned, or when a column is ambiguous, render the page to PNG and read it visually. 
-When a single number looks off, cross-check the rendered image against the text layer.
-
-Read the summary box and the register; you don't need to re-render disclosure/marketing pages, or the check-image pages the task message names.
-
-Beyond that, use your judgment on the most effective way to get clean values out.
+Beyond that, choose your own method.
 
 ### Document expectations
-Document bundles are initially sent from clients; they may be clean copies straight from the bank or manual scans of varying quality.
-The client may or may not have included the marketing and information pages, and may make mistakes.
+Bundles come from clients: bank originals or scans of varying quality, with or without marketing and information pages, sometimes with mistakes. A splitter agent chose your page range.
 
-The document will then be processed by a splitter agent who tells you the statement boundaries within the bundle, of which you are responsible for the extraction on one of those statements.
-
-In the end, for the statement boundaries you are given, you should expect:
-
+Expect, for your range:
 - Every page carrying summary or transaction data is present.
-- Pages keep their original relative order — even when some are missing.
-- The bundle holds a single bank type and a single account, or one consolidated set.
-- Some pages in your range may be images of cleared checks. The task message names them; they hold no transactions of their own (see Transaction Edge Cases). 
+- Pages keep their relative order, even when some are missing.
+- One bank type and one account, or one consolidated set.
+- Some pages may be check images; the task message names them.
 
-**But expect the unexpected** — redactions, accidental omissions, duplications, pages genuinely out of order, or boundaries that were split incorrectly are possible.
-In these situations, you should process the statement using the data that you have.  If in the end it doesn't reconcile, it will be flagged for human review (see Reconciliation).
+Redactions, omissions, duplications, out-of-order pages, and wrong boundaries still happen. Extract from what you have; if it doesn't reconcile, report it (see Reconciliation).
 
 ## What to Extract
 
-The full shape is in `references/output-schema.md`. The principles that decide the hard cases:
+The shape is in `references/output-schema.md`.
 
-**One statement, possibly several accounts.** A statement may cover one account or be consolidated across several (checking + savings + money market, etc.). Emit one entry in `accounts` per real *transactional* account. Things that are **not** accounts: relationship-level rollups ("Total assets", "Summary of your accounts" totals), rewards-points balances, and marketing. A sub-thread under one account number (e.g. a card's purchases listed under a single checking account) is **not** its own account — its line items are transactions of the parent account.
+**Accounts.** One entry in `accounts` per transactional account. These are not accounts:
+- relationship-level rollups ("Total assets", "Summary of your accounts" totals)
+- rewards-points balances
+- marketing
+- a sub-thread under one account number, such as a card's purchases listed under a checking account; its lines are transactions of the parent account
 
-**Read, don't compute** every summary figure — beginning/ending balance, total credits/debits, transaction counts, checks total, fees, interest — is copied from what's printed. If the statement prints it, read it. If it doesn't, the value is `null`. Do **not** sum the transactions to fill a total, and do **not** invent a count. You may *reformat* (a `5/03` date becomes `2024-05-03`; a value sitting unsigned in a "Withdrawals" column becomes negative), but only compute for purposes of reconciliation.
+**Read, don't compute reported values.** Compute only to reconcile.
+- Copy every summary figure as printed: balances, totals, counts, checks total, fees, interest. If it isn't printed, leave the key out. 
+- Never sum transactions to fill a total, and never invent a count. 
+- Reformatting is fine (`5/03` → `2024-05-03`; an unsigned amount in a "Withdrawals" column → negative). 
 
-**Sign convention.** Sign every *transaction* amount by cash-flow direction from the holder's side — the *same way across all statement types*, so transactions are comparable in one pile. Money in is positive, money out is negative. Summary figures and balances are not signed this way: they're stored as the statement prints them (see `references/output-schema.md`).
-- Deposit account (`bank_id` without a `_cc` suffix): deposits, credits, interest received `+`; withdrawals, debits, checks, fees `-`.
-- Credit card (`bank_id` ends in `_cc`): payments and credits `+`; charges, fees, interest, cash advances `-`. (A card payment is money in, so `+` — it cancels against the matching `-` outflow on the bank statement that paid it. A card charge is money out, so `-`, just like a debit.)
+**Sign convention.** Sign every transaction `amt` by cash-flow direction from the holder's side, the same way on every statement type: money in `+`, money out `-`. Summary figures and balances stay as printed (see `references/output-schema.md`).
+- Deposit account: deposits, credits, interest received `+`; withdrawals, debits, checks, fees `-`.
+- Credit card: payments and credits `+`; charges, fees, interest, cash advances `-`. A card payment is `+` so it cancels the matching `-` on the bank statement that paid it.
 
-Statements print this inconsistently — sometimes the sign is shown, sometimes it's only implied by which column or section the line sits in. Assign the sign from the line's role, then let Reconciliation confirm you got it right. The balance identity that confirms it is **different for a deposit account vs a credit card** (see Reconciliation), because a card's balance is debt, not cash.
+Statements show the sign, or imply it by column or section. Assign it from the line's role and let reconciliation confirm it. The balance identity differs for a deposit account and a card, because a card's balance is debt.
 
-**Year derivation.** Many registers print month/day only. Take the year from the statement's own period — the closing date in the summary box is enough to fix it. Watch the boundary: a statement closing in January can carry December lines from the prior year.
+**Year.** When the register prints month and day only, take the year from the statement period. A statement closing in January can carry December lines from the prior year.
 
-**`check`** is populated when the line is a check and a number is shown (sometimes a normal transaction line item, sometimes a dedicated Checks section, sometimes both).
+**`check`.** Set when the line is a check and a number is printed, whether in the register, a Checks section, or both.
+- Checks tables often have no description -- set it to "Check"
 
-### Transaction Edge Cases
+**Record all transactions**, even those with a `0.00` value.
 
-These get mistaken for transactions constantly. None of them are:
-- **Subtotal / total lines** — "Total deposits and other credits", "Total checks", "Subtotal for card account …", "Total Payments and Credits". Summaries, not activity.
-- **Beginning / ending balance rows** inside the register — boundaries, not activity.
-- **Running-balance columns** ("Ending Daily Balance") and **Daily ledger balances** tables — reconciliation aids, not transactions. Do read the daily ledger and capture it in `daily_balances`: it's the only check that localizes a failure to a specific day, so it's worth rendering the page for even though it produces no transactions.
-- **Check images.** Pages of check photographs printed inside the statement, named for you in the task message. A separate agent extracts those -- take check numbers and amounts from the printed register, never from an image.
+### Not transactions
+- Subtotal and total lines: "Total deposits and other credits", "Total checks", "Subtotal for card account …", "Total Payments and Credits".
+- Beginning and ending balance rows inside the register.
+- Running-balance columns ("Ending Daily Balance") and daily ledger tables. Do capture the daily ledger in `daily_balances`: it's the only check that localizes a failure to a day.
+- Check images. A separate agent extracts them; take check numbers and amounts from the printed register, never from an image.
 
-A fee or interest line that appears in the register IS a transaction (it moved the balance). It may also be reflected in the summary's `fees_charged` / `interest_*` field. Capture both; don't collapse it into one or the other.  If no date is shown, use the statement date.
+A fee or interest line in the register is a transaction, and may also be reflected in `fees_charged` or `interest_*`. Capture both. With no date shown, use the statement date.
 
 ## Reconciliation
-After you have scanned the document, use these checks to verify your results. Note these are anomaly detectors, not rules the statement must obey. The document is ground truth. 
-When a check fails, first re-inspect the statement to try to find the issue (a misread digit, misread separator, a missed line, or a swallowed sign on your side), see Re-inspection below.
-If you cannot resolve the issue on re-inspection, either because the recheck confirms the issue is present OR because you still can't be sure of a value, report the issue in the output JSON, according to the rules in `references/issue-reporting.md`.
 
-### Re-inspection and making changes
-Re-inspection means LOOK AGAIN — render as an image then OCR instead of just reading the text, re-render at higher resolution, re-read a column you skimmed, reparse a region, etc.
+Run the checks in `references/reconciliation-checks.md` and the date and description checks below. They detect anomalies; the document is ground truth.
 
-You may only use arithmetic or common sense rules to confirm when you have multiple readings of a value, for ex:
-- you aren't sure if the amount is `3,400.00` vs `340.00`, but computed reconciliation works for only one of them
-- you aren't sure if you read a date as `1/12` or `1/21`, but the transactions are ordered by date so this gives you the answer 
+When a check fails, re-inspect first. If re-inspection confirms the problem, or you still can't be sure of a value, report it per `references/issue-reporting.md`.
 
-If the page clearly reads `340.00` even though the account would reconcile at `3,400.00`, keep `340.00`, report the failed check in `errors`.
+### Re-inspection
+Re-inspecting means looking again: a different source (the rendered page instead of the text layer), a higher resolution, a column you skimmed, a region re-parsed.
 
-For text: 
-- If it looks like lines have merged or split wrong (two transactions collapsed into one, a wrapped continuation read as its own line, columns bleeding together) try to resolve this.
-- Reading "5O0.00" as 500.00 in an amount is fine — the field can't hold a letter, so the candidates were constrained by the field itself. 
-- "Correcting" UNAL0MEHOUSE to UNALOMEHOUSE in a description is not okay, because nothing constrains which is right. 
-- Never normalize text, expand abbreviations, title-case, or repair a description by inference
+Use arithmetic or ordering only to choose between readings you actually have:
+- `3,400.00` or `340.00`, and reconciliation works for only one.
+- `1/12` or `1/21`, and the register's date order settles it.
 
-If it's still unclear after re-reading, keep your best literal reading and report it. Never substitute a guess for an unreadable value.
+If the page clearly reads `340.00`, keep it even when `3,400.00` would reconcile, and report the failed check.
 
-### Computed Reconciliation Checks
-See `references/reconciliation-checks.md`
+For text:
+- Fix lines that merged or split wrong: two transactions collapsed into one, a wrapped continuation read as its own line, columns bleeding together.
+- Reading "5O0.00" as `500.00` is fine; an amount can't hold a letter.
+- Don't "correct" `UNAL0MEHOUSE` to `UNALOMEHOUSE`; nothing constrains which is right.
+- Never normalize text, expand abbreviations, title-case, or repair a description by inference.
 
-### Date and Description Checks
-For dates, common signals to re-inspect a line:
+If it's still unclear, keep your best literal reading and report it. Never substitute a guess for an unreadable value.
 
-- The date is out of order (WITHIN a section, if applicable. Deposits, Withdrawals, etc. can be each ordered independently).  
-  - If both post date and transaction date are shown, the register usually orders by post date — so a transaction date out of sequence may be correct
-- If the statement shows a daily ledger table, and the date is not present in the table
-- Date is outside the statement period. 
-  - A transaction date may legitimately precede the period start if the post date is within the period. 
-  - Genuine exceptions also exist, such as fraud reversals
-- Impossible or transposed: month > 12, 02/30
+### Date and description checks
+Re-inspect a date when:
+- It's out of order within its section; sections can be ordered independently. When both post and transaction dates are shown, the register usually orders by post date, so an out-of-sequence transaction date may be right.
+- The daily ledger doesn't list it.
+- It falls outside the statement period. A transaction date can precede the period when its post date is inside it, and fraud reversals and similar are genuine exceptions.
+- It's impossible or transposed: month > 12, 02/30.
 
-For descriptions, statements are repetitive and often rigidly templated. Re-inspect a line when:
-
-- The description is null or empty.
-- It breaks the bank's line template — siblings carry a trailing reference block, merchant category code, or city/state and this one doesn't
-- A recurring merchant is spelled differently in one instance than in its others (five reads of one string and one outlier is an OCR artifact).
-- It ends mid-token
-- It contradicts its own fields: e.g. "Interest Payment" as a large negative, a card payment read as an outflow.
+Re-inspect a description when:
+- It's missing or empty.
+- It breaks the bank's line template: its siblings carry a trailing reference, MCC, or city/state and it doesn't.
+- A recurring merchant is spelled differently in one instance.
+- It ends mid-token.
+- It contradicts its own fields: "Interest Payment" as a large negative, a card payment as an outflow.
 
 ## Memory: Bank Extraction Notes
 
-You have a persistent memory store mounted at `/mnt/memory/extraction-notes/`. This is your knowledge base of bank-specific *extraction* quirks — distinct from the boundary patterns the splitter keeps — and it persists across sessions. 
-
-It holds one **folder** per bank type — `/mnt/memory/extraction-notes/{bank_id}/` — containing a consolidated `main.md` plus any session files that have not yet been consolidated:
+The store at `/mnt/memory/extraction-notes/` holds one folder per `bank_id`: a consolidated `main.md`, plus one file per session not yet consolidated. These are extraction notes, separate from the splitter's boundary patterns.
 
 ```
 /mnt/memory/extraction-notes/
@@ -140,18 +131,16 @@ It holds one **folder** per bank type — `/mnt/memory/extraction-notes/{bank_id
     main.md
 ```
 
-**Reading.** Before extracting a bank from scratch:
-1. List `/mnt/memory/extraction-notes/` (ls or glob) and look for a folder matching your `bank_id`.
-2. If one exists, read `main.md` **and every other `.md` file in it**. The session files are deltas recorded by earlier runs; they add to what's in `main.md` and sometimes contradict it. Together they tell you where the summary lives, the column layout, the sign and date conventions, the multi-account structure, and the known traps.
-   - A `main.md` will not yet exist if the consolidation agent hasn't run since the first time the bank_id was discovered  
-   - It's possible that if multiple agents write to an empty folder at the same time, they both write their session file as a full main.md
-3. Use the knowledge accumulated to read faster and avoid the traps it records. Notes are hints about where to look and what to distrust — they are not evidence. Where they conflict with each other or with the page, the page wins; record what you actually saw.
+**Reading**, before extracting:
+1. List the folders and look for your `bank_id`.
+2. If it exists, read `main.md` and every session file. Session files add to `main.md` and sometimes contradict it.
+   - `main.md` won't exist until the consolidation agent has run once.
+   - Runs that started on an empty folder at the same time may each have written a full file.
+3. Notes tell you where to look and what to distrust, not what's true. Where they conflict with each other or with the page, the page wins.
 
-**Writing.** Multiple agents run against this store concurrently, so writes must never overlap:
-- **Never `write` or `edit` `main.md`, and never touch another session's file.** `main.md` belongs to the consolidation agent. Editing shared files is what corrupts the store when two runs overlap.
-- Write exactly one file: `/mnt/memory/extraction-notes/{bank_id}/{session_id}.md`, using the session id you were given in the task message. Create the folder if this is a bank you have no notes for.
-- Put in it **only what is new or different** from everything you read. Use the format in `references/extraction-notes-format.md`.
-  - When no `main.md` exists yet, an earlier session file may already be filled in completely and can serve as your base; if none is, your session file should carry the full contents.
-- If you learned nothing bank-specific this run, write no file.
-
-**Never store client personally identifying information** — no client names, addresses, or account numbers, including partial ones like the last four digits. Record the structural observation, not the data that illustrated it.
+**Writing.** Other runs write to this store at the same time:
+- Never write or edit `main.md` (the consolidation agent owns it) or another session's file.
+- Write at most one file: `/mnt/memory/extraction-notes/{bank_id}/{session_id}.md`, using the session id from the task message. Create the folder for a new bank.
+- Before writing, read `references/extraction-notes-format.md` and `references/extraction-notes-example.md`.
+- Include only what's new or different from what you read. With no `main.md` yet, a complete earlier session file can be your base; otherwise your file carries the full contents.
+- Write nothing if you learned nothing bank-specific, or if you returned `{"error": …}`.

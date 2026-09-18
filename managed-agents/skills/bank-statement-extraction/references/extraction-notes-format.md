@@ -1,10 +1,22 @@
 # Extraction notes format
 
-The shape of the two kinds of files in `/mnt/memory/extraction-notes/<bank_id>/`. When to
-read and write them is in SKILL.md under "Memory: Bank Extraction Notes".
+The two kinds of file in `/mnt/memory/extraction-notes/<bank_id>/`. When to read and write them is in SKILL.md under "Memory: Bank Extraction Notes".
+A complete example of both is in `references/extraction-notes-example.md`.
 
-The contents should reflect the structural patterns of the bank's statement format, not defects in a particular submitted PDF. 
-A duplicated or missing page, a poor-quality scan, a redaction, or information about Bates stamps are related to the individual submission, not the bank's pattern.
+## Rules
+- Record what is structurally true of the bank's statement format. Leave out anything that depends on this submission: missing, redacted, or duplicated pages, scan quality, Bates stamps.
+- Leave out anything about this run (what you found, how sure you were, whether checks passed) and about reading the PDF (tools, OCR, text extraction, image sizes).
+- Record only what this statement's pages showed, not the filename or what you expect of the bank in general.
+- Record how reconciliation checks must be run for this bank, not whether they passed.
+- No client personally identifying information: names, addresses, or account numbers, including partial ones like the last four digits.
+
+## Style
+The reader is a later run with this same skill. Give it the observations; it already knows what to do with them.
+- Start with `# {bank_id}` and go straight into the sections. Nothing about this session, the store, or whether the folder is new.
+- One observation per bullet: the label or line, quoted, and where it appears.
+- Quote exact labels rather than paraphrasing, with client values replaced by placeholders: `{account number}`, `{amount}`, `{date}`, `{merchant}`. Add words only where the quote alone would be ambiguous.
+- Leave out why something matters and how to use it. State a trap as what the line or page is, not as a warning.
+- Don't restate the section heading or the task.
 
 ## `main.md`
 
@@ -12,85 +24,47 @@ A duplicated or missing page, a poor-quality scan, a redaction, or information a
 # {bank_id}
 
 ## Institution Name
-- [The friendly name of the institution, e.g. "Bank of America", "Chase",
-  "American Express". Several bank_ids may share one institution name. Prefer the name
-  on the statement over the underlying issuer — a Macy's card that partners with
-  American Express should say "Macy's".]
+- [Name as printed on the statement, not the underlying issuer. Several bank_ids can share one name]
 
 ## Statement Shape
-- [Credit card or deposit account — this follows the `_cc` suffix on the bank_id, so
-  note here only what the *statement* looks like beyond that]
-- [Single-account or consolidated/multi-account? If consolidated, which account types and how they're laid out]
+- [What the statement looks like beyond card vs deposit, which the `_cc` suffix already says]
+- [Single-account or consolidated; if consolidated, which account types and how they're laid out]
 
 ## What numbers and where
-- [Which summary fields this bank prints vs omits (total_credits/debits? counts? checks_total? interest?)]
-- [Where the account summary box sits — beginning/ending balance, totals, counts]
-- [Is there a Daily Ledger? Does it have a dedicated section, or show in the transaction register?]
-- [Exact labels used, e.g. "Previous Balance" / "New Balance", "Balance on M/D"]
+- [Which summary fields are printed, and which are omitted]
+- [Where the summary box sits, and its exact labels, quoted]
+- [Whether there's a daily ledger, and where]
 
 ## Transaction register
-- [How transactions are laid out: single signed amount column, separate debit/credit sections, separate Payments vs Charges sections, etc.]
-- [How signs are shown or implied — which section/column means which sign]
-- [Date format in the register, and how the year is determined]
-- [Check handling: is there a dedicated checks section in the transaction register, and where do check numbers come from? 
-  Note: Images of checks are extracted by another agent — record only if they affect reading the register, e.g. that they interrupt it between two of its pages]
-- [Any sub-account / card sub-thread structure that rolls into a parent account]
+- [Layout: one signed amount column, separate debit and credit sections, or separate payments and charges sections]
+- [How signs are shown or implied]
+- [Register date format, and where the year comes from]
+- [Where check numbers come from; check images only where they interrupt the register]
+- [Sub-account or card sub-thread structure that rolls into a parent account]
 
 ## Reconciliation conventions
-Record how the checks must be *run* for this bank, not whether they passed. 
-- [Scope of the printed totals: does "Total withdrawals" include fees and checks, or are
-  those broken out separately? Same for the counts.]
-- [The summary box's own printed arithmetic, in the order the bank presents it, e.g.
-  "Beginning + Deposits − Withdrawals − Fees = Ending"]
-- [Rounding or display conventions you confirmed on the page — not ones you inferred
-  from a check that failed]
-
-
+- [What the printed totals and counts include: fees, checks, interest folded in or broken out]
+- [The summary box's printed arithmetic, in the bank's order]
+- [Rounding or display conventions confirmed on the page]
 
 ## Transaction Description Patterns
-- [Line template(s), e.g. "CHECKCARD {MMDD} {MERCHANT} {CITY} {ST} {ref}
-  CKCD {MCC} {masked card}"]
-- [How descriptions wrap: how many lines, what lands on continuation lines]
-- [Recurring boilerplate: "Interest Payment", "PAYMENT - THANK YOU",
-  "TOTAL ... REBATE", transfer wording naming the counterpart account]
-- [Merchant prefixes seen: "DD *", "PY *", "PPY=", "CHECKCARD", "BILLPAY"]
+- [Line templates, with placeholders]
+- [How descriptions wrap, and what lands on continuation lines]
+- [Recurring boilerplate wording, quoted]
+- [Merchant prefixes, quoted]
 
 ## Traps
-- [Subtotal/total lines that look like transactions; "this page intentionally left blank" or pages contain marketing text AND useful information; anything about *this bank's statements* that bit you]
+- [Lines or pages in this bank's statements that look like something they aren't]
 
 ## Discovery Log
-- First seen: [ISO datetime / source file name, page range, other context if useful]
-- Last confirmed: [ISO datetime / source file name, page range, other context if useful]
+- First seen: [datetime, source file name, page range]
+- Last confirmed: [datetime, source file name, page range]
 ```
 
-In the Discovery Log, the source file name is the original one from the task message — the bundle is always mounted as `bundle.pdf`, so that name carries no information.
-
-Be precise — quote the exact labels the bank uses. The point is that next time, you read
-the summary and register straight from the notes instead of re-deriving the layout, and
-you skip the traps you already found.
+Take the datetime from `date -u`, and the source file name from the task message (the mounted file is always named `bundle.pdf`).
 
 ## Session files
 
-Same headings, but include only the sections you actually have something to add to — don't
-copy sections forward just to keep the shape intact.
-Instead of `First seen` / `Last confirmed`, use a single `- Observed:` line.
+Same headings, but only the sections you have something new for: what's new or different from `main.md` and the other session files. Replace `First seen` / `Last confirmed` with one `- Observed:` line.
 
-```
-# bank_of_america
-
-## Traps
-- The "Total deposits and other credits" line sits mid-register, not at the end, and
-  reads like a transaction — it has a date column
-
-## Discovery Log
-- Observed: 2026-07-30T14:22:00Z, smith_2013_bundle.pdf, pages 12–19
-```
-
-Where you contradict `main.md` (or another session file), say so plainly rather than hedging — the consolidation
-agent records the disagreement rather than silently picking a side:
-
-```
-## What numbers and where
-- No printed transaction counts on this statement, though main.md records
-  "# of deposits/credits" in the summary box
-```
+Where you contradict `main.md` or a session file, name the file and say so plainly; the consolidation agent records the disagreement.
