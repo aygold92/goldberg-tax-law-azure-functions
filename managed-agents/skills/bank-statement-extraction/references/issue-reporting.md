@@ -33,7 +33,7 @@ Don't narrate your work, restate the lists, or comment on general scan quality.
 Cases that earn a note:
 - **Misaligned rows.** A shifted column is one defect, not several bad reads. Say so, and list every affected row under every affected field.
 - **Daily ledger failure.** Name the day. One misdated transaction breaks two days' walks, and listing every row on both days buries the wrong one. Point at rows only where you suspect specific ones.
-- **Nothing to point at.** A gap where a transaction should be, a section that looks duplicated, a structure that doesn't match your notes.
+- **Nothing to point at.** A gap where a transaction should be, a section that looks duplicated.
 - **Attribution** on a consolidated statement: which account a figure belongs to.
 
 ## Examples

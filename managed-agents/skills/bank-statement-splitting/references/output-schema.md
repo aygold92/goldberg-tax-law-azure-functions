@@ -1,6 +1,6 @@
 # Output schema
 
-Return exactly this JSON object as your final message: no fencing, no text around it. Page numbers are 1-indexed against the full bundle.
+Return a JSON object with exactly this format as your final message (it will be parsed directly by a JSON parser).
 
 ## Fields
 - `banks`: one entry per bank type found in this run, keyed on `bank_id`.

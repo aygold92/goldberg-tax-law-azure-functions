@@ -1,6 +1,7 @@
 # Output schema
 
-Write the JSON object below to `/mnt/session/outputs/statement.json`, then return `{"file": "statement.json"}` as your final message: no fencing, no text around it.
+Write the JSON object below to `/mnt/session/outputs/statement.json`, then return `{"file": "statement.json"}` as your final message.  
+That file as well as the final message itself will both be parsed by a JSON parser.
 
 If your page range holds no bank statement at all (no account, no register, wrong pages), write no file and return `{"error": "<one sentence on what the pages contain>"}` instead.
 

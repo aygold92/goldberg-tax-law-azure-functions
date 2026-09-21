@@ -1,6 +1,6 @@
 # Output schema
 
-Return a JSON object with exactly this format as the final response. No fencing, no text around it.
+Return a JSON object with exactly this format as your final message (it will be parsed directly by a JSON parser).
 
 ```json
 {

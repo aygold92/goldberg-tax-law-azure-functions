@@ -3,8 +3,8 @@
 name: bank-statement-extraction
 model:
   effort:
-    type: max
-  id: claude-opus-4-6
+    type: high
+  id: claude-opus-5
   speed: standard
 description: "Extracts account summary data and every transaction from a single bank statement within a mounted PDF bundle, as structured JSON."
 system: {file: system-prompt.md}
