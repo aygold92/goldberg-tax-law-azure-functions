@@ -221,6 +221,28 @@ tasks.register<JavaExec>("applyAgents") {
     }
 }
 
+// Archives result.json for extractions whose records were saved without one — either from before the
+// archive existed, or from a blob write that failed after the records had committed.
+tasks.register<JavaExec>("backfillModelArchive") {
+    group = "application"
+    description = "Archives agent result.json for classifications missing a model location (dry run unless -Papply=true)"
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass = "com.goldberg.law.script.backfill.ArchiveBackfillMainKt"
+
+    val properties = mutableListOf<String>()
+    project.findProperty("clientId")?.toString()?.let { properties.addAll(listOf("--client-id", it)) }
+    if (project.findProperty("apply")?.toString()?.toBoolean() == true) properties.add("--apply")
+
+    args = properties
+    workingDir = projectDir
+
+    doFirst {
+        runCatching { setEnvironmentVariablesFromJson() }
+            .onSuccess { environment(it) }
+            .onFailure { println("backfillModelArchive: no local settings env found; using inherited environment") }
+    }
+}
+
 // Kept for muscle memory: the skills-only slice of applyAgents.
 tasks.register<JavaExec>("updateSkill") {
     group = "application"
