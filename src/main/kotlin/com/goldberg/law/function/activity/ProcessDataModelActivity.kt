@@ -59,7 +59,7 @@ class ProcessDataModelActivity @Inject constructor(
             val shouldCreate = opts.forceRecreate || existingRecords.isEmpty()
             if (shouldCreate) {
                 logger.info { "[${input.requestId}][${context.invocationId}] skipping analysis, creating statements and checks for ${input.classification}" }
-                val dataModel = dataManager.loadModel(input.classification)
+                val dataModel = dataManager.loadModel(input.classification).asDocumentDataModel()
                 createStatementsAndChecks(dataModel, input.classification, opts.replaceOnRecreate)
             } else {
                 logger.info { "[${input.requestId}][${context.invocationId}] skipping ${input.classification} — already complete" }

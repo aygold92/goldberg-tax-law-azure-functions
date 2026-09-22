@@ -1,6 +1,8 @@
 package com.goldberg.law.function.api
 
 import com.goldberg.law.agent.AgentSessionLauncher
+import com.goldberg.law.agent.AgentSessionStarter
+import com.goldberg.law.agent.AgentStart
 import com.goldberg.law.function.api.model.ApiResult
 import com.goldberg.law.function.api.model.ExecuteAgentResponse
 import com.goldberg.law.function.api.model.ExecuteExtractionAgentRequest
@@ -14,6 +16,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import java.util.*
 
 class ExecuteExtractionAgentFunction @Inject constructor(
+    private val agentSessionStarter: AgentSessionStarter,
     private val agentSessionLauncher: AgentSessionLauncher,
 ) {
     private val logger = KotlinLogging.logger {}
@@ -26,17 +29,26 @@ class ExecuteExtractionAgentFunction @Inject constructor(
     ): HttpResponseMessage = try {
         logger.info { "[${ctx.invocationId}] processing ${request?.body?.orElseThrow()}" }
         val input = OBJECT_MAPPER.readValue(request?.body?.orElseThrow(), ExecuteExtractionAgentRequest::class.java)
-        val sessionId = agentSessionLauncher.startStatementExtraction(
-            input.anthropicFileId,
-            input.fileName,
-            input.startPage,
-            input.endPage,
-            input.bankId,
-            input.checkPages,
-        )
+        val start = if (input.classificationId != null) {
+            agentSessionStarter.startStatementExtraction(input.classificationId, input.overrideExisting)
+        } else {
+            // One-off run against raw page numbers: nothing to record it against
+            val raw = input.requireRawParameters()
+            AgentStart(
+                agentSessionLauncher.startStatementExtraction(
+                    raw.anthropicFileId,
+                    raw.fileName,
+                    raw.startPage,
+                    raw.endPage,
+                    raw.bankId,
+                    raw.checkPages,
+                ),
+                started = true,
+            )
+        }
 
         request!!.createResponseBuilder(HttpStatus.OK)
-            .body(ExecuteAgentResponse(sessionId))
+            .body(ExecuteAgentResponse(start.sessionId, start.started))
             .build()
     } catch (ex: Exception) {
         logger.error(ex) { "Error starting extraction agent $request" }

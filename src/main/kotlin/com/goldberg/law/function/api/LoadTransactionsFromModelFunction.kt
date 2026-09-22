@@ -29,7 +29,7 @@ class LoadTransactionsFromModelFunction @Inject constructor(
         logger.info { "[${ctx.invocationId}] processing ${request?.body?.orElseThrow()}" }
         val req = OBJECT_MAPPER.readValue(request?.body?.orElseThrow(), LoadTransactionsFromModelRequest::class.java)
         val classification = classificationService.loadClassification(req.classificationId)
-        val model = azureStorageDataManager.loadModel(classification)
+        val model = azureStorageDataManager.loadModel(classification).asDocumentDataModel()
         if (model is StatementDataModel) {
             request!!.createResponseBuilder(HttpStatus.OK)
                 .body(model.getTransactionRecords())

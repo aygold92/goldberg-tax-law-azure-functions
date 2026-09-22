@@ -1,6 +1,8 @@
 package com.goldberg.law.function.api
 
 import com.goldberg.law.agent.AgentSessionLauncher
+import com.goldberg.law.agent.AgentSessionStarter
+import com.goldberg.law.agent.AgentStart
 import com.goldberg.law.function.api.model.ApiResult
 import com.goldberg.law.function.api.model.ExecuteAgentResponse
 import com.goldberg.law.function.api.model.ExecuteCheckExtractionAgentRequest
@@ -14,6 +16,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import java.util.*
 
 class ExecuteCheckExtractionAgentFunction @Inject constructor(
+    private val agentSessionStarter: AgentSessionStarter,
     private val agentSessionLauncher: AgentSessionLauncher,
 ) {
     private val logger = KotlinLogging.logger {}
@@ -26,10 +29,16 @@ class ExecuteCheckExtractionAgentFunction @Inject constructor(
     ): HttpResponseMessage = try {
         logger.info { "[${ctx.invocationId}] processing ${request?.body?.orElseThrow()}" }
         val input = OBJECT_MAPPER.readValue(request?.body?.orElseThrow(), ExecuteCheckExtractionAgentRequest::class.java)
-        val sessionId = agentSessionLauncher.startCheckExtraction(input.anthropicFileId, input.pages)
+        val start = if (input.classificationId != null) {
+            agentSessionStarter.startCheckExtraction(input.classificationId, input.overrideExisting)
+        } else {
+            // One-off run against raw page numbers: nothing to record it against
+            val (anthropicFileId, pages) = input.requireRawParameters()
+            AgentStart(agentSessionLauncher.startCheckExtraction(anthropicFileId, pages), started = true)
+        }
 
         request!!.createResponseBuilder(HttpStatus.OK)
-            .body(ExecuteAgentResponse(sessionId))
+            .body(ExecuteAgentResponse(start.sessionId, start.started))
             .build()
     } catch (ex: Exception) {
         logger.error(ex) { "Error starting check extraction agent $request" }

@@ -4,6 +4,7 @@ import com.goldberg.law.database.service.CheckService
 import com.goldberg.law.database.service.ClassificationService
 import com.goldberg.law.database.service.StatementService
 import com.goldberg.law.datamanager.AzureStorageDataManager
+import com.goldberg.law.datamanager.StoredModel
 import com.goldberg.law.datamanager.Extension
 import com.goldberg.law.datamanager.StorageLocation
 import com.goldberg.law.document.*
@@ -205,7 +206,7 @@ class ProcessDataModelActivityTest {
 
         @Test
         fun `analyzed, no existing statements - loads saved model without re-running AI, creates statements`() {
-            whenever(dataManager.loadModel(analyzedBank)).thenReturn(newStatementModel())
+            whenever(dataManager.loadModel(analyzedBank)).thenReturn(StoredModel.Azure(newStatementModel()))
             whenever(documentStatementCreator.createBankStatements(any(), any())).thenReturn(listOf(DEFAULT_STATEMENT))
             whenever(statementService.loadStatementIdsForClassification(any())).thenReturn(emptySet())
 
@@ -232,7 +233,7 @@ class ProcessDataModelActivityTest {
         @Test
         fun `analyzed, has statements, forceRecreate - loads model, inserts new statements without deleting existing`() {
             whenever(statementService.loadStatementIdsForClassification(any())).thenReturn(setOf(STMT_ID))
-            whenever(dataManager.loadModel(any())).thenReturn(newStatementModel())
+            whenever(dataManager.loadModel(any())).thenReturn(StoredModel.Azure(newStatementModel()))
             whenever(documentStatementCreator.createBankStatements(any(), any())).thenReturn(listOf(DEFAULT_STATEMENT))
 
             val output = activity.processDataModel(
@@ -251,7 +252,7 @@ class ProcessDataModelActivityTest {
         @Test
         fun `analyzed, has statements, forceRecreate + replaceOnRecreate - atomically deletes old statements and inserts new`() {
             whenever(statementService.loadStatementIdsForClassification(any())).thenReturn(setOf(STMT_ID))
-            whenever(dataManager.loadModel(any())).thenReturn(newStatementModel())
+            whenever(dataManager.loadModel(any())).thenReturn(StoredModel.Azure(newStatementModel()))
             whenever(documentStatementCreator.createBankStatements(any(), any())).thenReturn(listOf(DEFAULT_STATEMENT))
 
             val output = activity.processDataModel(
@@ -316,7 +317,7 @@ class ProcessDataModelActivityTest {
         @Test
         fun `analyzed check, no existing checks - loads saved model without re-running AI, creates checks`() {
             val checkDataModel = newCheckDataModel(classification = analyzedCheck)
-            whenever(dataManager.loadModel(analyzedCheck)).thenReturn(checkDataModel)
+            whenever(dataManager.loadModel(analyzedCheck)).thenReturn(StoredModel.Azure(checkDataModel))
             whenever(checkService.loadCheckIdsForClassification(CLASSFN_ID)).thenReturn(emptySet())
 
             val output = activity.processDataModel(ProcessDataModelActivityInput(REQUEST_ID, analyzedCheck, PROCESSING_OPTIONS), context)
@@ -344,7 +345,7 @@ class ProcessDataModelActivityTest {
         fun `analyzed check, has checks, forceRecreate + replaceOnRecreate - atomically replaces checks`() {
             val checkDataModel = newCheckDataModel(classification = analyzedCheck)
             whenever(checkService.loadCheckIdsForClassification(CLASSFN_ID)).thenReturn(setOf(CHECK_ID))
-            whenever(dataManager.loadModel(analyzedCheck)).thenReturn(checkDataModel)
+            whenever(dataManager.loadModel(analyzedCheck)).thenReturn(StoredModel.Azure(checkDataModel))
 
             val output = activity.processDataModel(
                 ProcessDataModelActivityInput(REQUEST_ID, analyzedCheck,

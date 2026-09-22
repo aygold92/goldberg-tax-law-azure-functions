@@ -60,6 +60,19 @@ class AzureStorageDataManager @Inject constructor(
         saveFile(classification.modelLocation(), dataModel.toStringDetailed(), true)
 
     /**
+     * Stores an agent's `result.json` where the Azure pipeline stores its model, so a classification has one
+     * place its extraction result lives whichever pipeline produced it. Written as UTF-8 and byte-for-byte as
+     * the agent wrote it: a payee or bank name outside ASCII must survive, and re-serializing through a schema
+     * class would silently drop whatever that class no longer models.
+     */
+    fun saveAgentOutput(classification: Classification, resultJson: String) = saveFile(
+        classification.modelLocation(),
+        BinaryData.fromBytes(resultJson.toByteArray(Charsets.UTF_8)),
+        overwrite = true,
+        contentType = "application/json",
+    )
+
+    /**
      * Functions to load files
      */
     private fun loadFile(storageLocation: StorageLocation): BinaryData = try {
@@ -92,13 +105,19 @@ class AzureStorageDataManager @Inject constructor(
         throw InvalidPdfException("Unable to create PDF from bytes for $storageLocation: $ex")
     }
 
-    fun loadModel(classification: Classification): DocumentDataModel {
+    /**
+     * Reads whatever the classification's extraction wrote. An agent-extracted classification carries the
+     * session that produced it, and its blob is that session's `result.json`; anything else is the Azure
+     * pipeline's model, parsed by document type as before.
+     */
+    fun loadModel(classification: Classification): StoredModel {
         val json = loadFile(classification.modelLocation()).toString()
-        return when (classification.documentType) {
+        if (classification.extractionSessionId != null) return StoredModel.Agent(json)
+        return StoredModel.Azure(when (classification.documentType) {
             DocumentType.BANK, DocumentType.CREDIT_CARD -> OBJECT_MAPPER.readValue(json, StatementDataModel::class.java)
             DocumentType.CHECK -> OBJECT_MAPPER.readValue(json, CheckDataModel::class.java)
             else -> OBJECT_MAPPER.readValue(json, ExtraPageDataModel::class.java)
-        }
+        })
     }
 
     /**
