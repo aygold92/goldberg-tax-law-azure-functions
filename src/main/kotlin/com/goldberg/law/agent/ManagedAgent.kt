@@ -15,7 +15,10 @@ import com.goldberg.law.agent.model.output.StatementExtractionOutput
 enum class ManagedAgent(
     val agentName: String,
     val memoryStore: String?,
-    /** The schema class the agent's final message parses into; null for an agent that reports in prose. */
+    /**
+     * The schema class the agent writes to [OUTPUT_FILE]; null for an agent that reports in prose, whose final
+     * message is its output.
+     */
     val outputType: Class<*>?,
 ) {
     SPLITTER("bank-statement-splitting", "bank-patterns", SplitterOutput::class.java),
@@ -30,6 +33,12 @@ enum class ManagedAgent(
 
         /** Where every agent's skill expects to find the PDF bundle. */
         const val BUNDLE_MOUNT_PATH = "/mnt/session/uploads/workspace/bundle.pdf"
+
+        /**
+         * The session output file every agent with an [outputType] writes its result to — its schema's output,
+         * or the `{"error": …}` shape. It's the whole result: an agent's messages are only logged.
+         */
+        const val OUTPUT_FILE = "result.json"
 
         fun byAgentName(name: String): ManagedAgent? = entries.firstOrNull { it.agentName == name }
     }

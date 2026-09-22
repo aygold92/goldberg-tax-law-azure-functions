@@ -68,5 +68,5 @@ data class ExtractedTransaction(
     val check: String? = null,
     /** Signed by cash-flow direction from the holder's side: money in `+`, money out `-`. */
     val amt: BigDecimal?,
-    val page: Int?,
+    val page: Int,
 )

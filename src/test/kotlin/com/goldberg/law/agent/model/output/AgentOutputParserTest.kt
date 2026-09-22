@@ -123,12 +123,6 @@ class AgentOutputParserTest {
     }
 
     @Test
-    fun `recognizes the too-large-to-return-inline shape`() {
-        assertThat(AgentOutputParser.parse("""{"file": "statement.json"}""", StatementExtractionOutput::class.java))
-            .isEqualTo(AgentResult.OutputFile("statement.json"))
-    }
-
-    @Test
     fun `recognizes the nothing-to-extract shape`() {
         assertThat(AgentOutputParser.parse("""{"error": "pages 3-9 are a cover letter"}""", CheckExtractionOutput::class.java))
             .isEqualTo(AgentResult.Error("pages 3-9 are a cover letter"))

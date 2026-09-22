@@ -81,8 +81,8 @@ class AgentSessionLauncher @Inject constructor(
         val agent = ManagedAgent.byAgentName(snapshot.agent)
         val raw = snapshot.finalMessage
 
-        fun result(status: AgentSessionResult.Status, output: Any? = null, outputFile: String? = null, error: String? = null) =
-            AgentSessionResult(sessionId, agent, status, output, outputFile, error, raw)
+        fun result(status: AgentSessionResult.Status, output: Any? = null, error: String? = null, json: String? = null) =
+            AgentSessionResult(sessionId, agent, status, output, error, raw, json)
 
         return when {
             snapshot.status == SessionStatus.RUNNING -> result(AgentSessionResult.Status.RUNNING)
@@ -93,34 +93,46 @@ class AgentSessionLauncher @Inject constructor(
             snapshot.stopReason != StopReason.END_TURN ->
                 result(AgentSessionResult.Status.FAILED, error = "Session stopped (${snapshot.stopReason})${snapshot.error?.let { ": $it" }.orEmpty()}")
             snapshot.error != null -> result(AgentSessionResult.Status.FAILED, error = snapshot.error)
-            raw == null -> result(AgentSessionResult.Status.FAILED, error = "Session ended without an agent message")
             agent == null -> result(AgentSessionResult.Status.FAILED, error = "Session belongs to agent '${snapshot.agent}', which this app doesn't run")
             // An agent that reports in prose has nothing to parse: the report is the output
-            agent.outputType == null -> result(AgentSessionResult.Status.COMPLETED, output = raw)
-            else -> try {
-                when (val parsed = AgentOutputParser.parse(raw, agent.outputType)) {
-                    is AgentResult.Output -> result(AgentSessionResult.Status.COMPLETED, output = parsed.value)
-                    is AgentResult.Error -> result(AgentSessionResult.Status.AGENT_ERROR, error = parsed.error)
-                    is AgentResult.OutputFile -> {
-                        val fileText = agentClient.downloadSessionOutput(sessionId, parsed.file)
-                        when (val fromFile = AgentOutputParser.parse(fileText, agent.outputType)) {
-                            is AgentResult.Output ->
-                                result(AgentSessionResult.Status.COMPLETED, output = fromFile.value, outputFile = parsed.file)
-                            else -> result(
-                                AgentSessionResult.Status.FAILED,
-                                outputFile = parsed.file,
-                                error = "Output file ${parsed.file} did not hold the agent's output: $fromFile",
-                            )
-                        }
-                    }
-                }
-            } catch (ex: Exception) {
-                result(AgentSessionResult.Status.FAILED, error = "Could not read agent output: ${ex.message}")
-            }
+            agent.outputType == null -> raw?.let { result(AgentSessionResult.Status.COMPLETED, output = it) }
+                ?: result(AgentSessionResult.Status.FAILED, error = "Session ended without an agent message")
+            else -> readOutput(sessionId, agent).let { result(it.status, it.output, it.error, it.json) }
+        }
+    }
+
+    /**
+     * Reads a finished session's result out of [ManagedAgent.OUTPUT_FILE] — the agent's schema output, or the
+     * `{"error": …}` shape it writes when it couldn't produce one. The agent's messages are never parsed.
+     */
+    private fun readOutput(sessionId: String, agent: ManagedAgent): Read {
+        val fileText = try {
+            agentClient.downloadSessionOutput(sessionId, ManagedAgent.OUTPUT_FILE)
+        } catch (ex: Exception) {
+            return Read(AgentSessionResult.Status.FAILED, error = "Could not read ${ManagedAgent.OUTPUT_FILE}: ${ex.message}")
+        }
+
+        val parsed = runCatching { AgentOutputParser.parse(fileText, agent.outputType!!) }
+        return when (val value = parsed.getOrNull()) {
+            is AgentResult.Output -> Read(AgentSessionResult.Status.COMPLETED, output = value.value, json = fileText)
+            is AgentResult.Error -> Read(AgentSessionResult.Status.AGENT_ERROR, error = value.error, json = fileText)
+            null -> Read(
+                AgentSessionResult.Status.FAILED,
+                error = "${ManagedAgent.OUTPUT_FILE} is not ${agent.agentName} output: ${parsed.exceptionOrNull()?.message}",
+                json = fileText,
+            )
         }
     }
 
     private fun requirePositive(pages: List<Int>) = require(pages.all { it > 0 }) { "Page numbers are 1-indexed: $pages" }
+
+    /** What reading the output file concluded, before it's folded into the [AgentSessionResult]. */
+    private data class Read(
+        val status: AgentSessionResult.Status,
+        val output: Any? = null,
+        val error: String? = null,
+        val json: String? = null,
+    )
 }
 
 data class SplitterLaunch(val sessionId: String, val anthropicFileId: String)
@@ -130,15 +142,19 @@ data class AgentSessionResult(
     val agent: ManagedAgent?,
     val status: Status,
     /**
-     * Once [Status.COMPLETED]: the agent's schema output — one of the classes in `agent/model/output/` — or,
-     * for an agent that reports in prose, the report text.
+     * Once [Status.COMPLETED]: the agent's schema output — one of the classes in `agent/model/output/`, read
+     * from [ManagedAgent.OUTPUT_FILE] — or, for an agent that reports in prose, the report text.
      */
     val output: Any? = null,
-    /** Set when the output was too large to return inline and was read from this session output file. */
-    val outputFile: String? = null,
     val error: String? = null,
-    /** The agent's final message verbatim, so a result that fails to parse can still be inspected. */
+    /** The agent's final message verbatim. Agents report in prose alongside their output file; this is for logs. */
     val rawOutput: String? = null,
+    /**
+     * [ManagedAgent.OUTPUT_FILE] verbatim, whenever it could be read — including when parsing it then failed.
+     * This is what gets archived for a completed session, rather than a re-serialized [output], so the record
+     * stays faithful to what the agent actually wrote.
+     */
+    val outputJson: String? = null,
 ) {
     enum class Status {
         RUNNING,

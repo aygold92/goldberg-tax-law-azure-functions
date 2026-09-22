@@ -9,12 +9,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 
-/** An agent's final message: its schema's output, or one of the two alternate shapes every schema allows. */
+/** An agent's `result.json`: its schema's output, or the one alternate shape every schema allows. */
 sealed interface AgentResult<out T> {
     data class Output<T>(val value: T) : AgentResult<T>
-
-    /** `{"file": …}` — the output was too large to return inline and was written to `/mnt/session/outputs/`. */
-    data class OutputFile(val file: String) : AgentResult<Nothing>
 
     /** `{"error": …}` — the agent finished but found nothing it could do (e.g. no statement in the page range). */
     data class Error(val error: String) : AgentResult<Nothing>
@@ -39,7 +36,6 @@ object AgentOutputParser {
         require(node is ObjectNode) { "Agent output is not a JSON object" }
 
         if (node.size() == 1) {
-            node.get("file")?.takeIf { it.isTextual }?.let { return AgentResult.OutputFile(it.asText()) }
             node.get("error")?.takeIf { it.isTextual }?.let { return AgentResult.Error(it.asText()) }
         }
         // Bind from the text rather than the tree: a tree normalizes BigDecimals (1250.00 → 1.25E+3).

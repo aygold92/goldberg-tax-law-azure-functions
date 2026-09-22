@@ -2,6 +2,7 @@ package com.goldberg.law.agent
 
 import com.azure.core.util.BinaryData
 import com.goldberg.law.agent.model.output.CheckExtractionOutput
+import com.goldberg.law.agent.model.output.SplitterOutput
 import com.goldberg.law.agent.model.output.StatementExtractionOutput
 import com.goldberg.law.datamanager.AzureStorageDataManager
 import com.goldberg.law.document.model.pdf.PdfDocument
@@ -29,6 +30,15 @@ class AgentSessionLauncherTest {
 
     private fun givenSnapshot(snapshot: SessionSnapshot) {
         whenever(agentClient.getSessionSnapshot(sessionId)).thenReturn(snapshot)
+    }
+
+    private fun givenResultFile(text: String) {
+        whenever(agentClient.downloadSessionOutput(sessionId, "result.json")).thenReturn(text)
+    }
+
+    private fun givenNoResultFile() {
+        whenever(agentClient.downloadSessionOutput(sessionId, "result.json"))
+            .thenThrow(IllegalStateException("Session $sessionId has no output file named result.json"))
     }
 
     private fun finished(agentName: String, message: String?) =
@@ -131,16 +141,75 @@ class AgentSessionLauncherTest {
     }
 
     @Test
-    fun `a finished session parses its final message as that agent's output`() {
-        givenSnapshot(finished(ManagedAgent.CHECK_EXTRACTION, checkJson))
+    fun `a finished session reads its result from the session's result file`() {
+        val message = "Read 1 check off page 5."
+        givenSnapshot(finished(ManagedAgent.CHECK_EXTRACTION, message))
+        givenResultFile(checkJson)
 
         val result = launcher.fetchResult(sessionId)
 
         assertThat(result.status).isEqualTo(AgentSessionResult.Status.COMPLETED)
         assertThat(result.output).isInstanceOf(CheckExtractionOutput::class.java)
         assertThat((result.output as CheckExtractionOutput).checks.single().checkNumber).isEqualTo(1042)
-        assertThat(result.outputFile).isNull()
-        assertThat(result.rawOutput).isEqualTo(checkJson)
+        // the message is carried for logging, never parsed
+        assertThat(result.rawOutput).isEqualTo(message)
+    }
+
+    @Test
+    fun `every agent reads the same result file`() {
+        // a filename in the message is prose like the rest of it
+        givenSnapshot(finished(ManagedAgent.SPLITTER, """Split into 2 statements. {"file": "boundaries.json"}"""))
+        givenResultFile("""{"banks": {}, "boundaries": []}""")
+
+        val result = launcher.fetchResult(sessionId)
+
+        assertThat(result.status).isEqualTo(AgentSessionResult.Status.COMPLETED)
+        assertThat((result.output as SplitterOutput).boundaries).isEmpty()
+    }
+
+    @Test
+    fun `a session that ended without a message still has its result`() {
+        givenSnapshot(finished(ManagedAgent.STATEMENT_EXTRACTION, null))
+        givenResultFile("""{"bank_id": "chase", "statement_date": "2024-02-29", "accounts": []}""")
+
+        val result = launcher.fetchResult(sessionId)
+
+        assertThat(result.status).isEqualTo(AgentSessionResult.Status.COMPLETED)
+        assertThat((result.output as StatementExtractionOutput).bankId).isEqualTo("chase")
+    }
+
+    @Test
+    fun `an agent that reports nothing to extract is an agent error`() {
+        givenSnapshot(finished(ManagedAgent.STATEMENT_EXTRACTION, "The pages hold no register."))
+        givenResultFile("""{"error": "pages 3-9 are a cover letter"}""")
+
+        val result = launcher.fetchResult(sessionId)
+
+        assertThat(result.status).isEqualTo(AgentSessionResult.Status.AGENT_ERROR)
+        assertThat(result.error).isEqualTo("pages 3-9 are a cover letter")
+        assertThat(result.output).isNull()
+    }
+
+    @Test
+    fun `an error in the final message is not an agent error without the result file`() {
+        givenSnapshot(finished(ManagedAgent.STATEMENT_EXTRACTION, """{"error": "pages 3-9 are a cover letter"}"""))
+        givenNoResultFile()
+
+        val result = launcher.fetchResult(sessionId)
+
+        assertThat(result.status).isEqualTo(AgentSessionResult.Status.FAILED)
+        assertThat(result.error).contains("result.json")
+    }
+
+    @Test
+    fun `a result file that isn't the agent's schema fails`() {
+        givenSnapshot(finished(ManagedAgent.STATEMENT_EXTRACTION, "Done."))
+        givenResultFile("I could not finish the extraction.")
+
+        val result = launcher.fetchResult(sessionId)
+
+        assertThat(result.status).isEqualTo(AgentSessionResult.Status.FAILED)
+        assertThat(result.error).contains("result.json")
     }
 
     @Test
@@ -153,31 +222,17 @@ class AgentSessionLauncherTest {
         assertThat(result.status).isEqualTo(AgentSessionResult.Status.COMPLETED)
         assertThat(result.agent).isEqualTo(ManagedAgent.MEMORY_CONSOLIDATION)
         assertThat(result.output).isEqualTo(report)
-        assertThat(result.rawOutput).isEqualTo(report)
+        verify(agentClient, never()).downloadSessionOutput(any(), any())
     }
 
     @Test
-    fun `an output too large to return inline is read from the session's output file`() {
-        givenSnapshot(finished(ManagedAgent.STATEMENT_EXTRACTION, """{"file": "statement.json"}"""))
-        whenever(agentClient.downloadSessionOutput(sessionId, "statement.json"))
-            .thenReturn("""{"bank_id": "chase", "statement_date": "2024-02-29", "accounts": []}""")
+    fun `a prose agent that ended without a message failed`() {
+        givenSnapshot(finished(ManagedAgent.MEMORY_CONSOLIDATION, null))
 
         val result = launcher.fetchResult(sessionId)
 
-        assertThat(result.status).isEqualTo(AgentSessionResult.Status.COMPLETED)
-        assertThat(result.outputFile).isEqualTo("statement.json")
-        assertThat((result.output as StatementExtractionOutput).bankId).isEqualTo("chase")
-    }
-
-    @Test
-    fun `an agent that reports nothing to extract is an agent error`() {
-        givenSnapshot(finished(ManagedAgent.STATEMENT_EXTRACTION, """{"error": "pages 3-9 are a cover letter"}"""))
-
-        val result = launcher.fetchResult(sessionId)
-
-        assertThat(result.status).isEqualTo(AgentSessionResult.Status.AGENT_ERROR)
-        assertThat(result.error).isEqualTo("pages 3-9 are a cover letter")
-        assertThat(result.output).isNull()
+        assertThat(result.status).isEqualTo(AgentSessionResult.Status.FAILED)
+        assertThat(result.error).contains("without an agent message")
     }
 
     @Test
@@ -199,22 +254,25 @@ class AgentSessionLauncherTest {
 
     @Test
     fun `an error after the final message fails the session even at end of turn`() {
-        givenSnapshot(finished(ManagedAgent.CHECK_EXTRACTION, checkJson).copy(error = "billing"))
+        givenSnapshot(finished(ManagedAgent.CHECK_EXTRACTION, "Done.").copy(error = "billing"))
 
         val result = launcher.fetchResult(sessionId)
 
         assertThat(result.status).isEqualTo(AgentSessionResult.Status.FAILED)
         assertThat(result.error).isEqualTo("billing")
+        verify(agentClient, never()).downloadSessionOutput(any(), any())
     }
 
     @Test
-    fun `unparseable output fails but keeps the raw message`() {
-        val message = "Here is the JSON you asked for: {"
+    fun `a session that wrote no result file failed, keeping the raw message`() {
+        val message = "I ran out of time before writing the output."
         givenSnapshot(finished(ManagedAgent.CHECK_EXTRACTION, message))
+        givenNoResultFile()
 
         val result = launcher.fetchResult(sessionId)
 
         assertThat(result.status).isEqualTo(AgentSessionResult.Status.FAILED)
+        assertThat(result.error).contains("result.json")
         assertThat(result.rawOutput).isEqualTo(message)
     }
 
@@ -241,14 +299,14 @@ class AgentSessionLauncherTest {
     }
 
     @Test
-    fun `an interrupted session is cancelled, even when its last message would parse`() {
-        givenSnapshot(finished(ManagedAgent.CHECK_EXTRACTION, checkJson).copy(interrupted = true))
+    fun `an interrupted session is cancelled, even with a result file to read`() {
+        givenSnapshot(finished(ManagedAgent.CHECK_EXTRACTION, "Extracted 1 check.").copy(interrupted = true))
 
         val result = launcher.fetchResult(sessionId)
 
         assertThat(result.status).isEqualTo(AgentSessionResult.Status.CANCELLED)
         assertThat(result.output).isNull()
-        assertThat(result.rawOutput).isEqualTo(checkJson)
+        verify(agentClient, never()).downloadSessionOutput(any(), any())
     }
 
     @Test
