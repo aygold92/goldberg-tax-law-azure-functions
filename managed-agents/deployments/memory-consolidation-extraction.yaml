@@ -1,6 +1,11 @@
 name: memory-consolidation-extraction
 agent: {resource: agent, name: memory-consolidation}
 environment_id: {resource: environment, name: pdf-processing}
+# Copied onto each run's session, so it caps a single run rather than cumulative spend.
+# amount is whole US cents, quoted so it stays a string and no rounding is applied: $2.00.
+budget:
+  type: limit
+  max_list_cost: {amount: "200", currency: USD}
 initial_events:
   - type: user.message
     content:

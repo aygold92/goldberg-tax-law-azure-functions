@@ -20,7 +20,7 @@ A `bank_id` ending in `_cc` is a credit card; anything else is a deposit account
 5. Reconcile (see Reconciliation).
 6. Where something doesn't tie, re-inspect before trusting your first read. Fix misreads, and report what survives per `references/issue-reporting.md`.
 7. If you learned something bank-specific, write a session file (see Memory).
-8. Return the JSON per `references/output-schema.md`.
+8. Write the output file per `references/output-schema.md`.
 
 ## Reading the PDF
 
@@ -132,8 +132,8 @@ The store at `/mnt/memory/extraction-notes/` holds one folder per `bank_id`: a c
 ```
 
 **Reading**, before extracting:
-1. List the folders and look for your `bank_id`.
-2. If it exists, read `main.md` and every session file. Session files add to `main.md` and sometimes contradict it.
+1. Look for a folder with your `bank_id`, do not read any other folders.
+2. If it exists, read `main.md` and every session file in that folder. Session files add to `main.md` and sometimes contradict it.
    - `main.md` won't exist until the consolidation agent has run once.
    - Runs that started on an empty folder at the same time may each have written a full file.
 3. Notes tell you where to look and what to distrust, not what's true. Where they conflict with each other or with the page, the page wins.
@@ -143,4 +143,4 @@ The store at `/mnt/memory/extraction-notes/` holds one folder per `bank_id`: a c
 - Write at most one file: `/mnt/memory/extraction-notes/{bank_id}/{session_id}.md`, using the session id from the task message. Create the folder for a new bank.
 - Before writing, read `references/extraction-notes-format.md` and `references/extraction-notes-example.md`.
 - Include only what's new or different from what you read. With no `main.md` yet, a complete earlier session file can be your base; otherwise your file carries the full contents.
-- Write nothing if you learned nothing bank-specific, or if you returned `{"error": …}`.
+- Write nothing if you learned nothing bank-specific, or if your result is `{"error": …}`.

@@ -1,6 +1,9 @@
 # Output schema
 
-Return a JSON object with exactly this format as your final message (it will be parsed directly by a JSON parser).
+Write the JSON object below to `/mnt/session/outputs/result.json`. That file is the whole result; your messages serve as logging only.
+
+If for any reason you weren't able to process the file, write `{"error": "<one sentence on what went wrong>"}` to that file instead.
+This is for a broken task; pages that simply hold no checks go in `pages_with_no_checks`.
 
 ```json
 {
@@ -28,11 +31,6 @@ Return a JSON object with exactly this format as your final message (it will be 
   "pages_with_no_checks": [7]
 }
 ```
-
-Two alternate shapes, each also returned alone with nothing around it:
-
-- **Too large to return inline.** A check is a small object, but several hundred of them still run to tens of thousands of tokens — past roughly 500, or any time you doubt the JSON will fit in one response, write it to `/mnt/session/outputs/checks.json` and return `{"file": "checks.json"}`. A truncated JSON object is worthless and the file costs nothing, so use it whenever the count is in doubt.
-- **The pages aren't there.** If your page numbers fall outside the bundle, or it can't be opened at all, return `{"error": "<one sentence on what went wrong>"}`. This is for a broken task, not for pages that simply hold no checks.
 
 ## Top level
 

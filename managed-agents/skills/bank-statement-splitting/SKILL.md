@@ -16,7 +16,7 @@ Find the page range and bank of every statement in a PDF bundle, the pages that 
 5. Find the check image pages (see Check image pages).
 6. Collect the Bates stamps (see Bates stamps).
 7. If you discovered or corrected a pattern, write a session file for that bank (see Memory).
-8. Return the result per `references/output-schema.md`.
+8. Write the output file per `references/output-schema.md`.
 
 ## Reading the PDF
 
@@ -65,7 +65,7 @@ They don't appear at random inside an unrelated statement, so a check page mid-s
 - A check page inside a statement stays in that statement's range and is also listed in `check_pages`.
 - A check page belonging to no statement goes only in `check_pages`, not `unassigned_pages`.
 
-Examine every page below its header for check images. A check page inside a statement can carry the same header as a transaction page.
+Examine every page below its header for check images, unless it's part of a credit card statement. A check page inside a statement can carry the same header as a transaction page.
 
 When you can't tell, include the page. A wrong inclusion costs one check agent run that finds nothing; a miss loses every check on the page, and nothing downstream notices. An uncertain check page never goes in `review_required` — including it resolves it.
 

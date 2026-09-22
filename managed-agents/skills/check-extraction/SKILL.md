@@ -17,7 +17,7 @@ Don't look for a statement period, a running balance, or an ordering; there isn'
 2. On each page, find the check images — there may be one, several, or none (see What counts as a check).
 3. Read the fields off each check (see What to Extract).
 4. Verify what you read, and flag what warrants it, per `references/check-verification.md`.
-5. Return the JSON per `references/output-schema.md`.
+5. Write the output file per `references/output-schema.md`.
 
 ## Reading the pages
 

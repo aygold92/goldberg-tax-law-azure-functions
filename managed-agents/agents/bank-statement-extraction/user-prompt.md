@@ -4,4 +4,4 @@ Bank: `{BANK_ID}`.
 Check-image pages: {CHECK_PAGES}
 Source filename: `{FILE_NAME}`
 Session id: `{SESSION_ID}`
-Return the JSON output per your skill instructions. Your final message is parsed directly by a JSON parser.
+Write your JSON output to `/mnt/session/outputs/result.json` per your skill instructions.

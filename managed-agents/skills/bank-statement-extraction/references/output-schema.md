@@ -1,9 +1,8 @@
 # Output schema
 
-Write the JSON object below to `/mnt/session/outputs/statement.json`, then return `{"file": "statement.json"}` as your final message.  
-That file as well as the final message itself will both be parsed by a JSON parser.
+Write the JSON object below to `/mnt/session/outputs/result.json`. That file is the whole result; your messages serve as logging only.
 
-If your page range holds no bank statement at all (no account, no register, wrong pages), write no file and return `{"error": "<one sentence on what the pages contain>"}` instead.
+If your page range holds no bank statement at all (no account, no register, wrong pages) or for any reason you weren't able to process the file, write `{"error": "<one sentence on what the pages contain>"}` to that file instead.
 
 ## Fields
 **(R)** required, **(O)** optional; see Required vs optional.

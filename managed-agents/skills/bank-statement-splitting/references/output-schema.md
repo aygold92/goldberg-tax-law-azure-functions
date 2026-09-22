@@ -1,6 +1,9 @@
 # Output schema
 
-Return a JSON object with exactly this format as your final message (it will be parsed directly by a JSON parser).
+Write the JSON object below to `/mnt/session/outputs/result.json`. That file is the whole result; your messages serve as logging only.
+
+If for any reason you weren't able to process the file, write `{"error": "<one sentence on what went wrong>"}` to that file instead. 
+A bundle that opens but holds no statements is not this: report it with an empty `boundaries`.
 
 ## Fields
 - `banks`: one entry per bank type found in this run, keyed on `bank_id`.
