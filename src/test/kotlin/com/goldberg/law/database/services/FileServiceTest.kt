@@ -221,6 +221,43 @@ class FileServiceTest : DatabaseTest() {
     }
 
     @Nested
+    inner class AgentFields {
+
+        private fun insertFile() = fileService.insertFile(
+            EntityValues.newInputFile(client = EntityValues.newClient(clientId = clientId)),
+            UUID.randomUUID(),
+        )
+
+        @Test
+        fun `splitter session and anthropic file id are recorded and the file is found by the session`() {
+            val fileId = insertFile()
+            assertThat(fileService.loadFile(fileId).splitterSessionId).isNull()
+            assertThat(fileService.loadFile(fileId).anthropicFileId).isNull()
+
+            fileService.updateSplitterSession(
+                fileId,
+                EntityValues.DEFAULT_SPLITTER_SESSION_ID,
+                EntityValues.DEFAULT_ANTHROPIC_FILE_ID,
+            )
+
+            val loaded = fileService.loadFile(fileId)
+            assertThat(loaded.splitterSessionId).isEqualTo(EntityValues.DEFAULT_SPLITTER_SESSION_ID)
+            assertThat(loaded.anthropicFileId).isEqualTo(EntityValues.DEFAULT_ANTHROPIC_FILE_ID)
+            assertThat(fileService.loadFileBySplitterSession(EntityValues.DEFAULT_SPLITTER_SESSION_ID).fileId).isEqualTo(fileId)
+        }
+
+        @Test
+        fun `unknown file throws`() {
+            assertThatThrownBy {
+                fileService.updateSplitterSession(UUID.randomUUID(), "sess_x", "file_x")
+            }.isInstanceOf(EntityNotFoundException::class.java)
+            assertThatThrownBy {
+                fileService.loadFileBySplitterSession("sess_nope")
+            }.isInstanceOf(FileNotFoundException::class.java)
+        }
+    }
+
+    @Nested
     inner class LoadFilesToProcess {
         lateinit var fileId: UUID
         val inputFile = EntityValues.newInputFile(client = EntityValues.newClient(clientId = clientId))

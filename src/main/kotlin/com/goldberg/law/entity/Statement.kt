@@ -25,6 +25,7 @@ data class StatementDetails(
     override val endingBalance: BigDecimal? = null,
     override val interestCharged: BigDecimal? = null,
     override val feesCharged: BigDecimal? = null,
+    /** Deprecated: the Azure pipeline's copy. Agent-created statements read [ClassificationInfo.batesStamps]. */
     override val batesStamps: Map<Int, String>,
     val createdAt: Long = Instant.now().toEpochMilli(),
     val updatedAt: Long = Instant.now().toEpochMilli(),

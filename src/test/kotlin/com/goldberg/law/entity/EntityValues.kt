@@ -56,6 +56,9 @@ object EntityValues {
     const val DEFAULT_CHECK_NUMBER = 1001
     const val DEFAULT_PAYEE = "John Doe"
     const val DEFAULT_MEMO = "test memo"
+    const val DEFAULT_SPLITTER_SESSION_ID = "sess_split_00000001"
+    const val DEFAULT_EXTRACTION_SESSION_ID = "sess_extract_00000001"
+    const val DEFAULT_ANTHROPIC_FILE_ID = "file_test_00000001"
 
     val DEFAULT_STATEMENT = newStatement()
     val DEFAULT_TRANSACTION = DEFAULT_STATEMENT.transactions.first()
@@ -80,12 +83,16 @@ object EntityValues {
         contentHash: UUID = DEFAULT_FILE_CONTENT_HASH,
         uploadedAt: Long = DEFAULT_UPLOADED_AT,
         numPages: Int = DEFAULT_NUM_PAGES,
+        anthropicFileId: String? = null,
+        splitterSessionId: String? = null,
     ) = InputFileInfo(
         fileId = fileId,
         fileName = fileName,
         contentHash = contentHash,
         uploadedAt = uploadedAt,
         numPages = numPages,
+        anthropicFileId = anthropicFileId,
+        splitterSessionId = splitterSessionId,
     )
 
     fun newInputFile(
@@ -103,6 +110,9 @@ object EntityValues {
         pages: Set<Int> = DEFAULT_PAGES,
         classificationType: String = DEFAULT_CLASSIFICATION_TYPE,
         modelLocation: StorageLocation? = null,
+        bankName: String? = null,
+        batesStamps: Map<Int, String> = emptyMap(),
+        extractionSessionId: String? = null,
         createdAt: Long = DEFAULT_CREATED_AT,
         updatedAt: Long = DEFAULT_UPDATED_AT,
     ) = ClassificationInfo(
@@ -110,6 +120,9 @@ object EntityValues {
         pages = pages,
         classificationType = classificationType,
         modelLocation = modelLocation,
+        bankName = bankName,
+        batesStamps = batesStamps,
+        extractionSessionId = extractionSessionId,
         createdAt = createdAt,
         updatedAt = updatedAt,
     )
@@ -270,19 +283,27 @@ object EntityValues {
     fun newClassifiedPages(
         pages: Set<Int> = DEFAULT_PAGES,
         classification: String = DEFAULT_CLASSIFICATION_TYPE,
+        bankName: String? = null,
+        batesStamps: Map<Int, String> = emptyMap(),
     ) = ClassifiedPages(
         pages = pages,
         classification = classification,
+        bankName = bankName,
+        batesStamps = batesStamps,
     )
 
     fun newClassifiedFilePages(
         fileId: UUID = FILE_ID,
         pages: Set<Int> = DEFAULT_PAGES,
         classification: String = DEFAULT_CLASSIFICATION_TYPE,
+        bankName: String? = null,
+        batesStamps: Map<Int, String> = emptyMap(),
     ) = ClassifiedFilePages(
         fileId = fileId,
         pages = pages,
         classification = classification,
+        bankName = bankName,
+        batesStamps = batesStamps,
     )
 
     fun newClassifiedFile(

@@ -17,6 +17,7 @@ import com.google.inject.Inject
 import io.github.oshai.kotlinlogging.KotlinLogging
 import com.goldberg.law.database.tables.ChecksTable
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import java.time.Instant
 import java.util.*
@@ -42,6 +43,9 @@ class ClassificationService @Inject constructor(
                 this[ClassificationsTable.pages] = OBJECT_MAPPER.writeValueAsString(classifiedPdfPages.pagesOrdered)
                 this[ClassificationsTable.classificationType] = classifiedPdfPages.classification
                 this[ClassificationsTable.modelLocation] = null // Will be updated separately when model is saved
+                this[ClassificationsTable.bankName] = classifiedPdfPages.bankName
+                this[ClassificationsTable.batesStamps] = classifiedPdfPages.batesStamps
+                    .takeIf { it.isNotEmpty() }?.let { OBJECT_MAPPER.writeValueAsString(it) }
                 this[ClassificationsTable.createdAt] = now
                 this[ClassificationsTable.updatedAt] = now
             }
@@ -57,6 +61,35 @@ class ClassificationService @Inject constructor(
     }
 
     /**
+     * Replaces every classification for a file — and, by cascade, the statements, transactions and checks
+     * under them. Used when the splitter runs again over a file it has already classified, whose page sets
+     * would otherwise collide on the (file_id, pages_hash) unique index.
+     */
+    fun replaceClassifications(file: ClassifiedFile): List<ClassificationInfo> = db.txnSafe {
+        ClassificationsTable.deleteWhere { ClassificationsTable.fileId eq file.fileId }
+            .also { if (it > 0) logger.info { "Deleted $it existing classification(s) for file ${file.fileId} before re-classifying" } }
+        insertClassifications(file)
+    }
+
+    /** Records which extraction session (statement or check) is producing this classification's records. */
+    fun updateExtractionSession(classificationId: UUID, extractionSessionId: String) = db.txnSafe {
+        ClassificationsTable.update({ ClassificationsTable.id eq classificationId }) {
+            it[ClassificationsTable.extractionSessionId] = extractionSessionId
+            it[updatedAt] = Instant.now()
+        }.takeUnless { it == 0 } ?: throw EntityNotFoundException(EntityType.Classification, classificationId)
+        logger.info { "Recorded extraction session $extractionSessionId on classification $classificationId" }
+    }
+
+    /** The classification an extraction session ran against, for saving that session's result. */
+    fun loadClassificationByExtractionSession(extractionSessionId: String): Classification = db.txnSafe {
+        ClassificationsTable.filesJoin()
+            .selectAll().where { ClassificationsTable.extractionSessionId eq extractionSessionId }
+            .map { Classification.fromRow(it) }
+            .singleOrNull()
+            ?: throw EntityNotFoundException(EntityType.Classification, "extraction session $extractionSessionId")
+    }
+
+    /**
      * Update model location for a classification
      */
     fun updateModelLocation(classificationId: UUID, modelLocation: StorageLocation) = db.txnSafe {
@@ -67,10 +100,17 @@ class ClassificationService @Inject constructor(
         logger.debug { "Updated model location for classification: $classificationId" }
     }
 
+    /**
+     * Writes every editable field, so a caller that omits the bank name or the stamps clears them: send back
+     * what was loaded.
+     */
     fun updateClassification(classificationId: UUID, pages: ClassifiedPages) = db.txnSafe {
         ClassificationsTable.update({ ClassificationsTable.id eq classificationId }) {
             it[ClassificationsTable.pages] = OBJECT_MAPPER.writeValueAsString(pages.pagesOrdered)
             it[ClassificationsTable.classificationType] = pages.classification
+            it[ClassificationsTable.bankName] = pages.bankName
+            it[ClassificationsTable.batesStamps] = pages.batesStamps
+                .takeIf { stamps -> stamps.isNotEmpty() }?.let { stamps -> OBJECT_MAPPER.writeValueAsString(stamps) }
             it[updatedAt] = Instant.now()
         }.takeUnless { it == 0 } ?: throw EntityNotFoundException(EntityType.Classification, classificationId)
         logger.debug { "Updated pages for classification: $classificationId" }

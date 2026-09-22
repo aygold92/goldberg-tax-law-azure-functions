@@ -10,6 +10,12 @@ object ClassificationsTable : UUIDTable("classifications", "classification_id") 
     val pages = text("pages") // Store as JSON string
     val classificationType = varchar("classification_type", 100)
     val modelLocation = text("model_location").nullable()
+    /** The institution's display name, when an agent identified one. */
+    val bankName = varchar("bank_name", 255).nullable()
+    /** Page number -> bates stamp for this classification's pages, as JSON. */
+    val batesStamps = text("bates_stamps").nullable()
+    /** The statement- or check-extraction session that produced this classification's statements/checks. */
+    val extractionSessionId = varchar("extraction_session_id", 64).nullable()
 
     val pagesHash = varchar("pages_hash", 64)
         .withDefinition("GENERATED ALWAYS AS (SHA2(pages, 256))")
@@ -21,5 +27,6 @@ object ClassificationsTable : UUIDTable("classifications", "classification_id") 
         uniqueIndex(fileId, pagesHash)
         index(isUnique = false, fileId)
         index(isUnique = false, fileId, modelLocation)
+        index(isUnique = false, extractionSessionId)
     }
 }

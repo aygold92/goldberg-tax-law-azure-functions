@@ -13,6 +13,7 @@ object ChecksTable : UUIDTable("checks", "check_id") {
     val description = text("description").nullable()
     val date = varchar("date", 50).nullable() // Store as string instead of date
     val amount = decimal("amount", 15, 2).nullable()
+    // Deprecated: written by the Azure pipeline only. The agent path keeps the stamps on the classification.
     val batesStamp = varchar("bates_stamp", 100).nullable()
     val createdAt = timestamp("created_at").defaultExpression(CurrentTimestamp)
     val updatedAt = timestamp("updated_at").defaultExpression(CurrentTimestamp)

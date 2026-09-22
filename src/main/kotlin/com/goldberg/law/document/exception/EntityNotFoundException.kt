@@ -8,4 +8,7 @@ class EntityNotFoundException private constructor(message: String) : RuntimeExce
         this("$entityType with id $id not found")
     constructor(entityType: EntityType, ids: List<UUID>) :
         this("$entityType with ids $ids not found")
+    /** For lookups by something other than an id, e.g. the agent session that produced the entity. */
+    constructor(entityType: EntityType, lookup: String) :
+        this("$entityType for $lookup not found")
 }

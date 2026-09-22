@@ -38,7 +38,7 @@ class UpdateStatementModelFunction @Inject constructor(
         val current = statementService.loadBankStatement(req.statementDetails.statementId)
 
         db.txnSafe {
-            if (current.toClassifiedPages() != req.classification) {
+            if (current.classification.toClassifiedPages() != req.classification) {
                 classificationService.updateClassification(req.classificationId, req.classification)
             }
             statementService.updateBankStatement(req.statementDetails)

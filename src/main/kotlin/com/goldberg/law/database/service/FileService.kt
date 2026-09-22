@@ -23,6 +23,7 @@ class FileService @Inject constructor(private val db: Database) {
                 it[FilesTable.fileName] = inputFile.info.fileName
                 it[FilesTable.contentHash] = inputFile.info.contentHash
                 it[FilesTable.numPages] = inputFile.info.numPages
+                it[FilesTable.anthropicFileId] = inputFile.info.anthropicFileId
                 it[FilesTable.clientToken] = requestToken
             }[FilesTable.id].value
             logger.info { "Created new file: ${inputFile.fileName} for client: ${inputFile.clientId} with ID: $newFileId" }
@@ -39,6 +40,27 @@ class FileService @Inject constructor(private val db: Database) {
                 ) to "the same file has already been uploaded"
             )
         }
+    }
+
+    /**
+     * Records the splitter run against the file: the session that classified it and the Anthropic file id
+     * of the uploaded bundle, which every later agent run against this file reuses.
+     */
+    fun updateSplitterSession(fileId: UUID, splitterSessionId: String, anthropicFileId: String) = db.txnSafe {
+        FilesTable.update({ FilesTable.id eq fileId }) {
+            it[FilesTable.splitterSessionId] = splitterSessionId
+            it[FilesTable.anthropicFileId] = anthropicFileId
+        }.takeUnless { it == 0 } ?: throw EntityNotFoundException(EntityType.InputFile, fileId)
+        logger.info { "Recorded splitter session $splitterSessionId (file $anthropicFileId) on file $fileId" }
+    }
+
+    /** The file a splitter session ran against, for saving that session's result. */
+    fun loadFileBySplitterSession(splitterSessionId: String): InputFile = db.txnSafe {
+        InputFile.fromRow(
+            FilesTable.joinClients()
+                .selectAll().where { FilesTable.splitterSessionId eq splitterSessionId }
+                .singleOrNull() ?: throw FileNotFoundException("No file was started by splitter session $splitterSessionId")
+        )
     }
 
     // delete file and all related classifications, statements, checks, and transactions

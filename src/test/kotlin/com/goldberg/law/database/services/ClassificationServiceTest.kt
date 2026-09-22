@@ -202,6 +202,162 @@ class ClassificationServiceTest : DatabaseTest() {
 
             assertThat(infos.map { it.classificationId }.toSet()).hasSize(2) // all IDs are unique
         }
+
+        @Test
+        fun `bank name and bates stamps are stored per classification and read back`() {
+            val bank = EntityValues.newClassifiedPages(
+                setOf(1, 2), "bank_of_america",
+                bankName = "Bank of America",
+                batesStamps = mapOf(1 to "AG-001", 2 to "AG-002"),
+            )
+            val creditCard = EntityValues.newClassifiedPages(setOf(3, 4), "chase_cc", bankName = "Chase")
+
+            val infos = classificationService.insertClassifications(
+                EntityValues.newClassifiedFile(fileId = fileId, classifications = listOf(bank, creditCard))
+            )
+
+            assertThat(infos.map { it.bankName }).containsExactly("Bank of America", "Chase")
+            val loaded = classificationService.loadClassifications(fileId)
+            assertThat(loaded.map { it.bankName }).containsExactly("Bank of America", "Chase")
+            assertThat(loaded.first().info.batesStamps).containsExactlyEntriesOf(mapOf(1 to "AG-001", 2 to "AG-002"))
+            assertThat(loaded.last().info.batesStamps).isEmpty()
+        }
+
+        @Test
+        fun `classifications from the Azure pipeline have no bank name or stamps`() {
+            classificationService.insertClassifications(EntityValues.newClassifiedFile(fileId = fileId))
+
+            val info = classificationService.loadClassifications(fileId).single().info
+            assertThat(info.bankName).isNull()
+            assertThat(info.batesStamps).isEmpty()
+        }
+    }
+
+    @Nested
+    inner class UpdateBankNameAndStamps {
+
+        private fun insertAgentClassification() = classificationService.insertClassifications(
+            EntityValues.newClassifiedFile(fileId = fileId, classifications = listOf(
+                EntityValues.newClassifiedPages(
+                    setOf(1, 2), "chase_cc",
+                    bankName = "Chase",
+                    batesStamps = mapOf(1 to "AG-001", 2 to "AG-002"),
+                )
+            ))
+        ).single().classificationId
+
+        @Test
+        fun `an update carrying the bank name and stamps keeps them`() {
+            val classificationId = insertAgentClassification()
+
+            classificationService.updateClassification(classificationId, EntityValues.newClassifiedPages(
+                setOf(1, 2, 3), "chase_cc",
+                bankName = "Chase",
+                batesStamps = mapOf(1 to "AG-001", 2 to "AG-002", 3 to "AG-003"),
+            ))
+
+            val info = classificationService.loadClassification(classificationId).info
+            assertThat(info.pages).isEqualTo(setOf(1, 2, 3))
+            assertThat(info.bankName).isEqualTo("Chase")
+            assertThat(info.batesStamps).containsExactlyEntriesOf(mapOf(1 to "AG-001", 2 to "AG-002", 3 to "AG-003"))
+        }
+
+        @Test
+        fun `an update that edits the bank name and stamps stores the new values`() {
+            val classificationId = insertAgentClassification()
+
+            classificationService.updateClassification(classificationId, EntityValues.newClassifiedPages(
+                setOf(1, 2), "chase_cc",
+                bankName = "Chase Business",
+                batesStamps = mapOf(1 to "AG-999", 2 to "AG-002"),
+            ))
+
+            val info = classificationService.loadClassification(classificationId).info
+            assertThat(info.bankName).isEqualTo("Chase Business")
+            assertThat(info.batesStamps).containsEntry(1, "AG-999")
+        }
+
+        @Test
+        fun `an update that omits them clears them`() {
+            val classificationId = insertAgentClassification()
+
+            classificationService.updateClassification(classificationId, EntityValues.newClassifiedPages(setOf(1, 2), "chase_cc"))
+
+            val info = classificationService.loadClassification(classificationId).info
+            assertThat(info.bankName).isNull()
+            assertThat(info.batesStamps).isEmpty()
+        }
+    }
+
+    @Nested
+    inner class ExtractionSessions {
+
+        @Test
+        fun `extraction session is recorded and the classification is found by it`() {
+            val classificationId = classificationService
+                .insertClassifications(EntityValues.newClassifiedFile(fileId = fileId)).single().classificationId
+
+            classificationService.updateExtractionSession(classificationId, EntityValues.DEFAULT_EXTRACTION_SESSION_ID)
+
+            val loaded = classificationService.loadClassificationByExtractionSession(EntityValues.DEFAULT_EXTRACTION_SESSION_ID)
+            assertThat(loaded.classificationId).isEqualTo(classificationId)
+            assertThat(loaded.info.extractionSessionId).isEqualTo(EntityValues.DEFAULT_EXTRACTION_SESSION_ID)
+        }
+
+        @Test
+        fun `classification with no extraction session has a null session id`() {
+            val info = classificationService.insertClassifications(EntityValues.newClassifiedFile(fileId = fileId)).single()
+
+            assertThat(info.extractionSessionId).isNull()
+        }
+
+        @Test
+        fun `unknown ID throws EntityNotFoundException`() {
+            assertThatThrownBy {
+                classificationService.updateExtractionSession(UUID.randomUUID(), EntityValues.DEFAULT_EXTRACTION_SESSION_ID)
+            }.isInstanceOf(EntityNotFoundException::class.java)
+        }
+
+        @Test
+        fun `unknown session throws EntityNotFoundException`() {
+            assertThatThrownBy {
+                classificationService.loadClassificationByExtractionSession("sess_nope")
+            }.isInstanceOf(EntityNotFoundException::class.java)
+        }
+    }
+
+    @Nested
+    inner class ReplaceClassifications {
+
+        @Test
+        fun `replaces the file's existing classifications with the new set`() {
+            classificationService.insertClassifications(
+                EntityValues.newClassifiedFile(fileId = fileId, classifications = listOf(
+                    EntityValues.newClassifiedPages(setOf(1, 2), DocumentType.BankTypes.B_OF_A),
+                ))
+            )
+
+            val replaced = classificationService.replaceClassifications(
+                EntityValues.newClassifiedFile(fileId = fileId, classifications = listOf(
+                    EntityValues.newClassifiedPages(setOf(1, 2, 3), "chase_cc", bankName = "Chase"),
+                    EntityValues.newClassifiedPages(setOf(4), DocumentType.CheckTypes.CHECKS),
+                )),
+            )
+
+            assertThat(replaced).hasSize(2)
+            val loaded = classificationService.loadClassifications(fileId)
+            assertThat(loaded.map { it.classificationType }).containsExactly("chase_cc", DocumentType.CheckTypes.CHECKS)
+            assertThat(loaded.map { it.pages }).containsExactly(setOf(1, 2, 3), setOf(4))
+            assertThat(loaded.map { it.bankName }).containsExactly("Chase", null)
+        }
+
+        @Test
+        fun `replacing a file with no classifications just inserts`() {
+            val infos = classificationService.replaceClassifications(EntityValues.newClassifiedFile(fileId = fileId))
+
+            assertThat(infos).hasSize(1)
+            assertThat(classificationService.loadClassifications(fileId)).hasSize(1)
+        }
     }
 
     @Nested

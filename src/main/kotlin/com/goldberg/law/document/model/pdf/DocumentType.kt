@@ -103,7 +103,20 @@ enum class DocumentType(val docTypes: List<String> = listOf()) {
     }
 
     companion object {
-        fun getBankType(docType: String): DocumentType = DocumentType.entries.find { it.docTypes.contains(docType) } ?: UNKNOWN
+        /**
+         * The splitting agent coins its own bank ids (`bank_of_america`, `chase_cc`) rather than using the
+         * constants above, so an unrecognised type falls back on the id's shape: a credit card ends in
+         * `_cc`, anything else is a bank. Check pages are stored as [CheckTypes.CHECKS] and match directly.
+         */
+        fun getBankType(docType: String): DocumentType = DocumentType.entries.find { it.docTypes.contains(docType) }
+            ?: when {
+                docType.isBlank() -> UNKNOWN
+                docType.endsWith(CREDIT_CARD_ID_SUFFIX) -> CREDIT_CARD
+                else -> BANK
+            }
+
+        /** How the splitting agent marks a credit card in a bank id. */
+        const val CREDIT_CARD_ID_SUFFIX = "_cc"
         // this handles the fact that some bank types have multiple statements in the same page
         fun hasMultipleStatements(classification: String) = classification in DOC_TYPES_MULTIPLE_STATEMENTS
 

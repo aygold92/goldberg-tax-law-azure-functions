@@ -13,6 +13,7 @@ object BankStatementsTable : UUIDTable("bank_statements", "statement_id") {
     val endingBalance = decimal("ending_balance", 15, 2).nullable()
     val interestCharged = decimal("interest_charged", 15, 2).nullable()
     val feesCharged = decimal("fees_charged", 15, 2).nullable()
+    // Deprecated: written by the Azure pipeline only. The agent path keeps the stamps on the classification.
     val batesStamps = text("bates_stamps").nullable() // Store as JSON string
     val createdAt = timestamp("created_at").defaultExpression(CurrentTimestamp)
     val updatedAt = timestamp("updated_at").defaultExpression(CurrentTimestamp)

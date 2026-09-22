@@ -24,6 +24,9 @@ data class InputFileInfo(
     override val numPages: Int,
     val contentHash: UUID,
     val uploadedAt: Long,
+    override val anthropicFileId: String? = null,
+    /** The splitting-agent session that classified this file. */
+    override val splitterSessionId: String? = null,
 ): IInputFile {
     companion object {
         fun fromRow(row: ResultRow) = InputFileInfo(
@@ -32,6 +35,8 @@ data class InputFileInfo(
             numPages = row[FilesTable.numPages],
             contentHash = row[FilesTable.contentHash],
             uploadedAt = row[FilesTable.uploadedAt].toEpochMilli(),
+            anthropicFileId = row[FilesTable.anthropicFileId],
+            splitterSessionId = row[FilesTable.splitterSessionId],
         )
     }
 }
@@ -40,4 +45,9 @@ interface IInputFile {
     val fileId: UUID
     val fileName: String
     val numPages: Int
+
+    /** The Anthropic Files API id of the uploaded bundle; null until the file has been sent to an agent. */
+    val anthropicFileId: String?
+    /** The splitting-agent session that classified this file. */
+    val splitterSessionId: String?
 }

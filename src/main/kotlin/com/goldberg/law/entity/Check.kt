@@ -32,6 +32,7 @@ data class CheckDetails(
     override val date: String?,
     override val amount: BigDecimal?,
     override val to: String?,
+    /** Deprecated: the Azure pipeline's copy. Agent-created checks read [ClassificationInfo.batesStamps]. */
     override val batesStamp: String?,
     val createdAt: Long = Instant.now().toEpochMilli(),
     val updatedAt: Long = Instant.now().toEpochMilli(),

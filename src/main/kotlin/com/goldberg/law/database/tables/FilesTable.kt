@@ -10,12 +10,17 @@ object FilesTable : ClientTokenUUIDTable("files", "file_id") {
     val contentHash = uuid("content_hash")
     val uploadedAt = timestamp("uploaded_at").defaultExpression(CurrentTimestamp)
     val numPages = integer("num_pages")
+    /** The Anthropic Files API id of the uploaded bundle, reused by every agent run against this file. */
+    val anthropicFileId = varchar("anthropic_file_id", 64).nullable()
+    /** The splitting-agent session that produced this file's classifications. */
+    val splitterSessionId = varchar("splitter_session_id", 64).nullable()
     
     init {
         uniqueIndex(clientId, fileName)
         uniqueIndex(clientId, contentHash)
         uniqueIndex(clientId, clientToken)
         index(isUnique = false, clientId)
+        index(isUnique = false, splitterSessionId)
     }
     
 }
