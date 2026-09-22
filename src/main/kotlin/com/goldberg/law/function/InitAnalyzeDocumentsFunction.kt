@@ -22,7 +22,7 @@ class InitAnalyzeDocumentsFunction @Inject constructor() {
     /**
      * This HTTP-triggered function starts the orchestration.
      */
-    @FunctionName(FUNCTION_NAME)
+//    @FunctionName(FUNCTION_NAME)
     fun initAnalyzeDocumentsFunction(
         @HttpTrigger(name = "req", methods = [HttpMethod.POST], authLevel = AuthorizationLevel.ANONYMOUS)
         request: HttpRequestMessage<Optional<String?>?>?,

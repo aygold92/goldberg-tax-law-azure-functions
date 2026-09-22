@@ -31,7 +31,7 @@ class PdfDataExtractorOrchestratorFunction @Inject constructor(
      * This is the orchestrator function, which can schedule activity functions, create durable timers,
      * or wait for external events in a way that's completely fault-tolerant.
      */
-    @FunctionName(FUNCTION_NAME)
+//    @FunctionName(FUNCTION_NAME)
     fun pdfDataExtractorOrchestrator(
         @DurableOrchestrationTrigger(name = "taskOrchestrationContext") ctx: TaskOrchestrationContext
     ): AnalyzeDocumentResult = try {
