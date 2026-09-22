@@ -117,6 +117,23 @@ class AnthropicAgentClientTest {
     }
 
     @Test
+    fun `every session is capped at a 5 dollar budget`() {
+        givenSessionCreated()
+
+        agentClient.startSession(ManagedAgent.CHECK_EXTRACTION, "file_1", mapOf("PAGES" to listOf(5)), "t")
+
+        assertThat(createdParams()._additionalBodyProperties()["budget"]).isEqualTo(
+            JsonValue.from(
+                mapOf(
+                    "type" to "limit",
+                    // Whole US cents as a string: $5.00
+                    "max_list_cost" to mapOf("amount" to "500", "currency" to "USD"),
+                )
+            )
+        )
+    }
+
+    @Test
     fun `an extraction session mounts the extraction-notes store`() {
         givenSessionCreated()
 
@@ -281,6 +298,18 @@ class AnthropicAgentClientTest {
         }
     }
 
+    /** An idle event whose stop reason the SDK has no class for, as the budget cap produces. */
+    private fun idleUnmodelled(type: String): BetaManagedAgentsSessionEvent {
+        val reason: BetaManagedAgentsSessionStatusIdleEvent.StopReason = mock {
+            on { _json() } doReturn Optional.of(JsonValue.from(mapOf("type" to type)))
+        }
+        val idle: BetaManagedAgentsSessionStatusIdleEvent = mock { on { stopReason() } doReturn reason }
+        return mock {
+            on { isSessionStatusIdle() } doReturn true
+            on { asSessionStatusIdle() } doReturn idle
+        }
+    }
+
     private fun agentMessage(vararg texts: String): BetaManagedAgentsSessionEvent {
         val blocks = texts.map { text -> mock<BetaManagedAgentsTextBlock> { on { text() } doReturn text } }
         val message: BetaManagedAgentsAgentMessageEvent = mock { on { content() } doReturn blocks }
@@ -349,6 +378,22 @@ class AnthropicAgentClientTest {
         assertThat(snapshot.stopReason).isEqualTo(StopReason.RETRIES_EXHAUSTED)
         assertThat(snapshot.error).isNotNull()
         assertThat(snapshot.finalMessage).isEqualTo("partial")
+    }
+
+    @Test
+    fun `a session stopped by its budget reports that stop reason`() {
+        givenSession(BetaManagedAgentsSession.Status.IDLE)
+        givenEvents(idleUnmodelled("budget_reached"), agentMessage("partial"))
+
+        assertThat(agentClient.getSessionSnapshot(sessionId).stopReason).isEqualTo(StopReason.BUDGET_REACHED)
+    }
+
+    @Test
+    fun `a stop reason this app does not know is reported as other`() {
+        givenSession(BetaManagedAgentsSession.Status.IDLE)
+        givenEvents(idleUnmodelled("something_new"), agentMessage("partial"))
+
+        assertThat(agentClient.getSessionSnapshot(sessionId).stopReason).isEqualTo(StopReason.OTHER)
     }
 
     @Test

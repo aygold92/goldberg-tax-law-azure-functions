@@ -13,6 +13,7 @@ import com.anthropic.models.beta.sessions.BetaManagedAgentsSession
 import com.anthropic.models.beta.sessions.SessionCreateParams
 import com.anthropic.models.beta.sessions.SessionDeleteParams
 import com.anthropic.models.beta.sessions.SessionRetrieveParams
+import com.anthropic.models.beta.sessions.events.BetaManagedAgentsSessionStatusIdleEvent
 import com.anthropic.models.beta.sessions.events.BetaManagedAgentsUserInterruptEventParams
 import com.anthropic.models.beta.sessions.events.BetaManagedAgentsUserMessageEventParams
 import com.anthropic.models.beta.sessions.events.EventListParams
@@ -21,6 +22,7 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.io.InputStream
+import kotlin.jvm.optionals.getOrNull
 
 /**
  * The app's only touchpoint with the Anthropic SDK for running agents. Speaks in agent names and plain
@@ -70,6 +72,8 @@ class AnthropicAgentClient @Inject constructor(
             .agent(resolver.agentId(agent))
             .environmentId(resolver.environmentId())
             .title(title)
+            // The SDK has no typed budget yet, so the API's own shape goes on the body verbatim
+            .putAdditionalBodyProperty("budget", JsonValue.from(SESSION_BUDGET))
             .addResource(
                 BetaManagedAgentsFileResourceParams.builder()
                     .type(BetaManagedAgentsFileResourceParams.Type.FILE)
@@ -195,6 +199,8 @@ class AnthropicAgentClient @Inject constructor(
                         it.isEndTurn() -> StopReason.END_TURN
                         it.isRequiresAction() -> StopReason.REQUIRES_ACTION
                         it.isRetriesExhausted() -> StopReason.RETRIES_EXHAUSTED
+                        // No typed variant in the SDK yet, but a budgeted session can stop this way, so name it
+                        it.rawType() == "budget_reached" -> StopReason.BUDGET_REACHED
                         else -> StopReason.OTHER
                     }
                 }
@@ -224,6 +230,10 @@ class AnthropicAgentClient @Inject constructor(
         SessionRetrieveParams.builder().addBeta(beta).sessionId(sessionId).build()
     )
 
+    /** The `type` of a stop reason the SDK has no class for; null for the ones it does model. */
+    private fun BetaManagedAgentsSessionStatusIdleEvent.StopReason.rawType(): String? =
+        _json().getOrNull()?.runCatching { convert(Map::class.java)?.get("type") as? String }?.getOrNull()
+
     private fun BetaManagedAgentsSession.toSessionStatus() = when (status()) {
         BetaManagedAgentsSession.Status.IDLE -> SessionStatus.IDLE
         BetaManagedAgentsSession.Status.TERMINATED -> SessionStatus.TERMINATED
@@ -232,12 +242,23 @@ class AnthropicAgentClient @Inject constructor(
 
     companion object {
         const val SESSION_ID = "SESSION_ID"
+
+        /**
+         * Hard ceiling on what one session may spend, priced at public list rates. `amount` is whole US cents
+         * as a string — the API takes a string so no float rounding is applied — so this is $5.00. A session
+         * that reaches it stops issuing model requests and goes idle with stop reason `budget_reached`; the
+         * request that crosses the cap finishes, so the final cost can land a fraction past it.
+         */
+        private val SESSION_BUDGET = mapOf(
+            "type" to "limit",
+            "max_list_cost" to mapOf("amount" to "500", "currency" to "USD"),
+        )
     }
 }
 
 enum class SessionStatus { RUNNING, IDLE, TERMINATED }
 
-enum class StopReason { END_TURN, REQUIRES_ACTION, RETRIES_EXHAUSTED, OTHER }
+enum class StopReason { END_TURN, REQUIRES_ACTION, RETRIES_EXHAUSTED, BUDGET_REACHED, OTHER }
 
 data class SessionSnapshot(
     val status: SessionStatus,
