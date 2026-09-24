@@ -3,9 +3,12 @@
 The two kinds of file in `/mnt/memory/bank-patterns/<bank_id>/`. When to read and write them is in SKILL.md under "Memory: Bank Pattern Library". 
 A complete example of both is in `references/pattern-file-example.md`.
 
+What you record is what the next run searches with: your quoted strings become its search patterns, and the image sizes you record become the test that separates check images from logos and banners.
+
 ## Rules
 - Record what is structurally true of the bank's format. Leave out anything that depends on this submission: missing, redacted, or duplicated pages, scan quality, Bates stamps.
-- Leave out anything about this run (what you found, how sure you were) and about reading the PDF (tools, OCR, text extraction, image sizes).
+- The size and position of images the bank places on the page are structure — record those.
+- Leave out anything about this run (what you found, how sure you were) and about how you read the PDF (tools, OCR, the resolution you rendered at). 
 - Record only what this bundle's pages showed, not the filename or what you expect of the bank in general.
 - No statement lengths or page counts; they vary with the number of transactions. Record fixed structure instead, like section order.
 - No client personally identifying information: names, addresses, or account numbers, including partial ones like the last four digits.

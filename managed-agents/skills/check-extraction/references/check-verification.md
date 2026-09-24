@@ -25,7 +25,7 @@ Reformatting is not repair: `1/17/24` to `2024-01-17` and `$1,250.00` to `1250.0
 
 `review_required` is one boolean per check and it means one thing: **a human must look at this check's identifiers before it can be used.**
 
-Only `check_number` and `account_number` can raise it, as those two uniquely identify the check and are used to match it to its record on the bank statement.
+Only `check_no` and `acct` can raise it, as those two uniquely identify the check and are used to match it to its record on the bank statement.
 
 Set it when, after re-inspection:
 - either identifier is null because you couldn't read it

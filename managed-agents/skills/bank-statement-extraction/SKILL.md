@@ -7,31 +7,48 @@ description: Extract structured transaction and summary data from a single bank 
 
 Extract one statement's account summaries and every transaction, exactly as printed. Keep per-bank extraction notes in memory.
 
-You're given the page range and `bank_id`. Read only those pages; the boundaries and bank are already decided.
+You're given the page range and `bank_id`. Process only those pages; the boundaries and bank are already decided.
 
-A `bank_id` ending in `_cc` is a credit card; anything else is a deposit account. The suffix decides the sign convention and the balance identity, so read it first.
+A `bank_id` ending in `_cc` is a credit card; anything else is a deposit account. The suffix decides the sign convention and the balance identity.
 
 ## Process
 
-1. Read your memory notes for this `bank_id` (see Memory).
-2. Read the pages (see Reading the PDF).
-3. Read each account's summary box, then its register(s).
-4. Extract (see What to Extract).
-5. Reconcile (see Reconciliation).
-6. Where something doesn't tie, re-inspect before trusting your first read. Fix misreads, and report what survives per `references/issue-reporting.md`.
-7. If you learned something bank-specific, write a session file (see Memory).
-8. Write the output file per `references/output-schema.md`.
+### 1. Gather Initial Information
+Do all the following in one turn. Several tool calls in the same turn is fine; it doesn't have to be one bash call.
+- `cat` every reference file in `/workspace/skills/bank-statement-extraction/references/`
+- `cat` all your memory notes for this `bank_id`, if it exists (see Memory)
+- For your page range in the bundle at `/mnt/session/uploads/workspace/bundle.pdf`:
+  - survey each page: page size, how many characters of text, how many images, each image's size and position
+  - copy the range's text to a file, with a page marker before each page's text. Do NOT bring the text into context.
 
-## Reading the PDF
+### 2. Locate and Extract the Data
+Search that file for the section headings, then print the sections that carry summary figures or register rows (see "Processing the PDF" and "What to Extract").
+Where memory lists this bank's headings, do both in one turn.
 
-Read `references/pdf-reading.md` before opening the bundle.
+### 3. Reconcile
+Reconcile the extracted transactions and summary figures (see Reconciliation).
+
+### 4. Fix and Report
+Fix misreads, and report issues that survive per `references/issue-reporting.md`.
+
+### 5. Write a session file
+Only if you learned something bank-specific (see Memory).
+
+### 6. Write the output file
+per `references/output-schema.md`.
+
+## Processing the PDF
+
+`references/pdf-reading.md` has the order to work in. Below is what to look for.
+
+Search your pages for the section headings — the summary box, the register and its continuations, the section totals. 
+Where memory lists this bank's sections, search for those headings and skip the ones it records as carrying nothing you need. 
+Read in full only what carries summary figures or register rows: much of a statement is marketing, year-to-date tables, disclosures and blank pages, and one page can hold both.
 
 - With a text layer, `pdftotext -layout` keeps columns aligned, which matters for transaction tables.
 - When the page is scanned or a column is ambiguous, look at the rendered page.
 - When a single number looks off, compare the text layer against the rendered page.
-- Skip disclosure and marketing pages, and the check-image pages named in the task message.
-
-Beyond that, choose your own method.
+- Skip the check-image pages named in the task message.
 
 ### Document expectations
 Bundles come from clients: bank originals or scans of varying quality, with or without marketing and information pages, sometimes with mistakes. A splitter agent chose your page range.
@@ -55,7 +72,7 @@ The shape is in `references/output-schema.md`.
 - a sub-thread under one account number, such as a card's purchases listed under a checking account; its lines are transactions of the parent account
 
 **Read, don't compute reported values.** Compute only to reconcile.
-- Copy every summary figure as printed: balances, totals, counts, checks total, fees, interest. If it isn't printed, leave the key out. 
+- Copy every summary figure as printed: balances, totals, counts, checks total, fees, interest. If it isn't printed, leave the key out. Memory records each figure's printed label and where it sits.
 - Never sum transactions to fill a total, and never invent a count. 
 - Reformatting is fine (`5/03` → `2024-05-03`; an unsigned amount in a "Withdrawals" column → negative). 
 
@@ -63,7 +80,7 @@ The shape is in `references/output-schema.md`.
 - Deposit account: deposits, credits, interest received `+`; withdrawals, debits, checks, fees `-`.
 - Credit card: payments and credits `+`; charges, fees, interest, cash advances `-`. A card payment is `+` so it cancels the matching `-` on the bank statement that paid it.
 
-Statements show the sign, or imply it by column or section. Assign it from the line's role and let reconciliation confirm it. The balance identity differs for a deposit account and a card, because a card's balance is debt.
+Statements show the sign, or imply it by column or section. Assign it from the line's role and let reconciliation confirm it. The balance identity differs for a deposit account and a credit card, because a card's balance is debt.
 
 **Year.** When the register prints month and day only, take the year from the statement period. A statement closing in January can carry December lines from the prior year.
 
@@ -82,7 +99,8 @@ A fee or interest line in the register is a transaction, and may also be reflect
 
 ## Reconciliation
 
-Run the checks in `references/reconciliation-checks.md` and the date and description checks below. They detect anomalies; the document is ground truth.
+Run the checks in `references/reconciliation-checks.md` and the date and description checks below. They detect anomalies; the document is ground truth. 
+Memory records how this bank scopes its printed totals — what a debit total includes, what is broken out, etc.
 
 When a check fails, re-inspect first. If re-inspection confirms the problem, or you still can't be sure of a value, report it per `references/issue-reporting.md`.
 
@@ -119,7 +137,7 @@ Re-inspect a description when:
 
 ## Memory: Bank Extraction Notes
 
-The store at `/mnt/memory/extraction-notes/` holds one folder per `bank_id`: a consolidated `main.md`, plus one file per session not yet consolidated. These are extraction notes, separate from the splitter's boundary patterns.
+The store at `/mnt/memory/extraction-notes/` holds one folder per `bank_id`: a consolidated `main.md`, plus one file per session not yet consolidated.
 
 ```
 /mnt/memory/extraction-notes/
@@ -131,7 +149,7 @@ The store at `/mnt/memory/extraction-notes/` holds one folder per `bank_id`: a c
     main.md
 ```
 
-**Reading**, before extracting:
+**Reading**:
 1. Look for a folder with your `bank_id`, do not read any other folders.
 2. If it exists, read `main.md` and every session file in that folder. Session files add to `main.md` and sometimes contradict it.
    - `main.md` won't exist until the consolidation agent has run once.

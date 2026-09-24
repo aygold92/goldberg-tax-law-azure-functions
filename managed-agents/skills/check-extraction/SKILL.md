@@ -8,38 +8,48 @@ description: Extract structured data from images of checks — payee, amount, da
 You're given a set of pages from a PDF bundle, each of which should hold one or more images of cleared checks. 
 Pull the details off every check you find and return them as structured JSON.
 
-Each check page stands alone. Nothing about one check tells you anything about another, and your pages may come from anywhere in the bundle — inside a statement, in a run between two statements, or on their own. 
-Don't look for a statement period, a running balance, or an ordering; there isn't one.
+Each check page stands alone. Your pages may come from anywhere in the bundle — inside a statement, in a run between two statements, or on their own.
 
 ## Process
 
-1. Locate the PDF and render the pages you were given (see Reading the pages).
-2. On each page, find the check images — there may be one, several, or none (see What counts as a check).
-3. Read the fields off each check (see What to Extract).
-4. Verify what you read, and flag what warrants it, per `references/check-verification.md`.
-5. Write the output file per `references/output-schema.md`.
+### 1. Gather Initial Information
+Do all the following in one turn. Several tool calls in the same turn is fine; it doesn't have to be one bash call.
+- `cat` every reference file in `/workspace/skills/check-extraction/references/`
+- For the pages you were given in the bundle at `/mnt/session/uploads/workspace/bundle.pdf`:
+  - survey each page: page size, how many characters of text, how many images, each image's size and position
+  - copy the pages' text to a file, with a page marker before each page's text. Do NOT bring the text into context.
 
-## Reading the pages
+### 2. Find the checks
+On each page, locate the check images — there may be one, several, or none (see "What counts as a check" and "Processing the PDF").
 
-Read `references/pdf-reading.md` before opening the bundle: where it's mounted, the installed tools, the sandbox's time and output limits, and OCR notes.
+### 3. Read the fields off each check
+see What to Extract
 
-The task message gives you the pages — read only those.
+### 4. Verify
+Verify what you read, and flag what warrants it, per `references/check-verification.md`.
 
-**The checks are images, so you'll end up rendering.** Whatever a text layer gives you, reading a check means looking at it — render each page to a PNG and read it visually.
+### 5. Write the output file
+per `references/output-schema.md`.
 
-Look at the text layer as well, where there is one. How much it holds varies: often the bank's own printed text about the checks (see Printed Values), and sometimes more than you'd expect, since a document may have been OCR'd somewhere along the way. Treat it as a second source rather than a substitute — text that came from an OCR pass over handwriting is a guess like any other, and carries none of the reliability that genuinely printed text does.
+## Processing the PDF
 
-Render generously. The fields that matter are small and often handwritten, and a page of several checks scanned at page scale can leave each one a few dozen pixels tall. Render at high DPI, and where a field is still unclear, crop to it and render the crop larger rather than squinting at the whole page again.
+`references/pdf-reading.md` has the order to work in and the sandbox's limits. Below is what to look for.
 
-Images aren't always upright. A check can sit rotated ninety degrees or inverted on an otherwise ordinary page — rotate it and read it straight rather than reading it sideways.
+The task message gives you the pages — process only those.
+
+Try to render as little of the page as possible while still maintaining confidence and accuracy.  
+Rather than rendering the entire page at high resolution, crop to just the check image itself, or even just the individual values if possible.
+If the entire page is an image, render at a lower resolution first to locate the checks/values.
+
+Use the text layer as well, where there is one. How much it holds varies: often the bank's own printed text about the checks (see Printed Values), and sometimes more, since a document may have been OCR'd somewhere along the way.
+
+Images aren't always upright. A check can sit rotated ninety degrees or inverted on an otherwise ordinary page.
 
 Rendering a dozen pages at high DPI in one command can hit the time limit — batch across commands.
 
 ## What counts as a check
 
-Your pages were chosen by an agent that saw the whole bundle and deliberately erred toward including anything check-shaped. 
-So **it's possible for some of your pages to hold no checks at all.** 
-That's the system working as designed: list those pages in `pages_with_no_checks` and move on. Don't strain to find a check on a page that hasn't got one, and don't report it as a problem.
+It's possible for some of your pages to hold no checks at all; don't strain to find a check on a page that hasn't got one, and don't report it as a problem.
 **A front and its back are one check.** Pages pair them in every arrangement — side by side, one under the other, or both within a single scanned image — and often the back isn't included at all. Only a front produces a record. Where printed text about the check is repeated alongside the back as well as the front, that repetition is not a second check.
 
 **Extract:**
@@ -89,4 +99,5 @@ Therefore, one group could read as `85585563` when the account is `8558` and the
 Use information from elsewhere on the page to reason about this (for ex, if the check number is printed elsewhere on the check, or the account number is printed by the bank at the top of the page).
 
 **The account number in the printed text can differ from the MICR band on the check.** Usually they're the same and there's nothing to decide; where they differ, `references/check-verification.md` says which one to report.
+
 

@@ -316,14 +316,14 @@ class AgentResultSaverTest : DatabaseTest() {
                 checks = listOf(
                     ExtractedCheck(
                         page = 4,
-                        checkNumber = 1042,
-                        accountNumber = "000123456789",
+                        checkNo = 1042,
+                        acct = "000123456789",
                         date = LocalDate.of(2024, 1, 15),
-                        amount = BigDecimal("250"),
+                        amt = BigDecimal("250"),
                         payee = "John Doe",
                         memo = "rent",
                     ),
-                    ExtractedCheck(page = 5, checkNumber = null, accountNumber = null, date = null, amount = null, payee = null, memo = null),
+                    ExtractedCheck(page = 5, checkNo = null, acct = null, date = null, amt = null, payee = null, memo = null),
                 ),
             ), extractionSession)
 
@@ -353,7 +353,7 @@ class AgentResultSaverTest : DatabaseTest() {
         fun `a classification that already has checks is left alone without override`() {
             val classificationId = givenExtractionClassification(setOf(4), DocumentType.CheckTypes.CHECKS)
             givenResult(ManagedAgent.CHECK_EXTRACTION, CheckExtractionOutput(
-                checks = listOf(ExtractedCheck(page = 4, checkNumber = 1042, accountNumber = null, date = null, amount = BigDecimal("250"), payee = "John Doe", memo = null)),
+                checks = listOf(ExtractedCheck(page = 4, checkNo = 1042, acct = null, date = null, amt = BigDecimal("250"), payee = "John Doe", memo = null)),
             ), extractionSession)
 
             val first = saver.save(extractionSession)
@@ -371,7 +371,7 @@ class AgentResultSaverTest : DatabaseTest() {
         fun `re-running check extraction with override replaces the classification's earlier checks`() {
             val classificationId = givenExtractionClassification(setOf(4), DocumentType.CheckTypes.CHECKS)
             givenResult(ManagedAgent.CHECK_EXTRACTION, CheckExtractionOutput(
-                checks = listOf(ExtractedCheck(page = 4, checkNumber = 1042, accountNumber = null, date = null, amount = BigDecimal("250"), payee = "John Doe", memo = null)),
+                checks = listOf(ExtractedCheck(page = 4, checkNo = 1042, acct = null, date = null, amt = BigDecimal("250"), payee = "John Doe", memo = null)),
             ), extractionSession)
 
             val first = saver.save(extractionSession)
@@ -457,10 +457,10 @@ class AgentResultSaverTest : DatabaseTest() {
                 ManagedAgent.CHECK_EXTRACTION,
                 CheckExtractionOutput(checks = listOf(ExtractedCheck(
                     page = 4,
-                    checkNumber = 1042,
-                    accountNumber = null,
+                    checkNo = 1042,
+                    acct = null,
                     date = null,
-                    amount = BigDecimal("99.50"),
+                    amt = BigDecimal("99.50"),
                     payee = "John Doe",
                     memo = null,
                 ))),

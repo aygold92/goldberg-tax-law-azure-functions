@@ -10,21 +10,19 @@ This is for a broken task; pages that simply hold no checks go in `pages_with_no
   "checks": [
     {
       "page": 5,
-      "check_number": 1042,
-      "account_number": "8558",
+      "check_no": 1042,
+      "acct": "8558",
       "date": "2024-01-17",
-      "amount": 1250.00,
+      "amt": 1250.00,
       "payee": "Unalome House LLC",
       "memo": "January rent"
     },
     {
       "page": 5,
-      "check_number": null,
-      "account_number": "8558",
+      "acct": "8558",
       "date": "2024-01-19",
-      "amount": 340.00,
+      "amt": 340.00,
       "payee": "Chesapeake Lawn & Landscape",
-      "memo": null,
       "review_required": true
     }
   ],
@@ -41,12 +39,12 @@ This is for a broken task; pages that simply hold no checks go in `pages_with_no
 ## Per check (`checks[]`)
 
 - `page`: integer — the bundle page, 1-indexed, in the numbering the task message gave you.
-- `check_number`: integer.
-- `account_number`: string, copied as read
+- `check_no`: integer — the check number.
+- `acct`: string — the account number, copied as read
 - `date`: string, ISO `YYYY-MM-DD`. Expand a two-digit year to the obvious century.
-- `amount`: number, unsigned, two decimals.
+- `amt`: number, unsigned, two decimals.
 - `payee`: string, who the check is made out to.
 - `memo`: string
 - `review_required`: boolean — omit the key unless it's `true`. See Flagging in `references/check-verification.md`
 
-`page` is always present; every other field may be `null`.
+`page` is always present; every other field may be missing.

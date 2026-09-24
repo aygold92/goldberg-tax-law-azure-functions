@@ -26,7 +26,7 @@ class AgentSessionLauncherTest {
     private val launcher = AgentSessionLauncher(agentClient, dataManager)
 
     private val sessionId = "sesn_1"
-    private val checkJson = """{"checks": [{"page": 5, "check_number": 1042, "amount": 12.50}]}"""
+    private val checkJson = """{"checks": [{"page": 5, "check_no": 1042, "amt": 12.50}]}"""
 
     private fun givenSnapshot(snapshot: SessionSnapshot) {
         whenever(agentClient.getSessionSnapshot(sessionId)).thenReturn(snapshot)
@@ -150,7 +150,7 @@ class AgentSessionLauncherTest {
 
         assertThat(result.status).isEqualTo(AgentSessionResult.Status.COMPLETED)
         assertThat(result.output).isInstanceOf(CheckExtractionOutput::class.java)
-        assertThat((result.output as CheckExtractionOutput).checks.single().checkNumber).isEqualTo(1042)
+        assertThat((result.output as CheckExtractionOutput).checks.single().checkNo).isEqualTo(1042)
         // the message is carried for logging, never parsed
         assertThat(result.rawOutput).isEqualTo(message)
     }

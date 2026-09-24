@@ -201,11 +201,11 @@ class AgentResultSaver @Inject constructor(
         val checks = output.checks.map { check ->
             CheckDetails(
                 checkId = UUID.randomUUID(),
-                checkNumber = check.checkNumber,
-                accountNumber = check.accountNumber?.last4Digits(),
+                checkNumber = check.checkNo,
+                accountNumber = check.acct?.last4Digits(),
                 description = check.memo,
                 date = check.date?.toString(),
-                amount = check.amount?.asCurrency(),
+                amount = check.amt?.asCurrency(),
                 to = check.payee,
                 // The classification holds the stamps; this column is the Azure pipeline's
                 batesStamp = null,

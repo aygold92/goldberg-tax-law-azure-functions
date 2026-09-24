@@ -9,22 +9,47 @@ Find the page range and bank of every statement in a PDF bundle, the pages that 
 
 ## Process
 
-1. List the bank folders in memory (see Memory).
-2. Read the bundle (see Reading the PDF).
-3. Work out the banks and boundaries together. For a bank you recognize, read its memory files in full first.
-4. Verify the boundaries and decide whether anything needs review (see Verifying and Flagging).
-5. Find the check image pages (see Check image pages).
-6. Collect the Bates stamps (see Bates stamps).
-7. If you discovered or corrected a pattern, write a session file for that bank (see Memory).
-8. Write the output file per `references/output-schema.md`.
+### 1. Gather Initial Information
+Do all the following in one turn. Several tool calls in the same turn is fine; it doesn't have to be one bash call.
+- `cat` all the skill reference files (`/workspace/skills/bank-statement-splitting/references/`)
+- List the bank folders in memory (see Memory)
+- For the bundle at `/mnt/session/uploads/workspace/bundle.pdf`:
+  - survey every page: page size, how many characters of text, how many images, each image's size and position
+  - copy the bundle's text to a file, with a page marker before each page's text. Do NOT bring the text into context.
+  - print the top of the first page carrying a substantial amount of text, enough to identify the institution and whether the statement is a deposit account or a credit card
 
-## Reading the PDF
+### 2. Read relevant memory files
+Read the memory files for the folders whose institution matches what you found on the first statement (see Memory). 
+- If no folder matches the institution, don't read any.
+- Often a bundle contains a single bank type, but if you find others later you may need to repeat this step as appropriate.
 
-Read `references/pdf-reading.md` before opening the bundle.
+### 3. Identify Statement Boundaries, Bates Stamps, and Check Image Pages 
+These all come out of the same search (See "Processing the PDF", "Check image pages", and "Bates stamps")
 
-Read the statement's shape, not its numbers: which sections appear, and in what order. Go into transaction data only to settle a suspicion (see Settling a suspicion).
+### 4. Verify the Information
+To correct any mistakes and decide whether anything needs review (see Verifying and Flagging)
 
-Beyond that, choose your own method.
+### 5. Write a session file
+Only if you discovered or corrected a pattern (see Memory).
+
+### 6. Write the output file
+per `references/output-schema.md`.
+
+## Processing the PDF
+`references/pdf-reading.md` tells you how to process the PDF. Below is what to look for.
+
+Read the statement's shape, not its numbers: which sections appear, and in what order. 
+Go into transaction data only to settle a suspicion (see Settling a suspicion and requiring review).
+
+### Common patterns from the per page survey
+- A page with about ten characters only likely is a scan with its Bates stamp added after
+- Trimmed, landscape pages are likely check stock
+- An image the size of the page is likely a scanned document
+
+### What to search for
+Search every page for the strings that identify it — page numbers, the Bates stamp, the statement period, the account number, the statement's opening marker — and print one line per page. 
+Where memory holds patterns for this bank, search for the strings it quotes.
+Run the check-page tests in the same pass (see Check image pages).
 
 ### Document expectations
 Bundles come from clients: bank originals or scans of varying quality, with or without marketing and information pages, sometimes with mistakes.
@@ -55,19 +80,23 @@ A credit card `bank_id` must end in `_cc` (`chase_cc`); a deposit account's must
 A check image page holds at least one check front — a grid of several, or a single check. A page holding only check backs is a non-content page. 
 List check image pages in `check_pages`; a separate agent extracts the data.
 
-Checks appear:
+Checks can appear:
 - inside a statement, alongside the register
 - in a run between two statements
 - as a single page anywhere in the bundle
-
 They don't appear at random inside an unrelated statement, so a check page mid-statement is evidence about that statement.
 
+**Output**:
 - A check page inside a statement stays in that statement's range and is also listed in `check_pages`.
 - A check page belonging to no statement goes only in `check_pages`, not `unassigned_pages`.
 
-Examine every page below its header for check images, unless it's part of a credit card statement. A check page inside a statement can carry the same header as a transaction page.
+### Finding Checks
+Use your best judgment to find check images in the cheapest way possible. Other than that:
+- A check page inside a statement can carry the same header as a transaction page, so the header doesn't settle it.
+- A `_cc` statement carries no check images. Look in deposit-account ranges and in pages that belong to no statement.
 
-When you can't tell, include the page. A wrong inclusion costs one check agent run that finds nothing; a miss loses every check on the page, and nothing downstream notices. An uncertain check page never goes in `review_required` — including it resolves it.
+If you find yourself needing to render many pages to figure out whether there are check images and you're not sure where they are, you can first tile the pages in question into a contact sheet (one image containing 15-25 page renders).  
+If you're still not sure, use the information from that sheet to narrow down which sections of those pages you need to render.
 
 ## Bates stamps
 
@@ -92,11 +121,13 @@ The store at `/mnt/memory/bank-patterns/` holds one folder per `bank_id`: a cons
     main.md
 ```
 
-**Reading**, before analyzing any pages from scratch:
-1. List the folders; each is one bank type.
-2. For each relevant folder, read `main.md` and every session file. Session files add to `main.md` and sometimes contradict it.
-3. Match the pages against those patterns first. Patterns tell you where to look, not what's true: where they conflict with each other or with the page, the page wins. If they don't cleanly apply, coin a new `bank_id`.
-4. Report the folder's `## Institution Name` verbatim as `banks[].name`.
+**Reading**, once you know the institution and the statement type (a deposit account or a credit card):
+1. List the folders; each is one bank type. Read the ones whose institution and statement type matches.
+2. Read `main.md` and every session file in those folders. Session files add to `main.md` and sometimes contradict it.
+3. Search the pages for the strings they quote, and separate check images from logos and banners by the image sizes they record. 
+   - Patterns tell you where to look, not what's true: where they conflict with each other or with the page, the page wins. 
+   - If they don't cleanly apply, coin a new `bank_id`.
+4. For an already existing bank_id, report the folder's `## Institution Name` verbatim as `banks[].name`.
 
 **Writing.** Other runs write to this store at the same time:
 - Never write or edit `main.md` (the consolidation agent owns it) or another session's file.
@@ -113,16 +144,17 @@ Every page in `check_pages` goes to a check agent, and extraction skips those pa
 ### Verifying your boundaries
 Boundaries fail two ways: a false start splits one statement into two ranges, or a missed start merges two statements into one.
 
-Page accounting catches both. Every page belongs to a range, to `check_pages`, or to `unassigned_pages` (though a check page can also be inside a statement). 
-Re-verify any leftover page — some bundles genuinely carry pages that belong to no statement.
+Two ways you should verify (among others not listed):
+- check every range against the statement's own page numbers
+- Ensure every page belongs to a range or to `check_pages`; re-verify any leftover page before putting it in `unassigned_pages` 
 
 Grounds for suspicion that a boundary is wrong (not proof):
 - The section order restarts: a section you've passed reappears without a continuation marker.
 - A range shows none of the bank's recorded start signals.
 - A range's first page declares a page number other than 1.
+- Stated page numbers are out of order.
 - The page template shifts mid-range: a different footer, a moved address block, different type.
 - A period is missing from a bank's run — April and June, no May. May may be inside one of them.
-- Stated page numbers are out of order.
 - A range is much longer than the same bank's other statements in this bundle.
 - A range declares no bank, account, or statement date of its own. It may belong with the range before it.
 
@@ -144,7 +176,7 @@ If a field the bank prints is helpful (a footer account number, a continuation m
 Transaction data is in scope here. Transaction dates well outside a range's period suggest a page from another statement; one date just past the edge can be legitimate, since registers often sort by post date.
 
 After correcting what you can, flag (in `review_required`):
-1. A suspicious boundary or bank type (credit card vs. deposit) you couldn't settle
+1. A suspicious boundary or statement type (credit card vs. deposit) you couldn't settle
 2. A contradiction that survives a careful re-read and that you can't fix confidently.
 
 Notes:

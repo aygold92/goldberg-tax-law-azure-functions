@@ -20,10 +20,10 @@ data class CheckExtractionOutput(
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class ExtractedCheck(
     val page: Int,
-    val checkNumber: Int?,
-    val accountNumber: String?,
+    val checkNo: Int?,
+    val acct: String?,
     val date: LocalDate?,
-    val amount: BigDecimal?,
+    val amt: BigDecimal?,
     val payee: String?,
     val memo: String?,
     val reviewRequired: Boolean = false,

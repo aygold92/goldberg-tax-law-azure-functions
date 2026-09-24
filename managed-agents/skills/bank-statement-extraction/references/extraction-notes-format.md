@@ -3,11 +3,14 @@
 The two kinds of file in `/mnt/memory/extraction-notes/<bank_id>/`. When to read and write them is in SKILL.md under "Memory: Bank Extraction Notes".
 A complete example of both is in `references/extraction-notes-example.md`.
 
+What you record is what the next run works from: your quoted labels tell it which figures to look for and where, and your reconciliation conventions tell it how the printed totals are scoped.
+
 ## Rules
 - Record what is structurally true of the bank's statement format. Leave out anything that depends on this submission: missing, redacted, or duplicated pages, scan quality, Bates stamps.
 - Leave out anything about this run (what you found, how sure you were, whether checks passed) and about reading the PDF (tools, OCR, text extraction, image sizes).
 - Record only what this statement's pages showed, not the filename or what you expect of the bank in general.
 - Record how reconciliation checks must be run for this bank, not whether they passed.
+- Record the sections that carry nothing you need as well as the ones that do. A later run searches for those headings and skips them instead of reading them to find out.
 - No client personally identifying information: names, addresses, or account numbers, including partial ones like the last four digits.
 
 ## Style
@@ -29,6 +32,9 @@ The reader is a later run with this same skill. Give it the observations; it alr
 ## Statement Shape
 - [What the statement looks like beyond card vs deposit, which the `_cc` suffix already says]
 - [Single-account or consolidated; if consolidated, which account types and how they're laid out]
+
+## Sections
+- [Each heading as printed, in the order it appears, and what it carries: summary figures, register rows, or nothing you need]
 
 ## What numbers and where
 - [Which summary fields are printed, and which are omitted]
