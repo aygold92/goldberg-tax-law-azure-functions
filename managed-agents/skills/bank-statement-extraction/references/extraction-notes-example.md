@@ -8,7 +8,14 @@ A made-up bank, so none of this is a real pattern — it shows the shape and sty
 # northgate_relationship
 
 ## Institution Name
-- Northgate
+Name: Northgate
+
+Also seen as:
+- Northgate Bank
+
+Products:
+- Premier Checking
+- Premier Savings
 
 ## Statement Shape
 - Consolidated: "Premier Checking" and "Premier Savings" in one statement, each with its own "Account Summary" and register

@@ -20,6 +20,7 @@ data class ApplyResult(val id: String, val outcome: Outcome)
  *
  * A `config_sha256` of the body is stamped into the resource's `metadata`. Because `list()` already
  * returns metadata, comparing it costs no extra request, so an unchanged resource is skipped for free.
+ * A resource whose remote state can drift without its config changing overrides [isStale].
  *
  * Subclasses receive the fully resolved config as a [JsonNode] and convert it with
  * `jsonMapper().convertValue(node, …CreateParams.Body::class.java)`. The SDK's body classes are
@@ -39,6 +40,13 @@ abstract class ResourcePublisher<R>(val type: ResourceType) {
     protected abstract fun idOf(remote: R): String
     protected abstract fun configHashOf(remote: R): String?
 
+    /**
+     * Whether [existing] needs updating even though its config hash matches — for state the hash can't
+     * see, such as a version the API pinned when the resource was last written. [config] is the fully
+     * resolved config, before the hash is stamped in.
+     */
+    protected open fun isStale(existing: R, config: ObjectNode): Boolean = false
+
     /** Finds a resource by name, for `--resource-types` runs where this stage's ids were never registered. */
     fun lookupId(name: String): String? = list().firstOrNull { nameOf(it) == name }?.let(::idOf)
 
@@ -57,7 +65,7 @@ abstract class ResourcePublisher<R>(val type: ResourceType) {
         val hash = ContentHash.ofConfig(resolvedConfig)
         val existing = list().firstOrNull { nameOf(it) == spec.name }
 
-        if (existing != null && configHashOf(existing) == hash) {
+        if (existing != null && configHashOf(existing) == hash && !isStale(existing, resolvedConfig)) {
             logger.info { "✓ ${spec.name} ${type.refName} unchanged — skipped" }
             return ApplyResult(idOf(existing), Outcome.UNCHANGED)
         }

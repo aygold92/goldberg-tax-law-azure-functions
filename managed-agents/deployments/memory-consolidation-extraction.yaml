@@ -11,6 +11,8 @@ initial_events:
     content:
       - type: text
         text: {file: ./consolidation-request.md}
+      - type: text
+        text: {file: ../skills/bank-statement-extraction/references/extraction-notes-format.md}
 resources:
   - type: memory_store
     memory_store_id: {resource: memory-store, name: extraction-notes}

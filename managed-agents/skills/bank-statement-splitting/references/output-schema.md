@@ -7,7 +7,7 @@ A bundle that opens but holds no statements is not this: report it with an empty
 
 ## Fields
 - `banks`: one entry per bank type found in this run, keyed on `bank_id`.
-  - `name`: the institution's name, e.g. "Bank of America". Copy the memory folder's `## Institution Name` when there is one.
+  - `name`: the institution's name, e.g. "Bank of America". Copy the name under the memory folder's `## Institution Name` when there is one.
   - `source`: `memory` if the bank's patterns came from `/mnt/memory/bank-patterns/`, `discovered` if derived this run.
 - `boundaries`: one entry per statement, sorted by `start`. Ranges don't overlap. An empty array if the bundle holds no statements.
   - `start`, `end`: the statement's first and last page.

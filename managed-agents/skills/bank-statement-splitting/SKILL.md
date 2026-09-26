@@ -127,7 +127,6 @@ The store at `/mnt/memory/bank-patterns/` holds one folder per `bank_id`: a cons
 3. Search the pages for the strings they quote, and separate check images from logos and banners by the image sizes they record. 
    - Patterns tell you where to look, not what's true: where they conflict with each other or with the page, the page wins. 
    - If they don't cleanly apply, coin a new `bank_id`.
-4. For an already existing bank_id, report the folder's `## Institution Name` verbatim as `banks[].name`.
 
 **Writing.** Other runs write to this store at the same time:
 - Never write or edit `main.md` (the consolidation agent owns it) or another session's file.

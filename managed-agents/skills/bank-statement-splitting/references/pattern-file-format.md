@@ -20,6 +20,7 @@ The reader is a later run with this same skill. Give it the observations; it alr
 - Quote exact text rather than paraphrasing, with client values replaced by placeholders: `{account number}`, `{amount}`, `{date}`, `{check number}`. Add words only where the quote alone would be ambiguous.
 - Leave out why a signal matters, how to use it, and warnings about what not to confuse it with.
 - Don't restate the section heading or the task.
+- State what the pages showed, not how often: avoid `always`, `usually`, `rarely`, `never`.
 
 ## `main.md`
 
@@ -27,7 +28,13 @@ The reader is a later run with this same skill. Give it the observations; it alr
 # {bank_id}
 
 ## Institution Name
-- [Name as printed on the statement, not the underlying issuer. Several bank_ids can share one name]
+Name to report as `banks[].name`: [The institution's name as printed on the statement, not a card or account product. Several bank_ids can share one name]
+
+Also seen as:
+- [Other forms of the same institution's name printed on the statement]
+
+Products:
+- [Names of the card or account products this format's statements are for, as printed. Not a product that only appears in a summary panel]
 
 ## Account Type Evidence
 - [The quoted signals that settle credit card vs deposit account]

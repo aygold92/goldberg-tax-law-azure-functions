@@ -8,7 +8,14 @@ A made-up bank, so none of this is a real pattern — it shows the shape and sty
 # northgate_relationship
 
 ## Institution Name
-- Northgate
+Name to report as `banks[].name`: Northgate
+
+Also seen as:
+- Northgate Bank
+
+Products:
+- Premier Checking
+- Premier Savings
 
 ## Account Type Evidence
 - Deposit: "Beginning Balance" / "Ending Balance" per account, "Deposits and Credits" and "Withdrawals and Debits" sections, "Routing Number" on page 1
@@ -59,6 +66,10 @@ A made-up bank, so none of this is a real pattern — it shows the shape and sty
 
 ```
 # northgate_relationship
+
+## Institution Name
+Products:
+- Northgate Money Market
 
 ## Section Order
 - "Northgate Money Market" between "Premier Savings" and "Northgate Visa® Summary"
