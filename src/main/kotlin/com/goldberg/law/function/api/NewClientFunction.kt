@@ -31,13 +31,7 @@ class NewClientFunction @Inject constructor(
         val req = OBJECT_MAPPER.readValue(request?.body?.orElseThrow(), NewClientRequest::class.java)
 
         if (!validateClientName(req.clientName)) {
-            throw RuntimeException("""
-                "Invalid client name: ${req.clientName}.  Rules: 
-                * between 3-63 characters
-                * only lower case letters, numbers, and hyphens 
-                * can't start or end with a hyphen
-                * can't have consecutive hyphens")
-                """.trimMargin())
+            throw RuntimeException("Invalid client name: ${req.clientName} must be between $CLIENT_NAME_MIN_LENGTH and $CLIENT_NAME_MAX_LENGTH characters")
         }
 
         // Insert client into MySQL first (with idempotency check)
@@ -72,12 +66,12 @@ class NewClientFunction @Inject constructor(
      *   * Client names must be from 3 through 63 characters long.
      */
     fun validateClientName(clientName: String): Boolean {
-        val regex = "^[A-Za-z0-9](?:[A-Za-z0-9-]{1,${CLIENT_NAME_MAX_LENGTH - 2}}[A-Za-z0-9])?$".toRegex()
-        return clientName.length in 3..CLIENT_NAME_MAX_LENGTH && regex.matches(clientName) && !clientName.contains("--")
+        return clientName.length in CLIENT_NAME_MIN_LENGTH..<CLIENT_NAME_MAX_LENGTH
     }
 
     companion object {
         const val FUNCTION_NAME = "NewClient"
-        private const val CLIENT_NAME_MAX_LENGTH = 63
+        private const val CLIENT_NAME_MIN_LENGTH = 3
+        private const val CLIENT_NAME_MAX_LENGTH = 64
     }
 }
