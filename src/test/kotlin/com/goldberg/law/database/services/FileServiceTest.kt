@@ -52,6 +52,8 @@ class FileServiceTest : DatabaseTest() {
 
         @Test
         fun `insert, load, list summary, then delete`() {
+            // for timing
+            Thread.sleep(100)
             val inputFile = EntityValues.newInputFile(client = EntityValues.newClient(clientId = clientId))
             // create
             val fileId = fileService.insertFile(inputFile, UUID.randomUUID())

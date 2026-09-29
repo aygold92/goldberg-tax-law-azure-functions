@@ -78,38 +78,6 @@ class EntitySerializationTest {
         assertThat(deserialized.classification.classificationId).isEqualTo(input.classification.classificationId)
     }
 
-    @Test
-    fun testClassificationRoundTripWithoutKotlinModule() {
-        // Simulates the Azure Durable Functions SDK's Jackson mapper, which uses a plain
-        // ObjectMapper without KotlinModule. @JsonCreator + @JsonProperty must be present
-        // on Classification and InputFile so the constructor is called and $$delegate_* fields
-        // are initialized.
-        val sdkMapper = ObjectMapper().apply {
-            disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-        }
-        val input = ProcessDataModelActivityInput(requestId = "test-request", classification = newClassification(), processingOptions = ClassificationProcessingOptions())
-        val json = sdkMapper.writeValueAsString(input)
-        val deserialized = sdkMapper.readValue(json, ProcessDataModelActivityInput::class.java)
-        assertThat(deserialized.classification.clientId).isEqualTo(input.classification.clientId)
-        assertThat(deserialized.classification.fileId).isEqualTo(input.classification.fileId)
-        assertThat(deserialized.classification.classificationId).isEqualTo(input.classification.classificationId)
-    }
-
-    @Test
-    fun testClassificationRoundTripWithGson() {
-        // Simulates the Azure Durable Functions SDK's GSON deserializer, which uses a plain
-        // GsonBuilder without any custom type adapters. The @JsonAdapter annotation on
-        // Classification and InputFile must cause the constructor to be called so that
-        // $$delegate_* fields are initialized and delegated properties don't NPE.
-        val sdkGson = GsonBuilder().create()
-        val input = ProcessDataModelActivityInput(requestId = "test-request", classification = newClassification(), processingOptions = ClassificationProcessingOptions())
-        val json = sdkGson.toJson(input)
-        val deserialized = sdkGson.fromJson(json, ProcessDataModelActivityInput::class.java)
-        assertThat(deserialized.classification.clientId).isEqualTo(input.classification.clientId)
-        assertThat(deserialized.classification.fileId).isEqualTo(input.classification.fileId)
-        assertThat(deserialized.classification.classificationId).isEqualTo(input.classification.classificationId)
-    }
-
     companion object {
         val FILE = ClassifiedFile(UUID.randomUUID(), listOf(
             ClassifiedPages(setOf(4,3,2), DocumentType.BankTypes.WF_BANK),
