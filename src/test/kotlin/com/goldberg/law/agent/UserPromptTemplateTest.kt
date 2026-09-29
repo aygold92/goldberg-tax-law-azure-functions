@@ -23,6 +23,16 @@ class UserPromptTemplateTest {
             .containsExactlyInAnyOrder("START", "END", "BANK_ID", "CHECK_PAGES", "FILE_NAME", "SESSION_ID")
         assertThat(UserPromptTemplate.load(ManagedAgent.CHECK_EXTRACTION).placeholders)
             .containsExactlyInAnyOrder("PAGES")
+        assertThat(UserPromptTemplate.load(ManagedAgent.MEMORY_CONSOLIDATION).placeholders)
+            .containsExactlyInAnyOrder("BANK_ID", "FORMAT")
+    }
+
+    @Test
+    fun `an inserted value's own braces are left alone`() {
+        // The format files carry lowercase placeholders like {bank_id}; they must reach the agent untouched
+        val prompt = UserPromptTemplate("test", "{FORMAT}").render(mapOf("FORMAT" to "# {bank_id} {ACCOUNT}"))
+
+        assertThat(prompt).isEqualTo("# {bank_id} {ACCOUNT}")
     }
 
     @Test

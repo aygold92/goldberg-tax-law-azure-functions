@@ -11,6 +11,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
+import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
@@ -61,7 +62,7 @@ class AgentSessionLauncherTest {
         val pdf: PdfDocument = mock { on { toBinaryData() } doReturn BinaryData.fromBytes(bytes) }
         whenever(dataManager.loadInputPdfDocument(inputFile)).thenReturn(pdf)
         whenever(agentClient.uploadPdf(bytes, "bundle-a.pdf")).thenReturn("file_1")
-        whenever(agentClient.startSession(eq(ManagedAgent.SPLITTER), eq("file_1"), any(), any(), any())).thenReturn(sessionId)
+        whenever(agentClient.startSession(eq(ManagedAgent.SPLITTER), eq("file_1"), any(), any(), any(), any())).thenReturn(sessionId)
 
         val launch = launcher.startSplitter(inputFile)
 
@@ -71,13 +72,14 @@ class AgentSessionLauncherTest {
             eq("file_1"),
             eq(mapOf("FILE_NAME" to "bundle-a.pdf")),
             any(),
+            eq(SessionBudget.dollars(5)),
             eq(mapOf("fileId" to fileId.toString(), "clientId" to clientId.toString())),
         )
     }
 
     @Test
     fun `statement extraction passes every prompt value, check pages as a list`() {
-        whenever(agentClient.startSession(any(), any(), any(), any(), any())).thenReturn(sessionId)
+        whenever(agentClient.startSession(any(), any(), any(), any(), any(), any())).thenReturn(sessionId)
 
         val result = launcher.startStatementExtraction("file_1", "bundle-a.pdf", 3, 9, "bank_of_america", emptyList())
 
@@ -87,6 +89,7 @@ class AgentSessionLauncherTest {
             eq("file_1"),
             eq(mapOf("START" to 3, "END" to 9, "BANK_ID" to "bank_of_america", "CHECK_PAGES" to emptyList<Int>(), "FILE_NAME" to "bundle-a.pdf")),
             any(),
+            eq(SessionBudget.dollars(5)),
             any(),
         )
     }
@@ -99,32 +102,99 @@ class AgentSessionLauncherTest {
             .isInstanceOf(IllegalArgumentException::class.java)
         assertThatThrownBy { launcher.startStatementExtraction("file_1", "a.pdf", 1, 3, "bank", listOf(0)) }
             .isInstanceOf(IllegalArgumentException::class.java)
-        verify(agentClient, never()).startSession(any(), any(), any(), any(), any())
+        verify(agentClient, never()).startSession(any(), any(), any(), any(), any(), any())
     }
 
     @Test
     fun `check extraction passes the pages as a list`() {
-        whenever(agentClient.startSession(any(), any(), any(), any(), any())).thenReturn(sessionId)
+        whenever(agentClient.startSession(any(), any(), any(), any(), any(), any())).thenReturn(sessionId)
 
         launcher.startCheckExtraction("file_1", listOf(5, 8))
 
-        verify(agentClient).startSession(eq(ManagedAgent.CHECK_EXTRACTION), eq("file_1"), eq(mapOf("PAGES" to listOf(5, 8))), any(), any())
+        verify(agentClient).startSession(eq(ManagedAgent.CHECK_EXTRACTION), eq("file_1"), eq(mapOf("PAGES" to listOf(5, 8))), any(), eq(SessionBudget.dollars(5)), any())
     }
 
     @Test
     fun `check extraction requires at least one page`() {
         assertThatThrownBy { launcher.startCheckExtraction("file_1", emptyList()) }
             .isInstanceOf(IllegalArgumentException::class.java)
-        verify(agentClient, never()).startSession(any(), any(), any(), any(), any())
+        verify(agentClient, never()).startSession(any(), any(), any(), any(), any(), any())
+    }
+
+    private fun givenFolder(store: String, bankId: String, vararg names: String) {
+        whenever(agentClient.listMemories(store, "/$bankId/"))
+            .thenReturn(names.map { StoredMemory("/$bankId/$it", 100, 1L) })
     }
 
     @Test
-    fun `memory consolidation runs the deployment for the chosen store`() {
-        whenever(agentClient.runDeployment("memory-consolidation-extraction")).thenReturn(DeploymentLaunch("run_1", sessionId))
+    fun `memory consolidation starts one session on the chosen store for the one bank folder`() {
+        givenFolder("extraction-notes", "bank_of_america", "main.md", "sesn_1.md")
+        whenever(agentClient.startMemorySession(any(), any(), any(), any(), any(), any())).thenReturn(sessionId)
 
-        val launch = launcher.startMemoryConsolidation(MemoryConsolidation.EXTRACTION)
+        val started = launcher.startMemoryConsolidation(MemoryConsolidation.EXTRACTION, "bank_of_america")
 
-        assertThat(launch).isEqualTo(DeploymentLaunch("run_1", sessionId))
+        assertThat(started).isEqualTo(sessionId)
+        val values = argumentCaptor<Map<String, Any>>().apply {
+            verify(agentClient).startMemorySession(eq(ManagedAgent.MEMORY_CONSOLIDATION), eq("extraction-notes"), capture(), any(), eq(SessionBudget.dollars(2)), any())
+        }.firstValue
+        assertThat(values).containsEntry("BANK_ID", "bank_of_america")
+        // The format the extraction agent wrote to, not the splitter's
+        assertThat(values["FORMAT"] as String).contains("# Extraction notes format")
+    }
+
+    @Test
+    fun `each store's consolidation carries its own writer's format`() {
+        givenFolder("bank-patterns", "chase_cc", "sesn_1.md")
+        whenever(agentClient.startMemorySession(any(), any(), any(), any(), any(), any())).thenReturn(sessionId)
+
+        launcher.startMemoryConsolidation(MemoryConsolidation.SPLITTING, "chase_cc")
+
+        val values = argumentCaptor<Map<String, Any>>().apply {
+            verify(agentClient).startMemorySession(any(), eq("bank-patterns"), capture(), any(), any(), any())
+        }.firstValue
+        assertThat(values["FORMAT"] as String).contains("# Pattern file format")
+    }
+
+    @Test
+    fun `memory consolidation rejects a bank id that isn't a folder name`() {
+        listOf("", "Bank_Of_America", "../bank_of_america", "chase_cc/main.md", "chase cc").forEach { bankId ->
+            assertThatThrownBy { launcher.startMemoryConsolidation(MemoryConsolidation.SPLITTING, bankId) }
+                .isInstanceOf(IllegalArgumentException::class.java)
+        }
+        verify(agentClient, never()).startMemorySession(any(), any(), any(), any(), any(), any())
+    }
+
+    @Test
+    fun `memory consolidation starts nothing for a folder that doesn't exist`() {
+        givenFolder("bank-patterns", "chase_cc")
+
+        assertThatThrownBy { launcher.startMemoryConsolidation(MemoryConsolidation.SPLITTING, "chase_cc") }
+            .isInstanceOf(IllegalArgumentException::class.java)
+            .hasMessageContaining("No 'chase_cc' folder")
+        verify(agentClient, never()).startMemorySession(any(), any(), any(), any(), any(), any())
+    }
+
+    @Test
+    fun `memory consolidation starts nothing for a folder with no session files`() {
+        // A consolidated folder: main.md, plus a stray file that isn't a session's
+        givenFolder("bank-patterns", "chase_cc", "main.md", "notes.md")
+
+        assertThatThrownBy { launcher.startMemoryConsolidation(MemoryConsolidation.SPLITTING, "chase_cc") }
+            .isInstanceOf(IllegalArgumentException::class.java)
+            .hasMessageContaining("no session files")
+        verify(agentClient, never()).startMemorySession(any(), any(), any(), any(), any(), any())
+    }
+
+    @Test
+    fun `listing memory groups the whole store into bank folders`() {
+        whenever(agentClient.listMemories("extraction-notes")).thenReturn(
+            listOf(StoredMemory("/chase_cc/main.md", 900, 1L), StoredMemory("/chase_cc/sesn_1.md", 100, 2L)),
+        )
+
+        val listing = launcher.listMemory(MemoryConsolidation.EXTRACTION)
+
+        assertThat(listing.memory).isEqualTo(MemoryConsolidation.EXTRACTION)
+        assertThat(listing.folder("chase_cc")!!.sessionFileCount).isEqualTo(1)
     }
 
     // ---- fetching results ---------------------------------------------------

@@ -1,10 +1,8 @@
 package com.goldberg.law.function.api
 
 import com.goldberg.law.agent.AgentSessionLauncher
+import com.goldberg.law.agent.MemoryConsolidation
 import com.goldberg.law.function.api.model.ApiResult
-import com.goldberg.law.function.api.model.ExecuteMemoryConsolidationAgentRequest
-import com.goldberg.law.function.api.model.ExecuteMemoryConsolidationAgentResponse
-import com.goldberg.law.util.OBJECT_MAPPER
 import com.google.inject.Inject
 import com.microsoft.azure.functions.*
 import com.microsoft.azure.functions.annotation.AuthorizationLevel
@@ -13,33 +11,37 @@ import com.microsoft.azure.functions.annotation.HttpTrigger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.util.*
 
-class ExecuteMemoryConsolidationAgentFunction @Inject constructor(
+/**
+ * Lists one memory store's folders and files, without their content: `?memory=SPLITTING` or `?memory=EXTRACTION`,
+ * the store named for the agent that writes it.
+ */
+class ListMemoryFilesFunction @Inject constructor(
     private val agentSessionLauncher: AgentSessionLauncher,
 ) {
     private val logger = KotlinLogging.logger {}
 
     @FunctionName(FUNCTION_NAME)
     fun run(
-        @HttpTrigger(name = "req", methods = [HttpMethod.POST], authLevel = AuthorizationLevel.FUNCTION)
+        @HttpTrigger(name = "req", methods = [HttpMethod.GET], authLevel = AuthorizationLevel.FUNCTION)
         request: HttpRequestMessage<Optional<String?>?>?,
         ctx: ExecutionContext
     ): HttpResponseMessage = try {
-        logger.info { "[${ctx.invocationId}] processing ${request?.body?.orElseThrow()}" }
-        val input = OBJECT_MAPPER.readValue(request?.body?.orElseThrow(), ExecuteMemoryConsolidationAgentRequest::class.java)
-        val sessionId = agentSessionLauncher.startMemoryConsolidation(input.memory, input.bankId)
+        val memory = MemoryConsolidation.valueOf(
+            request!!.queryParameters["memory"] ?: throw IllegalArgumentException("Missing required query parameter: memory")
+        )
+        logger.info { "[${ctx.invocationId}] listing memory files for $memory" }
 
-        request!!.createResponseBuilder(HttpStatus.OK)
-            .body(ExecuteMemoryConsolidationAgentResponse(sessionId))
+        request.createResponseBuilder(HttpStatus.OK)
+            .body(agentSessionLauncher.listMemory(memory))
             .build()
     } catch (ex: Exception) {
-        logger.error(ex) { "Error starting memory consolidation agent $request" }
-
+        logger.error(ex) { "Error listing memory files for $request" }
         request!!.createResponseBuilder(HttpStatus.BAD_REQUEST)
             .body(ApiResult.failed(ex))
             .build()
     }
 
     companion object {
-        const val FUNCTION_NAME = "ExecuteMemoryConsolidationAgent"
+        const val FUNCTION_NAME = "ListMemoryFiles"
     }
 }

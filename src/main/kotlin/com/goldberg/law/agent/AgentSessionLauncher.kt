@@ -25,6 +25,7 @@ class AgentSessionLauncher @Inject constructor(
             anthropicFileId,
             mapOf("FILE_NAME" to inputFile.fileName),
             title = "Split ${inputFile.fileName}",
+            budget = AGENT_BUDGET,
             metadata = mapOf("fileId" to inputFile.fileId.toString(), "clientId" to inputFile.clientId.toString()),
         )
         return SplitterLaunch(sessionId, anthropicFileId)
@@ -51,6 +52,7 @@ class AgentSessionLauncher @Inject constructor(
                 "FILE_NAME" to fileName,
             ),
             title = "Extract $fileName pages $startPage–$endPage",
+            budget = AGENT_BUDGET,
             metadata = mapOf("bankId" to bankId),
         )
     }
@@ -63,12 +65,35 @@ class AgentSessionLauncher @Inject constructor(
             anthropicFileId,
             mapOf("PAGES" to pages),
             title = "Extract checks from ${pages.size} pages",
+            budget = AGENT_BUDGET,
         )
     }
 
-    /** Runs the consolidation deployment for one memory store. Its session is read back with [fetchResult] like any other. */
-    fun startMemoryConsolidation(memory: MemoryConsolidation): DeploymentLaunch =
-        agentClient.runDeployment(memory.deploymentName)
+    /** Every folder and file in [memory]'s store, without their content. */
+    fun listMemory(memory: MemoryConsolidation): MemoryStoreListing =
+        MemoryStoreListing.of(memory, agentClient.listMemories(memory.memoryStore))
+
+    /**
+     * Consolidates one bank's folder of [memory]'s store, once the folder is confirmed to exist and hold session
+     * files — otherwise there's nothing to consolidate and no session is started. A session per folder keeps
+     * each folder's notes out of every other folder's context, which a whole-store run re-reads on every
+     * request. Its session is read back with [fetchResult] like any other.
+     */
+    fun startMemoryConsolidation(memory: MemoryConsolidation, bankId: String): String {
+        require(BANK_ID.matches(bankId)) { "Invalid bank id '$bankId': expected lowercase letters, digits and underscores" }
+        val folder = MemoryStoreListing.of(memory, agentClient.listMemories(memory.memoryStore, "/$bankId/")).folder(bankId)
+        require(folder != null) { "No '$bankId' folder in ${memory.memoryStore}" }
+        require(folder.sessionFileCount > 0) { "The '$bankId' folder in ${memory.memoryStore} has no session files to consolidate" }
+
+        return agentClient.startMemorySession(
+            ManagedAgent.MEMORY_CONSOLIDATION,
+            memory.memoryStore,
+            mapOf("BANK_ID" to bankId, "FORMAT" to memory.format),
+            title = "Consolidate $bankId in ${memory.memoryStore}",
+            budget = CONSOLIDATION_BUDGET,
+            metadata = mapOf("bankId" to bankId, "memoryStore" to memory.memoryStore),
+        )
+    }
 
     /**
      * Interrupts a running session. Returns whether it was running; the session reaches idle at its next safe
@@ -125,6 +150,17 @@ class AgentSessionLauncher @Inject constructor(
     }
 
     private fun requirePositive(pages: List<Int>) = require(pages.all { it > 0 }) { "Page numbers are 1-indexed: $pages" }
+
+    private companion object {
+        /** A bank id is also a memory folder name, so it's held to the snake_case the agents coin. */
+        val BANK_ID = Regex("[a-z0-9_]+")
+
+        /** What one splitter or extraction session may spend. */
+        val AGENT_BUDGET = SessionBudget.dollars(5)
+
+        /** One bank folder: the whole extraction store, all 11 folders in one session, reached $2.02. */
+        val CONSOLIDATION_BUDGET = SessionBudget.dollars(2)
+    }
 
     /** What reading the output file concluded, before it's folded into the [AgentSessionResult]. */
     private data class Read(

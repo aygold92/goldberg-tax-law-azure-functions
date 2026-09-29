@@ -25,7 +25,7 @@ enum class ManagedAgent(
     STATEMENT_EXTRACTION("bank-statement-extraction", "extraction-notes", StatementExtractionOutput::class.java),
     CHECK_EXTRACTION("check-extraction", null, CheckExtractionOutput::class.java),
 
-    /** Deployment-driven: started through a [MemoryConsolidation] deployment, which attaches its store. */
+    /** Works on memory, not a bundle: one session per bank folder, on the store its [MemoryConsolidation] names. */
     MEMORY_CONSOLIDATION("memory-consolidation", null, null);
 
     companion object {
@@ -45,13 +45,18 @@ enum class ManagedAgent(
 }
 
 /**
- * The `managed-agents/deployments/` that run [ManagedAgent.MEMORY_CONSOLIDATION] — one per memory store, named
- * for the agent that writes to it. [deploymentName] must match the deployment's filename stem.
+ * The memory stores [ManagedAgent.MEMORY_CONSOLIDATION] tidies, named for the agent that writes each one.
+ * [formatPath] is that agent's memory-file format, which the consolidator enforces; `processResources`
+ * ships it in the jar.
  */
-enum class MemoryConsolidation(val deploymentName: String) {
+enum class MemoryConsolidation(writer: ManagedAgent, private val formatPath: String) {
     /** Tidies `bank-patterns`, written by the splitter. */
-    SPLITTING("memory-consolidation-splitting"),
+    SPLITTING(ManagedAgent.SPLITTER, "managed-agents/skills/bank-statement-splitting/references/pattern-file-format.md"),
 
     /** Tidies `extraction-notes`, written by statement extraction. */
-    EXTRACTION("memory-consolidation-extraction"),
+    EXTRACTION(ManagedAgent.STATEMENT_EXTRACTION, "managed-agents/skills/bank-statement-extraction/references/extraction-notes-format.md");
+
+    val memoryStore: String = checkNotNull(writer.memoryStore) { "${writer.agentName} writes no memory store" }
+
+    val format: String get() = UserPromptTemplate.classpathText(formatPath)
 }

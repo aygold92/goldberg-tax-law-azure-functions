@@ -4,7 +4,6 @@ import com.anthropic.client.AnthropicClient
 import com.goldberg.law.managedagents.ResourcePublisher
 import com.goldberg.law.managedagents.ResourceType
 import com.goldberg.law.managedagents.agent.AgentPublisher
-import com.goldberg.law.managedagents.deployment.DeploymentPublisher
 import com.goldberg.law.managedagents.environment.EnvironmentPublisher
 import com.goldberg.law.managedagents.memorystore.MemoryStorePublisher
 import com.google.inject.Inject
@@ -22,7 +21,6 @@ class ManagedAgentResourceResolver @Inject constructor(client: AnthropicClient) 
         ResourceType.AGENT to AgentPublisher(client),
         ResourceType.ENVIRONMENT to EnvironmentPublisher(client),
         ResourceType.MEMORY_STORE to MemoryStorePublisher(client),
-        ResourceType.DEPLOYMENT to DeploymentPublisher(client),
     )
     private val ids = ConcurrentHashMap<Pair<ResourceType, String>, String>()
 
@@ -31,8 +29,6 @@ class ManagedAgentResourceResolver @Inject constructor(client: AnthropicClient) 
     fun environmentId(): String = resolve(ResourceType.ENVIRONMENT, ManagedAgent.ENVIRONMENT)
 
     fun memoryStoreId(name: String): String = resolve(ResourceType.MEMORY_STORE, name)
-
-    fun deploymentId(name: String): String = resolve(ResourceType.DEPLOYMENT, name)
 
     private fun resolve(type: ResourceType, name: String): String = ids.computeIfAbsent(type to name) {
         publishers.getValue(type).lookupId(name)

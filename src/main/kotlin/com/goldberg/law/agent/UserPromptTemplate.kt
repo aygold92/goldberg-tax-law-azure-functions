@@ -23,11 +23,12 @@ class UserPromptTemplate(private val name: String, private val template: String)
         private val PLACEHOLDER = Regex("""\{([A-Z_]+)}""")
 
         /** Loads from the classpath, where `processResources` copies `managed-agents/agents/<name>/user-prompt.md`. */
-        fun load(agent: ManagedAgent): UserPromptTemplate {
-            val path = "managed-agents/agents/${agent.agentName}/user-prompt.md"
-            val text = UserPromptTemplate::class.java.classLoader.getResource(path)?.readText()
-                ?: error("User prompt $path not found on the classpath")
-            return UserPromptTemplate(agent.agentName, text)
-        }
+        fun load(agent: ManagedAgent): UserPromptTemplate =
+            UserPromptTemplate(agent.agentName, classpathText("managed-agents/agents/${agent.agentName}/user-prompt.md"))
+
+        /** A `managed-agents/` file that `processResources` ships in the jar. */
+        fun classpathText(path: String): String =
+            UserPromptTemplate::class.java.classLoader.getResource(path)?.readText()
+                ?: error("$path not found on the classpath")
     }
 }

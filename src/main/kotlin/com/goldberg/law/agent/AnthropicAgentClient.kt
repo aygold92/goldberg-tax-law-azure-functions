@@ -4,9 +4,10 @@ import com.anthropic.client.AnthropicClient
 import com.anthropic.core.JsonValue
 import com.anthropic.core.MultipartField
 import com.anthropic.models.beta.AnthropicBeta
-import com.anthropic.models.beta.deployments.DeploymentRunParams
 import com.anthropic.models.beta.files.FileListParams
 import com.anthropic.models.beta.files.FileUploadParams
+import com.anthropic.models.beta.memorystores.memories.BetaManagedAgentsMemoryView
+import com.anthropic.models.beta.memorystores.memories.MemoryListParams
 import com.anthropic.models.beta.sessions.BetaManagedAgentsFileResourceParams
 import com.anthropic.models.beta.sessions.BetaManagedAgentsMemoryStoreResourceParam
 import com.anthropic.models.beta.sessions.BetaManagedAgentsSession
@@ -36,6 +37,9 @@ class AnthropicAgentClient @Inject constructor(
     private val logger = KotlinLogging.logger {}
     private val beta = AnthropicBeta.MANAGED_AGENTS_2026_04_01
 
+    /** Memory-store calls take their own beta header; the API rejects one sent with both. */
+    private val memoryBeta = AnthropicBeta.AGENT_MEMORY_2026_07_22
+
     fun uploadPdf(bytes: ByteArray, fileName: String): String = client.beta().files().upload(
         FileUploadParams.builder()
             .file(
@@ -63,7 +67,28 @@ class AnthropicAgentClient @Inject constructor(
         anthropicFileId: String,
         promptValues: Map<String, Any>,
         title: String,
+        budget: SessionBudget,
         metadata: Map<String, String> = emptyMap(),
+    ): String = createAndPrompt(agent, anthropicFileId, agent.memoryStore, promptValues, title, budget, metadata)
+
+    /** Starts [agent] on [memoryStore] alone, with no bundle mounted — for an agent that works on memory, not a PDF. */
+    fun startMemorySession(
+        agent: ManagedAgent,
+        memoryStore: String,
+        promptValues: Map<String, Any>,
+        title: String,
+        budget: SessionBudget,
+        metadata: Map<String, String> = emptyMap(),
+    ): String = createAndPrompt(agent, anthropicFileId = null, memoryStore, promptValues, title, budget, metadata)
+
+    private fun createAndPrompt(
+        agent: ManagedAgent,
+        anthropicFileId: String?,
+        memoryStore: String?,
+        promptValues: Map<String, Any>,
+        title: String,
+        budget: SessionBudget,
+        metadata: Map<String, String>,
     ): String {
         val template = UserPromptTemplate.load(agent)
 
@@ -73,14 +98,16 @@ class AnthropicAgentClient @Inject constructor(
             .environmentId(resolver.environmentId())
             .title(title)
             // The SDK has no typed budget yet, so the API's own shape goes on the body verbatim
-            .putAdditionalBodyProperty("budget", JsonValue.from(SESSION_BUDGET))
-            .addResource(
+            .putAdditionalBodyProperty("budget", JsonValue.from(budget.toApi()))
+        anthropicFileId?.let { fileId ->
+            params.addResource(
                 BetaManagedAgentsFileResourceParams.builder()
                     .type(BetaManagedAgentsFileResourceParams.Type.FILE)
-                    .fileId(anthropicFileId)
+                    .fileId(fileId)
                     .mountPath(ManagedAgent.BUNDLE_MOUNT_PATH)
                     .build()
             )
+        }
         if (metadata.isNotEmpty()) {
             params.metadata(
                 SessionCreateParams.Metadata.builder()
@@ -88,7 +115,7 @@ class AnthropicAgentClient @Inject constructor(
                     .build()
             )
         }
-        agent.memoryStore?.let { store ->
+        memoryStore?.let { store ->
             params.addResource(
                 BetaManagedAgentsMemoryStoreResourceParam.builder()
                     .type(BetaManagedAgentsMemoryStoreResourceParam.Type.MEMORY_STORE)
@@ -123,28 +150,30 @@ class AnthropicAgentClient @Inject constructor(
             throw ex
         }
 
-        logger.info { "Started ${agent.agentName} session $sessionId on $anthropicFileId" }
+        logger.info { "Started ${agent.agentName} session $sessionId on ${anthropicFileId ?: memoryStore}" }
         return sessionId
     }
 
     /**
-     * Fires a deployment once. A run takes no input — the deployment config carries the agent, environment,
-     * memory store and kickoff message — so all there is to hand back is the run and the session it started.
+     * Every memory under [pathPrefix] in [memoryStore], without content. [pathPrefix] must end with `/`; the
+     * listing covers its whole subtree.
      */
-    fun runDeployment(deploymentName: String): DeploymentLaunch {
-        val run = client.beta().deployments().run(
-            DeploymentRunParams.builder().addBeta(beta).deploymentId(resolver.deploymentId(deploymentName)).build()
-        )
-        run.error().orElse(null)?.let {
-            throw IllegalStateException("Deployment $deploymentName could not start a session (run ${run.id()}): $it")
-        }
-        val sessionId = run.sessionId().orElse(null)
-        if (sessionId == null) {
-            logger.warn { "Deployment $deploymentName run ${run.id()} reported neither a session nor an error" }
-        } else {
-            logger.info { "Ran deployment $deploymentName: run ${run.id()}, session $sessionId" }
-        }
-        return DeploymentLaunch(run.id(), sessionId)
+    fun listMemories(memoryStore: String, pathPrefix: String = "/"): List<StoredMemory> {
+        require(pathPrefix.startsWith("/") && pathPrefix.endsWith("/")) { "A memory path prefix starts and ends with '/': $pathPrefix" }
+        return client.beta().memoryStores().memories()
+            .list(
+                resolver.memoryStoreId(memoryStore),
+                MemoryListParams.builder()
+                    .addBeta(memoryBeta)
+                    .pathPrefix(pathPrefix)
+                    .view(BetaManagedAgentsMemoryView.BASIC)
+                    .build(),
+            )
+            .autoPager().asSequence()
+            // A whole-subtree listing holds memories only; prefixes appear only for a depth-limited one
+            .mapNotNull { it.memory().getOrNull() }
+            .map { StoredMemory(it.path(), it.contentSizeBytes(), it.updatedAt().toInstant().toEpochMilli()) }
+            .toList()
     }
 
     /**
@@ -242,17 +271,6 @@ class AnthropicAgentClient @Inject constructor(
 
     companion object {
         const val SESSION_ID = "SESSION_ID"
-
-        /**
-         * Hard ceiling on what one session may spend, priced at public list rates. `amount` is whole US cents
-         * as a string — the API takes a string so no float rounding is applied — so this is $5.00. A session
-         * that reaches it stops issuing model requests and goes idle with stop reason `budget_reached`; the
-         * request that crosses the cap finishes, so the final cost can land a fraction past it.
-         */
-        private val SESSION_BUDGET = mapOf(
-            "type" to "limit",
-            "max_list_cost" to mapOf("amount" to "500", "currency" to "USD"),
-        )
     }
 }
 
@@ -271,5 +289,20 @@ data class SessionSnapshot(
     val interrupted: Boolean = false,
 )
 
-/** [sessionId] is null only if the platform reported neither a session nor an error for the run. */
-data class DeploymentLaunch(val runId: String, val sessionId: String?)
+/**
+ * Hard ceiling on what one session may spend, priced at public list rates. A session that reaches it stops
+ * issuing model requests and goes idle with stop reason `budget_reached`; the request that crosses the cap
+ * finishes, so the final cost can land a fraction past it.
+ */
+data class SessionBudget(val cents: Int) {
+    init {
+        require(cents > 0) { "A session budget must be positive: $cents cents" }
+    }
+
+    /** The API takes whole US cents as a string, so no float rounding is applied. */
+    fun toApi() = mapOf("type" to "limit", "max_list_cost" to mapOf("amount" to cents.toString(), "currency" to "USD"))
+
+    companion object {
+        fun dollars(dollars: Int) = SessionBudget(dollars * 100)
+    }
+}

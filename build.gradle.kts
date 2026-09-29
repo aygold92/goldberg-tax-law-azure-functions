@@ -268,11 +268,16 @@ tasks.register<JavaExec>("updateSkill") {
     }
 }
 
-// The agents' user prompts ship in the jar so the runtime can fill them in; managed-agents/ stays the one copy.
+// The agents' user prompts ship in the jar so the runtime can fill them in, as do the memory-file formats the
+// consolidator enforces; managed-agents/ stays the one copy.
 tasks.named<ProcessResources>("processResources") {
     from("managed-agents/agents") {
         include("*/user-prompt.md")
         into("managed-agents/agents")
+    }
+    from("managed-agents/skills") {
+        include("*/references/*-format.md")
+        into("managed-agents/skills")
     }
 }
 

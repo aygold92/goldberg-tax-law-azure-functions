@@ -77,11 +77,11 @@ Key invariants:
 - Configs are the API's own JSON schema written as YAML. Two constructs defer values: `{file: <path>}` splices in a file's text, and `{resource: <type>, name: <name>}` resolves to a resource id at publish time. Both work in any config, at any depth — the loader does not hardcode which fields hold them.
 - Configs pass through to the SDK unmapped (`jsonMapper().convertValue(node, …CreateParams.Body::class)`), so fields the API adds later need no code change here.
 - Resources are applied in dependency order: skills → memory stores → environments → agents → deployments. Everything is loaded and linted before the first network call.
-- A `config_sha256` in each resource's `metadata` makes re-runs no-ops. Skills have no metadata, so their published zip is downloaded and hashed instead.
+- A `config_sha256` in each resource's `metadata` makes re-runs no-ops. Skills have no metadata, so their published zip is downloaded and hashed instead. A deployment also pins its agent's version, which the hash can't see, so one whose agent has a newer version is re-applied anyway (`ResourcePublisher.isStale`).
 - A memory store's mount path (`/mnt/memory/<name>/`) derives from its name, and skills reference those paths as literal strings. The loader lints every mount path against the defined stores.
 - A published skill bundle must be self-contained, so markdown shared by two skills lives in `shared/skills/` and is symlinked into each skill's `references/`. The walk follows file symlinks, so no code special-cases this; link individual files, not directories, and a link that doesn't resolve fails the run.
 
-Agents come in two kinds: **session-driven** (per-request, parameters filled into `user-prompt.md` at call time — no deployment file) and **deployment-driven** (scheduled, no per-run input, memory stores attached declaratively in `deployments/*.yaml`). See README.md for the full reference.
+Agents come in two kinds: **session-driven** (per-request, parameters filled into `user-prompt.md` at call time — no deployment file) and **deployment-driven** (scheduled, no per-run input, memory stores attached declaratively in `deployments/*.yaml`; none today). `memory-consolidation` is session-driven, one session per bank folder. See README.md for the full reference.
 
 ### Dependency Injection
 

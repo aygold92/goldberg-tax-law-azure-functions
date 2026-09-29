@@ -156,7 +156,7 @@ managed-agents/
         extraction-notes-format.md
   memory-stores/ 
   environments/
-  deployments/
+  deployments/            # supported, none defined today
   shared/
 ```
 
@@ -185,13 +185,15 @@ Files in `shared/` are grouped by what consumes them (`shared/skills/`), so a fi
 ### Two kinds of agent
 | | Session-driven | Deployment-driven |
 |---|---|---|
-| Examples | `bank-statement-extraction`, `bank-statement-splitting`, `check-extraction` | `memory-consolidation` |
+| Examples | `bank-statement-extraction`, `bank-statement-splitting`, `check-extraction`, `memory-consolidation` | none today |
 | Trigger | a session created per PDF | cron schedule, or `deployments().run(id)` |
 | Per-run input | yes, via `user-prompt.md` | none — deployments take no per-run input |
 | Memory stores attached | at runtime, per session | declaratively, in the deployment's `resources` |
 | Has a `deployments/` entry | no | yes |
 
 `check-extraction` is session-driven but stateless — no memory store is attached to it.
+
+`memory-consolidation` runs one session per bank folder, which a deployment run can't be told. `ExecuteMemoryConsolidationAgent` starts it only once the folder is confirmed to hold session files, and `ListMemoryFiles` lists a store's folders and files. The session mounts the store with no bundle, and its `user-prompt.md` carries the writing agent's memory-file format, which `processResources` ships alongside the prompts.
 
 
 ### YAML constructs
@@ -219,7 +221,7 @@ No code changes and no registration step — discovery is directory-driven.
 ### Applying
 Everything is loaded and linted before the first network call, so a typo fails the run rather than leaving the workspace half-updated. Resources are then applied in dependency order: skills → memory stores → environments → agents → deployments.
 
-Anything whose content hasn't changed is skipped, so re-running is a no-op and doesn't stack up identical versions.
+Anything whose content hasn't changed is skipped, so re-running is a no-op and doesn't stack up identical versions. The one exception is a deployment whose agent has been updated: a deployment pins the agent version current when it was written, so it is re-applied to pick up the new one even if its own YAML is unchanged.
 
 ```bash
 # Preview: lints, resolves every reference, prints the plan, publishes nothing

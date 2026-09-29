@@ -3,8 +3,11 @@ package com.goldberg.law.agent
 import com.anthropic.client.AnthropicClient
 import com.anthropic.core.AutoPager
 import com.anthropic.core.JsonValue
-import com.anthropic.models.beta.deploymentruns.BetaManagedAgentsDeploymentRun
-import com.anthropic.models.beta.deployments.DeploymentRunParams
+import com.anthropic.models.beta.memorystores.memories.BetaManagedAgentsMemory
+import com.anthropic.models.beta.memorystores.memories.BetaManagedAgentsMemoryListItem
+import com.anthropic.models.beta.memorystores.memories.BetaManagedAgentsMemoryView
+import com.anthropic.models.beta.memorystores.memories.MemoryListPage
+import com.anthropic.models.beta.memorystores.memories.MemoryListParams
 import com.anthropic.models.beta.sessions.BetaManagedAgentsMemoryStoreResourceParam
 import com.anthropic.models.beta.sessions.BetaManagedAgentsSession
 import com.anthropic.models.beta.sessions.BetaManagedAgentsSessionAgent
@@ -20,9 +23,10 @@ import com.anthropic.models.beta.sessions.events.EventListPage
 import com.anthropic.models.beta.sessions.events.EventListParams
 import com.anthropic.models.beta.sessions.events.EventSendParams
 import com.anthropic.services.blocking.BetaService
-import com.anthropic.services.blocking.beta.DeploymentService
+import com.anthropic.services.blocking.beta.MemoryStoreService
 import com.anthropic.services.blocking.beta.FileService
 import com.anthropic.services.blocking.beta.SessionService
+import com.anthropic.services.blocking.beta.memorystores.MemoryService
 import com.anthropic.services.blocking.beta.sessions.EventService
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -36,6 +40,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import java.time.OffsetDateTime
 import java.util.Optional
 
 class AnthropicAgentClientTest {
@@ -45,20 +50,21 @@ class AnthropicAgentClientTest {
     private val events: EventService = mock()
     private val sessions: SessionService = mock { on { events() } doReturn events }
     private val files: FileService = mock()
-    private val deployments: DeploymentService = mock()
+    private val memories: MemoryService = mock()
+    private val memoryStores: MemoryStoreService = mock { on { memories() } doReturn memories }
     private val beta: BetaService = mock {
         on { sessions() } doReturn sessions
         on { files() } doReturn files
-        on { deployments() } doReturn deployments
+        on { memoryStores() } doReturn memoryStores
     }
     private val client: AnthropicClient = mock { on { beta() } doReturn beta }
     private val resolver: ManagedAgentResourceResolver = mock {
         on { agentId(any()) } doAnswer { "agent_" + it.getArgument<ManagedAgent>(0).name }
         on { environmentId() } doReturn "env_1"
         on { memoryStoreId(any()) } doAnswer { "store_" + it.getArgument<String>(0) }
-        on { deploymentId(any()) } doAnswer { "dep_" + it.getArgument<String>(0) }
     }
     private val agentClient = AnthropicAgentClient(client, resolver)
+    private val budget = SessionBudget.dollars(5)
 
     private fun givenSessionCreated() {
         val session: BetaManagedAgentsSession = mock { on { id() } doReturn sessionId }
@@ -80,7 +86,7 @@ class AnthropicAgentClientTest {
     fun `a splitter session mounts the bundle and the bank-patterns store read-write`() {
         givenSessionCreated()
 
-        agentClient.startSession(ManagedAgent.SPLITTER, "file_1", mapOf("FILE_NAME" to "a.pdf"), "Split a.pdf", mapOf("fileId" to "f1"))
+        agentClient.startSession(ManagedAgent.SPLITTER, "file_1", mapOf("FILE_NAME" to "a.pdf"), "Split a.pdf", budget, mapOf("fileId" to "f1"))
 
         val params = createdParams()
         assertThat(params.agent().asString()).isEqualTo("agent_SPLITTER")
@@ -98,10 +104,32 @@ class AnthropicAgentClientTest {
     }
 
     @Test
+    fun `a memory session mounts only the named store, read-write, and no bundle`() {
+        givenSessionCreated()
+
+        agentClient.startMemorySession(
+            ManagedAgent.MEMORY_CONSOLIDATION,
+            "extraction-notes",
+            mapOf("BANK_ID" to "chase_cc", "FORMAT" to "# Extraction notes format"),
+            "Consolidate chase_cc",
+            budget,
+        )
+
+        val params = createdParams()
+        assertThat(params.agent().asString()).isEqualTo("agent_MEMORY_CONSOLIDATION")
+        val resources = params.resources().get()
+        assertThat(resources).noneMatch { it.isFile() }
+        val store = resources.single().asMemoryStore()
+        assertThat(store.memoryStoreId()).isEqualTo("store_extraction-notes")
+        assertThat(store.access()).contains(BetaManagedAgentsMemoryStoreResourceParam.Access.READ_WRITE)
+        assertThat(sentPrompt()).contains("`chase_cc`").contains("# Extraction notes format")
+    }
+
+    @Test
     fun `session metadata is exactly the caller's metadata`() {
         givenSessionCreated()
 
-        agentClient.startSession(ManagedAgent.SPLITTER, "file_1", mapOf("FILE_NAME" to "a.pdf"), "t", mapOf("fileId" to "f1"))
+        agentClient.startSession(ManagedAgent.SPLITTER, "file_1", mapOf("FILE_NAME" to "a.pdf"), "t", budget, mapOf("fileId" to "f1"))
 
         assertThat(createdParams().metadata().get()._additionalProperties())
             .containsExactlyEntriesOf(mapOf("fileId" to JsonValue.from("f1")))
@@ -111,26 +139,31 @@ class AnthropicAgentClientTest {
     fun `a session without caller metadata sends none`() {
         givenSessionCreated()
 
-        agentClient.startSession(ManagedAgent.CHECK_EXTRACTION, "file_1", mapOf("PAGES" to listOf(5)), "t")
+        agentClient.startSession(ManagedAgent.CHECK_EXTRACTION, "file_1", mapOf("PAGES" to listOf(5)), "t", budget)
 
         assertThat(createdParams().metadata()).isEmpty()
     }
 
     @Test
-    fun `every session is capped at a 5 dollar budget`() {
+    fun `a session is capped at the budget it's given`() {
         givenSessionCreated()
 
-        agentClient.startSession(ManagedAgent.CHECK_EXTRACTION, "file_1", mapOf("PAGES" to listOf(5)), "t")
+        agentClient.startSession(ManagedAgent.CHECK_EXTRACTION, "file_1", mapOf("PAGES" to listOf(5)), "t", SessionBudget.dollars(2))
 
         assertThat(createdParams()._additionalBodyProperties()["budget"]).isEqualTo(
             JsonValue.from(
                 mapOf(
                     "type" to "limit",
-                    // Whole US cents as a string: $5.00
-                    "max_list_cost" to mapOf("amount" to "500", "currency" to "USD"),
+                    // Whole US cents as a string: $2.00
+                    "max_list_cost" to mapOf("amount" to "200", "currency" to "USD"),
                 )
             )
         )
+    }
+
+    @Test
+    fun `a budget must be positive`() {
+        assertThatThrownBy { SessionBudget(0) }.isInstanceOf(IllegalArgumentException::class.java)
     }
 
     @Test
@@ -141,6 +174,7 @@ class AnthropicAgentClientTest {
             ManagedAgent.STATEMENT_EXTRACTION, "file_1",
             mapOf("START" to 1, "END" to 2, "BANK_ID" to "b", "CHECK_PAGES" to emptyList<Int>(), "FILE_NAME" to "a.pdf"),
             "t",
+            budget,
         )
 
         val store = createdParams().resources().get().single { it.isMemoryStore() }.asMemoryStore()
@@ -151,7 +185,7 @@ class AnthropicAgentClientTest {
     fun `a check extraction session mounts only the bundle`() {
         givenSessionCreated()
 
-        agentClient.startSession(ManagedAgent.CHECK_EXTRACTION, "file_1", mapOf("PAGES" to listOf(5, 6)), "t")
+        agentClient.startSession(ManagedAgent.CHECK_EXTRACTION, "file_1", mapOf("PAGES" to listOf(5, 6)), "t", budget)
 
         assertThat(createdParams().resources().get()).singleElement().matches { it.isFile() }
     }
@@ -160,7 +194,7 @@ class AnthropicAgentClientTest {
     fun `the kickoff prompt carries the id of the session it was sent to`() {
         givenSessionCreated()
 
-        val result = agentClient.startSession(ManagedAgent.SPLITTER, "file_1", mapOf("FILE_NAME" to "a.pdf"), "t")
+        val result = agentClient.startSession(ManagedAgent.SPLITTER, "file_1", mapOf("FILE_NAME" to "a.pdf"), "t", budget)
 
         assertThat(result).isEqualTo(sessionId)
         assertThat(sentPrompt()).contains(sessionId).contains("a.pdf")
@@ -170,7 +204,7 @@ class AnthropicAgentClientTest {
     fun `a prompt without a session id placeholder is sent without one`() {
         givenSessionCreated()
 
-        agentClient.startSession(ManagedAgent.CHECK_EXTRACTION, "file_1", mapOf("PAGES" to listOf(5, 6)), "t")
+        agentClient.startSession(ManagedAgent.CHECK_EXTRACTION, "file_1", mapOf("PAGES" to listOf(5, 6)), "t", budget)
 
         assertThat(sentPrompt()).contains("pages [5, 6]").doesNotContain(sessionId)
     }
@@ -181,7 +215,7 @@ class AnthropicAgentClientTest {
         whenever(events.send(any<EventSendParams>())).thenThrow(RuntimeException("boom"))
 
         assertThatThrownBy {
-            agentClient.startSession(ManagedAgent.SPLITTER, "file_1", mapOf("FILE_NAME" to "a.pdf"), "t")
+            agentClient.startSession(ManagedAgent.SPLITTER, "file_1", mapOf("FILE_NAME" to "a.pdf"), "t", budget)
         }.hasMessage("boom")
 
         val deleted = argumentCaptor<SessionDeleteParams>().apply { verify(sessions).delete(capture()) }.firstValue
@@ -193,50 +227,71 @@ class AnthropicAgentClientTest {
         givenSessionCreated()
 
         assertThatThrownBy {
-            agentClient.startSession(ManagedAgent.SPLITTER, "file_1", emptyMap(), "t")
+            agentClient.startSession(ManagedAgent.SPLITTER, "file_1", emptyMap(), "t", budget)
         }.isInstanceOf(IllegalArgumentException::class.java).hasMessageContaining("FILE_NAME")
 
         verify(sessions).delete(any<SessionDeleteParams>())
         verify(events, never()).send(any<EventSendParams>())
     }
 
-    // ---- runDeployment ------------------------------------------------------
+    // ---- listMemories -------------------------------------------------------
 
-    private fun givenRun(sessionId: String?, error: BetaManagedAgentsDeploymentRun.Error? = null) {
-        val run: BetaManagedAgentsDeploymentRun = mock {
-            on { id() } doReturn "run_1"
-            on { sessionId() } doReturn Optional.ofNullable(sessionId)
-            on { error() } doReturn Optional.ofNullable(error)
+    private fun memory(path: String, size: Int = 10): BetaManagedAgentsMemoryListItem {
+        val memory: BetaManagedAgentsMemory = mock {
+            on { path() } doReturn path
+            on { contentSizeBytes() } doReturn size
+            on { updatedAt() } doReturn OffsetDateTime.parse("2026-09-26T12:00:00Z")
         }
-        whenever(deployments.run(any<DeploymentRunParams>())).thenReturn(run)
+        return mock {
+            on { memory() } doReturn Optional.of(memory)
+        }
+    }
+
+    private fun givenMemories(vararg items: BetaManagedAgentsMemoryListItem) {
+        val pager: AutoPager<BetaManagedAgentsMemoryListItem> = mock { on { iterator() } doReturn items.toList().iterator() }
+        val page: MemoryListPage = mock { on { autoPager() } doReturn pager }
+        whenever(memories.list(any<String>(), any<MemoryListParams>())).thenReturn(page)
+    }
+
+    private fun listedParams(): Pair<String, MemoryListParams> {
+        val store = argumentCaptor<String>()
+        val params = argumentCaptor<MemoryListParams>()
+        verify(memories).list(store.capture(), params.capture())
+        return store.firstValue to params.firstValue
     }
 
     @Test
-    fun `running a deployment resolves it by name and returns the session it started`() {
-        givenRun(sessionId)
+    fun `listing memories resolves the store by name and asks for paths without content`() {
+        givenMemories(memory("/chase_cc/main.md", 1200), memory("/chase_cc/sesn_1.md", 300))
 
-        val launch = agentClient.runDeployment("memory-consolidation-splitting")
+        val listed = agentClient.listMemories("bank-patterns")
 
-        assertThat(launch).isEqualTo(DeploymentLaunch("run_1", sessionId))
-        val params = argumentCaptor<DeploymentRunParams>().apply { verify(deployments).run(capture()) }.firstValue
-        assertThat(params.deploymentId()).contains("dep_memory-consolidation-splitting")
+        assertThat(listed).containsExactly(
+            StoredMemory("/chase_cc/main.md", 1200, 1790424000000),
+            StoredMemory("/chase_cc/sesn_1.md", 300, 1790424000000),
+        )
+        val (store, params) = listedParams()
+        assertThat(store).isEqualTo("store_bank-patterns")
+        assertThat(params.view()).contains(BetaManagedAgentsMemoryView.BASIC)
+        assertThat(params.pathPrefix()).contains("/")
+        // The whole subtree, so no depth limit
+        assertThat(params.depth()).isEmpty()
     }
 
     @Test
-    fun `a deployment run that could not start a session fails`() {
-        givenRun(sessionId = null, error = mock())
+    fun `listing memories can be scoped to one folder`() {
+        givenMemories()
 
-        assertThatThrownBy { agentClient.runDeployment("memory-consolidation-splitting") }
-            .isInstanceOf(IllegalStateException::class.java)
-            .hasMessageContaining("memory-consolidation-splitting")
-            .hasMessageContaining("run_1")
+        agentClient.listMemories("bank-patterns", "/chase_cc/")
+
+        assertThat(listedParams().second.pathPrefix()).contains("/chase_cc/")
     }
 
     @Test
-    fun `a deployment run with neither session nor error is returned without a session`() {
-        givenRun(sessionId = null)
-
-        assertThat(agentClient.runDeployment("memory-consolidation-extraction")).isEqualTo(DeploymentLaunch("run_1", null))
+    fun `a memory path prefix must start and end with a slash`() {
+        assertThatThrownBy { agentClient.listMemories("bank-patterns", "chase_cc") }
+            .isInstanceOf(IllegalArgumentException::class.java)
+        verify(memories, never()).list(any<String>(), any<MemoryListParams>())
     }
 
     // ---- interruptIfRunning -------------------------------------------------
