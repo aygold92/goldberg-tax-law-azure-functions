@@ -1,5 +1,6 @@
 package com.goldberg.law.agent
 
+import com.goldberg.law.agent.model.output.AccountReviewRequired
 import com.goldberg.law.agent.model.output.CheckExtractionOutput
 import com.goldberg.law.agent.model.output.ExtractedAccount
 import com.goldberg.law.agent.model.output.SplitterOutput
@@ -15,6 +16,8 @@ import com.goldberg.law.entity.CheckDetails
 import com.goldberg.law.entity.Classification
 import com.goldberg.law.entity.ClassifiedFile
 import com.goldberg.law.entity.ClassifiedPages
+import com.goldberg.law.entity.ReviewNote
+import com.goldberg.law.entity.ReviewStatus
 import com.goldberg.law.entity.Statement
 import com.goldberg.law.entity.StatementDetails
 import com.goldberg.law.entity.TransactionDetails
@@ -93,11 +96,19 @@ class AgentResultSaver @Inject constructor(
             )
         }
 
+        // Recorded even when the run found nothing to classify, which is when a reviewer most needs it
+        fileService.updateSplitterReview(
+            file.fileId,
+            output.reviewRequired.map { ReviewNote(it.reason, it.pages) },
+            output.unassignedPages,
+        )
+
         val stamps = output.bates?.toPageStamps().orEmpty()
 
         val statementPages = output.boundaries.map { boundary ->
             val pages = (boundary.start..boundary.end).toSet()
-            ClassifiedPages(pages, boundary.bankId, output.banks[boundary.bankId]?.name, stamps.filterKeys { it in pages })
+            val bank = output.banks[boundary.bankId]
+            ClassifiedPages(pages, boundary.bankId, bank?.name, stamps.filterKeys { it in pages }, bank?.source)
         }
         val checkPages = output.checkPages.takeIf { it.isNotEmpty() }?.toSet()
             ?.let { listOf(ClassifiedPages(it, CheckTypes.CHECKS, batesStamps = stamps.filterKeys { page -> page in it })) }
@@ -154,6 +165,9 @@ class AgentResultSaver @Inject constructor(
                 // Recomputed on load, so there's nothing to store here
                 suspiciousReasons = emptyList(),
                 transactions = account.toTransactionDetails(),
+                dailyBalances = account.dailyBalances.toSortedMap()
+                    .mapKeys { (date, _) -> date.toString() }
+                    .mapValues { (_, balance) -> balance.asCurrency() },
             )
         }
         val statementIds = statementService.replaceStatements(classification.classificationId, statements)
@@ -198,6 +212,8 @@ class AgentResultSaver @Inject constructor(
             )
         }
 
+        // Before the checks, whose existence stops a re-run without override: a failure here leaves nothing behind
+        classificationService.updateUnreadablePages(classification.classificationId, output.unreadablePages)
         val checks = output.checks.map { check ->
             CheckDetails(
                 checkId = UUID.randomUUID(),
@@ -209,6 +225,8 @@ class AgentResultSaver @Inject constructor(
                 to = check.payee,
                 // The classification holds the stamps; this column is the Azure pipeline's
                 batesStamp = null,
+                filePageNumber = check.page,
+                reviewStatus = ReviewStatus.initial(check.reviewRequired),
             )
         }
         val checkIds = checkService.replaceChecks(classification, checks)
@@ -240,20 +258,47 @@ class AgentResultSaver @Inject constructor(
         logger.info { "Archived agent result for classification ${classification.classificationId} to $location" }
     }
 
-    private fun ExtractedAccount.toStatementDetails(output: StatementExtractionOutput) = StatementDetails(
-        statementId = UUID.randomUUID(),
-        date = output.statementDate?.toString(),
-        accountNumber = accountNumber?.last4Digits(),
-        beginningBalance = beginningBalance?.asCurrency(),
-        endingBalance = endingBalance?.asCurrency(),
-        interestCharged = interestCharged?.asCurrency(),
-        feesCharged = feesCharged?.asCurrency(),
-        // The classification holds the stamps; this column is the Azure pipeline's
-        batesStamps = emptyMap(),
-    )
+    /**
+     * What the agent reported at statement level — errors, flagged fields and notes — applies to every account on
+     * the statement, so each account's statement carries it alongside its own.
+     */
+    private fun ExtractedAccount.toStatementDetails(output: StatementExtractionOutput): StatementDetails {
+        val reviewFields = (output.reviewRequired?.fields.orEmpty() + reviewRequired?.fields.orEmpty())
+            .map { it.toStatementProperty() }
+            .distinct()
+        val reviewNotes = output.reviewRequired?.notes.orEmpty() + reviewRequired?.notes.orEmpty()
+        return StatementDetails(
+            statementId = UUID.randomUUID(),
+            date = output.statementDate?.toString(),
+            accountNumber = accountNumber?.last4Digits(),
+            beginningBalance = beginningBalance?.asCurrency(),
+            endingBalance = endingBalance?.asCurrency(),
+            interestCharged = interestCharged?.asCurrency(),
+            feesCharged = feesCharged?.asCurrency(),
+            // The classification holds the stamps; this column is the Azure pipeline's
+            batesStamps = emptyMap(),
+            accountName = accountName,
+            startDate = output.statementStart?.toString(),
+            totalCredits = totalCredits?.asCurrency(),
+            totalDebits = totalDebits?.asCurrency(),
+            checksTotal = checksTotal?.asCurrency(),
+            interestReceived = interestReceived?.asCurrency(),
+            txnCountCredit = txnCountCredit,
+            txnCountDebit = txnCountDebit,
+            txnCount = txnCount,
+            summaryArithmeticFields = summaryArithmeticFields.map { statementPropertyOrOtherLine(it) },
+            otherCredits = otherCredits.mapValues { (_, amount) -> amount.asCurrency() },
+            otherDebits = otherDebits.mapValues { (_, amount) -> amount.asCurrency() },
+            agentErrors = (output.errors + errors).distinct(),
+            reviewFields = reviewFields,
+            reviewNotes = reviewNotes,
+            reviewStatus = ReviewStatus.initial(reviewFields.isNotEmpty() || reviewNotes.isNotEmpty()),
+        )
+    }
 
-    private fun ExtractedAccount.toTransactionDetails() = transactions.mapIndexed { index, transaction ->
-        TransactionDetails(
+    private fun ExtractedAccount.toTransactionDetails(): List<TransactionDetails> {
+        val flags = reviewRequired?.transactionFlags(transactions.size).orEmpty()
+        return transactions.mapIndexed { index, transaction -> TransactionDetails(
             transactionId = UUID.randomUUID(),
             date = transaction.date?.toString(),
             description = transaction.desc,
@@ -262,7 +307,48 @@ class AgentResultSaver @Inject constructor(
             filePageNumber = transaction.page,
             statementIndex = index,
             checkId = null,
-        )
+            countedIn = transaction.countedIn?.let { statementPropertyOrOtherLine(it) },
+            reviewFields = flags[index].orEmpty(),
+            reviewStatus = ReviewStatus.initial(index in flags),
+        ) }
+    }
+
+    /**
+     * Turns the agent's per-field lists of transaction indexes into each flagged row's fields, named as
+     * [TransactionDetails] properties: the flag belongs to the row, and an index stops pointing at it once a
+     * reviewer inserts, deletes or reorders rows.
+     */
+    private fun AccountReviewRequired.transactionFlags(numTransactions: Int): Map<Int, List<String>> {
+        val flags = mutableMapOf<Int, MutableList<String>>()
+        mapOf(
+            "date" to date,
+            "description" to desc,
+            "checkNumber" to check,
+            "amount" to amt,
+        ).forEach { (field, indexes) ->
+            indexes.forEach { index ->
+                if (index in 0 until numTransactions) flags.getOrPut(index) { mutableListOf() }.add(field)
+                else logger.warn { "Agent flagged $field on transaction $index, but the account has only $numTransactions" }
+            }
+        }
+        return flags
+    }
+
+    /** The [StatementDetails] property an agent's summary field name refers to. */
+    private fun String.toStatementProperty() = STATEMENT_FIELDS[this] ?: snakeToCamelCase()
+
+    /** An other-line label is the agent's own name for that line, not one of our properties, so it's kept as written. */
+    private fun ExtractedAccount.statementPropertyOrOtherLine(name: String) =
+        if (name in otherCredits || name in otherDebits) name else name.toStatementProperty()
+
+    private fun String.snakeToCamelCase() = split('_').mapIndexed { i, part -> if (i == 0) part else part.replaceFirstChar { it.uppercase() } }.joinToString("")
+
+    companion object {
+        /**
+         * The agent's field names whose [StatementDetails] property isn't simply their camelCase form. The rest
+         * (`beginning_balance` -> `beginningBalance`) convert as they are.
+         */
+        private val STATEMENT_FIELDS = mapOf("statement_date" to "date", "statement_start" to "startDate")
     }
 }
 

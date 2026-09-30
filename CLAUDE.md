@@ -91,7 +91,7 @@ Google Guice is used throughout. `AppModule` configures all bindings (Azure clie
 
 MySQL with Jetbrains Exposed ORM. All DB operations use `db.txnSafe {}` for transaction safety. HikariCP manages connection pooling (tuned for serverless cold starts: 120s connection timeout, 60s idle timeout).
 
-Tables: `clients`, `files`, `classifications`, `bank_statements`, `transactions`, `checks`.
+Tables: `clients`, `files`, `classifications`, `bank_statements`, `transactions`, `checks`, `daily_balances`.
 
 ### Configuration
 

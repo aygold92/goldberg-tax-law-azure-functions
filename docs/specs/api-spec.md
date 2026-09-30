@@ -37,6 +37,15 @@ All endpoints use `AuthorizationLevel.ANONYMOUS` — no authentication headers r
 - `filePath` — path within the container, without extension (e.g. `uploads/statement`, `input/file-uuid`)
 - `extension` — always lowercase (`pdf` or `json`); the full blob path is `{filePath}.{extension}`
 
+### `ReviewStatus`
+`null` | `"PENDING"` | `"VERIFIED"` — one per file, statement, transaction and check. `null`: the agent flagged nothing there.
+`PENDING`: it flagged something a human hasn't looked at yet. `VERIFIED`: a human has looked at everything flagged there.
+
+### `ReviewNote`
+```json
+{ "reason": "the seam could be 47/48 or 48/49", "pages": [47, 48] }
+```
+
 ### `Client`
 ```json
 {
@@ -54,9 +63,13 @@ All endpoints use `AuthorizationLevel.ANONYMOUS` — no authentication headers r
   "storageLocation": { ...StorageLocation },
   "numPages": 1,
   "contentHash": "uuid",
-  "uploadedAt": 1700000000000
+  "uploadedAt": 1700000000000,
+  "reviewNotes": [ { ...ReviewNote }, ... ],
+  "reviewStatus": ReviewStatus,
+  "unassignedPages": [10, 11]
 }
 ```
+- `reviewNotes` — what the splitter asked a human to look at; `unassignedPages` — pages it put in no statement and no check run.
 
 ### `InputFile`
 ```json
@@ -73,10 +86,14 @@ All endpoints use `AuthorizationLevel.ANONYMOUS` — no authentication headers r
   "pages": [1, 2, 3],
   "classification": "WF_BANK | B_OF_A | CREDIT_CARD | ...",
   "modelLocation": { ...StorageLocation } | null,
+  "bankSource": "memory" | "discovered" | null,
+  "unreadablePages": [6],
   "createdAt": 1700000000000,
   "updatedAt": 1700000000000
 }
 ```
+- `bankSource` — where the splitter got the bank's patterns.
+- `unreadablePages` — check pages the check-extraction agent couldn't read.
 
 ### `Classification`
 ```json
@@ -97,10 +114,31 @@ All endpoints use `AuthorizationLevel.ANONYMOUS` — no authentication headers r
   "interestCharged": 25.00 | null,
   "feesCharged": 5.00 | null,
   "batesStamps": { "1": "AG-12345", "2": "AG-12346" },
+  "accountName": "string" | null,
+  "startDate": "2024-01-01" | null,
+  "totalCredits": 700.00 | null,
+  "totalDebits": 200.00 | null,
+  "checksTotal": 150.00 | null,
+  "interestReceived": 1.07 | null,
+  "txnCountCredit": 3 | null,
+  "txnCountDebit": 2 | null,
+  "txnCount": 5 | null,
+  "summaryArithmeticFields": ["totalCredits", "totalDebits", "feesCharged"],
+  "otherCredits": { },
+  "otherDebits": { "cash_advances": 50.00 },
+  "agentErrors": ["daily_ledger_mismatch", ...],
+  "reviewFields": ["date", "beginningBalance"],
+  "reviewNotes": ["rows 12-15 appear misaligned"],
+  "reviewStatus": ReviewStatus,
   "createdAt": 1700000000000,
   "updatedAt": 1700000000000
 }
 ```
+- `summaryArithmeticFields` — the fields (property names of this object) printed as their own lines in the summary box's arithmetic.
+- `otherCredits`, `otherDebits` — box lines that aren't one of this object's fields: the agent's label for each line -> its printed amount.
+- `agentErrors` — the extraction agent's errors for this account and its statement, verbatim.
+- `reviewFields` (property names of this object), `reviewNotes` — what the agent flagged on this account or its statement, reviewed together under `reviewStatus`.
+- None of these is written by a statement update.
 
 ### `TransactionDetails`
 ```json
@@ -112,10 +150,15 @@ All endpoints use `AuthorizationLevel.ANONYMOUS` — no authentication headers r
   "checkNumber": 1001 | null,
   "filePageNumber": 1,
   "checkId": "uuid" | null,
+  "countedIn": "feesCharged" | "cash_advances" | null,
   "createdAt": 1700000000000,
-  "updatedAt": 1700000000000
+  "updatedAt": 1700000000000,
+  "reviewFields": ["date", "description", "checkNumber", "amount"],
+  "reviewStatus": ReviewStatus
 }
 ```
+- `countedIn` — the statement figure, besides total credits/debits, this line counts toward: `feesCharged`, `interestReceived`, `interestCharged`, or a key of the statement's `otherCredits`/`otherDebits`.
+- `reviewFields` — property names of this object the extraction agent flagged, reviewed together under `reviewStatus`. Neither is written by a transaction upsert.
 
 ### `Statement`
 ```json
@@ -123,9 +166,11 @@ All endpoints use `AuthorizationLevel.ANONYMOUS` — no authentication headers r
   "classification": { ...Classification },
   "statementDetails": { ...StatementDetails },
   "suspiciousReasons": ["string", ...],
-  "transactions": [ { ...TransactionDetails }, ... ]
+  "transactions": [ { ...TransactionDetails }, ... ],
+  "dailyBalances": { "2024-01-04": 365871.68, "2024-01-05": 365821.68 }
 }
 ```
+- `dailyBalances` — the printed daily balance table, in date order.
 
 ### `StatementSummary`
 ```json
@@ -137,10 +182,11 @@ All endpoints use `AuthorizationLevel.ANONYMOUS` — no authentication headers r
   "manuallyVerified": false,
   "totalSpending": -300.00,
   "totalIncomeCredits": 500.00,
-  "numTransactions": 5
+  "numTransactions": 5,
+  "pendingReviewCount": 2
 }
 ```
-> **Note:** `manuallyVerified` (boolean) will be replaced by `verificationStatus` (`"VERIFIED" | "ACKNOWLEDGED" | null`) and `verificationNote` (`string | null`) in an upcoming change. See `docs/specs/statement-verification-status.md`.
+- `pendingReviewCount` — transactions whose `reviewStatus` is `PENDING`, plus one if the statement's own is.
 
 ### `InputFileSummary`
 ```json
@@ -165,10 +211,13 @@ All endpoints use `AuthorizationLevel.ANONYMOUS` — no authentication headers r
   "amount": 500.00 | null,
   "to": "John Doe" | null,
   "batesStamp": "AG-12345" | null,
+  "filePageNumber": 5 | null,
+  "reviewStatus": ReviewStatus,
   "createdAt": 1700000000000,
   "updatedAt": 1700000000000
 }
 ```
+- `reviewStatus` — `PENDING` when the check-extraction agent asked for its identifiers to be confirmed. Not written by a check update.
 
 ### `TransactionCheckMatch`
 ```json

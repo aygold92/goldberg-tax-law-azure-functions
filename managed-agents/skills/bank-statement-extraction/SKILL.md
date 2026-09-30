@@ -97,14 +97,13 @@ Statements show the sign, or imply it by column or section. Assign it from the l
 - Checks tables often have no description -- set it to "Check"
 
 **Record all transactions**, even those with a `0.00` value.
+A fee or interest line in the register is a transaction, and may also be reflected in `fees_charged` or `interest_*`. With no date shown, use the statement date.
 
 ### Not transactions
 - Subtotal and total lines: "Total deposits and other credits", "Total checks", "Subtotal for card account …", "Total Payments and Credits".
 - Beginning and ending balance rows inside the register.
 - Running-balance columns ("Ending Daily Balance") and daily ledger tables. Do capture the daily ledger in `daily_balances`: it's the only check that localizes a failure to a day.
 - Check images. A separate agent extracts them; take check numbers and amounts from the printed register, never from an image.
-
-A fee or interest line in the register is a transaction, and may also be reflected in `fees_charged` or `interest_*`. Capture both. With no date shown, use the statement date.
 
 ## Reconciliation
 

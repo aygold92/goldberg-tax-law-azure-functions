@@ -18,6 +18,8 @@
       "interest_received": null,
       "interest_charged": null,
       "daily_balances": { "2024-01-04": 365871.68, "2024-01-05": 365821.68 },
+      "summary_arithmetic_fields": ["total_credits", "total_debits", "checks_total", "fees_charged"],
+      "other_debits": { "wire_transfers_out": 0.00 },
       "transactions": [
         {
           "date": "2024-01-04",
@@ -25,6 +27,13 @@
           "check": null,
           "amt": 150000.00,
           "page": 14
+        },
+        {
+          "date": "2024-01-31",
+          "desc": "Monthly Maintenance Fee",
+          "amt": -32.50,
+          "page": 16,
+          "counted_in": "fees_charged"
         }
       ]
     }

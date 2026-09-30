@@ -1,5 +1,6 @@
 package com.goldberg.law.agent
 
+import com.goldberg.law.agent.model.output.AccountReviewRequired
 import com.goldberg.law.agent.model.output.BatesReport
 import com.goldberg.law.agent.model.output.BatesSequence
 import com.goldberg.law.agent.model.output.CheckExtractionOutput
@@ -8,8 +9,10 @@ import com.goldberg.law.agent.model.output.ExtractedCheck
 import com.goldberg.law.agent.model.output.ExtractedTransaction
 import com.goldberg.law.agent.model.output.SplitterBank
 import com.goldberg.law.agent.model.output.SplitterOutput
+import com.goldberg.law.agent.model.output.SplitterReviewItem
 import com.goldberg.law.agent.model.output.StatementBoundary
 import com.goldberg.law.agent.model.output.StatementExtractionOutput
+import com.goldberg.law.agent.model.output.StatementReviewRequired
 import com.goldberg.law.database.DatabaseTest
 import com.goldberg.law.database.DbExec.txnSafe
 import com.goldberg.law.database.tables.ClientsTable
@@ -23,11 +26,15 @@ import com.goldberg.law.datamanager.AzureStorageDataManager
 import com.goldberg.law.document.model.pdf.DocumentType
 import com.goldberg.law.entity.EntityValues
 import com.goldberg.law.entity.EntityValues.DEFAULT_STORAGE_LOCATION
+import com.goldberg.law.entity.ReviewNote
+import com.goldberg.law.entity.ReviewStatus
+import com.goldberg.law.entity.StatementDetails
 import com.goldberg.law.util.asCurrency
 import com.goldberg.law.verify.BankStatementVerifier
 import com.goldberg.law.verify.TransactionVerifier
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.assertj.core.api.Assertions.entry
 import org.jetbrains.exposed.sql.deleteAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -141,6 +148,51 @@ class AgentResultSaverTest : DatabaseTest() {
         }
 
         @Test
+        fun `review notes with a pending status, unassigned pages and each bank's pattern source are recorded`() {
+            givenResult(ManagedAgent.SPLITTER, SplitterOutput(
+                banks = mapOf(
+                    "bank_of_america" to SplitterBank("Bank of America", "memory"),
+                    "chase_cc" to SplitterBank("Chase", "discovered"),
+                ),
+                boundaries = listOf(StatementBoundary(1, 3, "bank_of_america"), StatementBoundary(4, 6, "chase_cc")),
+                checkPages = listOf(7),
+                unassignedPages = listOf(9, 8),
+                reviewRequired = listOf(
+                    SplitterReviewItem("the seam could be 3/4 or 4/5", listOf(3, 4)),
+                    SplitterReviewItem("pages 10-12 name no institution"),
+                ),
+            ), splitterSession)
+
+            saver.save(splitterSession)
+
+            val file = fileService.loadFile(fileId).info
+            assertThat(file.reviewNotes).containsExactly(
+                ReviewNote("the seam could be 3/4 or 4/5", listOf(3, 4)),
+                ReviewNote("pages 10-12 name no institution"),
+            )
+            assertThat(file.reviewStatus).isEqualTo(ReviewStatus.PENDING)
+            assertThat(file.unassignedPages).containsExactly(8, 9)
+            // Check pages have no bank, so no source
+            assertThat(classificationService.loadClassifications(fileId).map { it.bankSource })
+                .containsExactly("memory", "discovered", null)
+        }
+
+        @Test
+        fun `a splitter run that found nothing still records what it flagged`() {
+            givenResult(ManagedAgent.SPLITTER, SplitterOutput(
+                reviewRequired = listOf(SplitterReviewItem("pages 1-12 look like a statement but no institution is named")),
+                unassignedPages = (1..12).toList(),
+            ), splitterSession)
+
+            saver.save(splitterSession)
+
+            assertThat(fileService.loadFile(fileId).info.reviewNotes)
+                .containsExactly(ReviewNote("pages 1-12 look like a statement but no institution is named"))
+            assertThat(fileService.loadFile(fileId).info.reviewStatus).isEqualTo(ReviewStatus.PENDING)
+            assertThat(fileService.loadFile(fileId).info.unassignedPages).isEqualTo((1..12).toList())
+        }
+
+        @Test
         fun `re-running the splitter with override replaces the file's earlier classifications`() {
             classificationService.insertClassifications(
                 EntityValues.newClassifiedFile(fileId = fileId, classifications = listOf(
@@ -170,11 +222,14 @@ class AgentResultSaverTest : DatabaseTest() {
             givenResult(ManagedAgent.SPLITTER, SplitterOutput(
                 banks = mapOf("bank_of_america" to SplitterBank("Bank of America", "memory")),
                 boundaries = listOf(StatementBoundary(1, 2, "bank_of_america")),
+                reviewRequired = listOf(SplitterReviewItem("not recorded: the file was already saved")),
             ), splitterSession)
 
             val result = saver.save(splitterSession)
 
             assertThat(result.alreadySaved).isTrue()
+            assertThat(fileService.loadFile(fileId).info.reviewNotes).isEmpty()
+            assertThat(fileService.loadFile(fileId).info.reviewStatus).isNull()
             assertThat(result.status).isEqualTo(AgentSessionResult.Status.COMPLETED)
             assertThat(result.fileId).isEqualTo(fileId)
             assertThat(result.classificationIds).containsExactly(existing.classificationId)
@@ -248,6 +303,157 @@ class AgentResultSaverTest : DatabaseTest() {
             assertThat(main.transactions.map { it.date }).containsExactly("2024-01-05", "2024-01-06")
             assertThat(main.transactions.map { it.amount }).containsExactly(600.asCurrency(), BigDecimal("-99.50"))
             assertThat(main.transactions.map { it.checkNumber }).containsExactly(null, 1042)
+        }
+
+        @Test
+        fun `every summary figure, daily balance, error and review flag is stored`() {
+            givenExtractionClassification(setOf(1, 2, 3))
+            givenResult(ManagedAgent.STATEMENT_EXTRACTION, StatementExtractionOutput(
+                bankId = "bank_of_america",
+                statementDate = LocalDate.of(2024, 1, 31),
+                statementStart = LocalDate.of(2024, 1, 1),
+                errors = listOf("summary_missing_fields"),
+                reviewRequired = StatementReviewRequired(
+                    fields = listOf("statement_date"),
+                    notes = listOf("the interest line could belong to either account"),
+                ),
+                accounts = listOf(ExtractedAccount(
+                    accountName = "Business Advantage Checking",
+                    accountNumber = "4460 5473 8649",
+                    beginningBalance = BigDecimal("215871.68"),
+                    endingBalance = BigDecimal("229798.86"),
+                    totalCredits = BigDecimal("250678.39"),
+                    totalDebits = BigDecimal("236718.71"),
+                    txnCountCredit = 5,
+                    txnCountDebit = 47,
+                    txnCount = 52,
+                    checksTotal = BigDecimal("0.00"),
+                    feesCharged = BigDecimal("32.5"),
+                    interestReceived = BigDecimal("1.07"),
+                    interestCharged = BigDecimal("0"),
+                    // Out of order, as a map from the agent may be
+                    dailyBalances = mapOf(
+                        LocalDate.of(2024, 1, 5) to BigDecimal("365821.68"),
+                        LocalDate.of(2024, 1, 4) to BigDecimal("365871.68"),
+                    ),
+                    summaryArithmeticFields = listOf("total_credits", "total_debits", "fees_charged", "cash_advances"),
+                    otherDebits = mapOf("cash_advances" to BigDecimal("10")),
+                    errors = listOf("daily_ledger_mismatch"),
+                    reviewRequired = AccountReviewRequired(
+                        date = listOf(1, 2),
+                        amt = listOf(1, 2),
+                        desc = listOf(0),
+                        check = listOf(2, 7), // 7 is past the end, so it's dropped
+                        fields = listOf("beginning_balance"),
+                        notes = listOf("rows 1-2 appear misaligned"),
+                    ),
+                    transactions = listOf(
+                        ExtractedTransaction(LocalDate.of(2024, 1, 4), "alndmz", null, BigDecimal("150000"), 1),
+                        ExtractedTransaction(LocalDate.of(2024, 1, 5), "monthly fee", null, BigDecimal("-50"), 2, countedIn = "fees_charged"),
+                        ExtractedTransaction(LocalDate.of(2024, 1, 5), "cash advance", "1042", BigDecimal("-10"), 2, countedIn = "cash_advances"),
+                        ExtractedTransaction(LocalDate.of(2024, 1, 6), "deposit", null, BigDecimal("5"), 3),
+                    ),
+                )),
+            ), extractionSession)
+
+            val result = saver.save(extractionSession)
+
+            val statement = statementService.loadBankStatement(result.statementIds.single())
+            assertThat(statement.statementDetails).usingRecursiveComparison()
+                .ignoringFields("statementId", "createdAt", "updatedAt")
+                .isEqualTo(StatementDetails(
+                    statementId = UUID.randomUUID(),
+                    date = "2024-01-31",
+                    accountNumber = "8649",
+                    beginningBalance = BigDecimal("215871.68"),
+                    endingBalance = BigDecimal("229798.86"),
+                    interestCharged = BigDecimal("0.00"),
+                    feesCharged = BigDecimal("32.50"),
+                    batesStamps = emptyMap(),
+                    accountName = "Business Advantage Checking",
+                    startDate = "2024-01-01",
+                    totalCredits = BigDecimal("250678.39"),
+                    totalDebits = BigDecimal("236718.71"),
+                    checksTotal = BigDecimal("0.00"),
+                    interestReceived = BigDecimal("1.07"),
+                    txnCountCredit = 5,
+                    txnCountDebit = 47,
+                    txnCount = 52,
+                    summaryArithmeticFields = listOf("totalCredits", "totalDebits", "feesCharged", "cash_advances"),
+                    otherDebits = mapOf("cash_advances" to BigDecimal("10.00")),
+                    // The statement-level error, field and note come first, then the account's own
+                    agentErrors = listOf("summary_missing_fields", "daily_ledger_mismatch"),
+                    reviewFields = listOf("date", "beginningBalance"),
+                    reviewNotes = listOf("the interest line could belong to either account", "rows 1-2 appear misaligned"),
+                    reviewStatus = ReviewStatus.PENDING,
+                ))
+            assertThat(statement.dailyBalances).containsExactly(
+                entry("2024-01-04", BigDecimal("365871.68")),
+                entry("2024-01-05", BigDecimal("365821.68")),
+            )
+
+            // A summary field is named as its property; an other-line label is kept as the agent wrote it
+            assertThat(statement.transactions.map { it.countedIn }).containsExactly(null, "feesCharged", "cash_advances", null)
+
+            // The index lists become flags on the rows they point at, named as the rows' properties
+            assertThat(statement.transactions.map { it.reviewFields }).containsExactly(
+                listOf("description"),
+                listOf("date", "amount"),
+                listOf("date", "checkNumber", "amount"),
+                emptyList(),
+            )
+            assertThat(statement.transactions.map { it.reviewStatus })
+                .containsExactly(ReviewStatus.PENDING, ReviewStatus.PENDING, ReviewStatus.PENDING, null)
+        }
+
+        @Test
+        fun `what the agent flagged at statement level applies to every account, and an account with nothing flagged has no status`() {
+            givenExtractionClassification(setOf(1, 2))
+            givenResult(ManagedAgent.STATEMENT_EXTRACTION, StatementExtractionOutput(
+                bankId = "bank_of_america",
+                statementDate = LocalDate.of(2024, 1, 31),
+                errors = listOf("summary_missing_fields"),
+                reviewRequired = StatementReviewRequired(fields = listOf("statement_start"), notes = listOf("which account the interest belongs to is unclear")),
+                accounts = listOf(
+                    ExtractedAccount(accountNumber = "1111", beginningBalance = null, endingBalance = null),
+                    ExtractedAccount(accountNumber = "2222", beginningBalance = null, endingBalance = null),
+                ),
+            ), extractionSession)
+
+            val statements = saver.save(extractionSession).statementIds.map { statementService.loadBankStatement(it).statementDetails }
+
+            assertThat(statements).hasSize(2).allSatisfy {
+                assertThat(it.agentErrors).containsExactly("summary_missing_fields")
+                assertThat(it.reviewFields).containsExactly("startDate")
+                assertThat(it.reviewNotes).containsExactly("which account the interest belongs to is unclear")
+                assertThat(it.reviewStatus).isEqualTo(ReviewStatus.PENDING)
+            }
+        }
+
+        @Test
+        fun `an account nothing was flagged on has no review status`() {
+            givenExtractionClassification(setOf(1, 2))
+            givenResult(ManagedAgent.STATEMENT_EXTRACTION, StatementExtractionOutput(
+                bankId = "bank_of_america",
+                statementDate = LocalDate.of(2024, 1, 31),
+                // An error alone doesn't ask for a review: it's resolved by fixing the data
+                errors = listOf("balance_identity_failed"),
+                accounts = listOf(ExtractedAccount(
+                    accountNumber = "1111",
+                    beginningBalance = null,
+                    endingBalance = null,
+                    transactions = listOf(ExtractedTransaction(LocalDate.of(2024, 1, 5), "deposit", null, BigDecimal("600"), 1)),
+                )),
+            ), extractionSession)
+
+            val statement = statementService.loadBankStatement(saver.save(extractionSession).statementIds.single())
+
+            assertThat(statement.statementDetails.agentErrors).containsExactly("balance_identity_failed")
+            assertThat(statement.statementDetails.reviewFields).isEmpty()
+            assertThat(statement.statementDetails.reviewNotes).isEmpty()
+            assertThat(statement.statementDetails.reviewStatus).isNull()
+            assertThat(statement.transactions.single().reviewFields).isEmpty()
+            assertThat(statement.transactions.single().reviewStatus).isNull()
         }
 
         @Test
@@ -347,6 +553,39 @@ class AgentResultSaverTest : DatabaseTest() {
 
             val empty = checks.single { it.checkNumber == null }
             assertThat(empty.amount).isNull()
+        }
+
+        @Test
+        fun `each check keeps its page and review status, and unreadable pages go on the classification`() {
+            val classificationId = givenExtractionClassification(setOf(4, 5, 6, 7), DocumentType.CheckTypes.CHECKS)
+            givenResult(ManagedAgent.CHECK_EXTRACTION, CheckExtractionOutput(
+                checks = listOf(
+                    ExtractedCheck(page = 4, checkNo = 1042, acct = null, date = null, amt = BigDecimal("250"), payee = "John Doe", memo = null),
+                    ExtractedCheck(page = 5, checkNo = 1043, acct = null, date = null, amt = BigDecimal("340"), payee = null, memo = null, reviewRequired = true),
+                ),
+                pagesWithNoChecks = listOf(7),
+                unreadablePages = listOf(6),
+            ), extractionSession)
+
+            val result = saver.save(extractionSession)
+
+            val checks = result.checkIds.map { checkService.loadCheck(it).checkDetails }.sortedBy { it.checkNumber }
+            assertThat(checks.map { it.filePageNumber }).containsExactly(4, 5)
+            assertThat(checks.map { it.reviewStatus }).containsExactly(null, ReviewStatus.PENDING)
+            assertThat(classificationService.loadClassification(classificationId).info.unreadablePages).containsExactly(6)
+        }
+
+        @Test
+        fun `a check run with no unreadable pages clears the classification's earlier ones`() {
+            val classificationId = givenExtractionClassification(setOf(4), DocumentType.CheckTypes.CHECKS)
+            classificationService.updateUnreadablePages(classificationId, listOf(4))
+            givenResult(ManagedAgent.CHECK_EXTRACTION, CheckExtractionOutput(
+                checks = listOf(ExtractedCheck(page = 4, checkNo = 1042, acct = null, date = null, amt = BigDecimal("250"), payee = "John Doe", memo = null)),
+            ), extractionSession)
+
+            saver.save(extractionSession)
+
+            assertThat(classificationService.loadClassification(classificationId).info.unreadablePages).isEmpty()
         }
 
         @Test

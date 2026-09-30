@@ -12,6 +12,7 @@ import com.goldberg.law.entity.Check
 import com.goldberg.law.entity.CheckDetails
 import com.goldberg.law.entity.Classification
 import com.goldberg.law.entity.EntityType
+import com.goldberg.law.entity.ReviewStatus
 import com.google.inject.Inject
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.dao.id.EntityID
@@ -37,6 +38,8 @@ class CheckService @Inject constructor(
             it[ChecksTable.date] = check.date
             it[ChecksTable.amount] = check.amount
             it[ChecksTable.batesStamp] = check.batesStamp
+            it[ChecksTable.filePageNumber] = check.filePageNumber
+            it[ChecksTable.reviewStatus] = check.reviewStatus
         }[ChecksTable.id].value
 
         logger.info { "Saved check: $newCheckId for classification: ${classification.classificationId}" }
@@ -77,6 +80,10 @@ class CheckService @Inject constructor(
             .also { logger.info { "Deleted $it check(s) for classification $classificationId" } }
     }
 
+    /**
+     * Writes every edited field. The review status is left alone — it changes only through [updateReviewStatus] —
+     * so a check added here starts with none.
+     */
     fun updateChecks(checks: List<CheckDetails>, classificationIds: Map<UUID, UUID>) = db.txnSafe {
         val now = Instant.now()
         ChecksTable.batchUpsert(checks, onUpdateExclude = listOf(ChecksTable.createdAt)) { check ->
@@ -89,9 +96,18 @@ class CheckService @Inject constructor(
             this[ChecksTable.date] = check.date
             this[ChecksTable.amount] = check.amount
             this[ChecksTable.batesStamp] = check.batesStamp
+            this[ChecksTable.filePageNumber] = check.filePageNumber
             this[ChecksTable.createdAt] = now
             this[ChecksTable.updatedAt] = now
         }
+    }
+
+    fun updateReviewStatus(checkId: UUID, status: ReviewStatus) = db.txnSafe {
+        ChecksTable.update({ ChecksTable.id eq checkId }) {
+            it[ChecksTable.reviewStatus] = status
+            it[updatedAt] = Instant.now()
+        }.takeUnless { it == 0 } ?: throw EntityNotFoundException(EntityType.Check, checkId)
+        logger.info { "Set review status of check $checkId to $status" }
     }
 
     /** Deletes existing checks then inserts new ones atomically. Returns the new check IDs. */

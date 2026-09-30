@@ -28,6 +28,8 @@ One entry per transactional account. (see What to Extract in SKILL.md).
 - `interest_received` (O): interest paid to the holder (deposit accounts).
 - `interest_charged` (O): interest charged (credit cards).
 - `daily_balances` (O): the printed daily balance table, `YYYY-MM-DD` → balance.
+- `summary_arithmetic_fields` (O): the fields printed as their own lines in the summary box's arithmetic. They MUST either be a field above, or listed in `other_credits`/`other_debits`. Omit if the box shows no arithmetic.  
+- `other_credits`, `other_debits` (O): box arithmetic lines that aren't one of the fields above (e.g. cash advances, balance transfers), money in and money out. A snake_case name you choose → the amount as printed.  Include in the `summary_arithmetic_fields` as well.
 - `errors`, `review_required` (O): issues scoped to this account.
 - `transactions`: see below.
 
@@ -43,6 +45,7 @@ Every index you report is a position in this array, so a reviewer counting rows 
 - `check` (O): the printed check number.
 - `amt` (R): signed by cash-flow direction, money in `+`, money out `-` (see Sign convention in SKILL.md).
 - `page` (R): the bundle page the line was read from, numbered like your page range.
+- `counted_in` (O): the printed figure this line counts toward, when that figure is `fees_charged`, `interest_received`, `interest_charged`, or a key of `other_credits`/`other_debits`, and it's present. Omit for lines that count only toward `total_credits` or `total_debits`.
 
 ### Issue containers
 Omit any that would be empty; never emit `[]` or `{}`. When to use each is in `references/issue-reporting.md`; this is the shape.
@@ -60,7 +63,16 @@ At statement level only `fields` and `notes` apply.
 - **(O)** fields appear on some statements and not others. Absent → omit the key. If your notes say the field should be here and you don't find it, decide which it is: 
   - a variant this bank prints differently: record its label in your session file, not the output
   - redacted or you suspect the page is absent: say so in a `agent.message` event. It goes in neither the output nor your notes.
-  - an unreadable field: goes under `fields` in `review_required`. 
+  - an unreadable field: goes under `fields` in `review_required`.
+
+### Reconciliation checks in the output schema
+These fields let a reader rerun the checks in `references/reconciliation-checks.md` from your output alone.
+- `summary_arithmetic_fields` is the summary box's arithmetic: `beginning_balance`, plus or minus each listed line, equals `ending_balance`. List every line the box adds or subtracts, and nothing else.
+- A box line that isn't one of the summary fields goes in `other_credits` or `other_debits` with its amount, and in `summary_arithmetic_fields` by that name.
+- Tag a transaction with `counted_in` when it counts toward `fees_charged`, `interest_received`, `interest_charged`, or an other line. Checks need no tag; `check` identifies them.
+- A printed fee or interest total that is printed but not separated from `total_debits` in the summary arithmetic still gets its transactions tagged, but leave it out of `summary_arithmetic_fields`.
+- Every transaction not counted toward a listed line counts toward `total_credits` or `total_debits`.
+
 
 ## Normal case
 
@@ -82,18 +94,57 @@ At statement level only `fields` and `notes` apply.
       "checks_total": 0.00,
       "fees_charged": 32.50,
       "daily_balances": { "2024-01-04": 365871.68, "2024-01-05": 365821.68 },
+      "summary_arithmetic_fields": ["total_credits", "total_debits", "checks_total", "fees_charged"],
       "transactions": [
         {
           "date": "2024-01-04",
           "desc": "BKOFAMERICA ATM 01/03 #000004063 DEPOSIT ANNAPOLIS MALL ANNAPOLIS MD",
           "amt": 150000.00,
           "page": 14
+        },
+        {
+          "date": "2024-01-31",
+          "desc": "Monthly Maintenance Fee",
+          "amt": -32.50,
+          "page": 16,
+          "counted_in": "fees_charged"
         }
       ]
     }
   ]
 }
 ```
+
+## Lines outside the summary fields
+
+```json
+{
+  "bank_id": "chase_cc",
+  ...
+  "accounts": [
+    {
+      "account_number": "XXXX XXXX XXXX 4321",
+      "beginning_balance": 1000.00,
+      "ending_balance": 872.50,
+      "total_credits": 500.00,
+      "total_debits": 300.00,
+      "fees_charged": 10.00,
+      "interest_charged": 12.50,
+      "other_debits": { "cash_advances": 50.00, "balance_transfers": 0.00 },
+      "summary_arithmetic_fields": ["total_credits", "total_debits", "cash_advances", "balance_transfers", "fees_charged", "interest_charged"],
+      "transactions": [
+        { "date": "2024-01-08", "desc": "PAYMENT THANK YOU", "amt": 500.00, "page": 3 },
+        { "date": "2024-01-12", "desc": "GROCERY OUTLET ANNAPOLIS MD", "amt": -300.00, "page": 3 },
+        { "date": "2024-01-15", "desc": "CASH ADVANCE ATM 0142", "amt": -50.00, "page": 3, "counted_in": "cash_advances" },
+        { "date": "2024-01-15", "desc": "CASH ADVANCE FEE", "amt": -10.00, "page": 3, "counted_in": "fees_charged" },
+        { "date": "2024-01-31", "desc": "INTEREST CHARGE ON PURCHASES", "amt": -12.50, "page": 4, "counted_in": "interest_charged" }
+      ]
+    }
+  ]
+}
+```
+
+The box reads 1,000.00 − 500.00 + 300.00 + 50.00 + 0.00 + 10.00 + 12.50 = 872.50. `balance_transfers` printed `0.00`, so it's listed and nothing is tagged to it.
 
 ## With issues
 

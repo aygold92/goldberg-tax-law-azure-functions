@@ -204,13 +204,14 @@ class ClassificationServiceTest : DatabaseTest() {
         }
 
         @Test
-        fun `bank name and bates stamps are stored per classification and read back`() {
+        fun `bank name, bank source and bates stamps are stored per classification and read back`() {
             val bank = EntityValues.newClassifiedPages(
                 setOf(1, 2), "bank_of_america",
                 bankName = "Bank of America",
                 batesStamps = mapOf(1 to "AG-001", 2 to "AG-002"),
+                bankSource = "memory",
             )
-            val creditCard = EntityValues.newClassifiedPages(setOf(3, 4), "chase_cc", bankName = "Chase")
+            val creditCard = EntityValues.newClassifiedPages(setOf(3, 4), "chase_cc", bankName = "Chase", bankSource = "discovered")
 
             val infos = classificationService.insertClassifications(
                 EntityValues.newClassifiedFile(fileId = fileId, classifications = listOf(bank, creditCard))
@@ -221,15 +222,20 @@ class ClassificationServiceTest : DatabaseTest() {
             assertThat(loaded.map { it.bankName }).containsExactly("Bank of America", "Chase")
             assertThat(loaded.first().info.batesStamps).containsExactlyEntriesOf(mapOf(1 to "AG-001", 2 to "AG-002"))
             assertThat(loaded.last().info.batesStamps).isEmpty()
+            assertThat(infos.map { it.bankSource }).containsExactly("memory", "discovered")
+            assertThat(loaded.map { it.bankSource }).containsExactly("memory", "discovered")
+            assertThat(loaded.map { it.info.toClassifiedPages() }).containsExactly(bank, creditCard)
         }
 
         @Test
-        fun `classifications from the Azure pipeline have no bank name or stamps`() {
+        fun `classifications from the Azure pipeline have no bank name, stamps, bank source or unreadable pages`() {
             classificationService.insertClassifications(EntityValues.newClassifiedFile(fileId = fileId))
 
             val info = classificationService.loadClassifications(fileId).single().info
             assertThat(info.bankName).isNull()
             assertThat(info.batesStamps).isEmpty()
+            assertThat(info.bankSource).isNull()
+            assertThat(info.unreadablePages).isEmpty()
         }
     }
 
@@ -278,6 +284,23 @@ class ClassificationServiceTest : DatabaseTest() {
         }
 
         @Test
+        fun `an update leaves what the agents recorded alone`() {
+            val classificationId = classificationService.insertClassifications(
+                EntityValues.newClassifiedFile(fileId = fileId, classifications = listOf(
+                    EntityValues.newClassifiedPages(setOf(1, 2), "chase_cc", bankSource = "memory")
+                ))
+            ).single().classificationId
+            classificationService.updateUnreadablePages(classificationId, listOf(2))
+
+            classificationService.updateClassification(classificationId, EntityValues.newClassifiedPages(setOf(1, 2, 3), "chase_cc"))
+
+            val info = classificationService.loadClassification(classificationId).info
+            assertThat(info.pages).isEqualTo(setOf(1, 2, 3))
+            assertThat(info.bankSource).isEqualTo("memory")
+            assertThat(info.unreadablePages).containsExactly(2)
+        }
+
+        @Test
         fun `an update that omits them clears them`() {
             val classificationId = insertAgentClassification()
 
@@ -323,6 +346,36 @@ class ClassificationServiceTest : DatabaseTest() {
             assertThatThrownBy {
                 classificationService.loadClassificationByExtractionSession("sess_nope")
             }.isInstanceOf(EntityNotFoundException::class.java)
+        }
+    }
+
+    @Nested
+    inner class UnreadablePages {
+
+        private fun insertClassification() = classificationService
+            .insertClassifications(EntityValues.newClassifiedFile(fileId = fileId)).single().classificationId
+
+        @Test
+        fun `are recorded in page order, loaded with the classification, and replaced by the next run`() {
+            val classificationId = insertClassification()
+
+            classificationService.updateUnreadablePages(classificationId, listOf(7, 5))
+
+            val expected = newClassification(inputFile = inputFile, newClassificationInfo(unreadablePages = listOf(5, 7)))
+            assertThat(classificationService.loadClassification(classificationId)).entityCompare().isEqualTo(expected)
+            assertThat(classificationService.loadClassifications(fileId)).entityCompare().isEqualTo(listOf(expected))
+
+            classificationService.updateUnreadablePages(classificationId, listOf(9))
+            assertThat(classificationService.loadClassification(classificationId).info.unreadablePages).containsExactly(9)
+
+            classificationService.updateUnreadablePages(classificationId, emptyList())
+            assertThat(classificationService.loadClassification(classificationId).info.unreadablePages).isEmpty()
+        }
+
+        @Test
+        fun `unknown ID throws EntityNotFoundException`() {
+            assertThatThrownBy { classificationService.updateUnreadablePages(UUID.randomUUID(), listOf(1)) }
+                .isInstanceOf(EntityNotFoundException::class.java)
         }
     }
 

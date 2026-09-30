@@ -15,6 +15,8 @@ import com.goldberg.law.entity.Classification
 import com.goldberg.law.entity.EntityValues
 import com.goldberg.law.entity.EntityValues.entityCompare
 import com.goldberg.law.entity.TransactionDetails
+import com.goldberg.law.entity.ReviewStatus
+import com.goldberg.law.util.asCurrency
 import com.goldberg.law.function.api.model.TransactionCheckMatch
 import com.goldberg.law.verify.BankStatementVerifier
 import com.goldberg.law.verify.TransactionVerifier
@@ -79,7 +81,7 @@ class TransactionServiceTest : DatabaseTest() {
 
         @Test
         fun `inserts new transactions with all fields stored correctly`() {
-            val txDetails = EntityValues.newTransactionDetails()
+            val txDetails = EntityValues.newTransactionDetails(countedIn = "interestCharged")
 
             transactionService.upsertTransactions(statementId, listOf(txDetails))
 
@@ -91,13 +93,14 @@ class TransactionServiceTest : DatabaseTest() {
 
         @Test
         fun `calling twice with the same transaction should update not double-insert`() {
-            val txDetails = EntityValues.newTransactionDetails()
+            val txDetails = EntityValues.newTransactionDetails(countedIn = "feesCharged")
             transactionService.upsertTransactions(statementId, listOf(txDetails))
-            transactionService.upsertTransactions(statementId, listOf(txDetails))
+            val edited = txDetails.copy(countedIn = null)
+            transactionService.upsertTransactions(statementId, listOf(edited))
 
             val transactions = transactionService.loadTransactions(statementId)
             assertThat(transactions).hasSize(1)
-            assertThat(transactions.single()).entityCompare().isEqualTo(txDetails)
+            assertThat(transactions.single()).entityCompare().isEqualTo(edited)
         }
     }
 
@@ -198,6 +201,83 @@ class TransactionServiceTest : DatabaseTest() {
         @Test
         fun `unknown ID throws EntityNotFoundException`() {
             assertThatThrownBy { transactionService.loadTransaction(UUID.randomUUID()) }
+                .isInstanceOf(EntityNotFoundException::class.java)
+        }
+    }
+
+    @Nested
+    inner class ReviewFlags {
+
+        private val flagged = EntityValues.newTransactionDetails(
+            countedIn = "cash_advances",
+            reviewFields = listOf("date", "amount"),
+            reviewStatus = ReviewStatus.PENDING,
+        )
+
+        /** Inserts the way a saved extraction does, returning the stored row. */
+        private fun insertFlagged(): TransactionDetails {
+            db.txnSafe { transactionService.batchInsert(statementId, listOf(flagged, EntityValues.newTransactionDetails())) }
+            return transactionService.loadTransactions(statementId).first()
+        }
+
+        @Test
+        fun `batch insert stores each row's flags and status, and every load returns them`() {
+            val stored = insertFlagged()
+
+            assertThat(transactionService.loadTransactions(statementId)).entityCompare()
+                .isEqualTo(listOf(flagged, EntityValues.newTransactionDetails()))
+            assertThat(transactionService.loadTransaction(stored.transactionId)).entityCompare().isEqualTo(flagged)
+            assertThat(transactionService.listTransactions(clientId).map { it.transactionDetails }).entityCompare()
+                .isEqualTo(listOf(flagged, EntityValues.newTransactionDetails()))
+        }
+
+        @Test
+        fun `upserting an edit keeps the row's flags and status`() {
+            val stored = insertFlagged()
+            val edited = stored.copy(amount = 1.asCurrency(), reviewFields = emptyList(), reviewStatus = null)
+
+            transactionService.upsertTransactions(statementId, listOf(edited))
+
+            assertThat(transactionService.loadTransaction(stored.transactionId)).entityCompare()
+                .isEqualTo(flagged.copy(amount = 1.asCurrency()))
+        }
+
+        @Test
+        fun `a row added by upsert starts unflagged`() {
+            transactionService.upsertTransactions(statementId, listOf(flagged))
+
+            assertThat(transactionService.loadTransaction(flagged.transactionId)).entityCompare()
+                .isEqualTo(flagged.copy(reviewFields = emptyList(), reviewStatus = null))
+        }
+
+        @Test
+        fun `updateReviewStatus sets the status, leaving the flags and other rows alone`() {
+            val stored = insertFlagged()
+            val other = transactionService.loadTransactions(statementId).last()
+
+            transactionService.updateReviewStatus(stored.transactionId, ReviewStatus.VERIFIED)
+            assertThat(transactionService.loadTransaction(stored.transactionId)).entityCompare()
+                .isEqualTo(flagged.copy(reviewStatus = ReviewStatus.VERIFIED))
+
+            transactionService.updateReviewStatus(stored.transactionId, ReviewStatus.PENDING)
+            assertThat(transactionService.loadTransaction(stored.transactionId)).entityCompare().isEqualTo(flagged)
+
+            assertThat(transactionService.loadTransaction(other.transactionId)).entityCompare().isEqualTo(other)
+        }
+
+        @Test
+        fun `updateReviewStatus advances updatedAt`() {
+            val stored = insertFlagged()
+            Thread.sleep(10)
+
+            transactionService.updateReviewStatus(stored.transactionId, ReviewStatus.VERIFIED)
+
+            assertThat(transactionService.loadTransaction(stored.transactionId).updatedAt).isGreaterThan(stored.updatedAt)
+        }
+
+        @Test
+        fun `updateReviewStatus on an unknown ID throws EntityNotFoundException`() {
+            assertThatThrownBy { transactionService.updateReviewStatus(UUID.randomUUID(), ReviewStatus.VERIFIED) }
                 .isInstanceOf(EntityNotFoundException::class.java)
         }
     }

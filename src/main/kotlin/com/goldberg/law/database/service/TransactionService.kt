@@ -7,7 +7,9 @@ import com.goldberg.law.document.exception.EntityNotFoundException
 import com.goldberg.law.entity.EntityType
 import com.goldberg.law.entity.Transaction
 import com.goldberg.law.entity.TransactionDetails
+import com.goldberg.law.entity.ReviewStatus
 import com.goldberg.law.function.api.model.TransactionCheckMatch
+import com.goldberg.law.util.toJsonColumn
 import com.google.inject.Inject
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.dao.id.EntityID
@@ -35,11 +37,18 @@ class TransactionService @Inject constructor(
                     this[TransactionsTable.amount] = transaction.amount
                     this[TransactionsTable.filePageNumber] = transaction.filePageNumber
                     this[TransactionsTable.statementIndex] = index
+                    this[TransactionsTable.countedIn] = transaction.countedIn
+                    this[TransactionsTable.reviewFields] = transaction.reviewFields.toJsonColumn()
+                    this[TransactionsTable.reviewStatus] = transaction.reviewStatus
                 }
             }
         logger.info { "Inserting ${transactions.size} for: $statementId" }
     }
 
+    /**
+     * Writes every edited field. Review flags and their status are left alone — the flags are the agent's, and
+     * the status changes only through [updateReviewStatus] — so a row added here starts unflagged.
+     */
     fun upsertTransactions(statementId: UUID, transactions: List<TransactionDetails>) = db.txnSafe {
         val now = Instant.now()
         TransactionsTable.batchUpsert(transactions, onUpdateExclude = listOf(TransactionsTable.createdAt)) { transaction ->
@@ -52,6 +61,7 @@ class TransactionService @Inject constructor(
             this[TransactionsTable.amount] = transaction.amount
             this[TransactionsTable.filePageNumber] = transaction.filePageNumber
             this[TransactionsTable.statementIndex] = transaction.statementIndex
+            this[TransactionsTable.countedIn] = transaction.countedIn
             this[TransactionsTable.createdAt] = now
             this[TransactionsTable.updatedAt] = now
         }
@@ -93,6 +103,15 @@ class TransactionService @Inject constructor(
             .selectAll().where { TransactionsTable.id eq transactionId }
             .map { TransactionDetails.fromRow(it) }
             .singleOrNull() ?: throw EntityNotFoundException(EntityType.Transaction, transactionId)
+    }
+
+    /** Sets the review status of a transaction's flagged fields, which are reviewed together. */
+    fun updateReviewStatus(transactionId: UUID, status: ReviewStatus) = db.txnSafe {
+        TransactionsTable.update({ TransactionsTable.id eq transactionId }) {
+            it[TransactionsTable.reviewStatus] = status
+            it[updatedAt] = Instant.now()
+        }.takeUnless { it == 0 } ?: throw EntityNotFoundException(EntityType.Transaction, transactionId)
+        logger.info { "Set review status of transaction $transactionId to $status" }
     }
 
     fun deleteTransactions(transactionIds: List<UUID>) = db.txnSafe {

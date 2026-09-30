@@ -5,6 +5,7 @@ import com.goldberg.law.database.tables.*
 import com.goldberg.law.document.exception.EntityNotFoundException
 import com.goldberg.law.document.exception.FileNotFoundException
 import com.goldberg.law.entity.*
+import com.goldberg.law.util.toJsonColumn
 import com.google.common.collect.Sets
 import com.google.inject.Inject
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -52,6 +53,26 @@ class FileService @Inject constructor(private val db: Database) {
             it[FilesTable.anthropicFileId] = anthropicFileId
         }.takeUnless { it == 0 } ?: throw EntityNotFoundException(EntityType.InputFile, fileId)
         logger.info { "Recorded splitter session $splitterSessionId (file $anthropicFileId) on file $fileId" }
+    }
+
+    /**
+     * Records what the splitter flagged for review and the pages it assigned to nothing, replacing any earlier
+     * run's — including its review status, which starts pending when there's anything to review.
+     */
+    fun updateSplitterReview(fileId: UUID, reviewNotes: List<ReviewNote>, unassignedPages: List<Int>) = db.txnSafe {
+        FilesTable.update({ FilesTable.id eq fileId }) {
+            it[FilesTable.reviewNotes] = reviewNotes.toJsonColumn()
+            it[FilesTable.reviewStatus] = ReviewStatus.initial(reviewNotes.isNotEmpty())
+            it[FilesTable.unassignedPages] = unassignedPages.sorted().toJsonColumn()
+        }.takeUnless { it == 0 } ?: throw EntityNotFoundException(EntityType.InputFile, fileId)
+        logger.info { "Recorded ${reviewNotes.size} review note(s) and ${unassignedPages.size} unassigned page(s) on file $fileId" }
+    }
+
+    fun updateReviewStatus(fileId: UUID, status: ReviewStatus) = db.txnSafe {
+        FilesTable.update({ FilesTable.id eq fileId }) {
+            it[FilesTable.reviewStatus] = status
+        }.takeUnless { it == 0 } ?: throw EntityNotFoundException(EntityType.InputFile, fileId)
+        logger.info { "Set review status of file $fileId to $status" }
     }
 
     /** The file a splitter session ran against, for saving that session's result. */

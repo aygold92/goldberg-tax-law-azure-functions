@@ -5,6 +5,7 @@ import com.goldberg.law.database.tables.BankStatementsTable
 import com.goldberg.law.database.tables.ChecksTable
 import com.goldberg.law.database.tables.ClassificationsTable
 import com.goldberg.law.database.tables.ClientsTable
+import com.goldberg.law.database.tables.DailyBalancesTable
 import com.goldberg.law.database.tables.FilesTable
 import com.goldberg.law.database.tables.TransactionsTable
 import org.assertj.core.api.Assertions.assertThat
@@ -65,6 +66,7 @@ abstract class DatabaseTest {
             // Drop first — Gradle daemon keeps the named H2 database alive across builds
             // (DB_CLOSE_DELAY=-1), so constraints from a prior run would conflict on CREATE.
             SchemaUtils.drop(
+                DailyBalancesTable,
                 TransactionsTable,
                 ChecksTable,
                 BankStatementsTable,
@@ -73,7 +75,7 @@ abstract class DatabaseTest {
                 ClientsTable,
             )
             // Create in FK dependency order:
-            // Clients → Files → Classifications → BankStatements + Checks → Transactions
+            // Clients → Files → Classifications → BankStatements + Checks → Transactions + DailyBalances
             SchemaUtils.create(
                 ClientsTable,
                 FilesTable,
@@ -81,6 +83,7 @@ abstract class DatabaseTest {
                 BankStatementsTable,
                 ChecksTable,
                 TransactionsTable,
+                DailyBalancesTable,
             )
         }
     }

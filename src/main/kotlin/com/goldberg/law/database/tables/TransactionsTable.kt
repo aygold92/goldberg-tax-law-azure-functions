@@ -1,5 +1,6 @@
 package com.goldberg.law.database.tables
 
+import com.goldberg.law.entity.ReviewStatus
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.javatime.CurrentTimestamp
@@ -14,6 +15,11 @@ object TransactionsTable : UUIDTable("transactions", "transaction_id") {
     val amount = decimal("amount", 15, 2).nullable()
     val filePageNumber = integer("file_page_number")
     val statementIndex = integer("statement_index")
+    /** The statement figure, besides total credits/debits, this line counts toward: a property name or an other-line label. */
+    val countedIn = varchar("counted_in", 64).nullable()
+    /** The fields the extraction agent flagged on this row, as a JSON list of TransactionDetails property names. */
+    val reviewFields = text("review_fields").nullable()
+    val reviewStatus = enumerationByName("review_status", 16, ReviewStatus::class).nullable()
     val createdAt = timestamp("created_at").defaultExpression(CurrentTimestamp)
     val updatedAt = timestamp("updated_at").defaultExpression(CurrentTimestamp)
     

@@ -1,9 +1,11 @@
 package com.goldberg.law.entity
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.goldberg.law.database.tables.BankStatementsTable
 import com.goldberg.law.database.tables.ChecksTable
 import com.goldberg.law.database.tables.TransactionsTable
+import com.goldberg.law.util.OBJECT_MAPPER
 import com.goldberg.law.util.fromWrittenDate
 import org.jetbrains.exposed.sql.ResultRow
 import java.math.BigDecimal
@@ -50,6 +52,15 @@ data class TransactionDetails(
     override val checkId: UUID?,
     val createdAt: Long = Instant.now().toEpochMilli(),
     val updatedAt: Long = Instant.now().toEpochMilli(),
+    /**
+     * The statement figure, other than total credits/debits, this line counts toward: a [StatementDetails]
+     * property name (`feesCharged`, `interestReceived`, `interestCharged`) or a key of its other credits/debits.
+     */
+    override val countedIn: String? = null,
+    /** The fields the extraction agent flagged on this row, as property names of this class (e.g. `amount`). */
+    val reviewFields: List<String> = emptyList(),
+    /** Covers every field in [reviewFields] together; null when the agent flagged none. */
+    val reviewStatus: ReviewStatus? = null,
 ): ITransaction {
     override val transactionDate: Date? get() = fromWrittenDate(date)
 
@@ -65,6 +76,9 @@ data class TransactionDetails(
             checkId = row[TransactionsTable.checkId]?.value,
             createdAt = row[TransactionsTable.createdAt].toEpochMilli(),
             updatedAt = row[TransactionsTable.updatedAt].toEpochMilli(),
+            countedIn = row[TransactionsTable.countedIn],
+            reviewFields = row[TransactionsTable.reviewFields]?.let { OBJECT_MAPPER.readValue<List<String>>(it) }.orEmpty(),
+            reviewStatus = row[TransactionsTable.reviewStatus],
         )
     }
 }
@@ -78,6 +92,7 @@ interface ITransaction {
     val filePageNumber: Int
     val statementIndex: Int
     val checkId: UUID?
+    val countedIn: String?
 
     @get:JsonIgnore
     val transactionDate: Date?

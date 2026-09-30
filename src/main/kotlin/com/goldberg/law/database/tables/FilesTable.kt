@@ -1,5 +1,6 @@
 package com.goldberg.law.database.tables
 
+import com.goldberg.law.entity.ReviewStatus
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.javatime.CurrentTimestamp
 import org.jetbrains.exposed.sql.javatime.timestamp
@@ -14,6 +15,11 @@ object FilesTable : ClientTokenUUIDTable("files", "file_id") {
     val anthropicFileId = varchar("anthropic_file_id", 64).nullable()
     /** The splitting-agent session that produced this file's classifications. */
     val splitterSessionId = varchar("splitter_session_id", 64).nullable()
+    /** The splitter's `review_required`, as a JSON list of ReviewNote. */
+    val reviewNotes = text("review_notes").nullable()
+    val reviewStatus = enumerationByName("review_status", 16, ReviewStatus::class).nullable()
+    /** Pages the splitter assigned to no statement and no check run, as a JSON list. */
+    val unassignedPages = text("unassigned_pages").nullable()
     
     init {
         uniqueIndex(clientId, fileName)

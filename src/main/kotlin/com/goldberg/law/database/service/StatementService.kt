@@ -7,6 +7,7 @@ import com.goldberg.law.entity.*
 import com.goldberg.law.util.OBJECT_MAPPER
 import com.goldberg.law.util.ZERO
 import com.goldberg.law.util.asCurrency
+import com.goldberg.law.util.toJsonColumn
 import com.goldberg.law.verify.BankStatementVerifier
 import com.google.inject.Inject
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -15,6 +16,7 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.greater
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.less
+import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import java.math.BigDecimal
 import java.time.Instant
 import java.util.*
@@ -42,15 +44,25 @@ class StatementService @Inject constructor(
             it[BankStatementsTable.interestCharged] = details.interestCharged
             it[BankStatementsTable.feesCharged] = details.feesCharged
             it[BankStatementsTable.batesStamps] = OBJECT_MAPPER.writeValueAsString(details.batesStamps)
+            it.writeSummaryFields(details)
+            it[BankStatementsTable.agentErrors] = details.agentErrors.toJsonColumn()
+            it[BankStatementsTable.reviewFields] = details.reviewFields.toJsonColumn()
+            it[BankStatementsTable.reviewNotes] = details.reviewNotes.toJsonColumn()
+            it[BankStatementsTable.reviewStatus] = details.reviewStatus
         }[BankStatementsTable.id]
 
         // Batch insert all transactions in batches of 500
         transactionService.batchInsert(newStatementId.value, statement.transactions)
+        insertDailyBalances(newStatementId.value, statement.dailyBalances)
 
         logger.info { "Saved bank statement with ${statement.transactions.size} transactions: $newStatementId" }
         newStatementId.value
     }
 
+    /**
+     * Writes every figure the statement printed. What the agent flagged is left alone: its errors are a record of
+     * what it claimed, and the review status changes only through [updateReviewStatus].
+     */
     fun updateBankStatement(statementDetails: StatementDetails) = db.txnSafe {
         BankStatementsTable.update({ BankStatementsTable.id eq statementDetails.statementId }) {
             it[BankStatementsTable.date] = statementDetails.date
@@ -60,8 +72,18 @@ class StatementService @Inject constructor(
             it[BankStatementsTable.interestCharged] = statementDetails.interestCharged
             it[BankStatementsTable.feesCharged] = statementDetails.feesCharged
             it[BankStatementsTable.batesStamps] = OBJECT_MAPPER.writeValueAsString(statementDetails.batesStamps)
+            it.writeSummaryFields(statementDetails)
             it[updatedAt] = Instant.now()
         }.takeUnless { it == 0 } ?: throw EntityNotFoundException(EntityType.Statement, statementDetails.statementId)
+    }
+
+    /** Sets the review status of the statement's own flagged fields and notes; its transactions have their own. */
+    fun updateReviewStatus(statementId: UUID, status: ReviewStatus) = db.txnSafe {
+        BankStatementsTable.update({ BankStatementsTable.id eq statementId }) {
+            it[BankStatementsTable.reviewStatus] = status
+            it[updatedAt] = Instant.now()
+        }.takeUnless { it == 0 } ?: throw EntityNotFoundException(EntityType.Statement, statementId)
+        logger.info { "Set review status of statement $statementId to $status" }
     }
 
     fun deleteBankStatement(statementId: UUID) = db.txnSafe {
@@ -107,7 +129,7 @@ class StatementService @Inject constructor(
 
             val suspiciousReasons = bankStatementVerifier.getSuspiciousReasons(statementDetails, transactionRows, classification)
 
-            Statement(classification, statementDetails, suspiciousReasons, transactionRows)
+            Statement(classification, statementDetails, suspiciousReasons, transactionRows, loadDailyBalances(statementId))
         } catch (ex: Exception) {
             logger.error(ex) { "Error loading statement from MySQL: $statementId" }
             throw ex
@@ -183,9 +205,40 @@ class StatementService @Inject constructor(
                 manuallyVerified = false,
                 totalSpending = row[spendingAlias]?.asCurrency() ?: ZERO,
                 totalIncomeCredits = row[incomeAlias]?.asCurrency() ?: ZERO,
-                numTransactions = row[numTransactions].toInt()
+                numTransactions = row[numTransactions].toInt(),
+                pendingReviewCount = (transactions.map { it.reviewStatus } + statementDetails.reviewStatus)
+                    .count { it == ReviewStatus.PENDING },
             )
         }
+    }
+
+    private fun insertDailyBalances(statementId: UUID, dailyBalances: Map<String, BigDecimal>) {
+        DailyBalancesTable.batchInsert(dailyBalances.entries) { (date, balance) ->
+            this[DailyBalancesTable.statementId] = statementId
+            this[DailyBalancesTable.date] = date
+            this[DailyBalancesTable.balance] = balance
+        }
+    }
+
+    private fun loadDailyBalances(statementId: UUID): Map<String, BigDecimal> =
+        DailyBalancesTable.selectAll().where { DailyBalancesTable.statementId eq statementId }
+            .orderBy(DailyBalancesTable.date to SortOrder.ASC)
+            .associate { it[DailyBalancesTable.date] to it[DailyBalancesTable.balance].asCurrency() }
+
+    /** The printed figures [insertBankStatementWithTransactions] and [updateBankStatement] both write. */
+    private fun UpdateBuilder<*>.writeSummaryFields(details: StatementDetails) {
+        this[BankStatementsTable.accountName] = details.accountName
+        this[BankStatementsTable.startDate] = details.startDate
+        this[BankStatementsTable.totalCredits] = details.totalCredits
+        this[BankStatementsTable.totalDebits] = details.totalDebits
+        this[BankStatementsTable.checksTotal] = details.checksTotal
+        this[BankStatementsTable.interestReceived] = details.interestReceived
+        this[BankStatementsTable.txnCountCredit] = details.txnCountCredit
+        this[BankStatementsTable.txnCountDebit] = details.txnCountDebit
+        this[BankStatementsTable.txnCount] = details.txnCount
+        this[BankStatementsTable.summaryArithmeticFields] = details.summaryArithmeticFields.toJsonColumn()
+        this[BankStatementsTable.otherCredits] = details.otherCredits.takeIf { it.isNotEmpty() }?.let { OBJECT_MAPPER.writeValueAsString(it) }
+        this[BankStatementsTable.otherDebits] = details.otherDebits.takeIf { it.isNotEmpty() }?.let { OBJECT_MAPPER.writeValueAsString(it) }
     }
 
     companion object {

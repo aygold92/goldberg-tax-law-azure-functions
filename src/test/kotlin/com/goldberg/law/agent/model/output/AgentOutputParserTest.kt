@@ -70,15 +70,20 @@ class AgentOutputParserTest {
         assertThat(account.dailyBalances).containsExactlyEntriesOf(
             mapOf(LocalDate.of(2024, 1, 4) to BigDecimal("365871.68"), LocalDate.of(2024, 1, 5) to BigDecimal("365821.68"))
         )
+        assertThat(account.summaryArithmeticFields).containsExactly("total_credits", "total_debits", "checks_total", "fees_charged")
+        assertThat(account.otherCredits).isEmpty()
+        assertThat(account.otherDebits).containsExactlyEntriesOf(mapOf("wire_transfers_out" to BigDecimal("0.00")))
         assertThat(account.errors).isEmpty()
         assertThat(account.reviewRequired).isNull()
 
-        val txn = account.transactions.single()
+        val (txn, fee) = account.transactions
         assertThat(txn.date).isEqualTo(LocalDate.of(2024, 1, 4))
         assertThat(txn.check).isNull()
         // exact, including scale — money must not pass through a lossy representation
         assertThat(txn.amt).isEqualTo(BigDecimal("150000.00"))
         assertThat(txn.page).isEqualTo(14)
+        assertThat(txn.countedIn).isNull()
+        assertThat(fee.countedIn).isEqualTo("fees_charged")
     }
 
     @Test

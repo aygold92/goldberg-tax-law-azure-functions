@@ -45,6 +45,11 @@ data class ExtractedAccount(
     val interestReceived: BigDecimal? = null,
     val interestCharged: BigDecimal? = null,
     val dailyBalances: Map<LocalDate, BigDecimal> = emptyMap(),
+    /** The summary fields printed as their own lines in the summary box's arithmetic. */
+    val summaryArithmeticFields: List<String> = emptyList(),
+    /** Box lines that aren't one of the summary fields, label -> printed amount: money in, then money out. */
+    val otherCredits: Map<String, BigDecimal> = emptyMap(),
+    val otherDebits: Map<String, BigDecimal> = emptyMap(),
     val errors: List<String> = emptyList(),
     val reviewRequired: AccountReviewRequired? = null,
     val transactions: List<ExtractedTransaction> = emptyList(),
@@ -69,4 +74,9 @@ data class ExtractedTransaction(
     /** Signed by cash-flow direction from the holder's side: money in `+`, money out `-`. */
     val amt: BigDecimal?,
     val page: Int,
+    /**
+     * The printed figure, other than `total_credits`/`total_debits`, this line counts toward: `fees_charged`,
+     * `interest_received`, `interest_charged`, or a key of `other_credits`/`other_debits`.
+     */
+    val countedIn: String? = null,
 )

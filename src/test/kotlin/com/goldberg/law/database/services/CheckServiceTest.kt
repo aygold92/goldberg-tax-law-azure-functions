@@ -17,6 +17,7 @@ import com.goldberg.law.entity.ClassifiedCheck
 import com.goldberg.law.entity.Classification
 import com.goldberg.law.entity.EntityValues
 import com.goldberg.law.entity.EntityValues.entityCompare
+import com.goldberg.law.entity.ReviewStatus
 import com.goldberg.law.verify.BankStatementVerifier
 import com.goldberg.law.verify.TransactionVerifier
 import org.assertj.core.api.Assertions.assertThat
@@ -65,7 +66,7 @@ class CheckServiceTest : DatabaseTest() {
         fun `insert, verify all fields via loadFilesToProcess, then delete`() {
             // CheckService has no loadCheck method; round-trip field verification is done
             // via fileService.loadFilesToProcess which returns ClassifiedCheck items.
-            val checkDetails = EntityValues.newCheckDetails()
+            val checkDetails = EntityValues.newCheckDetails(filePageNumber = 5, reviewStatus = ReviewStatus.PENDING)
             val checkId = checkService.insertCheck(classification, checkDetails)
 
             // Verify stored fields
@@ -172,6 +173,40 @@ class CheckServiceTest : DatabaseTest() {
     }
 
     @Nested
+    inner class UpdateReviewStatus {
+
+        @Test
+        fun `sets the status, and can set it back to pending`() {
+            val checkDetails = EntityValues.newCheckDetails(reviewStatus = ReviewStatus.PENDING)
+            val checkId = checkService.insertCheck(classification, checkDetails)
+
+            checkService.updateReviewStatus(checkId, ReviewStatus.VERIFIED)
+            assertThat(checkService.loadCheck(checkId)).entityCompare()
+                .isEqualTo(Check(classification, checkDetails.copy(reviewStatus = ReviewStatus.VERIFIED)))
+
+            checkService.updateReviewStatus(checkId, ReviewStatus.PENDING)
+            assertThat(checkService.loadCheck(checkId)).entityCompare().isEqualTo(Check(classification, checkDetails))
+        }
+
+        @Test
+        fun `advances updatedAt`() {
+            val checkId = checkService.insertCheck(classification, EntityValues.newCheckDetails(reviewStatus = ReviewStatus.PENDING))
+            val before = checkService.loadCheck(checkId).checkDetails.updatedAt
+            Thread.sleep(10)
+
+            checkService.updateReviewStatus(checkId, ReviewStatus.VERIFIED)
+
+            assertThat(checkService.loadCheck(checkId).checkDetails.updatedAt).isGreaterThan(before)
+        }
+
+        @Test
+        fun `unknown ID throws EntityNotFoundException`() {
+            assertThatThrownBy { checkService.updateReviewStatus(UUID.randomUUID(), ReviewStatus.VERIFIED) }
+                .isInstanceOf(EntityNotFoundException::class.java)
+        }
+    }
+
+    @Nested
     inner class DeleteCheck {
 
         @Test
@@ -205,6 +240,31 @@ class CheckServiceTest : DatabaseTest() {
             assertThat(loaded.accountNumber).isNull()
             assertThat(loaded.to).isEqualTo("Bob")
             assertThat(loaded.description).isEqualTo("updated")
+        }
+
+        @Test
+        fun `writes the page but keeps the review status`() {
+            val original = EntityValues.newCheckDetails(filePageNumber = 4, reviewStatus = ReviewStatus.PENDING)
+            val checkId = checkService.insertCheck(classification, original)
+            val updated = original.copy(checkId = checkId, filePageNumber = 7, reviewStatus = null)
+
+            checkService.updateChecks(listOf(updated), classificationService.loadClassificationIdsForChecks(listOf(checkId)))
+
+            assertThat(checkService.loadCheck(checkId)).entityCompare()
+                .isEqualTo(Check(classification, original.copy(filePageNumber = 7)))
+        }
+
+        @Test
+        fun `a check added by update starts with no review status`() {
+            val existingId = checkService.insertCheck(classification, EntityValues.newCheckDetails())
+            val added = EntityValues.newCheckDetails(checkId = UUID.randomUUID(), reviewStatus = ReviewStatus.PENDING)
+
+            checkService.updateChecks(listOf(added), mapOf(added.checkId to classification.classificationId))
+
+            assertThat(checkService.loadCheck(added.checkId)).entityCompare()
+                .isEqualTo(Check(classification, added.copy(reviewStatus = null)))
+            assertThat(checkService.loadCheck(existingId)).entityCompare()
+                .isEqualTo(Check(classification, EntityValues.newCheckDetails()))
         }
 
         @Test

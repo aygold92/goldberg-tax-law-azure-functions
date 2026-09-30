@@ -16,6 +16,10 @@ object ClassificationsTable : UUIDTable("classifications", "classification_id") 
     val batesStamps = text("bates_stamps").nullable()
     /** The statement- or check-extraction session that produced this classification's statements/checks. */
     val extractionSessionId = varchar("extraction_session_id", 64).nullable()
+    /** Where the splitter got this bank's patterns: `memory` or `discovered`. */
+    val bankSource = varchar("bank_source", 16).nullable()
+    /** Pages the check-extraction agent believed hold checks but couldn't read, as a JSON list. */
+    val unreadablePages = text("unreadable_pages").nullable()
 
     val pagesHash = varchar("pages_hash", 64)
         .withDefinition("GENERATED ALWAYS AS (SHA2(pages, 256))")

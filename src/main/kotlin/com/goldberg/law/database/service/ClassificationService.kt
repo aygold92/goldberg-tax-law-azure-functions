@@ -13,6 +13,7 @@ import com.goldberg.law.entity.EntityType
 import com.goldberg.law.entity.ClassifiedFile
 import com.goldberg.law.entity.ClassifiedPages
 import com.goldberg.law.util.OBJECT_MAPPER
+import com.goldberg.law.util.toJsonColumn
 import com.google.inject.Inject
 import io.github.oshai.kotlinlogging.KotlinLogging
 import com.goldberg.law.database.tables.ChecksTable
@@ -44,6 +45,7 @@ class ClassificationService @Inject constructor(
                 this[ClassificationsTable.classificationType] = classifiedPdfPages.classification
                 this[ClassificationsTable.modelLocation] = null // Will be updated separately when model is saved
                 this[ClassificationsTable.bankName] = classifiedPdfPages.bankName
+                this[ClassificationsTable.bankSource] = classifiedPdfPages.bankSource
                 this[ClassificationsTable.batesStamps] = classifiedPdfPages.batesStamps
                     .takeIf { it.isNotEmpty() }?.let { OBJECT_MAPPER.writeValueAsString(it) }
                 this[ClassificationsTable.createdAt] = now
@@ -80,6 +82,15 @@ class ClassificationService @Inject constructor(
         logger.info { "Recorded extraction session $extractionSessionId on classification $classificationId" }
     }
 
+    /** Records the pages a check extraction couldn't read, replacing any earlier run's. */
+    fun updateUnreadablePages(classificationId: UUID, unreadablePages: List<Int>) = db.txnSafe {
+        ClassificationsTable.update({ ClassificationsTable.id eq classificationId }) {
+            it[ClassificationsTable.unreadablePages] = unreadablePages.sorted().toJsonColumn()
+            it[updatedAt] = Instant.now()
+        }.takeUnless { it == 0 } ?: throw EntityNotFoundException(EntityType.Classification, classificationId)
+        logger.info { "Recorded ${unreadablePages.size} unreadable page(s) on classification $classificationId" }
+    }
+
     /** The classification an extraction session ran against, for saving that session's result. */
     fun loadClassificationByExtractionSession(extractionSessionId: String): Classification = db.txnSafe {
         ClassificationsTable.filesJoin()
@@ -102,7 +113,7 @@ class ClassificationService @Inject constructor(
 
     /**
      * Writes every editable field, so a caller that omits the bank name or the stamps clears them: send back
-     * what was loaded.
+     * what was loaded. What the agents recorded — the bank's pattern source and unreadable pages — is left alone.
      */
     fun updateClassification(classificationId: UUID, pages: ClassifiedPages) = db.txnSafe {
         ClassificationsTable.update({ ClassificationsTable.id eq classificationId }) {

@@ -15,11 +15,13 @@ data class ClassifiedPages(
     val bankName: String? = null,
     /** Page number -> bates stamp for these pages; empty when the pages carry no stamps. */
     val batesStamps: Map<Int, String> = emptyMap(),
+    /** Where the splitter got this bank's patterns: `memory` or `discovered`; null from anywhere else. */
+    val bankSource: String? = null,
 ) {
     @get:JsonIgnore
     val pagesOrdered: List<Int> get() = pages.sorted()
 
-    fun withFileId(fileId: UUID) = ClassifiedFilePages(fileId, pages, classification, bankName, batesStamps)
+    fun withFileId(fileId: UUID) = ClassifiedFilePages(fileId, pages, classification, bankName, batesStamps, bankSource)
 }
 
 data class ClassifiedFilePages(
@@ -28,6 +30,7 @@ data class ClassifiedFilePages(
     val classification: String,
     val bankName: String? = null,
     val batesStamps: Map<Int, String> = emptyMap(),
+    val bankSource: String? = null,
 ) {
     @get:JsonIgnore
     val pagesOrdered: List<Int> get() = pages.sorted()

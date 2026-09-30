@@ -36,6 +36,10 @@ data class CheckDetails(
     override val batesStamp: String?,
     val createdAt: Long = Instant.now().toEpochMilli(),
     val updatedAt: Long = Instant.now().toEpochMilli(),
+    /** The bundle page the check was read from; null for the Azure pipeline's checks. */
+    override val filePageNumber: Int? = null,
+    /** Pending when the check-extraction agent asked for a human to confirm this check's identifiers. */
+    val reviewStatus: ReviewStatus? = null,
 ): ICheck {
     fun getFinalDescription() = if (this.to != null && this.description != null) "${this.to} - ${this.description}"
     else this.to ?: this.description
@@ -52,6 +56,8 @@ data class CheckDetails(
             batesStamp = row[ChecksTable.batesStamp],
             createdAt = row[ChecksTable.createdAt].toEpochMilli(),
             updatedAt = row[ChecksTable.updatedAt].toEpochMilli(),
+            filePageNumber = row[ChecksTable.filePageNumber],
+            reviewStatus = row[ChecksTable.reviewStatus],
         )
     }
 }
@@ -65,4 +71,5 @@ interface ICheck {
     val amount: BigDecimal?
     val to: String?
     val batesStamp: String?
+    val filePageNumber: Int?
 }

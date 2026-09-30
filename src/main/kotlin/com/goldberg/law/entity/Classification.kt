@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.goldberg.law.database.tables.ClassificationsTable
 import com.goldberg.law.datamanager.StorageLocation
 import com.goldberg.law.document.model.pdf.DocumentType
@@ -43,12 +44,16 @@ data class ClassificationInfo(
     override val extractionSessionId: String? = null,
     val createdAt: Long,
     val updatedAt: Long,
+    /** Where the splitter got this bank's patterns: `memory` or `discovered`. */
+    override val bankSource: String? = null,
+    /** Pages the check-extraction agent believed hold checks but couldn't read. */
+    val unreadablePages: List<Int> = emptyList(),
 ): IClassification {
     override val documentType: DocumentType get() = DocumentType.getBankType(classificationType)
 
     override val pagesOrdered: List<Int> get() = pages.sorted()
 
-    fun toClassifiedPages() = ClassifiedPages(pages, classificationType, bankName, batesStamps)
+    fun toClassifiedPages() = ClassifiedPages(pages, classificationType, bankName, batesStamps, bankSource)
 
     companion object {
         fun fromRow(row: ResultRow) = ClassificationInfo(
@@ -62,7 +67,9 @@ data class ClassificationInfo(
                 ?: emptyMap(),
             extractionSessionId = row[ClassificationsTable.extractionSessionId],
             createdAt = row[ClassificationsTable.createdAt].toEpochMilli(),
-            updatedAt = row[ClassificationsTable.updatedAt].toEpochMilli()
+            updatedAt = row[ClassificationsTable.updatedAt].toEpochMilli(),
+            bankSource = row[ClassificationsTable.bankSource],
+            unreadablePages = row[ClassificationsTable.unreadablePages]?.let { OBJECT_MAPPER.readValue<List<Int>>(it) }.orEmpty(),
         )
     }
 }
@@ -72,6 +79,8 @@ interface IClassification {
     val pages: Set<Int>
     val classificationType: String
     val bankName: String?
+    /** Where the splitter got this bank's patterns: `memory` or `discovered`. */
+    val bankSource: String?
     /** The extraction session (statement or check) that produced this classification's records. */
     val extractionSessionId: String?
 

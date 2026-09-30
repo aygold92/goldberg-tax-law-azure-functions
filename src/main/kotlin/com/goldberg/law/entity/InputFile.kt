@@ -1,6 +1,8 @@
 package com.goldberg.law.entity
 
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.goldberg.law.database.tables.FilesTable
+import com.goldberg.law.util.OBJECT_MAPPER
 import org.jetbrains.exposed.sql.ResultRow
 import java.util.*
 
@@ -27,6 +29,12 @@ data class InputFileInfo(
     override val anthropicFileId: String? = null,
     /** The splitting-agent session that classified this file. */
     override val splitterSessionId: String? = null,
+    /** The splitter's `review_required`. */
+    val reviewNotes: List<ReviewNote> = emptyList(),
+    /** Covers every note in [reviewNotes] together; null when the splitter flagged nothing. */
+    val reviewStatus: ReviewStatus? = null,
+    /** Pages the splitter assigned to no statement and no check run. */
+    val unassignedPages: List<Int> = emptyList(),
 ): IInputFile {
     companion object {
         fun fromRow(row: ResultRow) = InputFileInfo(
@@ -37,9 +45,18 @@ data class InputFileInfo(
             uploadedAt = row[FilesTable.uploadedAt].toEpochMilli(),
             anthropicFileId = row[FilesTable.anthropicFileId],
             splitterSessionId = row[FilesTable.splitterSessionId],
+            reviewNotes = row[FilesTable.reviewNotes]?.let { OBJECT_MAPPER.readValue<List<ReviewNote>>(it) }.orEmpty(),
+            reviewStatus = row[FilesTable.reviewStatus],
+            unassignedPages = row[FilesTable.unassignedPages]?.let { OBJECT_MAPPER.readValue<List<Int>>(it) }.orEmpty(),
         )
     }
 }
+
+/** Something the splitter asked a human to look at before extraction, and the pages to look at. */
+data class ReviewNote(
+    val reason: String,
+    val pages: List<Int> = emptyList(),
+)
 
 interface IInputFile {
     val fileId: UUID

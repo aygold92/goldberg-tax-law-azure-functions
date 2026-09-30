@@ -17,6 +17,8 @@ import com.goldberg.law.document.exception.EntityNotFoundException
 import com.goldberg.law.document.exception.FileNotFoundException
 import com.goldberg.law.entity.EntityValues
 import com.goldberg.law.entity.EntityValues.entityCompare
+import com.goldberg.law.entity.ReviewNote
+import com.goldberg.law.entity.ReviewStatus
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.jetbrains.exposed.sql.deleteAll
@@ -256,6 +258,73 @@ class FileServiceTest : DatabaseTest() {
             assertThatThrownBy {
                 fileService.loadFileBySplitterSession("sess_nope")
             }.isInstanceOf(FileNotFoundException::class.java)
+        }
+
+        private val reviewNotes = listOf(
+            ReviewNote("the seam could be 47/48 or 48/49", listOf(47, 48)),
+            ReviewNote("pages 82-90 name no institution"),
+        )
+
+        @Test
+        fun `splitter notes, a pending status and unassigned pages are recorded and returned by every load`() {
+            val fileId = insertFile()
+            assertThat(fileService.loadFile(fileId).info.reviewNotes).isEmpty()
+            assertThat(fileService.loadFile(fileId).info.reviewStatus).isNull()
+            assertThat(fileService.loadFile(fileId).info.unassignedPages).isEmpty()
+
+            fileService.updateSplitterReview(fileId, reviewNotes, listOf(12, 10))
+
+            val expected = EntityValues.newInputFile(
+                client = EntityValues.newClient(clientId = clientId),
+                info = EntityValues.newInputFileInfo(
+                    reviewNotes = reviewNotes,
+                    reviewStatus = ReviewStatus.PENDING,
+                    unassignedPages = listOf(10, 12),
+                ),
+            )
+            assertThat(fileService.loadFile(fileId)).entityCompare().isEqualTo(expected)
+            assertThat(fileService.loadFileSummary(fileId).inputFile).entityCompare().isEqualTo(expected)
+            assertThat(fileService.listFileSummaries(clientId).single { it.inputFile.fileId == fileId }.inputFile)
+                .entityCompare().isEqualTo(expected)
+            assertThat(fileService.loadFilesToProcess(setOf(fileId)).first.single()).entityCompare().isEqualTo(expected)
+        }
+
+        @Test
+        fun `a later splitter run replaces the review, restarting its status, and one with no notes has no status`() {
+            val fileId = insertFile()
+            fileService.updateSplitterReview(fileId, reviewNotes, listOf(10))
+            fileService.updateReviewStatus(fileId, ReviewStatus.VERIFIED)
+
+            val nextRun = listOf(ReviewNote("a different concern"))
+            fileService.updateSplitterReview(fileId, nextRun, emptyList())
+            assertThat(fileService.loadFile(fileId).info.reviewNotes).isEqualTo(nextRun)
+            assertThat(fileService.loadFile(fileId).info.reviewStatus).isEqualTo(ReviewStatus.PENDING)
+            assertThat(fileService.loadFile(fileId).info.unassignedPages).isEmpty()
+
+            fileService.updateSplitterReview(fileId, emptyList(), emptyList())
+            assertThat(fileService.loadFile(fileId).info.reviewNotes).isEmpty()
+            assertThat(fileService.loadFile(fileId).info.reviewStatus).isNull()
+        }
+
+        @Test
+        fun `updateReviewStatus sets the status, leaving the notes alone`() {
+            val fileId = insertFile()
+            fileService.updateSplitterReview(fileId, reviewNotes, emptyList())
+
+            fileService.updateReviewStatus(fileId, ReviewStatus.VERIFIED)
+            assertThat(fileService.loadFile(fileId).info.reviewStatus).isEqualTo(ReviewStatus.VERIFIED)
+            assertThat(fileService.loadFile(fileId).info.reviewNotes).isEqualTo(reviewNotes)
+
+            fileService.updateReviewStatus(fileId, ReviewStatus.PENDING)
+            assertThat(fileService.loadFile(fileId).info.reviewStatus).isEqualTo(ReviewStatus.PENDING)
+        }
+
+        @Test
+        fun `review updates on an unknown file throw EntityNotFoundException`() {
+            assertThatThrownBy { fileService.updateSplitterReview(UUID.randomUUID(), reviewNotes, emptyList()) }
+                .isInstanceOf(EntityNotFoundException::class.java)
+            assertThatThrownBy { fileService.updateReviewStatus(UUID.randomUUID(), ReviewStatus.VERIFIED) }
+                .isInstanceOf(EntityNotFoundException::class.java)
         }
     }
 

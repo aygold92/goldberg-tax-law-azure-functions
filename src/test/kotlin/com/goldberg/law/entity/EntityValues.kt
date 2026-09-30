@@ -85,6 +85,9 @@ object EntityValues {
         numPages: Int = DEFAULT_NUM_PAGES,
         anthropicFileId: String? = null,
         splitterSessionId: String? = null,
+        reviewNotes: List<ReviewNote> = emptyList(),
+        reviewStatus: ReviewStatus? = null,
+        unassignedPages: List<Int> = emptyList(),
     ) = InputFileInfo(
         fileId = fileId,
         fileName = fileName,
@@ -93,6 +96,9 @@ object EntityValues {
         numPages = numPages,
         anthropicFileId = anthropicFileId,
         splitterSessionId = splitterSessionId,
+        reviewNotes = reviewNotes,
+        reviewStatus = reviewStatus,
+        unassignedPages = unassignedPages,
     )
 
     fun newInputFile(
@@ -115,6 +121,8 @@ object EntityValues {
         extractionSessionId: String? = null,
         createdAt: Long = DEFAULT_CREATED_AT,
         updatedAt: Long = DEFAULT_UPDATED_AT,
+        bankSource: String? = null,
+        unreadablePages: List<Int> = emptyList(),
     ) = ClassificationInfo(
         classificationId = classificationId,
         pages = pages,
@@ -125,6 +133,8 @@ object EntityValues {
         extractionSessionId = extractionSessionId,
         createdAt = createdAt,
         updatedAt = updatedAt,
+        bankSource = bankSource,
+        unreadablePages = unreadablePages,
     )
 
     fun newClassification(
@@ -149,6 +159,8 @@ object EntityValues {
         amount: BigDecimal? = DEFAULT_AMOUNT,
         to: String? = DEFAULT_PAYEE,
         batesStamp: String? = DEFAULT_BATES_STAMP,
+        filePageNumber: Int? = null,
+        reviewStatus: ReviewStatus? = null,
     ) = CheckDetails(
         checkId = checkId,
         checkNumber = checkNumber,
@@ -158,6 +170,8 @@ object EntityValues {
         amount = amount,
         to = to,
         batesStamp = batesStamp,
+        filePageNumber = filePageNumber,
+        reviewStatus = reviewStatus,
     )
 
     fun newCheck(
@@ -177,6 +191,22 @@ object EntityValues {
         interestCharged: BigDecimal? = null,
         feesCharged: BigDecimal? = null,
         batesStamps: Map<Int, String> = DEFAULT_BATES_STAMPS,
+        accountName: String? = null,
+        startDate: String? = null,
+        totalCredits: BigDecimal? = null,
+        totalDebits: BigDecimal? = null,
+        checksTotal: BigDecimal? = null,
+        interestReceived: BigDecimal? = null,
+        txnCountCredit: Int? = null,
+        txnCountDebit: Int? = null,
+        txnCount: Int? = null,
+        summaryArithmeticFields: List<String> = emptyList(),
+        otherCredits: Map<String, BigDecimal> = emptyMap(),
+        otherDebits: Map<String, BigDecimal> = emptyMap(),
+        agentErrors: List<String> = emptyList(),
+        reviewFields: List<String> = emptyList(),
+        reviewNotes: List<String> = emptyList(),
+        reviewStatus: ReviewStatus? = null,
     ) = StatementDetails(
         statementId = statementId,
         date = date,
@@ -186,6 +216,22 @@ object EntityValues {
         interestCharged = interestCharged,
         feesCharged = feesCharged,
         batesStamps = batesStamps,
+        accountName = accountName,
+        startDate = startDate,
+        totalCredits = totalCredits,
+        totalDebits = totalDebits,
+        checksTotal = checksTotal,
+        interestReceived = interestReceived,
+        txnCountCredit = txnCountCredit,
+        txnCountDebit = txnCountDebit,
+        txnCount = txnCount,
+        summaryArithmeticFields = summaryArithmeticFields,
+        otherCredits = otherCredits,
+        otherDebits = otherDebits,
+        agentErrors = agentErrors,
+        reviewFields = reviewFields,
+        reviewNotes = reviewNotes,
+        reviewStatus = reviewStatus,
     )
 
     fun newTransactionDetails(
@@ -196,6 +242,9 @@ object EntityValues {
         checkNumber: Int? = null,
         filePageNumber: Int = DEFAULT_FILE_PAGE,
         checkId: UUID? = null,
+        countedIn: String? = null,
+        reviewFields: List<String> = emptyList(),
+        reviewStatus: ReviewStatus? = null,
     ) = TransactionDetails(
         transactionId = transactionId,
         date = date,
@@ -204,6 +253,9 @@ object EntityValues {
         checkNumber = checkNumber,
         filePageNumber = filePageNumber,
         checkId = checkId,
+        countedIn = countedIn,
+        reviewFields = reviewFields,
+        reviewStatus = reviewStatus,
     )
 
     fun newTransaction(
@@ -221,11 +273,13 @@ object EntityValues {
         statementDetails: StatementDetails = newStatementDetails(),
         suspiciousReasons: List<String> = emptyList(),
         transactions: List<TransactionDetails> = listOf(newTransactionDetails()),
+        dailyBalances: Map<String, BigDecimal> = emptyMap(),
     ) = Statement(
         classification = classification,
         statementDetails = statementDetails,
         suspiciousReasons = suspiciousReasons,
         transactions = transactions,
+        dailyBalances = dailyBalances,
     )
 
     fun newClassifiedStatement(
@@ -269,6 +323,7 @@ object EntityValues {
         totalSpending: BigDecimal = ZERO,
         totalIncomeCredits: BigDecimal = ZERO,
         numTransactions: Int = 0,
+        pendingReviewCount: Int = 0,
     ) = StatementSummary(
         classification = classification,
         statementDetails = statementDetails,
@@ -278,6 +333,7 @@ object EntityValues {
         totalSpending = totalSpending,
         totalIncomeCredits = totalIncomeCredits,
         numTransactions = numTransactions,
+        pendingReviewCount = pendingReviewCount,
     )
 
     fun newClassifiedPages(
@@ -285,11 +341,13 @@ object EntityValues {
         classification: String = DEFAULT_CLASSIFICATION_TYPE,
         bankName: String? = null,
         batesStamps: Map<Int, String> = emptyMap(),
+        bankSource: String? = null,
     ) = ClassifiedPages(
         pages = pages,
         classification = classification,
         bankName = bankName,
         batesStamps = batesStamps,
+        bankSource = bankSource,
     )
 
     fun newClassifiedFilePages(

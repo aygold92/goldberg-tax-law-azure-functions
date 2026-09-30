@@ -70,6 +70,9 @@ fun ObjectMapper.ignoreInterfacePropertiesOn(
     configOverride(target.java).ignorals = JsonIgnoreProperties.Value.forIgnoredProperties(names)
 }
 
+/** JSON for a text column that stores an empty collection as NULL. */
+fun Collection<*>.toJsonColumn(): String? = if (isEmpty()) null else OBJECT_MAPPER.writeValueAsString(this)
+
 val GSON: Gson = GsonBuilder()
     .registerTypeAdapter(LocalDate::class.java, LocalDateAdapter())
     .registerTypeAdapter(DocumentFieldType::class.java, DocumentFieldTypeAdaptor())
