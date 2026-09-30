@@ -15,9 +15,12 @@ import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
+import java.time.Clock
+import java.time.Duration
 import java.time.Instant
+import java.time.ZoneId
+import java.time.ZoneOffset
 
 /**
  * Abstract base class for all database service integration tests.
@@ -43,7 +46,11 @@ import java.time.Instant
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 abstract class DatabaseTest {
 
-    var beginningOfTest = Instant.now().toEpochMilli()
+    /**
+     * The time source for every service under test.  Time stands still until a test calls [MutableClock.advance],
+     * so createdAt/updatedAt assertions are exact and need no sleeps.
+     */
+    val clock = MutableClock()
 
     /**
      * Isolated H2 in-memory database for this test class.
@@ -88,24 +95,23 @@ abstract class DatabaseTest {
         }
     }
 
-    @BeforeEach
-    fun beforeEach() {
-        beginningOfTest = Instant.now().toEpochMilli()
-    }
-
     @AfterAll
     fun clearData() {
         db.txnSafe {
             ClientsTable.deleteAll()
         }
     }
+}
 
-    fun assertTimeIsDuringTest(timeToCheck: Long, endOfTimeWindow: Long = Instant.now().toEpochMilli() + 1) {
-        assertTimeInWindow(timeToCheck, beginningOfTest, endOfTimeWindow)
+/** A [Clock] that only moves when told to.  Starts on a whole millisecond so it survives a DB round trip unchanged. */
+class MutableClock(start: Instant = Instant.parse("2024-01-01T00:00:00Z")) : Clock() {
+    private var now = start
+
+    fun advance(by: Duration) {
+        now += by
     }
 
-    // exclusive
-    fun assertTimeInWindow(timeToCheck: Long, beginningOfTimeWindow: Long, endOfTimeWindow: Long = Instant.now().toEpochMilli()) {
-        assertThat(timeToCheck).isGreaterThan(beginningOfTimeWindow).isLessThan(endOfTimeWindow)
-    }
+    override fun instant(): Instant = now
+    override fun getZone(): ZoneId = ZoneOffset.UTC
+    override fun withZone(zone: ZoneId): Clock = this
 }

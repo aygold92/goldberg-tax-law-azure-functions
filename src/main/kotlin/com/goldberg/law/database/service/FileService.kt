@@ -12,14 +12,19 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import java.time.Clock
 import java.util.*
 
-class FileService @Inject constructor(private val db: Database) {
+class FileService @Inject constructor(
+    private val db: Database,
+    private val clock: Clock = Clock.systemUTC(),
+) {
     private val logger = KotlinLogging.logger {}
     /** Save or get file by client and filename, return file_id */
     fun insertFile(inputFile: InputFile, requestToken: UUID): UUID = db.txnSafe {
         try {
             val newFileId = FilesTable.insert {
+                it[FilesTable.uploadedAt] = clock.instant()
                 it[FilesTable.clientId] = EntityID(inputFile.clientId, ClientsTable)
                 it[FilesTable.fileName] = inputFile.info.fileName
                 it[FilesTable.contentHash] = inputFile.info.contentHash

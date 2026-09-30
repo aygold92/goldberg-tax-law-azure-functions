@@ -27,14 +27,15 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import java.time.Duration
 import java.util.UUID
 
 class CheckServiceTest : DatabaseTest() {
 
-    private val clientService = ClientService(db)
-    private val fileService = FileService(db)
-    private val classificationService = ClassificationService(db)
-    private val checkService = CheckService(db)
+    private val clientService = ClientService(db, clock)
+    private val fileService = FileService(db, clock)
+    private val classificationService = ClassificationService(db, clock)
+    private val checkService = CheckService(db, clock)
 
     // Shared upstream fixtures
     private lateinit var clientId: UUID
@@ -138,8 +139,8 @@ class CheckServiceTest : DatabaseTest() {
 
     @Nested
     inner class ListChecks {
-        private val transactionService = TransactionService(db)
-        private val statementService = StatementService(transactionService, BankStatementVerifier(TransactionVerifier()), db)
+        private val transactionService = TransactionService(db, clock)
+        private val statementService = StatementService(transactionService, BankStatementVerifier(TransactionVerifier()), db, clock)
 
         @BeforeEach
         fun clearStatements() {
@@ -192,7 +193,7 @@ class CheckServiceTest : DatabaseTest() {
         fun `advances updatedAt`() {
             val checkId = checkService.insertCheck(classification, EntityValues.newCheckDetails(reviewStatus = ReviewStatus.PENDING))
             val before = checkService.loadCheck(checkId).checkDetails.updatedAt
-            Thread.sleep(10)
+            clock.advance(Duration.ofSeconds(1))
 
             checkService.updateReviewStatus(checkId, ReviewStatus.VERIFIED)
 

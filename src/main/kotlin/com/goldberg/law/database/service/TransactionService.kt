@@ -16,19 +16,23 @@ import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.time.Instant
+import java.time.Clock
 import java.util.*
 
 class TransactionService @Inject constructor(
     private val db: Database,
+    private val clock: Clock = Clock.systemUTC(),
 ) {
     private val logger = KotlinLogging.logger {}
 
     fun batchInsert(statementId: UUID, transactions: List<TransactionDetails>) {
+        val now = clock.instant()
         transactions.mapIndexed { index, t -> index to t }
             .chunked(DbExec.DEFAULT_BATCH_SIZE)
             .forEach { batch ->
                 TransactionsTable.batchInsert(batch) { (index, transaction) ->
+                    this[TransactionsTable.createdAt] = now
+                    this[TransactionsTable.updatedAt] = now
                     this[TransactionsTable.statementId] = statementId
                     this[TransactionsTable.checkId] = null as EntityID<UUID>? // Will be linked later if applicable
                     this[TransactionsTable.date] = transaction.date
@@ -50,7 +54,7 @@ class TransactionService @Inject constructor(
      * the status changes only through [updateReviewStatus] — so a row added here starts unflagged.
      */
     fun upsertTransactions(statementId: UUID, transactions: List<TransactionDetails>) = db.txnSafe {
-        val now = Instant.now()
+        val now = clock.instant()
         TransactionsTable.batchUpsert(transactions, onUpdateExclude = listOf(TransactionsTable.createdAt)) { transaction ->
             this[TransactionsTable.statementId] = statementId
             this[TransactionsTable.id] = transaction.transactionId
@@ -109,7 +113,7 @@ class TransactionService @Inject constructor(
     fun updateReviewStatus(transactionId: UUID, status: ReviewStatus) = db.txnSafe {
         TransactionsTable.update({ TransactionsTable.id eq transactionId }) {
             it[TransactionsTable.reviewStatus] = status
-            it[updatedAt] = Instant.now()
+            it[updatedAt] = clock.instant()
         }.takeUnless { it == 0 } ?: throw EntityNotFoundException(EntityType.Transaction, transactionId)
         logger.info { "Set review status of transaction $transactionId to $status" }
     }
@@ -133,7 +137,7 @@ class TransactionService @Inject constructor(
 
     fun unlinkChecks(checkIds: List<UUID>) = db.txnSafe {
         if (checkIds.isEmpty()) return@txnSafe
-        val now = Instant.now()
+        val now = clock.instant()
         TransactionsTable.update({ TransactionsTable.checkId inList checkIds }) {
             it[TransactionsTable.checkId] = null
             it[updatedAt] = now
@@ -142,7 +146,7 @@ class TransactionService @Inject constructor(
 
     fun linkTransactionsWithChecks(transactionCheckMatches: List<TransactionCheckMatch>) = db.txnSafe {
         // Batch insert all transactions in batches of 500
-        val now = Instant.now()
+        val now = clock.instant()
         transactionCheckMatches.forEach { (transactionId, checkId) ->
             TransactionsTable.update({ TransactionsTable.id eq transactionId }) {
                 it[TransactionsTable.checkId] = EntityID(checkId, ChecksTable)
@@ -154,7 +158,7 @@ class TransactionService @Inject constructor(
     }
 
     fun reorderTransactions(statementId: UUID, orderedTransactionIds: List<UUID>) = db.txnSafe {
-        val now = Instant.now()
+        val now = clock.instant()
         orderedTransactionIds.forEachIndexed { index, transactionId ->
             TransactionsTable.update({
                 (TransactionsTable.id eq transactionId) and (TransactionsTable.statementId eq statementId)

@@ -25,17 +25,18 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.util.*
+import java.time.Duration
 
 class StatementServiceTest : DatabaseTest() {
 
     private val transactionVerifier = TransactionVerifier()
     private val bankStatementVerifier = BankStatementVerifier(transactionVerifier)
-    private val transactionService = TransactionService(db)
-    private val statementService = StatementService(transactionService, bankStatementVerifier, db)
-    private val classificationService = ClassificationService(db)
+    private val transactionService = TransactionService(db, clock)
+    private val statementService = StatementService(transactionService, bankStatementVerifier, db, clock)
+    private val classificationService = ClassificationService(db, clock)
 
-    private val clientService = ClientService(db)
-    private val fileService = FileService(db)
+    private val clientService = ClientService(db, clock)
+    private val fileService = FileService(db, clock)
 
     // Shared upstream fixtures — recreated before each test.
     // insertBankStatementWithTransactions is under test here, so it must NOT be called in @BeforeEach.
@@ -187,22 +188,20 @@ class StatementServiceTest : DatabaseTest() {
 
         @Test
         fun `test timing`() {
-            Thread.sleep(100)
-
             val statementId = statementService.insertBankStatementWithTransactions(
                 EntityValues.newStatement(classification = classification, transactions = emptyList())
             )
 
             val loaded = statementService.loadBankStatement(statementId)
             val creationTime = loaded.statementDetails.createdAt
-            assertTimeIsDuringTest(creationTime)
+            assertThat(creationTime).isEqualTo(clock.millis())
             assertThat(loaded.statementDetails.updatedAt).isEqualTo(creationTime)
 
-            Thread.sleep(100)
+            clock.advance(Duration.ofSeconds(1))
             statementService.updateBankStatement(EntityValues.newStatementDetails(statementId = statementId))
 
             val afterUpdate = statementService.loadBankStatement(statementId)
-            assertTimeInWindow(afterUpdate.statementDetails.updatedAt, creationTime)
+            assertThat(afterUpdate.statementDetails.updatedAt).isEqualTo(clock.millis()).isGreaterThan(creationTime)
             assertThat(afterUpdate.statementDetails.createdAt).isEqualTo(creationTime)
         }
 
@@ -439,7 +438,7 @@ class StatementServiceTest : DatabaseTest() {
         fun `advances updatedAt`() {
             val statementId = insertFlagged()
             val before = statementService.loadBankStatement(statementId).statementDetails.updatedAt
-            Thread.sleep(10)
+            clock.advance(Duration.ofSeconds(1))
 
             statementService.updateReviewStatus(statementId, ReviewStatus.VERIFIED)
 

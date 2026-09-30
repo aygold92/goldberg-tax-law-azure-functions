@@ -23,12 +23,13 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.util.UUID
+import java.time.Duration
 
 class ClassificationServiceTest : DatabaseTest() {
 
-    private val clientService = ClientService(db)
-    private val fileService = FileService(db)
-    private val classificationService = ClassificationService(db)
+    private val clientService = ClientService(db, clock)
+    private val fileService = FileService(db, clock)
+    private val classificationService = ClassificationService(db, clock)
 
     // Shared upstream fixtures
     private lateinit var clientId: UUID
@@ -119,31 +120,30 @@ class ClassificationServiceTest : DatabaseTest() {
 
         @Test
         fun `test timing`() {
-            Thread.sleep(20) // to ensure creation time is after
             val classifiedFile = EntityValues.newClassifiedFile(fileId = fileId)
             val classificationId = classificationService.insertClassifications(classifiedFile).single().classificationId
 
             // Load by ID — verify all key fields
             val createdModel = classificationService.loadClassification(classificationId)
             val creationTime = createdModel.info.createdAt
-            assertTimeIsDuringTest(creationTime)
+            assertThat(creationTime).isEqualTo(clock.millis())
 
             // Update model location
-            Thread.sleep(20) // to ensure update time is after
+            clock.advance(Duration.ofSeconds(1))
             classificationService.updateModelLocation(classificationId, EntityValues.DEFAULT_STORAGE_LOCATION)
             val afterFirstModelUpdate = classificationService.loadClassification(classificationId)
             val firstUpdateTime = afterFirstModelUpdate.info.updatedAt
-            assertTimeInWindow(firstUpdateTime, creationTime)
+            assertThat(firstUpdateTime).isEqualTo(clock.millis()).isGreaterThan(creationTime)
 
             // Update classification type and pages
-            Thread.sleep(20) // to ensure update time is after
+            clock.advance(Duration.ofSeconds(1))
             val updatedPages = EntityValues.newClassifiedPages(pages = setOf(3, 4))
             classificationService.updateClassification(classificationId, updatedPages)
 
             val afterSecondModelUpdate = classificationService.loadClassification(classificationId)
             val secondUpdateTime = afterSecondModelUpdate.info.updatedAt
 
-            assertTimeInWindow(secondUpdateTime, firstUpdateTime)
+            assertThat(secondUpdateTime).isEqualTo(clock.millis()).isGreaterThan(firstUpdateTime)
 
             assertThat(creationTime)
                 .isEqualTo(afterFirstModelUpdate.info.createdAt)
@@ -522,7 +522,7 @@ class ClassificationServiceTest : DatabaseTest() {
 
     @Nested
     inner class LoadClassificationIdsForChecks {
-        private val checkService = CheckService(db)
+        private val checkService = CheckService(db, clock)
 
         @BeforeEach
         fun clearChecks() {

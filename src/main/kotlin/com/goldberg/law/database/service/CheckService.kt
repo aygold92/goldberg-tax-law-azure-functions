@@ -18,18 +18,22 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import java.time.Instant
+import java.time.Clock
 import java.util.*
 
 class CheckService @Inject constructor(
-    private val db: Database
+    private val db: Database,
+    private val clock: Clock = Clock.systemUTC(),
 ) {
     private val logger = KotlinLogging.logger {}
     /**
      * Save check and return check_id
      */
     fun insertCheck(classification: Classification, check: CheckDetails): UUID = db.txnSafe {
+        val now = clock.instant()
         val newCheckId = ChecksTable.insert {
+            it[ChecksTable.createdAt] = now
+            it[ChecksTable.updatedAt] = now
             it[ChecksTable.classificationId] = EntityID(classification.classificationId, ClassificationsTable)
             it[ChecksTable.checkNumber] = check.checkNumber
             it[ChecksTable.accountNumber] = check.accountNumber
@@ -85,7 +89,7 @@ class CheckService @Inject constructor(
      * so a check added here starts with none.
      */
     fun updateChecks(checks: List<CheckDetails>, classificationIds: Map<UUID, UUID>) = db.txnSafe {
-        val now = Instant.now()
+        val now = clock.instant()
         ChecksTable.batchUpsert(checks, onUpdateExclude = listOf(ChecksTable.createdAt)) { check ->
             this[ChecksTable.id] = check.checkId
             this[ChecksTable.classificationId] = EntityID(classificationIds.getValue(check.checkId), ClassificationsTable)
@@ -105,7 +109,7 @@ class CheckService @Inject constructor(
     fun updateReviewStatus(checkId: UUID, status: ReviewStatus) = db.txnSafe {
         ChecksTable.update({ ChecksTable.id eq checkId }) {
             it[ChecksTable.reviewStatus] = status
-            it[updatedAt] = Instant.now()
+            it[updatedAt] = clock.instant()
         }.takeUnless { it == 0 } ?: throw EntityNotFoundException(EntityType.Check, checkId)
         logger.info { "Set review status of check $checkId to $status" }
     }

@@ -18,13 +18,14 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.greater
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.less
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import java.math.BigDecimal
-import java.time.Instant
+import java.time.Clock
 import java.util.*
 
 class StatementService @Inject constructor(
     private val transactionService: TransactionService,
     private val bankStatementVerifier: BankStatementVerifier,
     private val db: Database,
+    private val clock: Clock = Clock.systemUTC(),
 ) {
     private val logger = KotlinLogging.logger {}
 
@@ -34,8 +35,11 @@ class StatementService @Inject constructor(
     fun insertBankStatementWithTransactions(statement: Statement): UUID = db.txnSafe {
         // Convert bates stamps to JSON
         val details = statement.statementDetails
+        val now = clock.instant()
 
         val newStatementId = BankStatementsTable.insert {
+            it[createdAt] = now
+            it[updatedAt] = now
             it[BankStatementsTable.classificationId] = EntityID(statement.classification.classificationId, ClassificationsTable)
             it[BankStatementsTable.accountNumber] = details.accountNumber
             it[BankStatementsTable.date] = details.date
@@ -73,7 +77,7 @@ class StatementService @Inject constructor(
             it[BankStatementsTable.feesCharged] = statementDetails.feesCharged
             it[BankStatementsTable.batesStamps] = OBJECT_MAPPER.writeValueAsString(statementDetails.batesStamps)
             it.writeSummaryFields(statementDetails)
-            it[updatedAt] = Instant.now()
+            it[updatedAt] = clock.instant()
         }.takeUnless { it == 0 } ?: throw EntityNotFoundException(EntityType.Statement, statementDetails.statementId)
     }
 
@@ -81,7 +85,7 @@ class StatementService @Inject constructor(
     fun updateReviewStatus(statementId: UUID, status: ReviewStatus) = db.txnSafe {
         BankStatementsTable.update({ BankStatementsTable.id eq statementId }) {
             it[BankStatementsTable.reviewStatus] = status
-            it[updatedAt] = Instant.now()
+            it[updatedAt] = clock.instant()
         }.takeUnless { it == 0 } ?: throw EntityNotFoundException(EntityType.Statement, statementId)
         logger.info { "Set review status of statement $statementId to $status" }
     }

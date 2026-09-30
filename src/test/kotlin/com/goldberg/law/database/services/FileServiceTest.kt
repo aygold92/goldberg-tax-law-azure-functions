@@ -30,8 +30,8 @@ import java.util.UUID
 
 class FileServiceTest : DatabaseTest() {
 
-    private val clientService = ClientService(db)
-    private val fileService = FileService(db)
+    private val clientService = ClientService(db, clock)
+    private val fileService = FileService(db, clock)
 
     // Shared upstream fixture — recreated before each test since the base class clears all rows.
     // insertFile is under test here so it must NOT be called in @BeforeEach.
@@ -54,8 +54,6 @@ class FileServiceTest : DatabaseTest() {
 
         @Test
         fun `insert, load, list summary, then delete`() {
-            // for timing
-            Thread.sleep(100)
             val inputFile = EntityValues.newInputFile(client = EntityValues.newClient(clientId = clientId))
             // create
             val fileId = fileService.insertFile(inputFile, UUID.randomUUID())
@@ -65,7 +63,7 @@ class FileServiceTest : DatabaseTest() {
             assertThat(loadedFile).entityCompare().isEqualTo(inputFile)
             assertThat(loadedFile.fileId).isEqualTo(fileId)
             assertThat(loadedFile.clientId).isEqualTo(clientId)
-            assertTimeIsDuringTest(loadedFile.info.uploadedAt)
+            assertThat(loadedFile.info.uploadedAt).isEqualTo(clock.millis())
 
             // list
             val summary = fileService.listFileSummaries(clientId).single()
@@ -409,10 +407,10 @@ class FileServiceTest : DatabaseTest() {
     @Nested
     inner class ListFileSummaries {
 
-        private val classificationService = ClassificationService(db)
-        private val transactionService = TransactionService(db)
-        private val statementService = StatementService(transactionService, BankStatementVerifier(TransactionVerifier()), db)
-        private val checkService = CheckService(db)
+        private val classificationService = ClassificationService(db, clock)
+        private val transactionService = TransactionService(db, clock)
+        private val statementService = StatementService(transactionService, BankStatementVerifier(TransactionVerifier()), db, clock)
+        private val checkService = CheckService(db, clock)
 
         @Test
         fun `does not return files belonging to other clients`() {

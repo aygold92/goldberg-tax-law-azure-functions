@@ -22,6 +22,7 @@ import com.google.inject.Singleton
 import com.google.inject.name.Named
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.sql.Database
+import java.time.Clock
 import java.time.Duration
 
 class AppModule: AbstractModule() {
@@ -33,6 +34,11 @@ class AppModule: AbstractModule() {
         })
         DatabaseConfig.init()
     }
+
+    /** The time source every service stamps `createdAt`/`updatedAt` from; tests swap in a controllable one. */
+    @Provides
+    @Singleton
+    fun clock(): Clock = Clock.systemUTC()
 
     @Provides
     @Singleton

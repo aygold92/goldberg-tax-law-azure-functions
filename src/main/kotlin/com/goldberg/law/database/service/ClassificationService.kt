@@ -20,11 +20,12 @@ import com.goldberg.law.database.tables.ChecksTable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
-import java.time.Instant
+import java.time.Clock
 import java.util.*
 
 class ClassificationService @Inject constructor(
     private val db: Database,
+    private val clock: Clock = Clock.systemUTC(),
 ) {
     private val logger = KotlinLogging.logger {}
 
@@ -37,7 +38,7 @@ class ClassificationService @Inject constructor(
         val classificationInfos = mutableListOf<ClassificationInfo>()
 
         // Process classifications in batches of 500
-        val now = Instant.now()
+        val now = clock.instant()
         file.classifications.chunked(DbExec.DEFAULT_BATCH_SIZE).forEach { batch ->
             val batchRowResults = ClassificationsTable.batchInsert(batch) { classifiedPdfPages ->
                 this[ClassificationsTable.fileId] = file.fileId
@@ -77,7 +78,7 @@ class ClassificationService @Inject constructor(
     fun updateExtractionSession(classificationId: UUID, extractionSessionId: String) = db.txnSafe {
         ClassificationsTable.update({ ClassificationsTable.id eq classificationId }) {
             it[ClassificationsTable.extractionSessionId] = extractionSessionId
-            it[updatedAt] = Instant.now()
+            it[updatedAt] = clock.instant()
         }.takeUnless { it == 0 } ?: throw EntityNotFoundException(EntityType.Classification, classificationId)
         logger.info { "Recorded extraction session $extractionSessionId on classification $classificationId" }
     }
@@ -86,7 +87,7 @@ class ClassificationService @Inject constructor(
     fun updateUnreadablePages(classificationId: UUID, unreadablePages: List<Int>) = db.txnSafe {
         ClassificationsTable.update({ ClassificationsTable.id eq classificationId }) {
             it[ClassificationsTable.unreadablePages] = unreadablePages.sorted().toJsonColumn()
-            it[updatedAt] = Instant.now()
+            it[updatedAt] = clock.instant()
         }.takeUnless { it == 0 } ?: throw EntityNotFoundException(EntityType.Classification, classificationId)
         logger.info { "Recorded ${unreadablePages.size} unreadable page(s) on classification $classificationId" }
     }
@@ -106,7 +107,7 @@ class ClassificationService @Inject constructor(
     fun updateModelLocation(classificationId: UUID, modelLocation: StorageLocation) = db.txnSafe {
         ClassificationsTable.update({ ClassificationsTable.id eq classificationId }) {
             it[ClassificationsTable.modelLocation] = modelLocation.serialize()
-            it[updatedAt] = Instant.now()
+            it[updatedAt] = clock.instant()
         }.takeUnless { it == 0 } ?: throw EntityNotFoundException(EntityType.Classification, classificationId)
         logger.debug { "Updated model location for classification: $classificationId" }
     }
@@ -122,7 +123,7 @@ class ClassificationService @Inject constructor(
             it[ClassificationsTable.bankName] = pages.bankName
             it[ClassificationsTable.batesStamps] = pages.batesStamps
                 .takeIf { stamps -> stamps.isNotEmpty() }?.let { stamps -> OBJECT_MAPPER.writeValueAsString(stamps) }
-            it[updatedAt] = Instant.now()
+            it[updatedAt] = clock.instant()
         }.takeUnless { it == 0 } ?: throw EntityNotFoundException(EntityType.Classification, classificationId)
         logger.debug { "Updated pages for classification: $classificationId" }
     }

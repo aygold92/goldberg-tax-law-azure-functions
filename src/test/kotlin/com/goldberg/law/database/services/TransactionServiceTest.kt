@@ -32,18 +32,19 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.util.UUID
+import java.time.Duration
 
 class TransactionServiceTest : DatabaseTest() {
 
     private val transactionVerifier = TransactionVerifier()
     private val bankStatementVerifier = BankStatementVerifier(transactionVerifier)
-    private val transactionService = TransactionService(db)
-    private val statementService = StatementService(transactionService, bankStatementVerifier, db)
+    private val transactionService = TransactionService(db, clock)
+    private val statementService = StatementService(transactionService, bankStatementVerifier, db, clock)
 
-    private val classificationService = ClassificationService(db)
-    private val clientService = ClientService(db)
-    private val fileService = FileService(db)
-    private val checkService = CheckService(db)
+    private val classificationService = ClassificationService(db, clock)
+    private val clientService = ClientService(db, clock)
+    private val fileService = FileService(db, clock)
+    private val checkService = CheckService(db, clock)
 
     // Shared upstream fixtures
     private lateinit var clientId: UUID
@@ -268,7 +269,7 @@ class TransactionServiceTest : DatabaseTest() {
         @Test
         fun `updateReviewStatus advances updatedAt`() {
             val stored = insertFlagged()
-            Thread.sleep(10)
+            clock.advance(Duration.ofSeconds(1))
 
             transactionService.updateReviewStatus(stored.transactionId, ReviewStatus.VERIFIED)
 
@@ -287,21 +288,19 @@ class TransactionServiceTest : DatabaseTest() {
 
         @Test
         fun `upsert sets createdAt and updatedAt on insert, re-upsert only advances updatedAt`() {
-            Thread.sleep(20)
             val txDetails = EntityValues.newTransactionDetails()
             transactionService.upsertTransactions(statementId, listOf(txDetails))
 
-            Thread.sleep(20)
             val loaded = transactionService.loadTransaction(txDetails.transactionId)
             val creationTime = loaded.createdAt
-            assertTimeIsDuringTest(creationTime)
+            assertThat(creationTime).isEqualTo(clock.millis())
             assertThat(loaded.updatedAt).isEqualTo(creationTime)
 
-            Thread.sleep(20)
+            clock.advance(Duration.ofSeconds(1))
             transactionService.upsertTransactions(statementId, listOf(txDetails))
 
             val afterUpdate = transactionService.loadTransaction(txDetails.transactionId)
-            assertTimeInWindow(afterUpdate.updatedAt, creationTime)
+            assertThat(afterUpdate.updatedAt).isEqualTo(clock.millis()).isGreaterThan(creationTime)
             assertThat(afterUpdate.createdAt).isEqualTo(creationTime)
         }
     }

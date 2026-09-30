@@ -20,7 +20,7 @@ import java.util.UUID
 
 class ClientServiceTest : DatabaseTest() {
 
-    private val clientService = ClientService(db)
+    private val clientService = ClientService(db, clock)
 
     @BeforeEach
     fun clearClients() {
@@ -34,17 +34,15 @@ class ClientServiceTest : DatabaseTest() {
 
         @Test
         fun `insert, load, list, then delete`() {
-            Thread.sleep(100) // for timing
             // Insert
             val clientId = clientService.insertClient(EntityValues.DEFAULT_CLIENT_NAME, UUID.randomUUID())
 
             // Load — verify all fields round-trip correctly
-            Thread.sleep(100) // to ensure timing
             val loaded = clientService.loadClient(clientId)
             assertThat(loaded).entityCompare()
                 .isEqualTo(EntityValues.newClient(clientId = clientId))
             assertThat(loaded.clientId).isEqualTo(clientId)
-            assertTimeIsDuringTest(loaded.createdAt)
+            assertThat(loaded.createdAt).isEqualTo(clock.millis())
 
             // List — verify client appears with correct fields
             val listed = clientService.listClients()

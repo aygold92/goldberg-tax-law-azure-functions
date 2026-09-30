@@ -13,10 +13,12 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
+import java.time.Clock
 import java.util.*
 
 class ClientService @Inject constructor(
     private val db: Database,
+    private val clock: Clock = Clock.systemUTC(),
 ) {
     private val logger = KotlinLogging.logger {}
 
@@ -27,7 +29,10 @@ class ClientService @Inject constructor(
      */
     fun insertClient(name: String, clientToken: UUID): UUID = db.txnSafe {
         try {
+            val now = clock.instant()
             val newClient = ClientsTable.insert {
+                it[ClientsTable.createdAt] = now
+                it[ClientsTable.updatedAt] = now
                 it[ClientsTable.name] = name
                 it[ClientsTable.clientToken] = clientToken
             }
