@@ -1,83 +1,118 @@
 # Extraction notes format
 
-The two kinds of file in `/mnt/memory/extraction-notes/<bank_id>/`. When to read and write them is in SKILL.md under "Memory: Bank Extraction Notes".
-A complete example of both is in `references/extraction-notes-example.md`.
+The two kinds of file in `/mnt/memory/extraction-notes/<bank_id>/`: `main.json` and one `{session_id}.json` per session that needed to write one. 
+When to read and write them is in SKILL.md under "Memory: Bank Extraction Notes".
 
-What you record is what the next run works from: your quoted labels tell it which figures to look for and where, and your reconciliation conventions tell it how the printed totals are scoped.
+The schema below is meant to hold keyword search terms. The next run searches the pages for them and reads only what they point at, so every value must be text it can search for, exactly as printed.
+Replace client PII or statement specific information (like dates) with placeholders (`{year}`, `{date}`, `{MM/DD/YY}`, `{account number}`).
 
-## Rules
-- Record what is structurally true of the bank's statement format. Leave out anything that depends on this submission: missing, redacted, or duplicated pages, scan quality, Bates stamps.
-- Leave out anything about this run (what you found, how sure you were, whether checks passed) and about reading the PDF (tools, OCR, text extraction, image sizes).
-- Record only what this statement's pages showed, not the filename or what you expect of the bank in general.
-- Record how reconciliation checks must be run for this bank, not whether they passed.
-- Record the sections that carry nothing you need as well as the ones that do. A later run searches for those headings and skips them instead of reading them to find out.
-- No client personally identifying information: names, addresses, or account numbers, including partial ones like the last four digits.
+## Schema
 
-## Style
-The reader is a later run with this same skill. Give it the observations; it already knows what to do with them.
-- Start with `# {bank_id}` and go straight into the sections. Nothing about this session, the store, or whether the folder is new.
-- One observation per bullet: the label or line, quoted, and where it appears.
-- Quote exact labels rather than paraphrasing, with client values replaced by placeholders: `{account number}`, `{amount}`, `{date}`, `{merchant}`. Add words only where the quote alone would be ambiguous.
-- Leave out why something matters and how to use it. State a trap as what the line or page is, not as a warning.
-- Don't restate the section heading or the task.
-- State what the pages showed, not how often: avoid `always`, `usually`, `rarely`, `never`.
-
-## `main.md`
-
-```
-# {bank_id}
-
-## Institution Name
-Name: [The institution's name as printed on the statement, not a card or account product. Several bank_ids can share one name]
-
-Also seen as:
-- [Other forms of the same institution's name printed on the statement]
-
-Products:
-- [Names of the card or account products this format's statements are for, as printed. Not a product that only appears in a summary panel]
-
-## Statement Shape
-- [What the statement looks like beyond card vs deposit, which the `_cc` suffix already says]
-- [Single-account or consolidated; if consolidated, which account types and how they're laid out]
-
-## Sections
-- [Each heading as printed, in the order it appears, and what it carries: summary figures, register rows, or nothing you need]
-
-## What numbers and where
-- [Which summary fields are printed, and which are omitted]
-- [Where the summary box sits, and its exact labels, quoted]
-- [Whether there's a daily ledger, and where]
-
-## Transaction register
-- [Layout: one signed amount column, separate debit and credit sections, or separate payments and charges sections]
-- [How signs are shown or implied]
-- [Register date format, and where the year comes from]
-- [Where check numbers come from; check images only where they interrupt the register]
-- [Sub-account or card sub-thread structure that rolls into a parent account]
-
-## Reconciliation conventions
-- [What the printed totals and counts include: fees, checks, interest folded in or broken out]
-- [The summary box's printed arithmetic, in the bank's order]
-- [Rounding or display conventions confirmed on the page]
-
-## Transaction Description Patterns
-- [Line templates, with placeholders]
-- [How descriptions wrap, and what lands on continuation lines]
-- [Recurring boilerplate wording, quoted]
-- [Merchant prefixes, quoted]
-
-## Traps
-- [Lines or pages in this bank's statements that look like something they aren't]
-
-## Discovery Log
-- First seen: [datetime, source file name, page range]
-- Last confirmed: [datetime, source file name, page range]
+```json
+{
+  "summary": {
+    "account_number": ["..."],
+    "statement_date": ["..."],
+    "statement_start": ["..."],
+    "beginning_balance": ["..."],
+    "ending_balance": ["..."],
+    "total_credits": ["..."],
+    "total_debits": ["..."],
+    "fees_charged": ["..."],
+    "interest_received": ["..."],
+    "interest_charged": ["..."],
+    "checks_total": ["..."],
+    "txn_count": ["..."],
+    "txn_count_credit": ["..."],
+    "txn_count_debit": ["..."],
+    "daily_balances": ["..."]
+  },
+  "summary_arithmetic": ["..."],
+  "transaction_sections": ["..."],
+  "skip_sections": ["..."]
+}
 ```
 
-Take the datetime from `date -u`, and the source file name from the task message (the mounted file is always named `bundle.pdf`).
+- `summary`: every summary field from `references/output-schema.md`, each mapped to the labels the bank prints it under.
+  - `daily_balances` is a special case: if it appears in its own dedicated section, record the section header here.  If it appears in the transaction register instead, record `null`. 
+- `summary_arithmetic`: every label in the summary box's own arithmetic, regardless of whether it also maps to a summary field.
+- `transaction_sections`: the headings of sections that carry transaction rows. 
+  - Be aware of section continuations across pages ("PURCHASES (CONTINUED)"). List a continuation heading only when searching the original doesn't also find the continuation.
+- `skip_sections`: headings of sections with nothing you need. You search for these too: a section you read ends where the next heading of either kind begins.
+  - A heading can end up in both lists when a section that's usually empty of transactions carries one on some statements. Treat it as a transaction section and read it.
+
+Every value is a list, because bank statements can have variations over time. A list with several entries means all of them have been seen: search for all of them, and let the page decide. 
+If the entire value is `null`, then it was never printed.  A list containing a values can also include `null` as one of the values, which means sometimes it was seen and others not.
 
 ## Session files
+If the folder is empty (no `main.json` or other session file exists), you will write a session file that acts as `main.json`.  
 
-Same headings, but only the sections you have something new for: what's new or different from `main.md` and the other session files. Replace `First seen` / `Last confirmed` with one `- Observed:` line.
+(Note that below, `main.json` could also refer to a session file acting as `main.json`.) 
+Otherwise, write a session file only on the following occasions:
 
-Where you contradict `main.md` or a session file, name the file and say so plainly; the consolidation agent records the disagreement.
+#### Your statement contradicts `main.json` in some way 
+A contradiction means either the keywords listed here did not lead you to the value you needed, or you found that a key that was previously null actually is printed.
+- If you found a new keyword, record that key and the value(s) that were printed on the statement.  Do not repeat what was in `main.json`.  
+- If the statement didn't print that value at all, record `null` as the value.
+
+#### You read a section unnecessarily
+If you read in between two sections and pulled in an additional section that you could have skipped, record that in `skip_sections`.
+
+#### A skipped section held transactions
+If a section in `skip_sections` held transaction rows on your statement, record its heading in `transaction_sections`.
+
+## Examples
+
+A made-up bank, so none of this is a real pattern. It shows the shape only: first a `main.json`, then a later session file written against it.
+
+### `northgate_relationship/main.json`
+
+```json
+{
+  "summary": {
+    "account_number": ["Account Number"],
+    "statement_date": ["Statement Period: {date} through {date}"],
+    "statement_start": ["Statement Period: {date} through {date}"],
+    "beginning_balance": ["Beginning Balance"],
+    "ending_balance": ["Ending Balance"],
+    "total_credits": ["Deposits and Credits"],
+    "total_debits": ["Withdrawals and Debits"],
+    "fees_charged": null,
+    "interest_received": ["Interest Paid This Period", null],
+    "interest_charged": null,
+    "checks_total": ["Checks Paid"],
+    "txn_count": null,
+    "txn_count_credit": null,
+    "txn_count_debit": null,
+    "daily_balances": ["Daily Balance Summary"]
+  },
+  "summary_arithmetic": ["Beginning Balance", "Deposits and Credits", "Withdrawals and Debits", "Checks Paid", "Ending Balance"],
+  "transaction_sections": ["Deposits and Credits", "Withdrawals and Debits", "Checks Paid"],
+  "skip_sections": ["Your Accounts at a Glance", "Check Images", "Balancing Your Account", "Northgate Visa® Summary"]
+}
+```
+
+Note for `interest_received`: this represents two variations we've seen, including one where it wasn't printed.   
+
+### `northgate_relationship/sesn_011CZyDef456.json`
+
+The summary printed a fee total that `main.json` records as `null`, in a section it didn't list.  
+The summary arithmetic on this statement now included `"Service Fees"`. Note only that label was added -- don't repeat the set.
+
+```json
+{
+  "summary": {
+    "fees_charged": ["Service Fees"]
+  },
+  "summary_arithmetic": ["Service Fees"],
+  "transaction_sections": ["Service Fees"]
+}
+```
+
+### `northgate_relationship/sesn_249LAcMfl902.json`
+The agent read into context a section it could have skipped. 
+```json
+{
+  "skip_sections": ["Annual Interest Summary"]
+}
+```

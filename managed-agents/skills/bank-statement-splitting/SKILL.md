@@ -19,7 +19,7 @@ Do all the following in one turn. Several tool calls in the same turn is fine; i
   - print the top of the first page carrying a substantial amount of text, enough to identify the institution and whether the statement is a deposit account or a credit card
 
 ### 2. Read relevant memory files
-Read the memory files for the folders whose institution matches what you found on the first statement (see Memory). 
+Read the memory files for the folders whose institution matches what you found on the first statement: its `institution` name, `seen_as` or `products` (see Memory). 
 - If no folder matches the institution, don't read any.
 - Often a bundle contains a single bank type, but if you find others later you may need to repeat this step as appropriate.
 
@@ -30,7 +30,7 @@ These all come out of the same search (See "Processing the PDF", "Check image pa
 To correct any mistakes and decide whether anything needs review (see Verifying and Flagging)
 
 ### 5. Write a session file
-Only if you discovered or corrected a pattern (see Memory).
+Only on the occasions `references/pattern-file-format.md` lists (see Memory).
 
 ### 6. Write the output file
 per `references/output-schema.md`.
@@ -48,8 +48,14 @@ Go into transaction data only to settle a suspicion (see Settling a suspicion an
 
 ### What to search for
 Search every page for the strings that identify it — page numbers, the Bates stamp, the statement period, the account number, the statement's opening marker — and print one line per page. 
-Where memory holds patterns for this bank, search for the strings it quotes.
+Where memory holds patterns for this bank, search for all of them in the same pass: `page_format`, `period_format`, `start_markers`, `end_markers` and `check_page_heading`. 
+Markers are evidence of a statement's first or last page, not proof: rely on them only when they agree with each other or with the page numbering and period (see `references/pattern-file-format.md`).
 Run the check-page tests in the same pass (see Check image pages).
+
+### Pages unidentified after the search 
+Check every page the search doesn't clearly identify to ensure it's not a separate statement.
+Don't assume that just because the statements fit some pattern (like being in order by statement date), that an unidentified page won't contain a random other statement thrown in there. 
+Always inspect that page and verify.
 
 ### Document expectations
 Bundles come from clients: bank originals or scans of varying quality, with or without marketing and information pages, sometimes with mistakes.
@@ -109,30 +115,30 @@ A Bates stamp is a per-page identifier applied by whoever produced the PDF, not 
 
 ## Memory: Bank Pattern Library
 
-The store at `/mnt/memory/bank-patterns/` holds one folder per `bank_id`: a consolidated `main.md`, plus one file per session that touched that bank.
+The store at `/mnt/memory/bank-patterns/` holds one folder per `bank_id`: a consolidated `main.json`, plus one file per session not yet consolidated. 
+The format of both is in `references/pattern-file-format.md`.
 
 ```
 /mnt/memory/bank-patterns/
   bank_of_america/
-    main.md
-    sesn_011CZxAbc123.md
-    sesn_011CZyDef456.md
+    main.json
+    sesn_011CZxAbc123.json
+    sesn_011CZyDef456.json
   chase_cc/
-    main.md
+    main.json
 ```
 
 **Reading**, once you know the institution and the statement type (a deposit account or a credit card):
-1. List the folders; each is one bank type. Read the ones whose institution and statement type matches.
-2. Read `main.md` and every session file in those folders. Session files add to `main.md` and sometimes contradict it.
-3. Search the pages for the strings they quote, and separate check images from logos and banners by the image sizes they record. 
-   - Patterns tell you where to look, not what's true: where they conflict with each other or with the page, the page wins. 
-   - If they don't cleanly apply, coin a new `bank_id`.
+1. List the folders; each is one bank type. Read the ones whose institution and statement type match.
+2. Read `main.json` and every session file in those folders, and search for the keywords from all of them.
+3. Patterns tell you where to look, not what's true: where they conflict with the page, the page wins. If they don't cleanly apply, coin a new `bank_id`.
 
 **Writing.** Other runs write to this store at the same time:
-- Never write or edit `main.md` (the consolidation agent owns it) or another session's file.
-- Write one file per bank you learned something new about: `/mnt/memory/bank-patterns/{bank_id}/{session_id}.md`, using the session id from the task message. Create the folder for a new bank.
-- Before writing, read `references/pattern-file-format.md` and `references/pattern-file-example.md`. Include only what's new or different from what you read.
-- Write memory only for a `bank_id` in your `boundaries`, and not for a range you flagged because you couldn't tell what it is or which bank it's from.
+- Never write or edit `main.json` (the consolidation agent owns it) or another session's file.
+- `references/extraction-notes-format.md` lists the occasions where you should write a session file.
+  - Write at most one file, `/mnt/memory/extraction-notes/{bank_id}/{session_id}.json`, using the session id from the task message.
+  - Create the folder for a new bank.
+- Write only for a `bank_id` in your `boundaries`, and not for a range you flagged because you couldn't tell what it is or which bank it's from.
 
 ## Verifying and Flagging
 
@@ -149,7 +155,7 @@ Two ways you should verify (among others not listed):
 
 Grounds for suspicion that a boundary is wrong (not proof):
 - The section order restarts: a section you've passed reappears without a continuation marker.
-- A range shows none of the bank's recorded start signals.
+- A range shows none of the bank's recorded start markers.
 - A range's first page declares a page number other than 1.
 - Stated page numbers are out of order.
 - The page template shifts mid-range: a different footer, a moved address block, different type.
@@ -170,7 +176,7 @@ Neither list is exhaustive.
 
 ### Settling a suspicion and requiring review
 If you're suspicious about where a statement is cut or which bank it is (card vs deposit), try to settle it with evidence from the document itself.
-If a field the bank prints is helpful (a footer account number, a continuation marker), record it in your session file.
+If a start or end marker would have settled it, record it in your session file.
 
 Transaction data is in scope here. Transaction dates well outside a range's period suggest a page from another statement; one date just past the edge can be legitimate, since registers often sort by post date.
 

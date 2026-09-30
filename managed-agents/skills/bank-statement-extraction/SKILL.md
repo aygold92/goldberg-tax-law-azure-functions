@@ -7,7 +7,11 @@ description: Extract structured transaction and summary data from a single bank 
 
 Extract one statement's account summaries and every transaction, exactly as printed. Keep per-bank extraction notes in memory.
 
-You're given the page range and `bank_id`. Process only those pages; the boundaries and bank are already decided.
+The task message gives you:
+- **Pages** and **Bank** (`bank_id`): process only those pages; the boundaries and bank are already decided.
+- **Check-image pages**: skip them; another agent extracts checks.
+- **Source filename**, and your **Session id**, which names your memory session file.
+- **Full read**: `yes` or `no` - use this when deciding how to extract data from the statement, see "Search keywords first" 
 
 A `bank_id` ending in `_cc` is a credit card; anything else is a deposit account. The suffix decides the sign convention and the balance identity.
 
@@ -16,14 +20,13 @@ A `bank_id` ending in `_cc` is a credit card; anything else is a deposit account
 ### 1. Gather Initial Information
 Do all the following in one turn. Several tool calls in the same turn is fine; it doesn't have to be one bash call.
 - `cat` every reference file in `/workspace/skills/bank-statement-extraction/references/`
-- `cat` all your memory notes for this `bank_id`, if it exists (see Memory)
+- `cat` every file in your `bank_id`'s memory folder, if it exists (see Memory)
 - For your page range in the bundle at `/mnt/session/uploads/workspace/bundle.pdf`:
   - survey each page: page size, how many characters of text, how many images, each image's size and position
   - copy the range's text to a file, with a page marker before each page's text. Do NOT bring the text into context.
 
 ### 2. Locate and Extract the Data
-Search that file for the section headings, then print the sections that carry summary figures or register rows (see "Processing the PDF" and "What to Extract").
-Where memory lists this bank's headings, do both in one turn.
+see "Processing the PDF"
 
 ### 3. Reconcile
 Reconcile the extracted transactions and summary figures (see Reconciliation).
@@ -32,7 +35,7 @@ Reconcile the extracted transactions and summary figures (see Reconciliation).
 Fix misreads, and report issues that survive per `references/issue-reporting.md`.
 
 ### 5. Write a session file
-Only if you learned something bank-specific (see Memory).
+Only when the notes weren't enough (see Memory).
 
 ### 6. Write the output file
 per `references/output-schema.md`.
@@ -41,10 +44,16 @@ per `references/output-schema.md`.
 
 `references/pdf-reading.md` has the order to work in. Below is what to look for.
 
-Search your pages for the section headings — the summary box, the register and its continuations, the section totals. 
-Where memory lists this bank's sections, search for those headings and skip the ones it records as carrying nothing you need. 
-Read in full only what carries summary figures or register rows: much of a statement is marketing, year-to-date tables, disclosures and blank pages, and one page can hold both.
+### Search keywords first
+**With memory notes, full read = no:** in one turn, search the text file for every keyword list:
+- the `summary` and `summary_arithmetic` labels: print the lines carrying them and the figures beside them
+- use the `transaction_sections` and `skip_sections` headings to print only the sections that contain relevant data
+Read beyond what the keywords point at only when something is missing or doesn't tie.
 
+**With no memory notes, or full read = yes:** you will be building or verifying the notes, so you are expected to read more of the statement; don't just rely on the keywords.
+- If you think a page is entirely irrelevant (marketing, notices, etc.), you don't necessarily need to read those.
+
+### Tips
 - With a text layer, `pdftotext -layout` keeps columns aligned, which matters for transaction tables.
 - When the page is scanned or a column is ambiguous, look at the rendered page.
 - When a single number looks off, compare the text layer against the rendered page.
@@ -72,7 +81,7 @@ The shape is in `references/output-schema.md`.
 - a sub-thread under one account number, such as a card's purchases listed under a checking account; its lines are transactions of the parent account
 
 **Read, don't compute reported values.** Compute only to reconcile.
-- Copy every summary figure as printed: balances, totals, counts, checks total, fees, interest. If it isn't printed, leave the key out. Memory records each figure's printed label and where it sits.
+- Copy every summary figure as printed: balances, totals, counts, checks total, fees, interest. If it isn't printed, leave the key out. Memory records each figure's printed labels.
 - Never sum transactions to fill a total, and never invent a count. 
 - Reformatting is fine (`5/03` → `2024-05-03`; an unsigned amount in a "Withdrawals" column → negative). 
 
@@ -99,8 +108,7 @@ A fee or interest line in the register is a transaction, and may also be reflect
 
 ## Reconciliation
 
-Run the checks in `references/reconciliation-checks.md` and the date and description checks below. They detect anomalies; the document is ground truth. 
-Memory records how this bank scopes its printed totals — what a debit total includes, what is broken out, etc.
+Run the checks in `references/reconciliation-checks.md` and the date and description checks below. They detect anomalies; the document is ground truth.
 
 When a check fails, re-inspect first. If re-inspection confirms the problem, or you still can't be sure of a value, report it per `references/issue-reporting.md`.
 
@@ -137,28 +145,30 @@ Re-inspect a description when:
 
 ## Memory: Bank Extraction Notes
 
-The store at `/mnt/memory/extraction-notes/` holds one folder per `bank_id`: a consolidated `main.md`, plus one file per session not yet consolidated.
+The store at `/mnt/memory/extraction-notes/` holds one folder per `bank_id`: a consolidated `main.json`, plus one file per session not yet consolidated. 
+The format and meaning of both is in `references/extraction-notes-format.md`.
 
 ```
 /mnt/memory/extraction-notes/
   bank_of_america/
-    main.md
-    sesn_011CZxAbc123.md
-    sesn_011CZyDef456.md
+    main.json
+    sesn_011CZxAbc123.json
+    sesn_011CZyDef456.json
   chase_cc/
-    main.md
+    main.json
 ```
 
 **Reading**:
-1. Look for a folder with your `bank_id`, do not read any other folders.
-2. If it exists, read `main.md` and every session file in that folder. Session files add to `main.md` and sometimes contradict it.
-   - `main.md` won't exist until the consolidation agent has run once.
-   - Runs that started on an empty folder at the same time may each have written a full file.
-3. Notes tell you where to look and what to distrust, not what's true. Where they conflict with each other or with the page, the page wins.
+1. Look for a folder with your `bank_id`; don't read any other folder.
+2. If it exists, read `main.json` and every session file in it, and search for the keywords from all of them.
+   - `main.json` won't exist until the consolidation agent has run once; until then, the session files are your notes.
+3. The notes tell you where to look, not what's true. Where they conflict with the page, the page wins.
+
+**Full reads.** When the task message says `Full read: yes`, compare what you read against the notes, and treat anything they lacked or got wrong as if you had needed it.
 
 **Writing.** Other runs write to this store at the same time:
-- Never write or edit `main.md` (the consolidation agent owns it) or another session's file.
-- Write at most one file: `/mnt/memory/extraction-notes/{bank_id}/{session_id}.md`, using the session id from the task message. Create the folder for a new bank.
-- Before writing, read `references/extraction-notes-format.md` and `references/extraction-notes-example.md`.
-- Include only what's new or different from what you read. With no `main.md` yet, a complete earlier session file can be your base; otherwise your file carries the full contents.
-- Write nothing if you learned nothing bank-specific, or if your result is `{"error": …}`.
+- Never write or edit `main.json` (the consolidation agent owns it) or another session's file.
+- `references/extraction-notes-format.md` lists the occasions where you should write a session file. 
+  - Write at most one file, `/mnt/memory/extraction-notes/{bank_id}/{session_id}.json`, using the session id from the task message. 
+  - Create the folder for a new bank.
+- Write nothing if your result is `{"error": …}`.

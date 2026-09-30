@@ -5,4 +5,4 @@ description: >
   Bank statement extraction patterns and rules, including but not limited to: where the summary
   box and totals live, the register layout, sign and date conventions, multi-account structure,
   and known traps. One folder per bank type (e.g. /bank_of_america/), holding a consolidated
-  main.md plus one file per session that has touched that bank.
+  main.json plus one file per session that has touched that bank.

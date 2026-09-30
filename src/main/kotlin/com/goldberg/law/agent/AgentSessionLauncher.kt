@@ -31,6 +31,10 @@ class AgentSessionLauncher @Inject constructor(
         return SplitterLaunch(sessionId, anthropicFileId)
     }
 
+    /**
+     * [fullRead] tells the agent to read the whole statement instead of only what its memory points at, so a
+     * section or figure the notes record as absent still gets a chance to be noticed.
+     */
     fun startStatementExtraction(
         anthropicFileId: String,
         fileName: String,
@@ -38,6 +42,7 @@ class AgentSessionLauncher @Inject constructor(
         endPage: Int,
         bankId: String,
         checkPages: List<Int>,
+        fullRead: Boolean = false,
     ): String {
         require(startPage in 1..endPage) { "Invalid page range $startPage–$endPage" }
         requirePositive(checkPages)
@@ -50,6 +55,7 @@ class AgentSessionLauncher @Inject constructor(
                 "BANK_ID" to bankId,
                 "CHECK_PAGES" to checkPages,
                 "FILE_NAME" to fileName,
+                "FULL_READ" to if (fullRead) "yes" else "no",
             ),
             title = "Extract $fileName pages $startPage–$endPage",
             budget = AGENT_BUDGET,

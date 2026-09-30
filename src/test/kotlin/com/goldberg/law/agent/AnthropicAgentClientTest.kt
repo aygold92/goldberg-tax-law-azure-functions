@@ -172,7 +172,7 @@ class AnthropicAgentClientTest {
 
         agentClient.startSession(
             ManagedAgent.STATEMENT_EXTRACTION, "file_1",
-            mapOf("START" to 1, "END" to 2, "BANK_ID" to "b", "CHECK_PAGES" to emptyList<Int>(), "FILE_NAME" to "a.pdf"),
+            mapOf("START" to 1, "END" to 2, "BANK_ID" to "b", "CHECK_PAGES" to emptyList<Int>(), "FILE_NAME" to "a.pdf", "FULL_READ" to "no"),
             "t",
             budget,
         )
@@ -262,13 +262,13 @@ class AnthropicAgentClientTest {
 
     @Test
     fun `listing memories resolves the store by name and asks for paths without content`() {
-        givenMemories(memory("/chase_cc/main.md", 1200), memory("/chase_cc/sesn_1.md", 300))
+        givenMemories(memory("/chase_cc/main.json", 1200), memory("/chase_cc/sesn_1.json", 300))
 
         val listed = agentClient.listMemories("bank-patterns")
 
         assertThat(listed).containsExactly(
-            StoredMemory("/chase_cc/main.md", 1200, 1790424000000),
-            StoredMemory("/chase_cc/sesn_1.md", 300, 1790424000000),
+            StoredMemory("/chase_cc/main.json", 1200, 1790424000000),
+            StoredMemory("/chase_cc/sesn_1.json", 300, 1790424000000),
         )
         val (store, params) = listedParams()
         assertThat(store).isEqualTo("store_bank-patterns")

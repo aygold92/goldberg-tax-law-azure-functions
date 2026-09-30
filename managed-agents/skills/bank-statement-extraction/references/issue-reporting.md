@@ -61,4 +61,4 @@ Cases that earn a note:
 
 **Daily Ledger Missing** The notes say the daily ledger is supposed to be present, but it isn't. No flag as this is an optional property.  
 - If you can attribute it to a missing page, then no need to mention it in your memory either. 
-- If all pages are present, note in your memory that this statement didn't have a daily ledger.
+- If all pages are present, record `null` for `daily_balances` in your session file: some statements of this bank don't print one.

@@ -3,6 +3,6 @@
 name: bank-patterns
 description: >
   Bank statement identification patterns and boundary detection rules. One folder per bank
-  type (e.g. /bank_of_america/), holding a consolidated main.md plus one file per session
+  type (e.g. /bank_of_america/), holding a consolidated main.json plus one file per session
   that has touched that bank. Together they describe how to identify that bank and how to
   find statement boundaries within it.

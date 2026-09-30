@@ -107,14 +107,14 @@ class AgentSessionStarterTest : DatabaseTest() {
         fun `page range, bank id and the check pages inside the range come from the classifications`() {
             val statementId = classify(setOf(1, 2, 3, 4), "chase_cc")
             classify(setOf(3, 4, 9), DocumentType.CheckTypes.CHECKS)
-            whenever(launcher.startStatementExtraction(any(), any(), any(), any(), any(), any())).thenReturn("sess_x")
+            whenever(launcher.startStatementExtraction(any(), any(), any(), any(), any(), any(), any())).thenReturn("sess_x")
 
             val start = starter.startStatementExtraction(statementId)
 
             assertThat(start.started).isTrue()
             // Page 9 is a check page outside this statement's range
             verify(launcher).startStatementExtraction(
-                eq("file_abc"), any(), eq(1), eq(4), eq("chase_cc"), eq(listOf(3, 4)),
+                eq("file_abc"), any(), eq(1), eq(4), eq("chase_cc"), eq(listOf(3, 4)), any(),
             )
             assertThat(classificationService.loadClassification(statementId).info.extractionSessionId).isEqualTo("sess_x")
         }
@@ -128,14 +128,14 @@ class AgentSessionStarterTest : DatabaseTest() {
 
             assertThat(start.started).isFalse()
             assertThat(start.sessionId).isEqualTo("sess_old")
-            verify(launcher, never()).startStatementExtraction(any(), any(), any(), any(), any(), any())
+            verify(launcher, never()).startStatementExtraction(any(), any(), any(), any(), any(), any(), any())
         }
 
         @Test
         fun `override extracts again and records the new session`() {
             val statementId = classify(setOf(1, 2), "chase_cc")
             classificationService.updateExtractionSession(statementId, "sess_old")
-            whenever(launcher.startStatementExtraction(any(), any(), any(), any(), any(), any())).thenReturn("sess_new")
+            whenever(launcher.startStatementExtraction(any(), any(), any(), any(), any(), any(), any())).thenReturn("sess_new")
 
             val start = starter.startStatementExtraction(statementId, override = true)
 

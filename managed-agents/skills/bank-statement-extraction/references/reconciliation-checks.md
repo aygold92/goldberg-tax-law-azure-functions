@@ -22,4 +22,6 @@ Notes:
 - Only the balance identity differs between a deposit account and a card: amounts are signed the same way on both, and a card's balance is debt.
 - Printed totals are usually unsigned; some banks print them negative. Compare absolute values.
 - A printed `0.00` is a value and the check runs; an unprinted field is left out and the check is skipped, not failed.
-- Scope varies by bank: fees, checks, and interest can be folded into debit totals and counts, or broken out. Confirm the bank's convention before treating a mismatch as real, and record it in your notes per `references/extraction-notes-format.md`.
+- Scope varies by bank: fees, checks, and interest can be folded into debit totals and counts, or broken out. 
+  - The summary box's own arithmetic usually shows how this bank scopes its printed totals: a term printed on its own ("Fees Charged") probably isn't included in another ("Purchases").
+  - Memory lists the arithmetic's labels in `summary_arithmetic`; read the arithmetic itself off the page.

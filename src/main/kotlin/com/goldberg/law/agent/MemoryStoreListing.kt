@@ -5,7 +5,7 @@ data class StoredMemory(val path: String, val sizeBytes: Int, val updatedAt: Lon
 
 /**
  * A memory store's files, grouped the way the agents lay them out: one folder per bank id, holding the
- * consolidated `main.md` and the session files not yet folded into it.
+ * consolidated `main.json` and the session files not yet folded into it.
  */
 data class MemoryStoreListing(
     val memory: MemoryConsolidation,
@@ -37,7 +37,7 @@ data class MemoryFolder(
     val bankId: String,
     val files: List<MemoryFile>,
     val hasMain: Boolean,
-    /** Session files waiting to be consolidated into `main.md`. */
+    /** Session files waiting to be consolidated into `main.json`. */
     val sessionFileCount: Int,
 ) {
     companion object {
@@ -48,10 +48,10 @@ data class MemoryFolder(
             sessionFileCount = files.count { isSessionFile(it.name) },
         )
 
-        const val MAIN_FILE = "main.md"
+        const val MAIN_FILE = "main.json"
 
         /** An agent's per-session file: named for its session id, which the platform prefixes `sesn_`. */
-        fun isSessionFile(name: String): Boolean = name.startsWith("sesn_") && name.endsWith(".md") && '/' !in name
+        fun isSessionFile(name: String): Boolean = name.startsWith("sesn_") && name.endsWith(".json") && '/' !in name
     }
 }
 

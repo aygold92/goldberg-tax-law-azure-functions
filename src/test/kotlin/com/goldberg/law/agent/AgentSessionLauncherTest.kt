@@ -81,17 +81,29 @@ class AgentSessionLauncherTest {
     fun `statement extraction passes every prompt value, check pages as a list`() {
         whenever(agentClient.startSession(any(), any(), any(), any(), any(), any())).thenReturn(sessionId)
 
-        val result = launcher.startStatementExtraction("file_1", "bundle-a.pdf", 3, 9, "bank_of_america", emptyList())
+        val result = launcher.startStatementExtraction("file_1", "bundle-a.pdf", 3, 9, "bank_of_america", emptyList(), fullRead = false)
 
         assertThat(result).isEqualTo(sessionId)
         verify(agentClient).startSession(
             eq(ManagedAgent.STATEMENT_EXTRACTION),
             eq("file_1"),
-            eq(mapOf("START" to 3, "END" to 9, "BANK_ID" to "bank_of_america", "CHECK_PAGES" to emptyList<Int>(), "FILE_NAME" to "bundle-a.pdf")),
+            eq(mapOf("START" to 3, "END" to 9, "BANK_ID" to "bank_of_america", "CHECK_PAGES" to emptyList<Int>(), "FILE_NAME" to "bundle-a.pdf", "FULL_READ" to "no")),
             any(),
             eq(SessionBudget.dollars(5)),
             any(),
         )
+    }
+
+    @Test
+    fun `statement extraction tells the agent when to read the whole statement`() {
+        whenever(agentClient.startSession(any(), any(), any(), any(), any(), any())).thenReturn(sessionId)
+
+        launcher.startStatementExtraction("file_1", "bundle-a.pdf", 3, 9, "bank_of_america", emptyList(), fullRead = true)
+
+        val values = argumentCaptor<Map<String, Any>>().apply {
+            verify(agentClient).startSession(any(), any(), capture(), any(), any(), any())
+        }.firstValue
+        assertThat(values).containsEntry("FULL_READ", "yes")
     }
 
     @Test
@@ -128,7 +140,7 @@ class AgentSessionLauncherTest {
 
     @Test
     fun `memory consolidation starts one session on the chosen store for the one bank folder`() {
-        givenFolder("extraction-notes", "bank_of_america", "main.md", "sesn_1.md")
+        givenFolder("extraction-notes", "bank_of_america", "main.json", "sesn_1.json")
         whenever(agentClient.startMemorySession(any(), any(), any(), any(), any(), any())).thenReturn(sessionId)
 
         val started = launcher.startMemoryConsolidation(MemoryConsolidation.EXTRACTION, "bank_of_america")
@@ -144,7 +156,7 @@ class AgentSessionLauncherTest {
 
     @Test
     fun `each store's consolidation carries its own writer's format`() {
-        givenFolder("bank-patterns", "chase_cc", "sesn_1.md")
+        givenFolder("bank-patterns", "chase_cc", "sesn_1.json")
         whenever(agentClient.startMemorySession(any(), any(), any(), any(), any(), any())).thenReturn(sessionId)
 
         launcher.startMemoryConsolidation(MemoryConsolidation.SPLITTING, "chase_cc")
@@ -157,7 +169,7 @@ class AgentSessionLauncherTest {
 
     @Test
     fun `memory consolidation rejects a bank id that isn't a folder name`() {
-        listOf("", "Bank_Of_America", "../bank_of_america", "chase_cc/main.md", "chase cc").forEach { bankId ->
+        listOf("", "Bank_Of_America", "../bank_of_america", "chase_cc/main.json", "chase cc").forEach { bankId ->
             assertThatThrownBy { launcher.startMemoryConsolidation(MemoryConsolidation.SPLITTING, bankId) }
                 .isInstanceOf(IllegalArgumentException::class.java)
         }
@@ -176,8 +188,8 @@ class AgentSessionLauncherTest {
 
     @Test
     fun `memory consolidation starts nothing for a folder with no session files`() {
-        // A consolidated folder: main.md, plus a stray file that isn't a session's
-        givenFolder("bank-patterns", "chase_cc", "main.md", "notes.md")
+        // A consolidated folder: main.json, plus a stray file that isn't a session's
+        givenFolder("bank-patterns", "chase_cc", "main.json", "notes.json")
 
         assertThatThrownBy { launcher.startMemoryConsolidation(MemoryConsolidation.SPLITTING, "chase_cc") }
             .isInstanceOf(IllegalArgumentException::class.java)
@@ -188,7 +200,7 @@ class AgentSessionLauncherTest {
     @Test
     fun `listing memory groups the whole store into bank folders`() {
         whenever(agentClient.listMemories("extraction-notes")).thenReturn(
-            listOf(StoredMemory("/chase_cc/main.md", 900, 1L), StoredMemory("/chase_cc/sesn_1.md", 100, 2L)),
+            listOf(StoredMemory("/chase_cc/main.json", 900, 1L), StoredMemory("/chase_cc/sesn_1.json", 100, 2L)),
         )
 
         val listing = launcher.listMemory(MemoryConsolidation.EXTRACTION)
@@ -284,7 +296,7 @@ class AgentSessionLauncherTest {
 
     @Test
     fun `a prose report is the output, with nothing to parse`() {
-        val report = "Merged 3 session files into bank_of_america/main.md, recorded 1 conflict, deleted 3 files."
+        val report = "Merged 3 session files into bank_of_america/main.json, recorded 1 conflict, deleted 3 files."
         givenSnapshot(finished(ManagedAgent.MEMORY_CONSOLIDATION, report))
 
         val result = launcher.fetchResult(sessionId)

@@ -13,6 +13,7 @@ class UserPromptTemplateTest {
         "CHECK_PAGES" to listOf(5, 6),
         "FILE_NAME" to "bundle.pdf",
         "SESSION_ID" to "sesn_123",
+        "FULL_READ" to "yes",
     )
 
     @Test
@@ -20,7 +21,7 @@ class UserPromptTemplateTest {
         assertThat(UserPromptTemplate.load(ManagedAgent.SPLITTER).placeholders)
             .containsExactlyInAnyOrder("FILE_NAME", "SESSION_ID")
         assertThat(UserPromptTemplate.load(ManagedAgent.STATEMENT_EXTRACTION).placeholders)
-            .containsExactlyInAnyOrder("START", "END", "BANK_ID", "CHECK_PAGES", "FILE_NAME", "SESSION_ID")
+            .containsExactlyInAnyOrder("START", "END", "BANK_ID", "CHECK_PAGES", "FILE_NAME", "SESSION_ID", "FULL_READ")
         assertThat(UserPromptTemplate.load(ManagedAgent.CHECK_EXTRACTION).placeholders)
             .containsExactlyInAnyOrder("PAGES")
         assertThat(UserPromptTemplate.load(ManagedAgent.MEMORY_CONSOLIDATION).placeholders)
@@ -46,6 +47,7 @@ class UserPromptTemplateTest {
             .contains("[5, 6]")
             .contains("`bundle.pdf`")
             .contains("`sesn_123`")
+            .contains("Full read: yes")
             .doesNotContainPattern("""\{[A-Z_]+}""")
     }
 

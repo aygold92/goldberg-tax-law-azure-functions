@@ -58,8 +58,8 @@ At statement level only `fields` and `notes` apply.
 ### Required vs optional
 - **(R)** fields should exist. One can legitimately be missing (bank quirks, redactions, misprinted pages), but that's unusual and goes in `errors` as `txn_missing_fields` or `summary_missing_fields`.
 - **(O)** fields appear on some statements and not others. Absent → omit the key. If your notes say the field should be here and you don't find it, decide which it is: 
-  - a variant this bank prints differently: put in your notes, not the output
-  - redacted or you suspect the page is absent: say so in a `agent.message` event **before your final one**. It goes in neither the output nor your notes.
+  - a variant this bank prints differently: record its label in your session file, not the output
+  - redacted or you suspect the page is absent: say so in a `agent.message` event. It goes in neither the output nor your notes.
   - an unreadable field: goes under `fields` in `review_required`. 
 
 ## Normal case

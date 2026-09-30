@@ -10,15 +10,15 @@ class MemoryStoreListingTest {
 
     @Test
     fun `files are grouped into a folder per bank id, sorted`() {
-        val listing = listing("/wells_fargo/main.md", "/chase_cc/sesn_2.md", "/chase_cc/main.md", "/chase_cc/sesn_1.md")
+        val listing = listing("/wells_fargo/main.json", "/chase_cc/sesn_2.json", "/chase_cc/main.json", "/chase_cc/sesn_1.json")
 
         assertThat(listing.folders.map { it.bankId }).containsExactly("chase_cc", "wells_fargo")
-        assertThat(listing.folder("chase_cc")!!.files.map { it.name }).containsExactly("main.md", "sesn_1.md", "sesn_2.md")
+        assertThat(listing.folder("chase_cc")!!.files.map { it.name }).containsExactly("main.json", "sesn_1.json", "sesn_2.json")
     }
 
     @Test
     fun `a folder reports its main file and how many session files wait to be consolidated`() {
-        val listing = listing("/chase_cc/main.md", "/chase_cc/sesn_1.md", "/chase_cc/sesn_2.md", "/new_bank/sesn_3.md")
+        val listing = listing("/chase_cc/main.json", "/chase_cc/sesn_1.json", "/chase_cc/sesn_2.json", "/new_bank/sesn_3.json")
 
         val chase = listing.folder("chase_cc")!!
         assertThat(chase.hasMain).isTrue()
@@ -29,18 +29,18 @@ class MemoryStoreListingTest {
     }
 
     @Test
-    fun `only sesn_ markdown files directly in the folder count as session files`() {
-        val folder = listing("/chase_cc/notes.md", "/chase_cc/sesn_1.txt", "/chase_cc/old/sesn_2.md").folder("chase_cc")!!
+    fun `only sesn_ json files directly in the folder count as session files`() {
+        val folder = listing("/chase_cc/notes.json", "/chase_cc/sesn_1.md", "/chase_cc/old/sesn_2.json").folder("chase_cc")!!
 
         assertThat(folder.sessionFileCount).isZero()
-        assertThat(folder.files.map { it.name }).containsExactly("notes.md", "old/sesn_2.md", "sesn_1.txt")
+        assertThat(folder.files.map { it.name }).containsExactly("notes.json", "old/sesn_2.json", "sesn_1.md")
     }
 
     @Test
     fun `files at the store root are listed apart from the bank folders`() {
-        val listing = listing("/truist.md", "/chase_cc/main.md")
+        val listing = listing("/truist.json", "/chase_cc/main.json")
 
-        assertThat(listing.looseFiles.map { it.name }).containsExactly("truist.md")
+        assertThat(listing.looseFiles.map { it.name }).containsExactly("truist.json")
         assertThat(listing.folders.map { it.bankId }).containsExactly("chase_cc")
     }
 
